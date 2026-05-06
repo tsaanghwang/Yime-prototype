@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class CandidateBoxActions:
     """Event and command handlers for CandidateBox."""
 
-    _HELP_DOC_PATH = Path(__file__).resolve().parents[3] / "docs" / "USER_HELP.md"
+    _HELP_DOC_PATH = Path(__file__).resolve().parents[3] / "docs" / "help" / "README.md"
 
     _FOREGROUND_COLOR_OPTIONS = (
         ("默认前景", "#111827"),
