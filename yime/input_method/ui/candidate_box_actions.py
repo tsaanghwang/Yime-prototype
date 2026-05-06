@@ -266,6 +266,7 @@ class CandidateBoxActions:
             menu.add_cascade(label="设置", menu=self._get_settings_menu())
             menu.add_cascade(label="工具", menu=self._get_tools_menu())
             menu.add_command(label="帮助", command=self.show_help)
+            menu.add_command(label="诊断", command=self.show_diagnostics)
             menu.add_command(label="关于", command=self.show_about)
             self._toolbar_menu = menu
         return self._toolbar_menu
@@ -698,15 +699,31 @@ class CandidateBoxActions:
     def show_help(self) -> None:
         callback = getattr(self.box, "hotkey_summary_callback", None)
         summary = callback() if callable(callback) else None
-        readiness_callback = getattr(self.box, "runtime_readiness_summary_callback", None)
-        readiness_summary = readiness_callback() if callable(readiness_callback) else None
         message = self._load_help_document_text()
-        if readiness_summary:
-            message = f"{message}\n\n{readiness_summary}"
         if summary:
             message = f"{message}\n\n{summary}"
         self._emit_feedback(
             "帮助",
+            message,
+            dialog=True,
+        )
+
+    def show_diagnostics(self) -> None:
+        readiness_callback = getattr(self.box, "runtime_readiness_summary_callback", None)
+        readiness_summary = readiness_callback() if callable(readiness_callback) else None
+        hotkey_callback = getattr(self.box, "hotkey_summary_callback", None)
+        hotkey_summary = hotkey_callback() if callable(hotkey_callback) else None
+
+        sections: list[str] = []
+        if readiness_summary:
+            sections.append(readiness_summary)
+        if hotkey_summary:
+            sections.append(hotkey_summary)
+        message = "\n\n".join(section for section in sections if section).strip()
+        if not message:
+            message = "当前未提供运行诊断信息。"
+        self._emit_feedback(
+            "诊断",
             message,
             dialog=True,
         )
