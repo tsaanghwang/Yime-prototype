@@ -366,7 +366,11 @@ class InputMethodApp(BaseInputMethodApp):
             self._hotkey_mode = "disabled"
             self._emit_feedback(
                 "输入模式",
-                "实验性全局监听模式已就绪：直接监听外部键盘输入；不启用热键会话。"
+                self._build_runtime_readiness_summary(
+                    mode_summary="当前模式：实验性全局监听模式",
+                    wake_text="直接监听外部键盘输入",
+                    standby_text="当前模式不使用热键会话",
+                ),
             )
             return
 
@@ -382,29 +386,22 @@ class InputMethodApp(BaseInputMethodApp):
                     "[YIME V1] 当前热键与已知快捷键冲突，"
                     "可能导致焦点误跳转或与码元输入冲突。建议改用 --hotkey <ctrl>+<alt>+<insert>。"
                 )
-            if wake_triggers == default_triggers and standby_triggers == default_triggers:
-                self._emit_feedback(
-                    "输入模式",
-                    f"V1 热键模式已就绪：按 {self._format_hotkey_label()} 唤起输入框；再次按下可回待命。"
-                )
-            else:
-                self._emit_feedback(
-                    "输入模式",
-                    "V1 已就绪："
-                    f"唤起可通过{self._wake_trigger_hint()}；"
-                    f"休眠可通过{self._standby_trigger_hint()}。"
-                )
+            mode_summary = "当前模式：热键模式"
         else:
             self._hotkey_mode = "click-only"
             if wake_triggers == frozenset({"mouse"}) and standby_triggers == frozenset({"mouse"}):
-                self._emit_feedback("输入模式", "V1 点击待命图标可进入输入；热键不可用。")
+                mode_summary = "当前模式：点击唤起模式（热键不可用）"
             else:
-                self._emit_feedback(
-                    "输入模式",
-                    "V1 已就绪："
-                    f"唤起可通过{self._wake_trigger_hint()}；"
-                    f"休眠可通过{self._standby_trigger_hint()}。"
-                )
+                mode_summary = "当前模式：受限模式（热键当前未启用）"
+
+        self._emit_feedback(
+            "输入模式",
+            self._build_runtime_readiness_summary(
+                mode_summary=mode_summary,
+                wake_text=self._wake_trigger_hint(),
+                standby_text=self._standby_trigger_hint(),
+            ),
+        )
 
     def _trigger_mode_to_label(self, triggers: frozenset[str]) -> str:
         normalized = frozenset(triggers)

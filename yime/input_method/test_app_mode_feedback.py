@@ -1,4 +1,5 @@
 from yime.input_method.app import InputMethodApp
+from yime.input_method.app_base import BaseInputMethodApp
 from yime.input_method.app_global import GlobalListenerApp
 
 
@@ -27,6 +28,8 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode() -> None:
     app._setup_hotkey = lambda: setup_calls.append("setup")
     app._resume_global_capture = lambda: resume_calls.append("resume")
     app._format_hotkey_label = lambda: "ctrl+alt+insert"
+    app.runtime_decoder_source = "json"
+    app.runtime_decoder_warning = ""
     app._is_global_listener_mode = InputMethodApp._is_global_listener_mode.__get__(app, InputMethodApp)
     app._emit_feedback = lambda title, message, level="info", dialog=False: (
         feedback_calls.append((title, message, level, dialog)),
@@ -39,17 +42,42 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode() -> None:
     assert post_commit_behaviors == ["keep-input"]
     assert resume_calls == []
     assert app._hotkey_mode == "hotkey"
-    assert feedback_calls == [
-        (
-            "输入模式",
-            "V1 热键模式已就绪：按 ctrl+alt+insert 唤起输入框；再次按下可回待命。",
-            "info",
-            False,
-        )
-    ]
+    assert feedback_calls == [(
+        "输入模式",
+        "当前模式：热键模式\n"
+        "唤起方式：按 ctrl+alt+insert 或 点击右下角的'音'图标\n"
+        "休眠方式：再次按 ctrl+alt+insert 或 右键候选框\n"
+        "候选来源：运行时 JSON 导出文件",
+        "info",
+        False,
+    )]
     assert app.candidate_box.statuses == [
-        "V1 热键模式已就绪：按 ctrl+alt+insert 唤起输入框；再次按下可回待命。"
+        "当前模式：热键模式\n"
+        "唤起方式：按 ctrl+alt+insert 或 点击右下角的'音'图标\n"
+        "休眠方式：再次按 ctrl+alt+insert 或 右键候选框\n"
+        "候选来源：运行时 JSON 导出文件"
     ]
+
+
+def test_build_runtime_readiness_summary_includes_candidate_source_and_warning() -> None:
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.runtime_decoder_source = "sqlite"
+    app.runtime_decoder_warning = "运行时编码表未启用"
+
+    summary = BaseInputMethodApp._build_runtime_readiness_summary(
+        app,
+        mode_summary="当前模式：受限模式（热键当前未启用）",
+        wake_text="点击右下角的'音'图标",
+        standby_text="右键候选框",
+    )
+
+    assert summary == (
+        "当前模式：受限模式（热键当前未启用）\n"
+        "唤起方式：点击右下角的'音'图标\n"
+        "休眠方式：右键候选框\n"
+        "候选来源：SQLite runtime_candidates 回退\n"
+        "运行时提示：运行时编码表未启用"
+    )
 
 
 def test_return_hotkey_session_to_standby_uses_unified_feedback() -> None:

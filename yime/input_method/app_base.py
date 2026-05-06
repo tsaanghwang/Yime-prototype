@@ -600,6 +600,34 @@ class BaseInputMethodApp:
             f"休眠方式：{standby_text}"
         )
 
+    def _describe_runtime_candidate_source(self) -> str:
+        source = str(getattr(self, "runtime_decoder_source", "unknown") or "unknown").lower()
+        if source == "json":
+            return "运行时 JSON 导出文件"
+        if source == "sqlite":
+            return "SQLite runtime_candidates 回退"
+        if source == "static":
+            return "静态候选表兜底"
+        return "当前未识别候选来源"
+
+    def _build_runtime_readiness_summary(
+        self,
+        *,
+        mode_summary: str,
+        wake_text: Optional[str] = None,
+        standby_text: Optional[str] = None,
+    ) -> str:
+        lines = [mode_summary]
+        if wake_text:
+            lines.append(f"唤起方式：{wake_text}")
+        if standby_text:
+            lines.append(f"休眠方式：{standby_text}")
+        lines.append(f"候选来源：{self._describe_runtime_candidate_source()}")
+        warning = str(getattr(self, "runtime_decoder_warning", "") or "").strip()
+        if warning:
+            lines.append(f"运行时提示：{warning}")
+        return "\n".join(lines)
+
     def _format_input_outline(self, text: str) -> str:
         return build_input_sound_notes(text, self.input_visual_map)
 
