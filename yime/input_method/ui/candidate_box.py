@@ -94,6 +94,7 @@ class CandidateBox(CandidateRendererMixin):
         on_background_color_change: Optional[ColorSettingChangeCallback] = None,
         on_active_topmost_change: Optional[BoolSettingChangeCallback] = None,
         on_reload_user_lexicon: Optional[VoidCallback] = None,
+        on_edit_user_lexicon: Optional[VoidCallback] = None,
         on_open_user_data_dir: Optional[VoidCallback] = None,
         on_hotkey_summary_request: Optional[HotkeySummaryRequestCallback] = None,
         on_hotkey_label_request: Optional[HotkeyLabelRequestCallback] = None,
@@ -156,6 +157,7 @@ class CandidateBox(CandidateRendererMixin):
         self._on_background_color_change = on_background_color_change
         self._on_active_topmost_change = on_active_topmost_change
         self._on_reload_user_lexicon = on_reload_user_lexicon
+        self._on_edit_user_lexicon = on_edit_user_lexicon
         self._on_open_user_data_dir = on_open_user_data_dir
         self._on_hotkey_summary_request = on_hotkey_summary_request
         self._on_hotkey_label_request = on_hotkey_label_request
@@ -373,6 +375,12 @@ class CandidateBox(CandidateRendererMixin):
     def reload_user_lexicon_callback(self) -> bool:
         if self._on_reload_user_lexicon:
             self._on_reload_user_lexicon()
+            return True
+        return False
+
+    def edit_user_lexicon_callback(self) -> bool:
+        if self._on_edit_user_lexicon:
+            self._on_edit_user_lexicon()
             return True
         return False
 

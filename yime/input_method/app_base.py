@@ -453,18 +453,46 @@ class BaseInputMethodApp:
 
     def _reload_user_lexicon_from_menu(self) -> None:
         self._reload_user_lexicon_runtime()
-        self._emit_feedback("词库工具", "已重载运行时词库。")
+        self._emit_feedback("用户词库", "已重载用户词库。")
 
-    def _open_user_data_dir(self) -> None:
-        self.user_data_dir.mkdir(parents=True, exist_ok=True)
-        path_text = str(self.user_data_dir)
+    def _open_path_in_shell(self, path_text: str) -> None:
         if hasattr(os, "startfile"):
             os.startfile(path_text)  # type: ignore[attr-defined]
         elif sys.platform == "darwin":
             subprocess.Popen(["open", path_text])
         else:
             subprocess.Popen(["xdg-open", path_text])
-        self._emit_feedback("词库工具", f"已打开用户数据目录：{path_text}")
+
+    def _edit_user_lexicon_from_menu(self) -> None:
+        self.user_data_dir.mkdir(parents=True, exist_ok=True)
+        db_path = self.user_db_path
+        if db_path.exists():
+            try:
+                self._open_path_in_shell(str(db_path))
+                self._emit_feedback("用户词库", f"已打开用户词库文件：{db_path}")
+                return
+            except Exception:
+                pass
+
+        self._open_path_in_shell(str(self.user_data_dir))
+        if db_path.exists():
+            self._emit_feedback(
+                "用户词库",
+                f"当前未能直接打开用户词库文件，已打开用户数据目录：{self.user_data_dir}",
+            )
+            return
+        self._emit_feedback(
+            "用户词库",
+            f"用户词库文件尚未创建，已打开用户数据目录：{self.user_data_dir}",
+        )
+
+    def _open_user_data_dir(self) -> None:
+        self.user_data_dir.mkdir(parents=True, exist_ok=True)
+        self._save_ui_settings()
+        settings_path = self.ui_settings_path
+        path_text = str(settings_path)
+        self._open_path_in_shell(path_text)
+        self._emit_feedback("设置文件", f"已保存当前设置并打开设置文件：{path_text}")
 
     def _build_hotkey_summary(self) -> str:
         hotkey = str(getattr(self, "hotkey", "未配置热键") or "未配置热键")

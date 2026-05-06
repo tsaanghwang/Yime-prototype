@@ -521,6 +521,7 @@ class InputMethodApp(BaseInputMethodApp):
             on_background_color_change=self._on_background_color_change,
             on_active_topmost_change=self._on_active_topmost_change,
             on_reload_user_lexicon=self._reload_user_lexicon_from_menu,
+            on_edit_user_lexicon=self._edit_user_lexicon_from_menu,
             on_open_user_data_dir=self._open_user_data_dir,
             on_hotkey_summary_request=self._build_hotkey_summary,
             on_hotkey_label_request=self._format_hotkey_label,

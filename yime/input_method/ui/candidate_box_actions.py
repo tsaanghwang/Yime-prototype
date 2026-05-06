@@ -57,6 +57,8 @@ class CandidateBoxActions:
         self._foreground_color_menu: Optional[tk.Menu] = None
         self._background_color_menu: Optional[tk.Menu] = None
         self._tools_menu: Optional[tk.Menu] = None
+        self._user_lexicon_menu: Optional[tk.Menu] = None
+        self._user_lexicon_edit_reload_menu: Optional[tk.Menu] = None
 
     def _emit_feedback(self, title: str, message: str) -> None:
         feedback_callback = getattr(self.box, "feedback_callback", None)
@@ -253,6 +255,7 @@ class CandidateBoxActions:
             menu.add_cascade(label="候选列表", menu=self._get_candidate_list_menu())
             menu.add_cascade(label="交互", menu=self._get_interaction_menu())
             menu.add_cascade(label="外观", menu=self._get_appearance_menu())
+            menu.add_command(label="打开设置文件并保存当前设置", command=self.open_user_data_dir)
             self._settings_menu = menu
         return self._settings_menu
 
@@ -441,10 +444,27 @@ class CandidateBoxActions:
     def _get_tools_menu(self) -> tk.Menu:
         if self._tools_menu is None:
             menu = tk.Menu(self.box.root, tearoff=False)
-            menu.add_command(label="重载词库", command=self.reload_user_lexicon)
-            menu.add_command(label="打开用户数据目录", command=self.open_user_data_dir)
+            menu.add_cascade(label="用户词库", menu=self._get_user_lexicon_menu())
             self._tools_menu = menu
         return self._tools_menu
+
+    def _get_user_lexicon_menu(self) -> tk.Menu:
+        if self._user_lexicon_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(label="加入当前词条", command=self.add_current_input_to_user_lexicon)
+            menu.add_command(label="删除当前词条", command=self.delete_current_input_from_user_lexicon)
+            menu.add_separator()
+            menu.add_cascade(label="编辑与重载", menu=self._get_user_lexicon_edit_reload_menu())
+            self._user_lexicon_menu = menu
+        return self._user_lexicon_menu
+
+    def _get_user_lexicon_edit_reload_menu(self) -> tk.Menu:
+        if self._user_lexicon_edit_reload_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(label="编辑用户词库", command=self.edit_user_lexicon)
+            menu.add_command(label="重载用户词库", command=self.reload_user_lexicon)
+            self._user_lexicon_edit_reload_menu = menu
+        return self._user_lexicon_edit_reload_menu
 
     def set_candidate_page_size(self, page_size: int) -> None:
         callback = getattr(self.box, "candidate_page_size_change_callback", None)
@@ -553,13 +573,19 @@ class CandidateBoxActions:
         callback = getattr(self.box, "reload_user_lexicon_callback", None)
         if callable(callback) and callback():
             return
-        self._emit_feedback("词库工具", "当前未配置词库重载入口。")
+        self._emit_feedback("用户词库", "当前未配置用户词库重载入口。")
+
+    def edit_user_lexicon(self) -> None:
+        callback = getattr(self.box, "edit_user_lexicon_callback", None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback("用户词库", "当前未配置用户词库编辑入口。")
 
     def open_user_data_dir(self) -> None:
         callback = getattr(self.box, "open_user_data_dir_callback", None)
         if callable(callback) and callback():
             return
-        self._emit_feedback("词库工具", "当前未配置用户数据目录入口。")
+        self._emit_feedback("设置文件", "当前未配置设置文件入口。")
 
     def show_hotkey_info(self) -> None:
         callback = getattr(self.box, "hotkey_summary_callback", None)
