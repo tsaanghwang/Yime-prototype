@@ -368,9 +368,9 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
         "当前热键：Ctrl+Alt+Insert",
     )
     assert feedback_calls[1][0] == "帮助"
-    assert "普通用户完整帮助" in feedback_calls[1][1]
-    assert "启动方式" in feedback_calls[1][1]
-    assert "用户词库推荐流程" in feedback_calls[1][1]
+    assert "普通用户帮助" in feedback_calls[1][1]
+    assert "推荐阅读顺序" in feedback_calls[1][1]
+    assert "菜单与用户词库" in feedback_calls[1][1]
     assert feedback_calls[1][1].endswith("当前热键：Ctrl+Shift+Y")
     assert feedback_calls[2] == (
         "关于",
