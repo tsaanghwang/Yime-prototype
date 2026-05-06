@@ -32,6 +32,7 @@ VoidCallback = Callable[[], None]
 FeedbackCallback = Callable[[str, str], None]
 HotkeySummaryRequestCallback = Callable[[], str]
 RuntimeReadinessSummaryRequestCallback = Callable[[], str]
+RuntimeDataGuidanceRequestCallback = Callable[[], str]
 HotkeyLabelRequestCallback = Callable[[], str]
 HotkeyChangeCallback = Callable[[str], bool]
 
@@ -102,6 +103,7 @@ class CandidateBox(CandidateRendererMixin):
         on_open_user_data_dir: Optional[VoidCallback] = None,
         on_hotkey_summary_request: Optional[HotkeySummaryRequestCallback] = None,
         on_runtime_readiness_summary_request: Optional[RuntimeReadinessSummaryRequestCallback] = None,
+        on_runtime_data_guidance_request: Optional[RuntimeDataGuidanceRequestCallback] = None,
         on_hotkey_label_request: Optional[HotkeyLabelRequestCallback] = None,
         on_hotkey_change: Optional[HotkeyChangeCallback] = None,
         on_add_input_to_user_lexicon: Optional[AddInputToUserLexiconCallback] = None,
@@ -169,6 +171,7 @@ class CandidateBox(CandidateRendererMixin):
         self._on_open_user_data_dir = on_open_user_data_dir
         self._on_hotkey_summary_request = on_hotkey_summary_request
         self._on_runtime_readiness_summary_request = on_runtime_readiness_summary_request
+        self._on_runtime_data_guidance_request = on_runtime_data_guidance_request
         self._on_hotkey_label_request = on_hotkey_label_request
         self._on_hotkey_change = on_hotkey_change
         self._on_add_input_to_user_lexicon = on_add_input_to_user_lexicon
@@ -425,6 +428,11 @@ class CandidateBox(CandidateRendererMixin):
     def runtime_readiness_summary_callback(self) -> Optional[str]:
         if self._on_runtime_readiness_summary_request:
             return self._on_runtime_readiness_summary_request()
+        return None
+
+    def runtime_data_guidance_callback(self) -> Optional[str]:
+        if self._on_runtime_data_guidance_request:
+            return self._on_runtime_data_guidance_request()
         return None
 
     def hotkey_label_callback(self) -> Optional[str]:

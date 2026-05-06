@@ -249,6 +249,7 @@ class BaseInputMethodApp:
             on_open_user_data_dir=self._open_settings_file,
             on_hotkey_summary_request=self._build_hotkey_summary,
             on_runtime_readiness_summary_request=self._build_runtime_readiness_display_summary,
+            on_runtime_data_guidance_request=self._build_runtime_data_guidance,
             on_add_input_to_user_lexicon=self._add_current_input_to_user_lexicon,
             on_delete_input_from_user_lexicon=self._delete_current_input_from_user_lexicon,
             on_feedback=self._emit_feedback,
@@ -695,6 +696,23 @@ class BaseInputMethodApp:
             f"文件存在：{runtime_json_path}（{size_bytes} 字节），但当前未启用",
             "请检查文件内容是否有效，或是否仍是 Git LFS 指针。",
         )
+
+    def _build_runtime_data_guidance(self) -> str:
+        runtime_source = str(getattr(self, "runtime_decoder_source", "unknown") or "unknown").lower()
+        runtime_warning = str(getattr(self, "runtime_decoder_warning", "") or "").strip()
+        runtime_json_path = Path(getattr(self, "runtime_candidates_json_path", "") or "")
+        if runtime_source == "json" and not runtime_warning:
+            return ""
+
+        lines = ["运行时数据指引："]
+        if str(runtime_json_path):
+            lines.append(f"1. 先检查文件：{runtime_json_path}")
+        else:
+            lines.append("1. 先检查运行时 JSON 导出文件路径是否已配置。")
+        lines.append("2. 若文件缺失、为空或明显过旧，可在仓库根目录运行：python -m yime.export_runtime_candidates_json")
+        lines.append("3. 若仍回退到 SQLite，请打开 docs/help/troubleshooting.md 查看“候选词为空或结果不完整”。")
+        lines.append("4. 如果文件存在但仍未启用，优先检查它是否还是 Git LFS 指针文件。")
+        return "\n".join(lines)
 
     def _build_runtime_diagnostic_items(
         self,

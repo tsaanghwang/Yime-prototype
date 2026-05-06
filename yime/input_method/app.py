@@ -525,6 +525,7 @@ class InputMethodApp(BaseInputMethodApp):
             on_open_user_data_dir=self._open_settings_file,
             on_hotkey_summary_request=self._build_hotkey_summary,
             on_runtime_readiness_summary_request=self._build_runtime_readiness_display_summary,
+            on_runtime_data_guidance_request=self._build_runtime_data_guidance,
             on_hotkey_label_request=self._format_hotkey_label,
             on_hotkey_change=self._on_hotkey_change,
             on_add_input_to_user_lexicon=self._add_current_input_to_user_lexicon,
