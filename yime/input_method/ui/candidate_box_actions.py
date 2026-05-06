@@ -278,6 +278,8 @@ class CandidateBoxActions:
             menu.add_command(label="查看诊断", command=self.show_diagnostics)
             menu.add_command(label="重新检查诊断", command=self.recheck_diagnostics)
             menu.add_command(label="复制诊断信息", command=self.copy_diagnostics)
+            menu.add_command(label="查看试用反馈说明", command=self.show_trial_feedback_help)
+            menu.add_command(label="复制试用反馈模板", command=self.copy_trial_feedback_template)
             menu.add_separator()
             menu.add_command(label="打开故障排查", command=self.open_troubleshooting_doc)
             menu.add_command(label="打开运行时数据目录", command=self.open_runtime_data_dir)
@@ -769,6 +771,41 @@ class CandidateBoxActions:
             f"{diagnostic_message}"
         )
 
+    def _build_trial_feedback_template(self) -> str:
+        diagnostic_message = self._build_diagnostics_message()
+        return (
+            "【Yime 试用反馈模板】\n"
+            "请先告诉我下面哪一种最接近：\n"
+            "- 装不上\n"
+            "- 能装但打不开\n"
+            "- 能打开但唤不起候选框\n"
+            "- 候选框能出来但不能上屏\n"
+            "- 第一次能用，重开后失效\n"
+            "- 基本能用，但某个键位或手感很怪\n\n"
+            "再补充 3 件事：\n"
+            "1. 你是在什么程序里试的\n"
+            "2. 你做了什么操作\n"
+            "3. 实际看到了什么现象\n\n"
+            "如果方便，也请把下面这份诊断信息一起发来：\n\n"
+            f"{diagnostic_message}"
+        )
+
+    def _build_trial_feedback_help_message(self) -> str:
+        return (
+            "试用者最短反馈说明\n\n"
+            "如果你只想给我最短反馈，直接告诉我下面哪一种最接近：\n"
+            "- 装不上\n"
+            "- 能装但打不开\n"
+            "- 能打开但唤不起候选框\n"
+            "- 候选框能出来但不能上屏\n"
+            "- 第一次能用，重开后失效\n"
+            "- 基本能用，但某个键位或手感很怪\n\n"
+            "如果愿意再多写一句，补这 3 件事就够了：\n"
+            "1. 你是在什么程序里试的\n"
+            "2. 你做了什么操作\n"
+            "3. 实际看到了什么现象"
+        )
+
     def show_diagnostics(self) -> None:
         self._emit_feedback(
             "诊断",
@@ -793,6 +830,27 @@ class CandidateBoxActions:
         if callable(update):
             update()
         self._emit_feedback("诊断", "已复制诊断信息；可直接粘贴给 GitHub Copilot。")
+
+    def copy_trial_feedback_template(self) -> None:
+        message = self._build_trial_feedback_template()
+        clipboard_clear = getattr(self.box.root, "clipboard_clear", None)
+        clipboard_append = getattr(self.box.root, "clipboard_append", None)
+        if not callable(clipboard_clear) or not callable(clipboard_append):
+            self._emit_feedback("试用反馈", "当前环境不支持复制试用反馈模板。")
+            return
+        clipboard_clear()
+        clipboard_append(message)
+        update = getattr(self.box.root, "update_idletasks", None)
+        if callable(update):
+            update()
+        self._emit_feedback("试用反馈", "已复制试用反馈模板；可直接发给试用者或让对方回填。")
+
+    def show_trial_feedback_help(self) -> None:
+        self._emit_feedback(
+            "试用反馈说明",
+            self._build_trial_feedback_help_message(),
+            dialog=True,
+        )
 
     def show_about(self) -> None:
         self._emit_feedback(
