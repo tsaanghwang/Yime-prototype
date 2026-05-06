@@ -577,8 +577,8 @@ def test_reload_user_lexicon_from_menu_reads_standard_text_file(monkeypatch, tmp
     assert refreshed == ["refreshed"]
     assert info_calls == [
         (
-            "重载用户词库",
-            "已按导入文件重载用户词库：2 条词条，1 条初始频率。\n\n"
+            "应用用户词库",
+            "已应用用户词库：2 条词条，1 条初始频率。\n\n"
             f"读取文件：{app.user_lexicon_import_path}",
         )
     ]

@@ -480,7 +480,7 @@ class CandidateBoxActions:
         if self._user_lexicon_edit_reload_menu is None:
             menu = tk.Menu(self.box.root, tearoff=False)
             menu.add_command(label="编辑用户词库", command=self.edit_user_lexicon)
-            menu.add_command(label="重载用户词库", command=self.reload_user_lexicon)
+            menu.add_command(label="应用用户词库", command=self.reload_user_lexicon)
             self._user_lexicon_edit_reload_menu = menu
         return self._user_lexicon_edit_reload_menu
 
@@ -599,7 +599,7 @@ class CandidateBoxActions:
         callback = getattr(self.box, "reload_user_lexicon_callback", None)
         if callable(callback) and callback():
             return
-        self._emit_feedback("用户词库", "当前未配置用户词库重载入口。")
+        self._emit_feedback("用户词库", "当前未配置用户词库应用入口。")
 
     def edit_user_lexicon(self) -> None:
         callback = getattr(self.box, "edit_user_lexicon_callback", None)

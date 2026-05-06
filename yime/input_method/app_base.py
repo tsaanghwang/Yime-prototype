@@ -480,8 +480,8 @@ class BaseInputMethodApp:
 
     def _reload_user_lexicon_from_menu(self) -> None:
         self._apply_user_lexicon_import_file(
-            title="重载用户词库",
-            success_prefix="已按导入文件重载用户词库",
+            title="应用用户词库",
+            success_prefix="已应用用户词库",
         )
 
     def _get_user_lexicon_exchange_dir(self) -> Path:
