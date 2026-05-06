@@ -325,6 +325,204 @@ class BaseInputMethodApp:
                     pass
         return self._DEFAULT_BACKGROUND_COLOR
 
+    def _is_valid_bool_setting_value(self, value: object) -> bool:
+        if isinstance(value, bool):
+            return True
+        if isinstance(value, (int, float)):
+            return True
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            return normalized in {"1", "true", "yes", "on", "0", "false", "no", "off"}
+        return False
+
+    def _is_valid_hotkey_setting_value(self, value: object) -> bool:
+        if not isinstance(value, str) or not value.strip():
+            return False
+
+        normalized_segments: list[str] = []
+        has_primary_key = False
+        for raw_segment in value.split("+"):
+            token = str(raw_segment or "").strip().lower()
+            if not token:
+                return False
+            if token.startswith("<") and token.endswith(">"):
+                token = token[1:-1].strip().lower()
+            if not token:
+                return False
+            if token not in {"ctrl", "alt", "shift", "cmd"}:
+                has_primary_key = True
+            normalized_segments.append(token)
+
+        return bool(normalized_segments) and has_primary_key
+
+    def _is_valid_trigger_mode_value(self, value: object) -> bool:
+        normalized = str(value or "").strip().lower()
+        return normalized in {"hotkey", "mouse", "both"}
+
+    def _validate_ui_setting_value(self, key: str, value: object) -> Optional[str]:
+        if key == "candidate_page_size":
+            try:
+                normalized = value if isinstance(value, (int, str)) else None
+                if normalized is None:
+                    raise TypeError()
+                parsed = int(normalized)
+            except (TypeError, ValueError):
+                return "候选数量必须是 5 到 9 之间的整数"
+            if 5 <= parsed <= 9:
+                return None
+            return "候选数量必须是 5 到 9 之间的整数"
+
+        if key == "candidate_layout":
+            normalized = str(value or "").strip().lower()
+            if normalized in {"horizontal", "vertical"}:
+                return None
+            return "候选布局必须是 horizontal 或 vertical"
+
+        if key in {"mouse_wake_enabled", "mouse_standby_enabled", "active_topmost_enabled"}:
+            if self._is_valid_bool_setting_value(value):
+                return None
+            return "布尔开关必须是 true/false、on/off、yes/no 或 0/1"
+
+        if key == "ui_scale_percent":
+            try:
+                normalized = value if isinstance(value, (int, str)) else None
+                if normalized is None:
+                    raise TypeError()
+                parsed = int(normalized)
+            except (TypeError, ValueError):
+                return "字体缩放必须是 90 到 120 之间的整数"
+            if 90 <= parsed <= 120:
+                return None
+            return "字体缩放必须是 90 到 120 之间的整数"
+
+        if key == "active_alpha_percent":
+            try:
+                normalized = value if isinstance(value, (int, str)) else None
+                if normalized is None:
+                    raise TypeError()
+                parsed = int(normalized)
+            except (TypeError, ValueError):
+                return "透明度必须是 80 到 100 之间的整数"
+            if 80 <= parsed <= 100:
+                return None
+            return "透明度必须是 80 到 100 之间的整数"
+
+        if key == "foreground_color":
+            if self._normalize_foreground_color(value) == value:
+                return None
+            return "前景颜色必须是 #RRGGBB 格式"
+
+        if key == "background_color":
+            if self._normalize_background_color(value) == value:
+                return None
+            return "背景颜色必须是 #RRGGBB 格式"
+
+        hotkey_normalizer = getattr(self, "_normalize_hotkey_setting", None)
+        if key == "hotkey":
+            if callable(hotkey_normalizer):
+                try:
+                    hotkey_normalizer(value)
+                    return None
+                except ValueError as exc:
+                    return str(exc)
+            if self._is_valid_hotkey_setting_value(value):
+                return None
+            return "热键至少需要包含一个非修饰键"
+
+        trigger_normalizer = getattr(self, "_normalize_trigger_mode", None)
+        if key in {"wake_trigger_mode", "standby_trigger_mode"}:
+            if callable(trigger_normalizer):
+                try:
+                    trigger_normalizer(str(value or ""), option_name=key)
+                    return None
+                except ValueError as exc:
+                    return str(exc)
+            if self._is_valid_trigger_mode_value(value):
+                return None
+            return f"{key} 必须是 hotkey、mouse 或 both，收到: {value!r}"
+
+        return None
+
+    def _inspect_ui_settings_file(self) -> tuple[str, str, Optional[str]]:
+        settings_path = Path(getattr(self, "ui_settings_path", "") or "")
+        if not str(settings_path):
+            return (
+                "警告",
+                "当前未配置设置文件路径",
+                "请检查用户数据目录解析是否正常。",
+            )
+        if not settings_path.exists():
+            return (
+                "提示",
+                f"路径已配置：{settings_path}（尚未落盘）",
+                "可通过“打开设置文件”先生成默认配置。",
+            )
+        if not settings_path.is_file():
+            return (
+                "警告",
+                f"设置路径不是文件：{settings_path}",
+                "请检查设置文件路径是否被目录占用。",
+            )
+
+        try:
+            raw_payload = settings_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            return (
+                "警告",
+                f"设置文件不可读：{settings_path}（{exc}）",
+                "请检查文件权限或同步状态。",
+            )
+
+        try:
+            payload = json.loads(raw_payload)
+        except json.JSONDecodeError as exc:
+            return (
+                "警告",
+                f"设置文件不是有效 JSON：{settings_path}（第 {exc.lineno} 行第 {exc.colno} 列）",
+                "请修正 JSON 语法，或删除该文件后重新生成默认配置。",
+            )
+
+        if not isinstance(payload, dict):
+            return (
+                "警告",
+                f"设置文件根节点不是对象：{settings_path}",
+                "请确保 ui_settings.json 使用 JSON 对象结构。",
+            )
+
+        allowed_keys = {
+            "candidate_page_size",
+            "candidate_layout",
+            "mouse_wake_enabled",
+            "mouse_standby_enabled",
+            "ui_scale_percent",
+            "active_alpha_percent",
+            "foreground_color",
+            "background_color",
+            "active_topmost_enabled",
+            "hotkey",
+            "wake_trigger_mode",
+            "standby_trigger_mode",
+        }
+        issues: list[str] = []
+        unknown_keys = sorted(key for key in payload.keys() if key not in allowed_keys)
+        if unknown_keys:
+            issues.append(f"未知键：{', '.join(unknown_keys)}")
+
+        for key in sorted(key for key in payload.keys() if key in allowed_keys):
+            message = self._validate_ui_setting_value(key, payload[key])
+            if message:
+                issues.append(f"{key}：{message}")
+
+        if issues:
+            detail = f"已定位：{settings_path}；发现 {len(issues)} 处内容问题：{'；'.join(issues)}"
+            return (
+                "警告",
+                detail,
+                "请修正这些字段，或删除该文件后重新生成默认配置。",
+            )
+
+        return ("正常", f"已定位且内容合法：{settings_path}", None)
+
     def _load_ui_settings(self) -> dict[str, object]:
         try:
             raw_payload = self.ui_settings_path.read_text(encoding="utf-8")
@@ -767,20 +965,7 @@ class BaseInputMethodApp:
         )
 
     def _check_ui_settings_file(self) -> tuple[str, str, Optional[str]]:
-        settings_path = Path(getattr(self, "ui_settings_path", "") or "")
-        if not str(settings_path):
-            return (
-                "警告",
-                "当前未配置设置文件路径",
-                "请检查用户数据目录解析是否正常。",
-            )
-        if settings_path.exists() and settings_path.is_file():
-            return ("正常", f"已定位：{settings_path}", None)
-        return (
-            "提示",
-            f"路径已配置：{settings_path}（尚未落盘）",
-            "可通过“打开设置文件”先生成默认配置。",
-        )
+        return self._inspect_ui_settings_file()
 
     def _check_user_lexicon_store(self) -> tuple[str, str, Optional[str]]:
         user_db_path = Path(getattr(self, "user_db_path", "") or "")

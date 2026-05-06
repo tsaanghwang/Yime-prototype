@@ -64,7 +64,7 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode(tmp_path) ->
     assert f"- 运行时 JSON 文件：正常。已加载：{app.runtime_candidates_json_path}" in message
     assert "- 运行时数据新鲜度：正常。运行时 JSON 最近更新于" in message
     assert "- 运行时编码表：正常。已启用运行时编码表" in message
-    assert f"- 设置文件：正常。已定位：{app.ui_settings_path}" in message
+    assert f"- 设置文件：正常。已定位且内容合法：{app.ui_settings_path}" in message
     assert f"- 用户词库状态：正常。已就绪：{app.user_db_path}" in message
     assert f"- 用户词库目录：正常。可用于导入导出：{app.user_lexicon_exchange_dir}" in message
     assert "- 当前运行入口：正常。python run_input_method.py" in message
@@ -110,7 +110,7 @@ def test_build_runtime_readiness_summary_includes_structured_diagnostics_and_adv
     assert f"- 运行时 JSON 文件：警告。未找到文件：{missing_runtime_json} 建议：请重新生成运行时 JSON 导出文件。" in summary
     assert "- 运行时数据新鲜度：警告。当前无法判断运行时 JSON 新鲜度 建议：请先确认运行时 JSON 导出文件已生成。" in summary
     assert "- 运行时编码表：警告。运行时编码表未启用 建议：请检查运行时 JSON 导出文件或重新生成候选数据。" in summary
-    assert f"- 设置文件：正常。已定位：{app.ui_settings_path}" in summary
+    assert f"- 设置文件：正常。已定位且内容合法：{app.ui_settings_path}" in summary
     assert f"- 用户词库状态：正常。已就绪：{app.user_db_path}" in summary
     assert f"- 用户词库目录：警告。路径已被文件占用：{occupied_path} 建议：请删除同名文件或改用可写目录。" in summary
     assert "- 当前运行入口：正常。python -m yime.input_method.app" in summary

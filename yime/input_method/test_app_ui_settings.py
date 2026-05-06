@@ -11,6 +11,35 @@ def test_load_ui_settings_returns_empty_when_file_missing(tmp_path: Path) -> Non
     assert app._load_ui_settings() == {}
 
 
+def test_check_ui_settings_file_flags_invalid_content(tmp_path: Path) -> None:
+    settings_path = tmp_path / "ui_settings.json"
+    settings_path.write_text(
+        json.dumps(
+            {
+                "candidate_page_size": 12,
+                "foreground_color": "blue",
+                "wake_trigger_mode": "keyboard",
+                "unexpected_key": "value",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.ui_settings_path = settings_path
+
+    status, detail, advice = app._check_ui_settings_file()
+
+    assert status == "警告"
+    assert f"已定位：{settings_path}；发现 4 处内容问题：" in detail
+    assert "candidate_page_size：候选数量必须是 5 到 9 之间的整数" in detail
+    assert "foreground_color：前景颜色必须是 #RRGGBB 格式" in detail
+    assert "wake_trigger_mode：wake_trigger_mode 必须是 hotkey、mouse 或 both，收到: 'keyboard'" in detail
+    assert "未知键：unexpected_key" in detail
+    assert advice == "请修正这些字段，或删除该文件后重新生成默认配置。"
+
+
 def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
     page_size_calls: list[int] = []
     layout_calls: list[str] = []
