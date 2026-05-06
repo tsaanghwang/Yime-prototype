@@ -204,12 +204,13 @@ class _FakeBox:
     def runtime_readiness_summary_callback(self) -> str:
         return (
             "当前模式：热键模式\n"
-            "诊断结论：当前未发现警告或提示，共 4 项正常。\n"
+            "诊断结论：当前未发现警告或提示，共 5 项正常。\n"
             "已确认正常：\n"
             "- 唤起方式：正常。按 Ctrl+Shift+Y 或 点击右下角的'音'图标\n"
             "- 休眠方式：正常。再次按 Ctrl+Shift+Y 或 右键候选框\n"
             "- 热键状态：正常。已启用 Ctrl+Shift+Y\n"
-            "- 候选来源：正常。运行时 JSON 导出文件"
+            "- 候选来源：正常。运行时 JSON 导出文件\n"
+            "- 当前版本：正常。git:abc1234"
         )
 
     def runtime_data_guidance_callback(self) -> str:
@@ -432,9 +433,10 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert feedback_calls[3] == ("试用反馈", "已复制试用反馈模板；可直接发给试用者或让对方回填。")
     assert feedback_calls[4][0] == "诊断"
     assert "当前模式：热键模式" in feedback_calls[4][1]
-    assert "诊断结论：当前未发现警告或提示，共 4 项正常。" in feedback_calls[4][1]
+    assert "诊断结论：当前未发现警告或提示，共 5 项正常。" in feedback_calls[4][1]
     assert "已确认正常：" in feedback_calls[4][1]
     assert "- 候选来源：正常。运行时 JSON 导出文件" in feedback_calls[4][1]
+    assert "- 当前版本：正常。git:abc1234" in feedback_calls[4][1]
     assert "运行时数据指引：" in feedback_calls[4][1]
     assert "python -m yime.export_runtime_candidates_json" in feedback_calls[4][1]
     assert feedback_calls[4][1].endswith("当前热键：Ctrl+Shift+Y")
@@ -455,6 +457,7 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert "再补充 3 件事：" in box.root.clipboard_contents[0]
     assert "如果方便，也请把下面这份诊断信息一起发来：" in box.root.clipboard_contents[0]
     assert "当前模式：热键模式" in box.root.clipboard_contents[0]
+    assert "- 当前版本：正常。git:abc1234" in box.root.clipboard_contents[0]
     assert box.root.clipboard_contents[0].endswith("当前热键：Ctrl+Shift+Y")
     assert box.root.updated is True
     assert box.open_troubleshooting_requested is True
