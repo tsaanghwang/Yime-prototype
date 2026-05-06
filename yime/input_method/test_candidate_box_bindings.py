@@ -342,7 +342,7 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     actions._get_toolbar_menu()
 
     command_labels = [label for label, _ in commands]
-    assert command_labels == ["当前唤起热键：Ctrl+Alt+Insert", "修改热键", "加入当前词条", "删除当前词条", "编辑用户词库", "应用用户词库", "导入用户词库", "导出用户词库", "帮助", "查看诊断", "重新检查诊断", "复制诊断信息", "打开故障排查", "打开运行时数据目录", "打开设置文件", "打开帮助", "关于"]
+    assert command_labels == ["当前唤起热键：Ctrl+Alt+Insert", "修改热键", "加入当前词条", "删除当前词条", "编辑用户词库", "应用用户词库", "导入用户词库", "导出用户词库", "帮助", "查看诊断", "重新检查诊断", "复制诊断信息", "查看试用反馈说明", "复制试用反馈模板", "打开故障排查", "打开运行时数据目录", "打开设置文件", "打开帮助", "关于"]
     assert [label for label, _ in cascades] == ["候选列表", "唤起方式", "休眠方式", "交互", "前景颜色", "背景颜色", "字体大小", "主界面透明度", "外观", "设置", "编辑与重载", "导入与导出", "用户词库", "工具", "诊断"]
     assert [label for label, _, _, _ in radio_buttons] == [
         "每页 5 个",
@@ -413,6 +413,8 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     commands[14][1]()
     commands[15][1]()
     commands[16][1]()
+    commands[17][1]()
+    commands[18][1]()
 
     assert feedback_calls[0] == (
         "快捷键",
@@ -435,20 +437,28 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert feedback_calls[3][1] == feedback_calls[2][1]
     assert box.status == "已重新检查诊断。"
     assert feedback_calls[4] == ("诊断", "已复制诊断信息；可直接粘贴给 GitHub Copilot。")
-    assert box.root.clipboard_cleared == 1
+    assert feedback_calls[5][0] == "试用反馈说明"
+    assert "如果你只想给我最短反馈，直接告诉我下面哪一种最接近：" in feedback_calls[5][1]
+    assert "- 能打开但唤不起候选框" in feedback_calls[5][1]
+    assert "如果愿意再多写一句，补这 3 件事就够了：" in feedback_calls[5][1]
+    assert feedback_calls[6] == ("试用反馈", "已复制试用反馈模板；可直接发给试用者或让对方回填。")
+    assert box.root.clipboard_cleared == 2
     assert len(box.root.clipboard_contents) == 1
-    assert box.root.clipboard_contents[0].startswith("【Yime 诊断信息】")
-    assert "请将以下内容完整粘贴给 GitHub Copilot，并补充你的复现步骤：" in box.root.clipboard_contents[0]
+    assert box.root.clipboard_contents[0].startswith("【Yime 试用反馈模板】")
+    assert "请先告诉我下面哪一种最接近：" in box.root.clipboard_contents[0]
+    assert "- 能打开但唤不起候选框" in box.root.clipboard_contents[0]
+    assert "再补充 3 件事：" in box.root.clipboard_contents[0]
+    assert "如果方便，也请把下面这份诊断信息一起发来：" in box.root.clipboard_contents[0]
     assert "当前模式：热键模式" in box.root.clipboard_contents[0]
     assert box.root.clipboard_contents[0].endswith("当前热键：Ctrl+Shift+Y")
     assert box.root.updated is True
     assert box.open_troubleshooting_requested is True
     assert box.open_runtime_data_requested is True
     assert box.open_settings_requested is True
-    assert feedback_calls[5][0] == "帮助"
-    assert "普通用户帮助" in feedback_calls[5][1]
-    assert feedback_calls[5][1].endswith("当前热键：Ctrl+Shift+Y")
-    assert feedback_calls[6] == (
+    assert feedback_calls[7][0] == "帮助"
+    assert "普通用户帮助" in feedback_calls[7][1]
+    assert feedback_calls[7][1].endswith("当前热键：Ctrl+Shift+Y")
+    assert feedback_calls[8] == (
         "关于",
         "音元拼音输入法当前使用轻量候选窗界面。这个菜单入口用于集中承载设置、帮助和后续扩展功能。",
     )
