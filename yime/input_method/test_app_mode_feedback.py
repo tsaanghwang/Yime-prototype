@@ -29,6 +29,7 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode(tmp_path) ->
     app._resume_global_capture = lambda: resume_calls.append("resume")
     app._format_hotkey_label = lambda: "ctrl+alt+insert"
     app.runtime_entry_label = "python run_input_method.py"
+    app.runtime_commit_short_hash = "abc1234"
     app.user_lexicon_exchange_dir = tmp_path / "UserLexicon"
     app.user_db_path = tmp_path / "user_lexicon.db"
     app.user_db_path.write_text("db", encoding="utf-8")
@@ -55,7 +56,7 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode(tmp_path) ->
     assert feedback_calls[0][2:] == ("info", False)
     message = feedback_calls[0][1]
     assert "当前模式：热键模式" in message
-    assert "诊断结论：当前未发现警告或提示，共 11 项正常。" in message
+    assert "诊断结论：当前未发现警告或提示，共 12 项正常。" in message
     assert "给普通用户的结论：当前状态正常，可以直接继续输入。" in message
     assert "已确认正常：" in message
     assert "- 唤起方式：正常。按 ctrl+alt+insert 或 点击右下角的'音'图标" in message
@@ -69,6 +70,7 @@ def test_configure_input_mode_uses_unified_feedback_for_hotkey_mode(tmp_path) ->
     assert f"- 用户词库状态：正常。已就绪：{app.user_db_path}" in message
     assert f"- 用户词库目录：正常。可用于导入导出：{app.user_lexicon_exchange_dir}" in message
     assert "- 当前运行入口：正常。python run_input_method.py" in message
+    assert "- 当前版本：正常。git:abc1234" in message
     assert app.candidate_box.statuses == [message]
 
 
@@ -86,6 +88,7 @@ def test_build_runtime_readiness_summary_includes_structured_diagnostics_and_adv
     app._hotkey_mode = "hotkey"
     app._format_hotkey_label = lambda: "Ctrl+Shift+Y"
     app.runtime_entry_label = "python -m yime.input_method.app"
+    app.runtime_commit_short_hash = "def5678"
     app.ui_settings_path = tmp_path / "ui_settings.json"
     app.ui_settings_path.write_text("{}", encoding="utf-8")
     app.user_db_path = tmp_path / "user_lexicon.db"
@@ -101,7 +104,7 @@ def test_build_runtime_readiness_summary_includes_structured_diagnostics_and_adv
     )
 
     assert "当前模式：受限模式（热键当前未启用）" in summary
-    assert "诊断结论：发现 6 项警告、0 项提示；另有 5 项正常。" in summary
+    assert "诊断结论：发现 6 项警告、0 项提示；另有 6 项正常。" in summary
     assert "给普通用户的结论：当前还能继续用，但有配置或数据问题需要优先处理。" in summary
     assert "需优先处理：" in summary
     assert "已确认正常：" in summary
@@ -116,6 +119,7 @@ def test_build_runtime_readiness_summary_includes_structured_diagnostics_and_adv
     assert f"- 用户词库状态：正常。已就绪：{app.user_db_path}" in summary
     assert f"- 用户词库目录：警告。路径已被文件占用：{occupied_path} 建议：请删除同名文件或改用可写目录。" in summary
     assert "- 当前运行入口：正常。python -m yime.input_method.app" in summary
+    assert "- 当前版本：正常。git:def5678" in summary
 
 
 def test_return_hotkey_session_to_standby_uses_unified_feedback() -> None:

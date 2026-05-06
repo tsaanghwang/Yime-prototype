@@ -108,6 +108,7 @@ class BaseInputMethodApp:
             app_dir / "reports" / "runtime_candidates_by_code_true.json"
         )
         self.runtime_entry_label = self._detect_runtime_entry_label()
+        self.runtime_commit_short_hash = self._detect_runtime_commit_short_hash()
         self._pending_feedbacks: list[tuple[str, str, str, bool]] = []
         self.user_data_dir = resolve_user_data_dir(app_dir)
         self.user_lexicon_exchange_dir = resolve_user_lexicon_exchange_dir()
@@ -843,6 +844,22 @@ class BaseInputMethodApp:
             return f"当前命令：{Path(argv0).name}"
         return "当前未识别运行入口"
 
+    def _detect_runtime_commit_short_hash(self) -> str:
+        repo_root = Path(getattr(self, "repo_root", "") or "")
+        if not str(repo_root):
+            return ""
+        try:
+            completed = subprocess.run(
+                ["git", "-C", str(repo_root), "rev-parse", "--short", "HEAD"],
+                check=True,
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+        except (FileNotFoundError, OSError, subprocess.SubprocessError):
+            return ""
+        return completed.stdout.strip()
+
     def _describe_runtime_candidate_source(self) -> str:
         source = str(getattr(self, "runtime_decoder_source", "unknown") or "unknown").lower()
         if source == "json":
@@ -993,6 +1010,16 @@ class BaseInputMethodApp:
             "建议优先使用 python run_input_method.py 或 python -m yime.input_method.app。",
         )
 
+    def _check_runtime_commit(self) -> tuple[str, str, Optional[str]]:
+        short_hash = str(getattr(self, "runtime_commit_short_hash", "") or "").strip()
+        if short_hash:
+            return ("正常", f"git:{short_hash}", None)
+        return (
+            "提示",
+            "当前未识别 commit 短 hash",
+            "若在 Git 工作区内运行，可用 git rev-parse --short HEAD 自查当前版本。",
+        )
+
     def _build_runtime_data_guidance(self) -> str:
         runtime_source = str(getattr(self, "runtime_decoder_source", "unknown") or "unknown").lower()
         runtime_warning = str(getattr(self, "runtime_decoder_warning", "") or "").strip()
@@ -1106,6 +1133,7 @@ class BaseInputMethodApp:
         items.append(("用户词库状态", *self._check_user_lexicon_store()))
         items.append(("用户词库目录", *self._check_user_lexicon_exchange_dir()))
         items.append(("当前运行入口", *self._check_runtime_entry()))
+        items.append(("当前版本", *self._check_runtime_commit()))
         return items
 
     def _render_runtime_diagnostic_summary(
