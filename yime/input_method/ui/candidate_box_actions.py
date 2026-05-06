@@ -731,10 +731,14 @@ class CandidateBoxActions:
         readiness_summary = readiness_callback() if callable(readiness_callback) else None
         hotkey_callback = getattr(self.box, "hotkey_summary_callback", None)
         hotkey_summary = hotkey_callback() if callable(hotkey_callback) else None
+        guidance_callback = getattr(self.box, "runtime_data_guidance_callback", None)
+        runtime_data_guidance = guidance_callback() if callable(guidance_callback) else None
 
         sections: list[str] = []
         if readiness_summary:
             sections.append(readiness_summary)
+        if runtime_data_guidance:
+            sections.append(runtime_data_guidance)
         if hotkey_summary:
             sections.append(hotkey_summary)
         message = "\n\n".join(section for section in sections if section).strip()

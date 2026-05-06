@@ -199,6 +199,13 @@ class _FakeBox:
             "候选来源：运行时 JSON 导出文件"
         )
 
+    def runtime_data_guidance_callback(self) -> str:
+        return (
+            "运行时数据指引：\n"
+            "1. 先检查文件：C:/dev/Yime/yime/reports/runtime_candidates_by_code_true.json\n"
+            "2. 若文件缺失、为空或明显过旧，可在仓库根目录运行：python -m yime.export_runtime_candidates_json"
+        )
+
     def hotkey_label_callback(self) -> str:
         return self.current_hotkey
 
@@ -403,6 +410,8 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert feedback_calls[2][0] == "诊断"
     assert "当前模式：热键模式" in feedback_calls[2][1]
     assert "候选来源：运行时 JSON 导出文件" in feedback_calls[2][1]
+    assert "运行时数据指引：" in feedback_calls[2][1]
+    assert "python -m yime.export_runtime_candidates_json" in feedback_calls[2][1]
     assert feedback_calls[2][1].endswith("当前热键：Ctrl+Shift+Y")
     assert feedback_calls[3] == ("诊断", "已复制诊断信息；可直接粘贴给 GitHub Copilot。")
     assert box.root.clipboard_cleared == 1
