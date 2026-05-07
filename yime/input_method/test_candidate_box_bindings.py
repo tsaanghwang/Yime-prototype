@@ -351,7 +351,7 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     actions._get_toolbar_menu()
 
     command_labels = [label for label, _, _ in commands]
-    assert command_labels == ["当前唤起热键：Ctrl+Alt+Insert", "修改热键", "添加当前词条", "删除当前词条", "编辑用户词库", "应用用户词库", "导入用户词库", "导出用户词库", "查看帮助", "查看试用反馈说明", "复制试用反馈模板", "查看诊断", "重新检查诊断", "复制诊断信息", "查看试用反馈说明", "复制试用反馈模板", "打开故障排查", "打开运行时数据目录", "打开设置文件", "打开帮助", "关于"]
+    assert command_labels == ["设置反查时显示哪些内容", "当前唤起热键：Ctrl+Alt+Insert", "修改热键", "添加当前词条", "删除当前词条", "编辑用户词库", "应用用户词库", "导入用户词库", "导出用户词库", "查看帮助", "查看试用反馈说明", "复制试用反馈模板", "查看诊断", "重新检查诊断", "复制诊断信息", "查看试用反馈说明", "复制试用反馈模板", "打开故障排查", "打开运行时数据目录", "打开设置文件", "打开帮助", "关于"]
     assert [label for label, _ in cascades] == ["候选列表", "反查信息", "唤起方式", "休眠方式", "交互", "前景颜色", "背景颜色", "字体大小", "主界面透明度", "外观", "设置", "编辑与重载", "导入与导出", "用户词库", "工具", "帮助", "诊断"]
     assert [label for label, _, _, _ in radio_buttons] == [
         "每页 5 个",
@@ -393,7 +393,7 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
         "97%",
     ]
     assert [label for label, _, _ in check_buttons] == ["活动窗始终置顶"]
-    assert separators == [True, True, True, True, True]
+    assert separators == [True, True, True, True, True, True]
 
     actions.show_toolbar_menu()
 
@@ -409,11 +409,10 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     radio_buttons[24][3]()
     radio_buttons[33][3]()
     radio_buttons[34][3]()
-    commands[0][1]()
     commands[1][1]()
+    commands[2][1]()
     box.active_topmost_var.set(False)
     check_buttons[0][2]()
-    commands[2][1]()
     commands[3][1]()
     commands[4][1]()
     commands[5][1]()
@@ -432,6 +431,7 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     commands[18][1]()
     commands[19][1]()
     commands[20][1]()
+    commands[21][1]()
 
     assert feedback_calls[0] == (
         "快捷键",
@@ -503,6 +503,33 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert box.import_requested is True
     assert box.export_requested is True
     assert box.status == "已重新检查诊断。"
+
+
+def test_reverse_lookup_menu_includes_intro_item(monkeypatch) -> None:
+    commands: list[tuple[str, object, str]] = []
+    separators: list[bool] = []
+
+    class _FakeMenu:
+        def __init__(self, root: object, tearoff: bool) -> None:
+            self.root = root
+            self.tearoff = tearoff
+
+        def add_command(self, label: str, command: object, state: str = "normal") -> None:
+            commands.append((label, command, state))
+
+        def add_separator(self) -> None:
+            separators.append(True)
+
+        def add_radiobutton(self, label: str, value: object, variable: object, command: object) -> None:
+            return None
+
+    monkeypatch.setattr("yime.input_method.ui.candidate_box_actions.tk.Menu", _FakeMenu)
+
+    actions = CandidateBoxActions(_FakeBox())
+    actions._get_reverse_lookup_display_menu()
+
+    assert commands == [("设置反查时显示哪些内容", commands[0][1], "disabled")]
+    assert separators == [True]
 
 
 def test_set_reverse_lookup_display_mode_reports_clearer_status() -> None:

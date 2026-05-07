@@ -363,6 +363,12 @@ class CandidateBoxActions:
     def _get_reverse_lookup_display_menu(self) -> tk.Menu:
         if self._reverse_lookup_display_menu is None:
             menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label="设置反查时显示哪些内容",
+                command=lambda: None,
+                state=tk.DISABLED,
+            )
+            menu.add_separator()
             for label, mode in self._REVERSE_LOOKUP_DISPLAY_OPTIONS:
                 menu.add_radiobutton(
                     label=label,
