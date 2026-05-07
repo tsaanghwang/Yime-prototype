@@ -569,6 +569,50 @@ def test_set_reverse_lookup_display_mode_reports_clearer_status() -> None:
     assert box.status == "反查显示已设为仅键位序列：只显示需要敲的键位序列，例如“qj”。"
 
 
+def test_visual_setting_statuses_use_user_facing_labels() -> None:
+    box = _FakeBox()
+
+    actions = CandidateBoxActions(box)
+
+    actions.set_ui_scale(120)
+    assert box.status == "界面字号已设为 120%。"
+
+    actions.set_active_alpha(85)
+    assert box.status == "候选窗透明度已设为 85%。"
+
+    actions.set_foreground_color("#166534")
+    assert box.status == "文字颜色已设为墨绿色。"
+
+    actions.set_background_color("#f0f0f0")
+    assert box.status == "界面底色已设为默认背景。"
+
+    box.active_topmost_var.set(True)
+    actions.toggle_active_topmost()
+    assert box.status == "候选窗将保持在最前。"
+
+    box.active_topmost_var.set(False)
+    actions.toggle_active_topmost()
+    assert box.status == "候选窗已取消置顶，可让其他窗口盖住它。"
+
+
+def test_list_and_trigger_setting_statuses_use_direct_action_guidance() -> None:
+    box = _FakeBox()
+
+    actions = CandidateBoxActions(box)
+
+    actions.set_candidate_page_size(7)
+    assert box.status == "现在每页显示 7 个候选。"
+
+    actions.set_candidate_layout("vertical")
+    assert box.status == "候选现在按竖排显示。"
+
+    actions.set_wake_trigger_mode("mouse")
+    assert box.status == "之后可通过仅鼠标唤起候选窗。"
+
+    actions.set_standby_trigger_mode("both")
+    assert box.status == "之后可通过热键 + 鼠标让候选窗回到待命。"
+
+
 def test_user_lexicon_menu_items_are_disabled_when_hooks_are_missing(monkeypatch) -> None:
     commands: list[tuple[str, object, str]] = []
     cascades: list[tuple[str, object, str]] = []
@@ -808,8 +852,48 @@ def test_commit_output_text_keeps_buffer_status_local() -> None:
     CandidateBoxActions(box).commit_output_text()
 
     assert box.commit_calls == ["安"]
-    assert box.status == "已发送缓冲区内容: 安"
+    assert box.status == "已上屏: 安。可继续输入下一词。"
     assert box.feedback_calls == []
+
+
+def test_select_candidate_updates_status_with_next_step_guidance() -> None:
+    class _BoxWithCandidate(_FakeBox):
+        def __init__(self) -> None:
+            super().__init__()
+            self.current_candidates = ["安"]
+            self.commit_text = ""
+            self.selected: list[str] = []
+            self.cleared_with_focus: list[bool] = []
+
+        def get_candidate(self, index: int) -> object:
+            if index == 0:
+                return "安"
+            return None
+
+        def append_commit_text(self, text: str) -> None:
+            self.commit_text += text
+
+        def get_commit_text(self) -> str:
+            return self.commit_text
+
+        def on_select(self, text: str) -> None:
+            self.selected.append(text)
+
+        def clear_input(self, focus_input: bool = False) -> None:
+            self.cleared_with_focus.append(focus_input)
+
+        def is_manual_input_enabled(self) -> bool:
+            return True
+
+    box = _BoxWithCandidate()
+
+    selected = CandidateBoxActions(box).select_candidate_by_index(0)
+
+    assert selected is True
+    assert box.selected == ["安"]
+    assert box.commit_text == "安"
+    assert box.cleared_with_focus == [True]
+    assert box.status == "已加入待上屏内容: 安。可继续选词，或按空格/回车上屏。"
 
 
 def test_standby_controls_fall_back_to_local_behavior_without_callbacks() -> None:

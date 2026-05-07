@@ -2342,7 +2342,7 @@ def test_candidate_box_actions(result: TestResult):
         assert box.selected == "安"
         assert box.commit_text == "安"
         assert box.committed == ["安"]
-        assert box.status == "已发送缓冲区内容: 安"
+        assert box.status == "已上屏: 安。可继续输入下一词。"
         assert box.focus_value is True
         result.add_pass(test_name)
     except Exception as e:
