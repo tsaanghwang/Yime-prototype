@@ -11,7 +11,7 @@
 - `python tools/manage_user_lexicon.py ...`
 - `python tools/diagnose_candidate_order.py ...`
 
-## 1. 反查拼音和编码
+## 1. 反查拼音、编码和键位序列
 
 ### 在输入法 UI 中
 
@@ -22,11 +22,19 @@ python run_input_method.py
 ```
 
 1. 在输入框中输入或粘贴汉字词语，例如：`日`、`日本`、`今日`
-1. 如果能查到，拼音标签会显示：
+1. 如果能查到，候选框会按当前“反查信息”模式显示结果。默认模式下类似：
 
 ```text
-rì běn / ri4 ben3 | <音元编码>
+标准拼音: rì běn | 音元拼音: <音元编码>
 ```
+
+如果切到“完整”模式，还会额外显示数字标调拼音和键位序列：
+
+```text
+标准拼音: rì běn | 数字标调拼音: ri4 ben3 | 音元拼音: <音元编码> | 键位序列: qjkl
+```
+
+如果你只关心要敲哪几个键，可以在“设置 -> 反查信息”里改成“仅键位序列”。
 
 ### 在终端里
 
@@ -42,12 +50,12 @@ python tools/query_phrase_code.py 日 --like
 - `Runtime`：当前运行时主库
 - `User`：用户词库和用户频率
 
-## 2. 加入用户词库
+## 2. 添加当前词条到用户词库
 
 ### 在输入法 UI 中
 
 1. 在输入框中放入一个汉字词语，例如 `日本`
-1. 右键输入框，选择 `加入用户词库`
+1. 右键输入框，选择 `添加当前词条`
 1. 输入：
    - 数字标调拼音，例如 `ri4 ben3`
    - 标准拼音，例如 `rì běn`，可留空
@@ -56,8 +64,8 @@ python tools/query_phrase_code.py 日 --like
 成功后状态提示类似：
 
 ```text
-已加入用户词库: 日本 | rì běn / ri4 ben3 | <音元编码>
-已更新用户词库: 日本 | rì běn / ri4 ben3 | <音元编码>
+已添加当前词条: 日本 | rì běn / ri4 ben3 | <音元编码>
+已更新当前词条: 日本 | rì běn / ri4 ben3 | <音元编码>
 ```
 
 ### 在终端里
@@ -124,6 +132,6 @@ python tools/diagnose_candidate_order.py --numeric-pinyin "ri4 ben3" --limit 10
 ## 4. 一句话判断
 
 - 查不到：先用 `query_phrase_code.py`
-- 想补词：右键 `加入用户词库` 或用 `add_user_phrase.py`
+- 想补词：右键 `添加当前词条` 或用 `add_user_phrase.py`
 - 想备份/迁移：用 `manage_user_lexicon.py export / import / init-db / list-recent`
 - 想知道为什么排前：先看 `User` 段里的 `freq` 和 `last_used`，再用 `diagnose_candidate_order.py`
