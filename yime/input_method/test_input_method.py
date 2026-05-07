@@ -1111,6 +1111,8 @@ def test_ui_components(result: TestResult):
         assert "第 1/2 页" in vertical_text
         assert int(box.candidate_text.cget("height")) >= 4
         assert box.first_page_button.pack_info().get("side", "top") == "top"
+        assert box.toolbar_menu_button.pack_info().get("side", "top") == "top"
+        assert box.layout_builder.drag_grip.pack_info().get("side", "top") == "top"
 
         box.root.destroy()
         root.destroy()
