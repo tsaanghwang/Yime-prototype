@@ -232,11 +232,13 @@ class CandidateBox(CandidateRendererMixin):
 
         # 从 LayoutBuilder 获取对应的 UI 控件和变量
         self.pager_frame = self.layout_builder.pager_frame
+        self.pager_button_frame = self.layout_builder.pager_frame
         self.first_page_button = self.layout_builder.first_page_button
         self.prev_button = self.layout_builder.prev_button
         self.next_button = self.layout_builder.next_button
         self.last_page_button = self.layout_builder.last_page_button
         self.toolbar_menu_button = self.layout_builder.toolbar_menu_button
+        self.drag_grip = self.layout_builder.drag_grip
         self.standby_frame = self.layout_builder.standby_frame
         self.standby_icon = self.layout_builder.standby_icon
         self.main_frame = self.layout_builder.main_frame

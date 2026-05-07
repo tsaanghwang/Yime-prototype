@@ -60,26 +60,38 @@ class CandidateRendererMixin:
             self.next_page_button,
             self.last_page_button,
         )
+        trailing_controls = (
+            self.toolbar_menu_button,
+            self.drag_grip,
+        )
 
         self.pager_button_frame.pack_forget()
-        for button in buttons:
-            button.pack_forget()
+        for widget in (*buttons, *trailing_controls):
+            widget.pack_forget()
 
         if self._candidate_layout == "vertical":
             self.pager_button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
             for button in buttons:
                 button.pack(fill=tk.X, pady=0)
+            self.toolbar_menu_button.pack(fill=tk.X, pady=(6, 0))
+            self.drag_grip.pack(fill=tk.X, pady=(6, 0))
             return
 
         self.pager_button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
         for button in buttons:
             button.pack(side=tk.LEFT, padx=(0, 2))
+        self.toolbar_menu_button.pack(side=tk.LEFT, padx=(6, 2))
+        self.drag_grip.pack(side=tk.LEFT, fill=tk.Y, padx=(6, 2))
 
     def _sync_candidate_text_layout(self) -> None:
         if self._candidate_layout == "vertical":
             visible_rows = max(1, len(self.current_candidates) + 1)
             self.candidate_text.pack_configure(fill=tk.BOTH, expand=True)
-            self.candidate_text.configure(height=visible_rows, wrap=tk.WORD)
+            self.candidate_text.configure(
+                height=visible_rows,
+                width=self._vertical_candidate_text_width_chars(),
+                wrap=tk.NONE,
+            )
             return
         self.candidate_text.pack_configure(fill=tk.Y, expand=False)
         self.candidate_text.configure(
