@@ -694,7 +694,7 @@ class CandidateBoxActions:
         else:
             self.box.set_page_size(page_size)
             normalized = self.box.page_size_var.get()
-        self._set_local_status(f"候选列表已设为每页 {normalized} 个。")
+        self._set_local_status(f"现在每页显示 {normalized} 个候选。")
 
     def set_candidate_layout(self, layout: str) -> None:
         callback = getattr(self.box, "candidate_layout_change_callback", None)
@@ -704,7 +704,7 @@ class CandidateBoxActions:
             self.box.set_candidate_layout(layout)
             normalized = self.box.candidate_layout_var.get()
         label = "竖排" if normalized == "vertical" else "横排"
-        self._set_local_status(f"候选列表已切换为{label}。")
+        self._set_local_status(f"候选现在按{label}显示。")
 
     def set_reverse_lookup_display_mode(self, mode: str) -> None:
         callback = getattr(self.box, "reverse_lookup_display_mode_change_callback", None)
@@ -727,7 +727,7 @@ class CandidateBoxActions:
             normalized = mode
             self.box.wake_trigger_mode_var.set(mode)
         label = self._trigger_mode_label(normalized)
-        self._set_local_status(f"唤起方式已设为{label}。")
+        self._set_local_status(f"之后可通过{label}唤起候选窗。")
 
     def set_standby_trigger_mode(self, mode: str) -> None:
         callback = getattr(self.box, "standby_trigger_mode_change_callback", None)
@@ -737,7 +737,7 @@ class CandidateBoxActions:
             normalized = mode
             self.box.standby_trigger_mode_var.set(mode)
         label = self._trigger_mode_label(normalized)
-        self._set_local_status(f"休眠方式已设为{label}。")
+        self._set_local_status(f"之后可通过{label}让候选窗回到待命。")
 
     def _trigger_mode_label(self, mode: str) -> str:
         if mode == "hotkey":
@@ -753,7 +753,7 @@ class CandidateBoxActions:
         else:
             self.box.set_ui_scale(scale_percent)
             normalized = int(self.box.ui_scale_var.get())
-        self._set_local_status(f"字体大小已设为 {normalized}% 。")
+        self._set_local_status(f"界面字号已设为 {normalized}%。")
 
     def set_active_alpha(self, alpha_percent: int) -> None:
         callback = getattr(self.box, "active_alpha_change_callback", None)
@@ -762,7 +762,7 @@ class CandidateBoxActions:
         else:
             self.box.set_active_alpha_percent(alpha_percent)
             normalized = int(self.box.active_alpha_var.get())
-        self._set_local_status(f"主界面透明度已设为 {normalized}% 。")
+        self._set_local_status(f"候选窗透明度已设为 {normalized}%。")
 
     def set_foreground_color(self, color: str) -> None:
         callback = getattr(self.box, "foreground_color_change_callback", None)
@@ -771,7 +771,7 @@ class CandidateBoxActions:
         else:
             self.box.set_foreground_color(color)
             normalized = str(self.box.foreground_color_var.get())
-        self._set_local_status(f"前景颜色已设为{self._foreground_color_label(normalized)}。")
+        self._set_local_status(f"文字颜色已设为{self._foreground_color_label(normalized)}。")
 
     def set_background_color(self, color: str) -> None:
         callback = getattr(self.box, "background_color_change_callback", None)
@@ -780,7 +780,7 @@ class CandidateBoxActions:
         else:
             self.box.set_background_color(color)
             normalized = str(self.box.background_color_var.get())
-        self._set_local_status(f"背景颜色已设为{self._background_color_label(normalized)}。")
+        self._set_local_status(f"界面底色已设为{self._background_color_label(normalized)}。")
 
     def toggle_active_topmost(self) -> None:
         enabled = bool(self.box.active_topmost_var.get())
@@ -789,7 +789,9 @@ class CandidateBoxActions:
             enabled = bool(self.box.active_topmost_var.get())
         else:
             self.box.set_active_topmost_enabled(enabled)
-        self._set_local_status(f"活动窗置顶已{'开启' if enabled else '关闭'}。")
+        self._set_local_status(
+            "候选窗将保持在最前。" if enabled else "候选窗已取消置顶，可让其他窗口盖住它。"
+        )
 
     def _foreground_color_label(self, color: str) -> str:
         for label, value in self._FOREGROUND_COLOR_OPTIONS:
@@ -1204,16 +1206,16 @@ class CandidateBoxActions:
     def commit_output_text(self) -> None:
         text = self.box.get_commit_text().strip()
         if not text:
-            self._set_local_status("缓冲区为空。")
+            self._set_local_status("当前没有可上屏的内容；请先选词，或直接输入要上屏的内容。")
             return
         commit_callback = getattr(self.box, "commit_text_callback", None)
         if callable(commit_callback) and commit_callback(text):
-            self._set_local_status(f"已发送缓冲区内容: {text}")
+            self._set_local_status(f"已上屏: {text}。可继续输入下一词。")
             return
         legacy_callback = getattr(self.box, "_on_commit_text_callback", None)
         if callable(legacy_callback):
             legacy_callback(text)
-            self._set_local_status(f"已发送缓冲区内容: {text}")
+            self._set_local_status(f"已上屏: {text}。可继续输入下一词。")
 
     def select_candidate_by_index(self, index: int) -> bool:
         hanzi = self.box.get_candidate(index)
@@ -1223,7 +1225,9 @@ class CandidateBoxActions:
         self.box.append_commit_text(hanzi)
         self.box.on_select(hanzi)
         self.box.clear_input(focus_input=keep_focus)
-        self._set_local_status(f"已加入缓冲区: {self.box.get_commit_text()}")
+        self._set_local_status(
+            f"已加入待上屏内容: {self.box.get_commit_text()}。可继续选词，或按空格/回车上屏。"
+        )
         return True
 
     def copy_candidate(self, index: int) -> None:
