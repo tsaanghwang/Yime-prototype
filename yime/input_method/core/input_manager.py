@@ -8,7 +8,7 @@ import time
 from typing import Callable, Optional, List, Dict, Any
 from dataclasses import dataclass, field
 
-from .decoders import build_code_display
+from .input_visualization import build_code_display
 
 
 @dataclass

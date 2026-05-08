@@ -6,7 +6,7 @@ import os
 from typing import Any, Callable, Optional, cast
 
 from .app_base import BaseInputMethodApp
-from .core.decoders import project_physical_input
+from .core.input_visualization import project_physical_input
 from .core.keyboard_listener import KeyboardListener
 from .core.input_manager import InputManager
 from .ui.candidate_box import CandidateBox
