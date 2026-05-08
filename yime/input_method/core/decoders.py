@@ -12,13 +12,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import unicodedata
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, cast
 
 from .char_code_index import CharCodeCandidate
 from .runtime_decoder_base import (
     RuntimeDecoderBase as _RuntimeDecoderBase,
     build_pinyin_to_canonical_code_map as _build_pinyin_to_canonical_code_map,
-    canonicalize_runtime_input as _canonicalize_runtime_input,
     resolve_canonical_code_from_pinyin_tone as _resolve_canonical_code_from_pinyin_tone,
 )
 from .runtime_json_store import JSONRuntimeCandidateStore
@@ -30,6 +29,10 @@ from .runtime_ranking import annotate_phrase_prefix_candidate as _annotate_phras
 from .sqlite_char_store import SQLiteCharCandidateStore
 from .sqlite_phrase_store import SQLitePhraseCandidateStore
 from .sqlite_runtime_source import SQLiteRuntimeSource
+
+
+JSONDict = dict[str, object]
+RuntimeCandidatePayload = Dict[str, List[JSONDict]]
 
 
 
@@ -57,11 +60,12 @@ class StaticCandidateDecoder:
         self.code_mapping = self._build_code_mapping(repo_root, mapping_path)
         self.pinyin_hanzi = self._load_first_available_json(pinyin_hanzi_paths)
 
-    def _load_json(self, path: Path) -> dict[str, object]:
+    def _load_json(self, path: Path) -> JSONDict:
         with path.open("r", encoding="utf-8") as handle:
-            return json.load(handle)
+            payload = json.load(handle)
+        return cast(JSONDict, payload)
 
-    def _load_first_available_json(self, paths: List[Path]) -> dict[str, object]:
+    def _load_first_available_json(self, paths: List[Path]) -> JSONDict:
         for path in paths:
             if path.exists():
                 return self._load_json(path)
@@ -74,10 +78,15 @@ class StaticCandidateDecoder:
         projection = self._load_json(projection_path)
         key_to_symbol = self._load_json(key_to_symbol_path)
         bmp_to_canonical: Dict[str, str] = {}
+        used_mapping = projection.get("used_mapping")
+        if not isinstance(used_mapping, dict):
+            return bmp_to_canonical
 
-        for symbol_key, slot_info in projection["used_mapping"].items():
-            bmp_char = slot_info["char"]
-            canonical_char = key_to_symbol.get(symbol_key)
+        for symbol_key, slot_info in used_mapping.items():
+            if not isinstance(slot_info, dict):
+                continue
+            bmp_char = str(slot_info.get("char", "") or "")
+            canonical_char = str(key_to_symbol.get(str(symbol_key), "") or "")
             if canonical_char:
                 bmp_to_canonical[bmp_char] = canonical_char
 
@@ -87,15 +96,20 @@ class StaticCandidateDecoder:
         self,
         repo_root: Path,
         mapping_path: Path,
-    ) -> Dict[str, dict[str, object]]:
-        supplemental_mapping = self._load_json(mapping_path)["音元符号"]
+    ) -> Dict[str, JSONDict]:
+        mapping_payload = self._load_json(mapping_path)
+        supplemental_mapping = mapping_payload.get("音元符号")
         supplemental_by_numeric: Dict[str, dict[str, object]] = {}
+        if not isinstance(supplemental_mapping, dict):
+            supplemental_mapping = {}
         for metadata in supplemental_mapping.values():
+            if not isinstance(metadata, dict):
+                continue
             numeric_pinyin = str(metadata.get("数字标调", "")).strip()
             if numeric_pinyin and numeric_pinyin not in supplemental_by_numeric:
-                supplemental_by_numeric[numeric_pinyin] = dict(metadata)
+                supplemental_by_numeric[numeric_pinyin] = cast(JSONDict, dict(metadata))
 
-        code_mapping: Dict[str, dict[str, object]] = {}
+        code_mapping: Dict[str, JSONDict] = {}
         for numeric_pinyin, canonical_code in self.pinyin_to_canonical.items():
             metadata = dict(supplemental_by_numeric.get(numeric_pinyin, {}))
             metadata["数字标调"] = numeric_pinyin
@@ -133,8 +147,11 @@ class StaticCandidateDecoder:
                 status = f"{mode_hint} 当前 4 码未找到拼音映射。"
             return canonical, active_code, "", [], status
 
-        numeric_pinyin = mapping.get("数字标调", "")
-        marked_pinyin = unicodedata.normalize("NFC", mapping.get("调号标调", ""))
+            numeric_pinyin = str(mapping.get("数字标调", "") or "")
+            marked_pinyin = unicodedata.normalize(
+                "NFC",
+                str(mapping.get("调号标调", "") or ""),
+            )
         display_pinyin = marked_pinyin or numeric_pinyin
         candidates = self._lookup_candidates(numeric_pinyin, marked_pinyin)
         if candidates:
@@ -161,7 +178,12 @@ class StaticCandidateDecoder:
         merged: List[str] = []
         seen: set[str] = set()
         for key in candidate_keys:
-            for hanzi in self.pinyin_hanzi.get(key, []):
+            hanzi_values = self.pinyin_hanzi.get(key, [])
+            if not isinstance(hanzi_values, list):
+                continue
+            for hanzi in hanzi_values:
+                if not isinstance(hanzi, str):
+                    continue
                 if hanzi not in seen:
                     seen.add(hanzi)
                     merged.append(hanzi)
@@ -191,7 +213,7 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
 
     def _load_runtime_candidates(
         self, path: Path
-    ) -> Dict[str, List[Dict[str, object]]]:
+    ) -> RuntimeCandidatePayload:
         return self._json_store.load_runtime_candidates(path)
 
     def reload_user_lexicon(self) -> None:
@@ -204,7 +226,7 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
         self.char_code_index = self._json_store.char_code_index
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
 
-    def _load_phrase_prefix_candidates(self, lookup_code: str) -> List[Dict[str, object]]:
+    def _load_phrase_prefix_candidates(self, lookup_code: str) -> List[JSONDict]:
         json_store = getattr(self, "_json_store", None)
         if json_store is not None:
             return json_store.load_phrase_prefix_candidates(lookup_code)
@@ -222,8 +244,8 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
         self,
         canonical: str,
         plan: RuntimeLookupPlan,
-    ) -> tuple[List[Dict[str, object]], str]:
-        raw_candidates: List[Dict[str, object]] = []
+    ) -> tuple[List[JSONDict], str]:
+        raw_candidates: List[JSONDict] = []
         if plan.lookup_code:
             raw_candidates.extend(self.by_code.get(plan.lookup_code, []))
         phrase_tree_lookup = _build_phrase_tree_lookup(canonical, plan)
@@ -270,12 +292,20 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         self,
         canonical: str,
         plan: RuntimeLookupPlan,
-    ) -> tuple[List[Dict[str, object]], str]:
-        raw_candidates: List[Dict[str, object]] = []
+    ) -> tuple[List[JSONDict], str]:
+        raw_candidates: List[JSONDict] = []
         in_memory_by_code = getattr(self, "by_code", None)
         if plan.lookup_code:
             if isinstance(in_memory_by_code, dict) and plan.lookup_code in in_memory_by_code:
-                raw_candidates.extend(in_memory_by_code.get(plan.lookup_code, []))
+                in_memory_candidates = in_memory_by_code.get(plan.lookup_code, [])
+                if isinstance(in_memory_candidates, list):
+                    raw_candidates.extend(
+                        [
+                            candidate
+                            for candidate in in_memory_candidates
+                            if isinstance(candidate, dict)
+                        ]
+                    )
             else:
                 raw_candidates.extend(
                     self._phrase_store.load_runtime_candidates_for_code(
@@ -305,7 +335,7 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         """按编码前缀读取可能的单字候选。"""
         return self._char_store.get_char_candidates_by_prefix(prefix, limit=limit)
 
-    def _load_runtime_candidates(self) -> Dict[str, List[Dict[str, object]]]:
+    def _load_runtime_candidates(self) -> RuntimeCandidatePayload:
         with self._sqlite_runtime_source.connect() as conn:
             rows = conn.execute(
                 """
@@ -323,7 +353,7 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
                 """
             ).fetchall()
 
-        grouped: Dict[str, List[Dict[str, object]]] = {}
+        grouped: RuntimeCandidatePayload = {}
         for row in rows:
             pinyin_tone = str(row["pinyin_tone"] or "").strip()
             canonical_code = _resolve_canonical_code_from_pinyin_tone(
@@ -355,6 +385,7 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         self._char_store.clear_caches()
         self._phrase_store.clear_caches()
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+
 
 class CompositeCandidateDecoder:
     """组合候选词解码器（优先运行时，回退静态）"""
