@@ -14,8 +14,8 @@ from tkinter import messagebox, simpledialog
 from typing import Callable, Mapping, Optional, cast
 
 from ..borrow_wanxiang_frequency import marked_pinyin_to_numeric
-from .core.decoders import (
-    CompositeCandidateDecoder,
+from .core.decoders import CompositeCandidateDecoder
+from .core.input_visualization import (
     build_code_display,
     build_input_sound_notes,
     build_manual_key_output_map,

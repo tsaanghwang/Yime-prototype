@@ -26,6 +26,8 @@ from yime.input_method.core.decoders import (
     SQLiteRuntimeCandidateDecoder,
     CompositeCandidateDecoder,
     RuntimeCandidateRecord,
+)
+from yime.input_method.core.input_visualization import (
     build_input_sound_notes,
     build_input_visual_map,
     build_physical_input_map,
