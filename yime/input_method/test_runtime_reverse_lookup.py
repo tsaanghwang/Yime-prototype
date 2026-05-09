@@ -28,6 +28,18 @@ def test_runtime_reverse_lookup_returns_first_char_record() -> None:
     assert record.yime_code
 
 
+def test_runtime_reverse_lookup_returns_extension_plane_char_record() -> None:
+    lookup = RuntimeReverseLookup(Path(__file__).resolve().parent.parent / "pinyin_hanzi.db")
+
+    record = lookup.lookup_first("𰀡")
+
+    assert record is not None
+    assert record.text == "𰀡"
+    assert record.numeric_pinyin == "qian1"
+    assert record.marked_pinyin == "qiān"
+    assert record.yime_code
+
+
 def test_runtime_reverse_lookup_returns_none_for_missing_phrase() -> None:
     lookup = RuntimeReverseLookup(Path(__file__).resolve().parent.parent / "pinyin_hanzi.db")
 
