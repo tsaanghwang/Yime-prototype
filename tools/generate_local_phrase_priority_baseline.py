@@ -160,7 +160,7 @@ def _build_target_boosts(target_count: int, *, base_boost: float, step: float) -
     return [max(base_boost - step * index, step) for index in range(target_count)]
 
 
-def _iter_continuous_lookup_codes(full_code: str) -> list[str]:
+def _iter_continuous_lookup_codes(full_code: str, *, text_length: int = 0) -> list[str]:
     normalized_code = str(full_code or "").strip()
     if len(normalized_code) < 8:
         return []
@@ -168,14 +168,28 @@ def _iter_continuous_lookup_codes(full_code: str) -> list[str]:
     if syllable_count < 2:
         return []
 
-    deepest_complete_syllables = min(syllable_count - 1, 3)
-    start = deepest_complete_syllables * 4 + 1
-    if deepest_complete_syllables == 1:
-        start = 6
-    end = min(start + 2, len(normalized_code) - 1)
-    if end < start:
-        return []
-    return [normalized_code[:index] for index in range(start, end + 1)]
+    normalized_text_length = max(int(text_length or 0), 0)
+    tier_starts: list[int] = []
+    if normalized_text_length >= 4:
+        tier_starts = [9, 13]
+    elif normalized_text_length >= 3:
+        tier_starts = [6, 9]
+    else:
+        tier_starts = [6]
+
+    max_prefix_length = len(normalized_code) - 1
+    lookup_codes: list[str] = []
+    seen_lengths: set[int] = set()
+    for start in tier_starts:
+        if start > max_prefix_length:
+            continue
+        end = min(start + 1, max_prefix_length)
+        for length in range(start, end + 1):
+            if length in seen_lengths:
+                continue
+            seen_lengths.add(length)
+            lookup_codes.append(normalized_code[:length])
+    return lookup_codes
 
 
 def _build_continuous_rules_payload(
@@ -194,9 +208,10 @@ def _build_continuous_rules_payload(
             text = str(target.get("text") or "").strip()
             full_code = str(target.get("yime_code") or "").strip()
             boost = float(target.get("boost") or 0.0)
+            text_length = max(int(target.get("text_length") or len(text)), 0)
             if not text or not full_code or boost <= 0.0:
                 continue
-            for lookup_code in _iter_continuous_lookup_codes(full_code):
+            for lookup_code in _iter_continuous_lookup_codes(full_code, text_length=text_length):
                 target_boosts = rule_map.setdefault(lookup_code, {})
                 target_boosts[text] = max(target_boosts.get(text, 0.0), boost)
 
@@ -276,6 +291,7 @@ def build_payloads(
                 {
                     "text": prefix_phrases[index]["phrase"],
                     "yime_code": prefix_phrases[index]["yime_code"],
+                    "text_length": len(str(prefix_phrases[index]["phrase"])),
                     "boost": boosts[index],
                 }
                 for index in range(target_count)

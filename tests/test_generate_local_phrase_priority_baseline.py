@@ -88,16 +88,23 @@ def test_build_sample_bucket_entry_keeps_collision_metadata_and_targets() -> Non
 
 
 def test_iter_continuous_lookup_codes_expands_to_all_prefixes_after_first_syllable() -> None:
-    assert _iter_continuous_lookup_codes("abcdxywv") == [
+    assert _iter_continuous_lookup_codes("abcdxywv", text_length=2) == [
         "abcdxy",
         "abcdxyw",
     ]
-    assert _iter_continuous_lookup_codes("abcdefghijkl") == [
+    assert _iter_continuous_lookup_codes("abcdefghijkl", text_length=3) == [
+        "abcdef",
+        "abcdefg",
         "abcdefghi",
         "abcdefghij",
-        "abcdefghijk",
     ]
-    assert _iter_continuous_lookup_codes("abcd") == []
+    assert _iter_continuous_lookup_codes("abcdefghijklmnop", text_length=4) == [
+        "abcdefghi",
+        "abcdefghij",
+        "abcdefghijklm",
+        "abcdefghijklmn",
+    ]
+    assert _iter_continuous_lookup_codes("abcd", text_length=1) == []
 
 
 def test_build_continuous_rules_payload_expands_target_phrase_codes() -> None:
@@ -105,8 +112,9 @@ def test_build_continuous_rules_payload_expands_target_phrase_codes() -> None:
         [
             {
                 "targets": [
-                    {"text": "你好啊", "yime_code": "abcdxywv", "boost": 500000.0},
-                    {"text": "你好吗", "yime_code": "abcdefghijkl", "boost": 400000.0},
+                    {"text": "你好", "yime_code": "abcdxywv", "text_length": 2, "boost": 500000.0},
+                    {"text": "你好吗", "yime_code": "abcdefghijkl", "text_length": 3, "boost": 400000.0},
+                    {"text": "牛肉面馆", "yime_code": "abcdefghijklmnop", "text_length": 4, "boost": 300000.0},
                 ]
             }
         ],
@@ -117,33 +125,53 @@ def test_build_continuous_rules_payload_expands_target_phrase_codes() -> None:
     assert payload["source"] == "test-source"
     assert payload["rules"] == [
         {
+            "lookup_code": "abcdef",
+            "targets": [
+                {"text": "你好吗", "boost": 400000.0},
+            ],
+        },
+        {
+            "lookup_code": "abcdefg",
+            "targets": [
+                {"text": "你好吗", "boost": 400000.0},
+            ],
+        },
+        {
             "lookup_code": "abcdefghi",
             "targets": [
                 {"text": "你好吗", "boost": 400000.0},
+                {"text": "牛肉面馆", "boost": 300000.0},
             ],
         },
         {
             "lookup_code": "abcdefghij",
             "targets": [
                 {"text": "你好吗", "boost": 400000.0},
+                {"text": "牛肉面馆", "boost": 300000.0},
             ],
         },
         {
-            "lookup_code": "abcdefghijk",
+            "lookup_code": "abcdefghijklm",
             "targets": [
-                {"text": "你好吗", "boost": 400000.0},
+                {"text": "牛肉面馆", "boost": 300000.0},
+            ],
+        },
+        {
+            "lookup_code": "abcdefghijklmn",
+            "targets": [
+                {"text": "牛肉面馆", "boost": 300000.0},
             ],
         },
         {
             "lookup_code": "abcdxy",
             "targets": [
-                {"text": "你好啊", "boost": 500000.0},
+                {"text": "你好", "boost": 500000.0},
             ],
         },
         {
             "lookup_code": "abcdxyw",
             "targets": [
-                {"text": "你好啊", "boost": 500000.0},
+                {"text": "你好", "boost": 500000.0},
             ],
         },
     ]
