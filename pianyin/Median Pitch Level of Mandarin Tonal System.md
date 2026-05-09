@@ -99,11 +99,11 @@ plot_tone_contours <- function(data) {
 The median F0 values for each Mandarin tone, as derived from the analyzed dataset, are summarized below:
 
 | Tone | Median F0 (Hz) | `Interquartile` Range (IQR) | `Chao` Value | Statistical Grouping |
-|------|---------------|--------------------------|------------|---------------------|
-| T1   | 287 ± 12      | 34                       | 5.2        | a                   |
-| T2   | 214 ± 15      | 41                       | 3.8        | b                   |
-| T3   | 142 → 203     | 52                       | 2.1 → 4.3  | c → b               |
-| T4   | 265 → 112     | 78                       | 5.0 → 1.8  | a → d               |
+| ---- | -------------- | --------------------------- | ------------ | -------------------- |
+| T1   | 287 ± 12       | 34                          | 5.2          | a                    |
+| T2   | 214 ± 15       | 41                          | 3.8          | b                    |
+| T3   | 142 → 203      | 52                          | 2.1 → 4.3    | c → b                |
+| T4   | 265 → 112      | 78                          | 5.0 → 1.8    | a → d                |
 
 - **T1** (High-Level): Exhibits the highest and most stable median pitch.
 - **T2** (Mid-Rising): Shows a moderate median pitch with a rising contour.
@@ -123,10 +123,10 @@ Significant gender effects (F(1,18) = 9.42, p = 0.006)
 
 ### 4.1 Cross-Linguistic Comparison
 
-| Language  | T1 Median | T2 Median | T3 Median | T4 Median | Study           |
-| --------- | --------- | --------- | --------- | --------- | --------------- |
-| Mandarin  | 287Hz     | 214Hz     | 172Hz     | 189Hz     | Current Study   |
-| Cantonese | 312Hz     | 245Hz     | 198Hz     | 98Hz      | Wong (2019)     |
+| Language  | T1 Median | T2 Median | T3 Median | T4 Median | Study             |
+| --------- | --------- | --------- | --------- | --------- | ----------------- |
+| Mandarin  | 287Hz     | 214Hz     | 172Hz     | 189Hz     | Current Study     |
+| Cantonese | 312Hz     | 245Hz     | 198Hz     | 98Hz      | Wong (2019)       |
 | Thai      | 245Hz     | 187Hz     | 156Hz     | 135Hz     | `Abramson` (2004) |
 
 ### 4.2 Applications
@@ -140,7 +140,7 @@ Significant gender effects (F(1,18) = 9.42, p = 0.006)
 | Language Teaching   | Visual feedback | T3 "dipping" threshold         | 120Hz                 |                 |              |
 | Language Teaching   | Visual feedback | T4 falling slope               | >80Hz/100ms           |                 |              |
 | Clinical Assessment | Diagnostics     | Tone confusion matrix analysis |                       |                 |              |
-| Clinical Assessment | Diagnostics     | Median F0                      | ±2SD as normal range |                 |              |
+| Clinical Assessment | Diagnostics     | Median F0                      | ±2SD as normal range  |                 |              |
 | Clinical Assessment | Diagnostics     | Contour similarity index (CSI) | CSI > 0.85            |                 |              |
 
 ## 5. Conclusion
@@ -177,11 +177,11 @@ A. Statistical Models
 B. Stimuli List
 
 | Word | Pinyin | Tone | Frequency (`SUBTL`) |
-| ---- | ------ | ---- | ----------------- |
-| 妈   | mā    | T1   | 158               |
-| 麻   | má    | T2   | 87                |
-| 马   | mǎ    | T3   | 124               |
-| 骂   | mà    | T4   | 56                |
+| ---- | ------ | ---- | ------------------- |
+| 妈   | mā     | T1   | 158                 |
+| 麻   | má     | T2   | 87                  |
+| 马   | mǎ     | T3   | 124                 |
+| 骂   | mà     | T4   | 56                  |
 
 C. Ethics Approval
 Protocol #2023-LING-045
