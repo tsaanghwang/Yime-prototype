@@ -163,3 +163,54 @@ def test_phrase_prefix_pool_limits_differ_between_recent_and_long_context() -> N
     assert len(candidates_c3) == 16
     assert candidates_c3[0] == "超长词00"
     assert candidates_c3[-1] == "超长词15"
+
+
+def test_stage_b_keeps_a_rare_char_representative_on_second_page_for_dense_exact_bucket() -> None:
+    runtime_decoder = _build_runtime_decoder()
+    runtime_decoder._phrase_prefix_index = {
+        "abcd": [
+            {
+                "text": f"词{index:02d}",
+                "entry_type": "phrase",
+                "pinyin_tone": f"ci2 {index}",
+                "yime_code": f"abcd{index:04d}",
+                "sort_weight": float(1000 - index),
+                "text_length": 2,
+                "is_common": 1,
+            }
+            for index in range(5)
+        ]
+    }
+    runtime_decoder.by_code = {
+        "abcd": [
+            {
+                "text": chr(0x4E00 + index),
+                "entry_type": "char",
+                "pinyin_tone": f"zi4 {index}",
+                "yime_code": "abcd",
+                "sort_weight": float(500 - index),
+                "text_length": 1,
+                "is_common": 1,
+                "usage_tier": "common_high",
+            }
+            for index in range(70)
+        ]
+        + [
+            {
+                "text": "龘",
+                "entry_type": "char",
+                "pinyin_tone": "da2",
+                "yime_code": "abcd",
+                "sort_weight": 1.0,
+                "text_length": 1,
+                "is_common": 0,
+                "usage_tier": "rare",
+            }
+        ]
+    }
+    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(runtime_decoder.by_code)
+
+    _canonical, _active, _pinyin, candidates, _status = runtime_decoder.decode_text("abcd")
+
+    assert candidates[:5] == ["词00", "词01", "词02", "词03", "词04"]
+    assert candidates[6] == "龘"

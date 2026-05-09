@@ -43,10 +43,14 @@ class RuntimeCandidateRecord:
     phrase_priority_tier: int = 2
     local_phrase_priority_boost: float = 0.0
     debug_tag: str = "normal"
+    usage_tier: str = ""
 
 
 _PHRASE_PREFIX_CANDIDATE_LIMIT = 64
 _SHORT_PREFIX_TEMPLATE_CHARS = frozenset("的们是在有了和要会就也都不来去没吗吧呢啊")
+_STAGE_B_RARE_REPRESENTATIVE_PAGE_LIMIT = 5
+_STAGE_B_RARE_REPRESENTATIVE_SECOND_PAGE_SLOT = 2
+_STAGE_B_RARE_REPRESENTATIVE_MIN_EXACT_CHAR_COUNT = 64
 
 
 def load_local_phrase_priority_rules(
@@ -394,9 +398,53 @@ def build_runtime_candidate_records(
                 phrase_priority_tier=phrase_priority_tier,
                 local_phrase_priority_boost=local_phrase_priority_boost,
                 debug_tag=debug_tag,
+                usage_tier=str(candidate.get("usage_tier", "") or "").strip(),
             )
         )
     return records
+
+
+def apply_stage_b_rare_representative_guardrail(
+    candidates: List[RuntimeCandidateRecord],
+    *,
+    page_limit: int = _STAGE_B_RARE_REPRESENTATIVE_PAGE_LIMIT,
+    second_page_slot: int = _STAGE_B_RARE_REPRESENTATIVE_SECOND_PAGE_SLOT,
+    min_exact_char_count: int = _STAGE_B_RARE_REPRESENTATIVE_MIN_EXACT_CHAR_COUNT,
+) -> List[RuntimeCandidateRecord]:
+    normalized_page_limit = max(int(page_limit or 0), 0)
+    normalized_second_page_slot = max(int(second_page_slot or 0), 1)
+    normalized_target_rank = normalized_page_limit + normalized_second_page_slot
+    target_index = normalized_target_rank - 1
+    if normalized_page_limit <= 0 or len(candidates) <= target_index:
+        return list(candidates)
+
+    exact_char_candidates = [candidate for candidate in candidates if candidate.entry_type == "char"]
+    if len(exact_char_candidates) < max(int(min_exact_char_count or 0), 0):
+        return list(candidates)
+
+    if any(
+        candidate.entry_type == "char" and candidate.usage_tier == "rare"
+        for candidate in candidates[:normalized_target_rank]
+    ):
+        return list(candidates)
+
+    representative_index = next(
+        (
+            index
+            for index, candidate in enumerate(candidates)
+            if candidate.entry_type == "char" and candidate.usage_tier == "rare"
+        ),
+        -1,
+    )
+    if representative_index < normalized_target_rank:
+        return list(candidates)
+    if representative_index < 0:
+        return list(candidates)
+
+    reordered = list(candidates)
+    representative = reordered.pop(representative_index)
+    reordered.insert(target_index, representative)
+    return reordered
 
 
 def rank_runtime_candidates(

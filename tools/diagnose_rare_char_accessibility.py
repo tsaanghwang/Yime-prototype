@@ -2,10 +2,19 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
+from collections import Counter
 from pathlib import Path
+
+from yime.input_method.core.decoders import SQLiteRuntimeCandidateDecoder
+from yime.input_method.core.runtime_lookup import build_runtime_lookup_plan
+from yime.input_method.core.runtime_ranking import (
+    RuntimeCandidateRecord,
+    apply_stage_b_rare_representative_guardrail,
+)
 
 
 ROOT = Path(__file__).resolve().parent.parent
+APP_DIR = ROOT / "yime"
 DB_PATH = ROOT / "yime" / "pinyin_hanzi.db"
 
 
@@ -24,6 +33,12 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=15,
         help="桶详情最多显示多少条候选。",
+    )
+    parser.add_argument(
+        "--page-size",
+        type=int,
+        default=5,
+        help="按 UI/decoder 首屏口径统计的页大小。",
     )
     parser.add_argument(
         "--lookup-code",
@@ -122,6 +137,70 @@ def load_first_rare_entry(connection: sqlite3.Connection, *, lookup_code: str) -
     return row
 
 
+def summarize_first_page_tiers(rows: list[sqlite3.Row], *, page_size: int) -> Counter[str]:
+    counter: Counter[str] = Counter()
+    for row in rows[: max(int(page_size), 0)]:
+        counter[str(row["usage_tier"] or "unknown")] += 1
+    return counter
+
+
+def _record_tier_label(record: RuntimeCandidateRecord) -> str:
+    if record.entry_type != "char":
+        return record.entry_type
+    return record.usage_tier or "char-unknown"
+
+
+def load_stage_b_ranked_records(lookup_code: str) -> list[RuntimeCandidateRecord]:
+    decoder = SQLiteRuntimeCandidateDecoder(APP_DIR)
+    plan = build_runtime_lookup_plan(lookup_code)
+    raw_candidates, priority_lookup_code = decoder._lookup_runtime_candidates_for_decode(lookup_code, plan)
+    records = decoder._rank_runtime_candidates(
+        decoder._payload_to_runtime_candidates(
+            plan.lookup_code,
+            raw_candidates,
+            stage=plan.stage,
+            priority_lookup_code=priority_lookup_code,
+        )
+    )
+    if plan.stage == "B":
+        return apply_stage_b_rare_representative_guardrail(records)
+    return records
+
+
+def summarize_stage_b_first_page_tiers(
+    records: list[RuntimeCandidateRecord],
+    *,
+    page_size: int,
+) -> Counter[str]:
+    counter: Counter[str] = Counter()
+    for record in records[: max(int(page_size), 0)]:
+        counter[_record_tier_label(record)] += 1
+    return counter
+
+
+def summarize_stage_b_page_tiers(
+    records: list[RuntimeCandidateRecord],
+    *,
+    page_size: int,
+    page_number: int,
+) -> Counter[str]:
+    normalized_page_size = max(int(page_size), 0)
+    normalized_page_number = max(int(page_number), 1)
+    start = (normalized_page_number - 1) * normalized_page_size
+    end = start + normalized_page_size
+    counter: Counter[str] = Counter()
+    for record in records[start:end]:
+        counter[_record_tier_label(record)] += 1
+    return counter
+
+
+def find_stage_b_first_rare_record(records: list[RuntimeCandidateRecord]) -> tuple[int, RuntimeCandidateRecord] | None:
+    for index, record in enumerate(records, start=1):
+        if record.entry_type == "char" and record.usage_tier == "rare":
+            return index, record
+    return None
+
+
 def main() -> None:
     args = parse_args()
     db_path = Path(args.db).resolve()
@@ -146,8 +225,11 @@ def main() -> None:
         )
         first_rare = load_first_rare_entry(connection, lookup_code=selected_lookup_code)
 
+    stage_b_records = load_stage_b_ranked_records(selected_lookup_code)
+
     print(f"db_path={db_path}")
     print(f"min_code_size={args.min_code_size}")
+    print(f"page_size={args.page_size}")
     print(f"worst_bucket_count={len(worst_buckets)}")
     print("worst_rare_buckets:")
     for index, row in enumerate(worst_buckets, start=1):
@@ -167,6 +249,69 @@ def main() -> None:
             f"selected_first_rare=hanzi:{first_rare['hanzi']} rank:{first_rare['rn']} "
             f"code_size:{first_rare['code_size']} sort_weight:{first_rare['sort_weight']}"
         )
+
+    first_page_tiers = summarize_first_page_tiers(detail_rows, page_size=args.page_size)
+    print(
+        "selected_first_page_tier_counts="
+        + ", ".join(
+            f"{tier}:{count}"
+            for tier, count in sorted(first_page_tiers.items())
+        )
+    )
+    print("selected_bucket_first_page_entries:")
+    for row in detail_rows[: max(int(args.page_size), 0)]:
+        print(
+            f"#{row['rn']} hanzi={row['hanzi']} usage_tier={row['usage_tier']} "
+            f"sort_weight={row['sort_weight']}"
+        )
+
+    stage_b_first_page_tiers = summarize_stage_b_first_page_tiers(
+        stage_b_records,
+        page_size=args.page_size,
+    )
+    stage_b_second_page_tiers = summarize_stage_b_page_tiers(
+        stage_b_records,
+        page_size=args.page_size,
+        page_number=2,
+    )
+    stage_b_first_rare = find_stage_b_first_rare_record(stage_b_records)
+    print(
+        "selected_stage_b_first_page_tier_counts="
+        + ", ".join(
+            f"{tier}:{count}"
+            for tier, count in sorted(stage_b_first_page_tiers.items())
+        )
+    )
+    print("selected_stage_b_first_page_entries:")
+    for index, record in enumerate(stage_b_records[: max(int(args.page_size), 0)], start=1):
+        print(
+            f"#{index} text={record.text} entry_type={record.entry_type} tier={_record_tier_label(record)} "
+            f"sort_weight={record.sort_weight}"
+        )
+    print(
+        "selected_stage_b_second_page_tier_counts="
+        + ", ".join(
+            f"{tier}:{count}"
+            for tier, count in sorted(stage_b_second_page_tiers.items())
+        )
+    )
+    print("selected_stage_b_second_page_entries:")
+    start = max(int(args.page_size), 0)
+    end = start + max(int(args.page_size), 0)
+    for index, record in enumerate(stage_b_records[start:end], start=start + 1):
+        print(
+            f"#{index} text={record.text} entry_type={record.entry_type} tier={_record_tier_label(record)} "
+            f"sort_weight={record.sort_weight}"
+        )
+    if stage_b_first_rare is None:
+        print("selected_stage_b_first_rare=None")
+    else:
+        rank, record = stage_b_first_rare
+        print(
+            f"selected_stage_b_first_rare=text:{record.text} rank:{rank} "
+            f"tier:{_record_tier_label(record)} sort_weight:{record.sort_weight}"
+        )
+
     print("selected_bucket_top_entries:")
     for row in detail_rows:
         print(
