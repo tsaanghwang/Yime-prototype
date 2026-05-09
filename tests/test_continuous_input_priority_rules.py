@@ -7,6 +7,9 @@ from yime.input_method.core.decoders import RuntimeCandidateDecoder
 from yime.input_method.core.runtime_ranking import load_local_phrase_priority_rules
 
 
+FIRST_PAGE_CANDIDATE_LIMIT = 5
+
+
 def _build_runtime_decoder(*, debug_runtime_ranking: bool = True) -> RuntimeCandidateDecoder:
     runtime_decoder = RuntimeCandidateDecoder.__new__(RuntimeCandidateDecoder)
     runtime_decoder.bmp_to_canonical = {}
@@ -82,6 +85,11 @@ def _build_ranked_prefix_candidates(lookup_code: str, target_texts: list[str]) -
     return candidates
 
 
+def _assert_targets_stay_on_first_page(candidates: list[str], target_texts: list[str]) -> None:
+    assert candidates[: len(target_texts)] == target_texts
+    assert set(candidates[:FIRST_PAGE_CANDIDATE_LIMIT]) >= set(target_texts)
+
+
 def _assert_generated_rule_targets_stay_on_first_page(expected_targets: set[str]) -> None:
     runtime_decoder = _build_runtime_decoder()
     generated_rules = _load_generated_continuous_rules()
@@ -95,8 +103,7 @@ def _assert_generated_rule_targets_stay_on_first_page(expected_targets: set[str]
 
     _canonical, _active, _pinyin, candidates, status = runtime_decoder.decode_text(lookup_code)
 
-    assert candidates[: len(target_texts)] == target_texts
-    assert set(candidates[:5]) >= set(target_texts)
+    _assert_targets_stay_on_first_page(candidates, target_texts)
     for text in target_texts:
         assert f"{text}[prefix/C-continuous]" in status
 
