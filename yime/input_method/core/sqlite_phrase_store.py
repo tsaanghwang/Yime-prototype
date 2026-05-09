@@ -52,7 +52,7 @@ class SQLitePhraseCandidateStore:
             with self.runtime_source.connect() as conn:
                 rows = conn.execute(
                     f"""
-                    SELECT entry_type, entry_id, text, pinyin_tone, sort_weight, is_common, text_length, updated_at
+                    SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
                     FROM {self.runtime_table_name}
                     WHERE yime_code = ?
                     ORDER BY {_RUNTIME_SQL_PRIORITY_ORDER}
@@ -60,7 +60,30 @@ class SQLitePhraseCandidateStore:
                     (normalized_code,),
                 ).fetchall()
 
-            cached = [annotate_candidate_source(dict(row), "exact") for row in rows]
+                char_usage_tier_by_key = {
+                    (str(row["hanzi"] or "").strip(), str(row["pinyin_tone"] or "").strip()): str(row["usage_tier"] or "").strip()
+                    for row in conn.execute(
+                        """
+                        SELECT hanzi, pinyin_tone, usage_tier
+                        FROM char_lexicon
+                        WHERE yime_code = ?
+                        """,
+                        (normalized_code,),
+                    ).fetchall()
+                }
+
+            cached = []
+            for row in rows:
+                candidate = dict(row)
+                if str(candidate.get("entry_type", "") or "").strip() == "char":
+                    candidate["usage_tier"] = char_usage_tier_by_key.get(
+                        (
+                            str(candidate.get("text", "") or "").strip(),
+                            str(candidate.get("pinyin_tone", "") or "").strip(),
+                        ),
+                        "",
+                    )
+                cached.append(annotate_candidate_source(candidate, "exact"))
             self._runtime_candidate_cache[normalized_code] = list(cached)
 
         merged = list(cached)

@@ -13,6 +13,7 @@ from .runtime_lookup import (
     build_runtime_mode_hint,
 )
 from .runtime_ranking import (
+    apply_stage_b_rare_representative_guardrail,
     RuntimeCandidateRecord,
     build_runtime_candidate_records,
     format_runtime_debug_summary,
@@ -186,6 +187,8 @@ class RuntimeDecoderBase:
                 priority_lookup_code=priority_lookup_code,
             )
         )
+        if plan.stage == "B":
+            records = apply_stage_b_rare_representative_guardrail(records)
         texts = [record.text for record in records]
         pinyin_values: List[str] = []
         numeric_to_marked_pinyin = getattr(self, "numeric_to_marked_pinyin", {})
