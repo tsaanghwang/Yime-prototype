@@ -53,9 +53,9 @@ scripts\build_setup_release.bat
 
 - `dist/setup/Yime-Setup-<version>.exe`
 
-例如当前版本 `0.1.0` 时，文件名会是：
+例如当前版本 `0.1.1` 时，文件名会是：
 
-- `dist/setup/Yime-Setup-0.1.0.exe`
+- `dist/setup/Yime-Setup-0.1.1.exe`
 
 ## 建议验收
 
