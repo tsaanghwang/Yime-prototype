@@ -101,3 +101,41 @@ def test_manual_input_keypress_allows_native_shift_insert(monkeypatch) -> None:
     assert result is None
     assert entry.insert_calls == []
     assert root.after_idle_calls == []
+
+
+def test_manual_input_keypress_allows_native_numpad_decimal(monkeypatch) -> None:
+    entry = _FakeEntry()
+    root = _FakeRoot()
+    box = _build_box(entry, root)
+    event = SimpleNamespace(widget=entry, char=".", keycode=0x6E, keysym="KP_Decimal")
+
+    monkeypatch.setattr(
+        ManualInputResolver,
+        "is_numpad_event",
+        classmethod(lambda cls, current_event: True),
+    )
+
+    result = CandidateBox._on_manual_input_key_press(box, event)
+
+    assert result is None
+    assert entry.insert_calls == []
+    assert root.after_idle_calls == []
+
+
+def test_manual_input_keypress_allows_native_numpad_digit(monkeypatch) -> None:
+    entry = _FakeEntry()
+    root = _FakeRoot()
+    box = _build_box(entry, root)
+    event = SimpleNamespace(widget=entry, char="1", keycode=0x61, keysym="KP_1")
+
+    monkeypatch.setattr(
+        ManualInputResolver,
+        "is_numpad_event",
+        classmethod(lambda cls, current_event: True),
+    )
+
+    result = CandidateBox._on_manual_input_key_press(box, event)
+
+    assert result is None
+    assert entry.insert_calls == []
+    assert root.after_idle_calls == []

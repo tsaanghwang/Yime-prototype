@@ -19,3 +19,17 @@ def test_normalize_event_physical_key_falls_back_to_keysym() -> None:
     event = SimpleNamespace(keysym="K", keycode=0)
 
     assert ManualInputResolver.normalize_event_physical_key(event) == "k"
+
+
+def test_normalize_event_physical_key_ignores_numpad_digit() -> None:
+    event = SimpleNamespace(keysym="KP_1", keycode=0x61)
+
+    assert ManualInputResolver.is_numpad_event(event) is True
+    assert ManualInputResolver.normalize_event_physical_key(event) == ""
+
+
+def test_normalize_event_physical_key_ignores_numpad_decimal() -> None:
+    event = SimpleNamespace(keysym="KP_Decimal", keycode=0x6E)
+
+    assert ManualInputResolver.is_numpad_event(event) is True
+    assert ManualInputResolver.normalize_event_physical_key(event) == ""

@@ -175,6 +175,23 @@ def build_manual_key_output_map(repo_root: Path) -> Dict[tuple[str, str], str]:
     return output_map
 
 
+def build_non_base_literal_output_chars(repo_root: Path) -> set[str]:
+    manual_layout = _load_visual_json(
+        repo_root / "internal_data" / "manual_key_layout.resolved.json"
+    )
+
+    passthrough_chars: set[str] = set()
+    for row in manual_layout.get("layers", []):
+        output_layer = str(row.get("output_layer") or "").strip().lower()
+        resolved_category = str(row.get("resolved_category") or "").strip().lower()
+        resolved_char = str(row.get("resolved_char") or "")
+        if output_layer == "base" or resolved_category != "literal" or len(resolved_char) != 1:
+            continue
+        passthrough_chars.add(resolved_char)
+
+    return passthrough_chars
+
+
 def project_physical_input(text: str, physical_map: Dict[str, str]) -> str:
     if not text:
         return ""

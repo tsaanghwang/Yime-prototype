@@ -6,6 +6,8 @@ from pathlib import Path
 from tkinter import messagebox, simpledialog
 from typing import TYPE_CHECKING, Optional
 
+from .manual_input_resolver import ManualInputResolver
+
 if TYPE_CHECKING:
     from .candidate_box import CandidateBox
 
@@ -904,7 +906,7 @@ class CandidateBoxActions:
         except OSError:
             return (
                 "当前推荐入口：python -m yime.input_method.app 或 python run_input_method.py。\n\n"
-                "基本操作：数字键选词，Space/Enter 上屏，Home/PgUp/PgDn/End 翻页，Ctrl+Q 关闭窗口。\n\n"
+                "基本操作：首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。Home/PgUp/PgDn/End 翻页，Ctrl+Q 关闭窗口。\n\n"
                 "用户词库：可通过编辑、应用、导入、导出几个入口维护。\n\n"
                 "更多说明请查看 docs/help/README.md。"
             )
@@ -1129,6 +1131,8 @@ class CandidateBoxActions:
         return "break"
 
     def on_confirm_key(self, event: Optional[tk.Event] = None) -> str:
+        if event and ManualInputResolver.is_numpad_event(event):
+            return ""
         if self.box.current_candidates:
             self.select_candidate_by_index(self.box.get_selected_candidate_index())
             self.commit_output_text()
@@ -1137,17 +1141,15 @@ class CandidateBoxActions:
         return "break"
 
     def on_digit_shortcut(self, event: Optional[tk.Event], value: int) -> str:
-        if self.should_allow_native_edit_key(event):
+        if event and ManualInputResolver.is_numpad_event(event):
             return ""
         if self.select_candidate_by_index(value - 1):
             self.commit_output_text()
         return "break"
 
     def on_candidate_shortcut(self, event: Optional[tk.Event], index: int) -> str:
-        if self.should_allow_native_edit_key(event):
-            # Check if Focus is in Input entry, allowing typing if needed?
-            # Oh wait, if these are NOT used as pinyin keys, maybe it should NOT type.
-            pass
+        if event and ManualInputResolver.is_numpad_event(event):
+            return ""
 
         if self.select_candidate_by_index(index):
             self.commit_output_text()

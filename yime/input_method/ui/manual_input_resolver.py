@@ -10,6 +10,7 @@ import tkinter as tk
 from ..utils.modifier_state import is_alt_gr_active
 
 class ManualInputResolver:
+    _NUMPAD_VK_CODES = set(range(0x60, 0x70))
     _PRINTABLE_MODIFIER_VK_CODES = {
         "shift": [0x10, 0xA0, 0xA1],
         "ctrl": [0x11, 0xA2, 0xA3],
@@ -33,6 +34,14 @@ class ManualInputResolver:
         0xDE: "'",
         0x20: "space",
     }
+
+    @classmethod
+    def is_numpad_event(cls, event: tk.Event) -> bool:
+        keysym = str(getattr(event, "keysym", "") or "").strip().lower()
+        if keysym.startswith("kp_"):
+            return True
+        vk_code = int(getattr(event, "keycode", 0) or 0)
+        return vk_code in cls._NUMPAD_VK_CODES
 
     @classmethod
     def get_manual_key_modifiers(cls) -> dict[str, bool]:
@@ -59,6 +68,9 @@ class ManualInputResolver:
 
     @classmethod
     def normalize_event_physical_key(cls, event: tk.Event) -> str:
+        if cls.is_numpad_event(event):
+            return ""
+
         vk_code = int(getattr(event, "keycode", 0) or 0)
         if vk_code in cls._PRINTABLE_VK_TO_PHYSICAL_KEY:
             return cls._PRINTABLE_VK_TO_PHYSICAL_KEY[vk_code]

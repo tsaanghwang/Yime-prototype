@@ -20,7 +20,11 @@
 
 - 推荐启动：`python -m yime.input_method.app`
 - 等价启动：`python run_input_method.py`
-- 数字键选词，`Space` / `Enter` 上屏，`Home` / `PgUp` / `PgDn` / `End` 翻页。
+- 首选候选可用 `Space`、`Enter` 或鼠标左键直接选择。
+- 第 2~5 候选可依次用 `` ` ``、`-`、`=`、`\`，也可用鼠标左键直接选择。
+- 任意候选都可先用方向键移动高亮，再按 `Space` / `Enter` 确认；也可直接鼠标左键点击。
+- 当每页候选数设为 6~9 时，第 6~9 候选没有单独快捷键，建议用鼠标左键或方向键定位后再按 `Space` / `Enter`。
+- `Home` / `PgUp` / `PgDn` / `End` 用于翻页。
 - `ESC` 退出当前组合，`Ctrl+Q` 关闭窗口。
 - 待命状态下，可点“音”图标或按当前唤起热键恢复。
 

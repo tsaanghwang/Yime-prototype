@@ -20,6 +20,7 @@ from .core.input_visualization import (
     build_code_display,
     build_input_sound_notes,
     build_manual_key_output_map,
+    build_non_base_literal_output_chars,
     build_input_visual_map,
     build_physical_input_map,
     build_projected_to_keycap_map,
@@ -179,6 +180,7 @@ class BaseInputMethodApp:
         self.decoder = CompositeCandidateDecoder(app_dir, user_db_path=user_db_path)
         self.input_visual_map = build_input_visual_map(app_dir.parent)
         self.manual_key_output_map = build_manual_key_output_map(app_dir.parent)
+        self.literal_passthrough_chars = build_non_base_literal_output_chars(app_dir.parent)
         self.physical_input_map = build_physical_input_map(app_dir.parent)
         self.projected_to_keycap_map = build_projected_to_keycap_map(app_dir.parent)
         self.projected_to_physical_map = build_projected_to_physical_map(
@@ -1342,9 +1344,20 @@ class BaseInputMethodApp:
         return unproject_physical_input(text, self.projected_to_physical_map)
 
     def _format_visible_input(self, text: str) -> str:
+        return self._project_candidate_box_display_input(text)
+
+    def _project_candidate_box_display_input(self, text: str) -> str:
         if not text:
             return ""
-        return project_physical_input(text, self.physical_input_map)
+
+        passthrough_chars = getattr(self, "literal_passthrough_chars", set())
+        projected_chars: list[str] = []
+        for char in text:
+            if char in passthrough_chars:
+                projected_chars.append(char)
+                continue
+            projected_chars.append(self.physical_input_map.get(char, char))
+        return "".join(projected_chars)
 
     def _resolve_manual_key_output(
         self,
@@ -1653,7 +1666,7 @@ class BaseInputMethodApp:
 
     def _add_current_input_to_user_lexicon(self) -> None:
         display_input = self.candidate_box.get_input().strip()
-        input_text = project_physical_input(display_input, self.physical_input_map).strip()
+        input_text = self._project_candidate_box_display_input(display_input).strip()
         action_title = "添加当前词条"
         if not looks_like_hanzi_text(input_text) or len(input_text) < 2:
             message = "仅支持添加当前汉字词语。"
@@ -1729,7 +1742,7 @@ class BaseInputMethodApp:
 
     def _delete_current_input_from_user_lexicon(self) -> None:
         display_input = self.candidate_box.get_input().strip()
-        input_text = project_physical_input(display_input, self.physical_input_map).strip()
+        input_text = self._project_candidate_box_display_input(display_input).strip()
         action_title = "删除当前词条"
         if not looks_like_hanzi_text(input_text) or len(input_text) < 2:
             message = "仅支持删除当前汉字词语。"
@@ -1758,7 +1771,7 @@ class BaseInputMethodApp:
 
     def _on_input_change(self, event: Optional[object] = None) -> None:
         display_input = self.candidate_box.get_input()
-        input_text = project_physical_input(display_input, self.physical_input_map)
+        input_text = self._project_candidate_box_display_input(display_input)
         if (
             display_input != input_text
             or self.candidate_box.get_projected_input() != input_text
@@ -1827,10 +1840,7 @@ class BaseInputMethodApp:
     def _record_candidate_selection(self, hanzi: str) -> int:
         input_text = self.candidate_box.get_projected_input()
         if not input_text:
-            input_text = project_physical_input(
-                self.candidate_box.get_input(),
-                self.physical_input_map,
-            )
+            input_text = self._project_candidate_box_display_input(self.candidate_box.get_input())
         if input_text:
             return int(self.decoder.record_selection(input_text, hanzi) or 0)
         return 0
