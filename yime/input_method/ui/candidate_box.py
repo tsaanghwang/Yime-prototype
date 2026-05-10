@@ -46,7 +46,7 @@ class CandidateBox(CandidateRendererMixin):
     _CANDIDATE_TAG_PREFIX = "candidate_"
     _PAGER_PREV_TAG = "pager_prev"
     _PAGER_NEXT_TAG = "pager_next"
-    _DEFAULT_STATUS_TEXT = "连续输入时会自动取最近 4 码。可直接输入或粘贴编码后继续输入；Space 选首选，Enter 上屏。"
+    _DEFAULT_STATUS_TEXT = "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
     _STANDBY_WINDOW_SIZE = 54
     _PASSIVE_ALPHA = 0.42
     _ACTIVE_ALPHA = 0.97
@@ -237,7 +237,7 @@ class CandidateBox(CandidateRendererMixin):
         self.reverse_lookup_display_mode_var = tk.StringVar(self.root, value="default")
         self.page_size_spinbox = None
         self.page_info_var = tk.StringVar(self.root, value="第 1/1 页")
-        self.shortcut_hint_var = tk.StringVar(value="Space 选首选")
+        self.shortcut_hint_var = tk.StringVar(value="首选: Space / Enter")
         self.projected_code_var = tk.StringVar(self.root, value="")
         self.input_outline_var = tk.StringVar(self.root, value="")
         self.code_var = tk.StringVar(self.root, value="")
@@ -680,6 +680,9 @@ class CandidateBox(CandidateRendererMixin):
         if not event or event.widget != self.input_entry or not self._manual_input_enabled:
             return None
 
+        if ManualInputResolver.is_numpad_event(event):
+            return None
+
         modifiers = ManualInputResolver.get_manual_key_modifiers()
         physical_key = ManualInputResolver.normalize_event_physical_key(event)
         keysym = str(getattr(event, "keysym", "") or "").lower()
@@ -1024,7 +1027,7 @@ class CandidateBox(CandidateRendererMixin):
         return self.actions.on_confirm_key(event)
 
     def _on_digit_shortcut(self, event: Optional[tk.Event], value: int) -> str:
-        """数字键在非编辑态下用于选择当前页候选。"""
+        """数字键快捷处理入口。默认帮助文档不再将其作为主选择方式。"""
         return self.actions.on_digit_shortcut(event, value)
 
     def _clear_input(self, focus_input: bool = True) -> None:

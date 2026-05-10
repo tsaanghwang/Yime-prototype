@@ -105,10 +105,6 @@ class InputManager:
         if self._handle_special_key(key):
             return False  # 拦截特殊键
 
-        # 处理数字键选择候选词
-        if self._handle_digit_selection(key):
-            return False  # 拦截数字键
-
         # 优先消费按当前键盘布局实际产出的字符，包括 BMP PUA / SPUA-B 等非 ASCII 编码字符。
         if isinstance(text, str) and len(text) == 1 and text >= ' ':
             self.add_char(text)
@@ -174,25 +170,6 @@ class InputManager:
                 return True
             # 如果没有候选词，继续传递空格
             return False
-
-        return False
-
-    def _handle_digit_selection(self, key: str) -> bool:
-        """
-        处理数字键选择候选词
-
-        Args:
-            key: 按键字符串
-
-        Returns:
-            True如果处理了，False否则
-        """
-        # 检查是否是数字键
-        if key.isdigit() and int(key) > 0:
-            index = int(key) - 1
-            if index < len(self.current_candidates):
-                self.select_candidate(index)
-                return True
 
         return False
 

@@ -1,4 +1,5 @@
 from yime.input_method.app_base import BaseInputMethodApp
+from yime.input_method.ui.candidate_box import CandidateBox
 
 
 class _FakeCandidateBox:
@@ -77,6 +78,7 @@ def test_on_input_change_uses_current_default_status_for_empty_input() -> None:
     app = BaseInputMethodApp.__new__(BaseInputMethodApp)
     app.candidate_box = _FakeCandidateBox("")
     app.physical_input_map = {}
+    app.literal_passthrough_chars = set()
 
     BaseInputMethodApp._on_input_change(app)
 
@@ -84,7 +86,7 @@ def test_on_input_change_uses_current_default_status_for_empty_input() -> None:
         [],
         "",
         "",
-        "连续输入时会自动取最近 4 码。可直接输入编码，或粘贴后继续输入。",
+        CandidateBox._DEFAULT_STATUS_TEXT,
     )
 
 
@@ -147,3 +149,41 @@ def test_on_input_change_summarizes_not_found_status() -> None:
     assert app.candidate_box.updated is not None
     _candidates, _pinyin, _code, status = app.candidate_box.updated
     assert status == "解码: 当前编码未找到候选。"
+
+
+def test_project_candidate_box_display_input_preserves_non_base_literal_outputs() -> None:
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.physical_input_map = {"1": "甲", "a": "乙"}
+    app.literal_passthrough_chars = {"1"}
+
+    result = BaseInputMethodApp._project_candidate_box_display_input(app, "1a")
+
+    assert result == "1乙"
+
+
+def test_format_visible_input_preserves_shift_digit_literals() -> None:
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.physical_input_map = {"1": "甲", "a": "乙"}
+    app.literal_passthrough_chars = {"1"}
+
+    result = BaseInputMethodApp._format_visible_input(app, "1a")
+
+    assert result == "1乙"
+
+
+def test_on_input_change_keeps_shift_digit_literal_visible() -> None:
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.candidate_box = _FakeCandidateBox("1")
+    app.physical_input_map = {"1": "甲"}
+    app.literal_passthrough_chars = {"1"}
+    app.projected_to_keycap_map = {}
+    app.reverse_lookup_display_mode = "default"
+    app.runtime_reverse_lookup = _FakeReverseLookup(None)
+    app.decoder = _FakeDecoder(("1", "1", "", [], "当前 1/4 码，继续输入。"))
+    app.last_replace_length = 0
+    app._resolve_display_candidates = lambda canonical_code, decoded_candidates: []
+
+    BaseInputMethodApp._on_input_change(app)
+
+    assert app.candidate_box.get_input() == "1"
+    assert app.candidate_box.get_projected_input() == "1"

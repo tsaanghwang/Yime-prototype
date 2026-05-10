@@ -1,5 +1,6 @@
 from yime.input_method.ui.candidate_box_actions import CandidateBoxActions
 from yime.input_method.ui.candidate_box import CandidateBox
+from types import SimpleNamespace
 
 
 class _FakeWidget:
@@ -288,6 +289,55 @@ def test_bind_keys_wires_toolbar_menu_button() -> None:
     CandidateBoxActions(box).bind_keys()
 
     assert any(sequence == "<Button-1>" for sequence, _ in box.toolbar_menu_button.bindings)
+
+
+def test_on_confirm_key_ignores_numpad_enter(monkeypatch) -> None:
+    box = _FakeBox()
+    box.current_candidates = ["候选"]
+    actions = CandidateBoxActions(box)
+    committed: list[str] = []
+
+    monkeypatch.setattr(actions, "select_candidate_by_index", lambda _index: committed.append("select") or True)
+    monkeypatch.setattr(actions, "commit_output_text", lambda: committed.append("commit"))
+
+    outcome = actions.on_confirm_key(SimpleNamespace(keysym="KP_Enter", keycode=0, widget=box.input_entry))
+
+    assert outcome == ""
+    assert committed == []
+
+
+def test_on_candidate_shortcut_ignores_numpad_subtract(monkeypatch) -> None:
+    box = _FakeBox()
+    actions = CandidateBoxActions(box)
+    committed: list[str] = []
+
+    monkeypatch.setattr(actions, "select_candidate_by_index", lambda _index: committed.append("select") or True)
+    monkeypatch.setattr(actions, "commit_output_text", lambda: committed.append("commit"))
+
+    outcome = actions.on_candidate_shortcut(
+        SimpleNamespace(keysym="KP_Subtract", keycode=0x6D, widget=box.root),
+        2,
+    )
+
+    assert outcome == ""
+    assert committed == []
+
+
+def test_on_candidate_shortcut_still_handles_symbol_shortcut_in_input_entry(monkeypatch) -> None:
+    box = _FakeBox()
+    actions = CandidateBoxActions(box)
+    committed: list[str] = []
+
+    monkeypatch.setattr(actions, "select_candidate_by_index", lambda _index: committed.append("select") or True)
+    monkeypatch.setattr(actions, "commit_output_text", lambda: committed.append("commit"))
+
+    outcome = actions.on_candidate_shortcut(
+        SimpleNamespace(keysym="minus", keycode=0xBD, widget=box.input_entry),
+        2,
+    )
+
+    assert outcome == "break"
+    assert committed == ["select", "commit"]
 
 
 def test_input_context_menu_uses_chinese_labels_and_selects_input_text(monkeypatch) -> None:
@@ -1241,7 +1291,7 @@ def test_candidate_box_update_candidates_uses_status_text() -> None:
 
 
 def test_candidate_box_default_status_text_matches_current_ui_guidance() -> None:
-    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会自动取最近 4 码。可直接输入或粘贴编码后继续输入；Space 选首选，Enter 上屏。"
+    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
 
 
 def test_edit_hotkey_updates_status_with_next_step_guidance(monkeypatch) -> None:
