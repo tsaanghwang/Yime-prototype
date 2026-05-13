@@ -29,3 +29,32 @@
 - `internal_data/pinyin_source_db/export_yaml_lexicon_json.py`
 
 注意：迁入本目录后，这批脚本默认不再被 VS Code 的活动调试入口直接暴露。
+
+## Legacy Comparison And Derived-Artifact Chain
+
+下面这批对象也已降级为 legacy：它们主要互相消费，或生成旧比较/反转/Unicode 映射产物，不再属于当前主线 rebuild，也不参与当前最小词库链。
+
+- `extract_pinyin_1.py`
+- `extract_pinyin_2.py`
+- `format_yaml_file.py`
+- `merge_json.py`
+- `compare_files.py`
+- `pinyin_classifier.py`
+- `standard_pinyin.py`
+- `reverse_key_value_pairs.py`
+- `unicode_hanzi_pinyin.py`
+- `pinyin_hanzi.py`
+
+以及它们的典型派生产物：
+
+- `hanzi_to_pinyin.json`
+- `pinyin.json`
+- `pinyin_classified.json`
+- `standard_pinyin.json`
+- `standard_pinyin_reversed.json`
+- `unicode_hanzi_pinyin.json`
+- `unicode_pinyin_hanzi.txt`
+- `mspinyin.txt`
+- `pinyin_hanzi.json`
+
+这批对象迁档后，不应再被视为当前主线的源或必经中间产物。
