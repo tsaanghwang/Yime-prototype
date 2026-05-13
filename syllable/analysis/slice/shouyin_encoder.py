@@ -43,6 +43,18 @@ class ShouyinEncoder:
             data = json.load(f)
             self._codepoint_map = data["首音"]
 
+        with self.default_data_path.open('r', encoding='utf-8') as f:
+            source_data = json.load(f)
+
+        for shouyin, entry in source_data.get("entries", {}).items():
+            runtime_char = self._codepoint_map.get(shouyin, "")
+            if not runtime_char:
+                continue
+
+            for alias in entry.get("ipa", []):
+                if alias and alias not in self._codepoint_map:
+                    self._codepoint_map[alias] = runtime_char
+
     def map_shouyin_to_codepoint(self, shouyin: str) -> str:
         """将首音映射到码位"""
         if not hasattr(self, '_codepoint_map'):
