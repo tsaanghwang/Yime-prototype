@@ -129,6 +129,21 @@
 
 这些文件主要服务于早期“声母韵母声调 <-> slice”原型抽象，当前运行时、`yinjie` 编码链、测试和打包面都不再消费；继续留在活动包根目录只会制造它们仍属现行 API 的误解。
 
+另外，原 `syllable/analysis/initial_final_with_tone/` 目录下剩余的整条旧分析链也已整体迁入 `legacy/syllable_prototypes/analysis/initial_final_with_tone/`：
+
+- `analysis/initial_final_with_tone/analysis_executor.py`
+- `analysis/initial_final_with_tone/initial_final.py`
+- `analysis/initial_final_with_tone/initial_final_with_tone.py`
+- `analysis/initial_final_with_tone/potential_syllable.py`
+- `analysis/initial_final_with_tone/all_possible_syllables.json`
+- `analysis/initial_final_with_tone/initial_final.json`
+- `analysis/initial_final_with_tone/initial_final_with_tone.json`
+- `analysis/initial_final_with_tone/potential_syllables.json`
+- `analysis/initial_final_with_tone/yinjie.json`
+- `analysis/initial_final_with_tone/temp.py`
+
+这条链只消费当前数字调拼音表并在目录内自生成 `initial/final/possible syllables` 派生产物，没有任何活动代码、测试或运行时入口再依赖它；保留仅为历史分析方法对照。
+
 另外，原 `syllable/` 根目录下几份没有活动代码读取的旧 JSON 快照也已迁入 `legacy/syllable_root_snapshots/`：
 
 - `syllable_root_snapshots/ganyin.json`
