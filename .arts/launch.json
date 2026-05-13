@@ -684,34 +684,6 @@
       "cwd": "${workspaceFolder}\\syllable\\analysis\\slice",
       "addSourceRootsToPythonpath": true
     },
-    {
-      "name": "extract_pinyin_2",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\extract_pinyin_2.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true
-    },
-    {
-      "name": "extract_pinyin_1",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\extract_pinyin_1.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true
-    },
-    {
-      "name": "extract_pinyin",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\extract_pinyin.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
       "name": "duozi_converter",
       "type": "python",
       "request": "launch",
@@ -719,16 +691,6 @@
       "currentFileConfiguration": false,
       "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
       "addSourceRootsToPythonpath": true
-    },
-    {
-      "name": "format_yaml_file",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\format_yaml_file.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
     },
       "name": "merge_json",
       "type": "python",
@@ -758,60 +720,10 @@
       "noDebug": true
     },
     {
-      "name": "reverse_key_value_pairs",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\reverse_key_value_pairs.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
       "name": "pinyin_normalizer",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\pinyin_normalizer.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
-      "name": "compare_files",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\compare_files.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
-      "name": "standard_pinyin",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\standard_pinyin.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
-      "name": "pinyin_hanzi",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\pinyin_hanzi.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
-      "name": "unicode_hanzi_pinyin",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\pinyin\\hanzi_pinyin\\unicode_hanzi_pinyin.py",
       "currentFileConfiguration": false,
       "cwd": "${workspaceFolder}\\pinyin\\hanzi_pinyin",
       "addSourceRootsToPythonpath": true,
