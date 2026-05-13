@@ -115,13 +115,22 @@ class GanyinEncoder:
         return self._encode_from_parts(normalized_ganyin)
 
     def _normalize_ganyin_name(self, ganyin: str) -> str:
-        """将带 h 的特殊鼻音干音归并到基础干音键名。"""
+        """将兼容写法归并到当前编码表使用的基础干音键名。"""
         if not isinstance(ganyin, str):
             return ""
 
         for source, target in (("hng", "ng"), ("hm", "m"), ("hn", "n")):
             if ganyin.startswith(source) and len(ganyin) >= len(source) + 1:
                 return f"{target}{ganyin[-1]}"
+
+        if ganyin.startswith("iou") and len(ganyin) >= 4 and ganyin[-1].isdigit():
+            return f"iu{ganyin[-1]}"
+
+        if ganyin.startswith("ueng") and len(ganyin) >= 5 and ganyin[-1].isdigit():
+            return f"uong{ganyin[-1]}"
+
+        if ganyin.startswith("ong") and len(ganyin) >= 4 and ganyin[-1].isdigit():
+            return f"uong{ganyin[-1]}"
 
         return ganyin
 

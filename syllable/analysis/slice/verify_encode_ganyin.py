@@ -30,6 +30,8 @@ class TestGanyinEncoder(unittest.TestCase):
         for ganyin, expected in self.encoding_map.items():
             with self.subTest(ganyin=ganyin):
                 result = self.encoder.encode_ganyin(ganyin)
+                normalized = self.encoder._normalize_ganyin_name(ganyin)
+                expected = self.encoding_map.get(normalized, expected)
                 self.assertEqual(
                     result, expected,
                     f"干音 '{ganyin}' 编码错误: 预期 '{expected}' (U+{ord(expected[0]):04X}...), 实际得到 '{result}'"
@@ -44,6 +46,20 @@ class TestGanyinEncoder(unittest.TestCase):
 
                 actual = self.encoder.encode_ganyin(ganyin)
                 self.assertEqual(len(actual), 3)
+
+    def test_ong_family_aliases_normalize_to_uong(self):
+        """方案层并入时，ong/ueng 应统一复用 uong 的编码。"""
+        alias_pairs = (("ong", "uong"), ("ueng", "uong"))
+
+        for alias_prefix, base_prefix in alias_pairs:
+            for tone in range(1, 6):
+                alias = f"{alias_prefix}{tone}"
+                base = f"{base_prefix}{tone}"
+                with self.subTest(alias=alias, base=base):
+                    self.assertEqual(
+                        self.encoder.encode_ganyin(alias),
+                        self.encoder.encode_ganyin(base),
+                    )
 
     def test_h_nasal_aliases_normalize_to_base_ganyin(self):
         """hm/hn/hng 应通过归并规则复用 m/n/ng 的编码。"""
