@@ -193,11 +193,11 @@
 另外，几份更早的独立诊断/重命名试验脚本也已迁入 `legacy/diagnostic_scripts/`：
 
 - `check_punctuation.py`
-- `class_renaming_script.py`
-- `renaming_script.py`
+- `noise_yinyuan_base_class_probe.py`
+- `noise_yinyuan_rename_probe.py`
 - `mysql_conn_script.py`
 
-其中 `check_punctuation.py` 依赖的 `理论文件/` 目录已不复存在；`class_renaming_script.py` 与 `renaming_script.py` 只是类名调整时的一次性断言片段；`mysql_conn_script.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
+其中 `check_punctuation.py` 依赖的 `理论文件/` 目录已不复存在；`noise_yinyuan_base_class_probe.py` 与 `noise_yinyuan_rename_probe.py` 只保留作 `NoiseYinyuan` / `UncertainPitchYinyuan` 历史重命名关系的一次性断言；`mysql_conn_script.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
 
 另外，原 `syllable/analysis/slice/temp.py` 这类未命名的临时实验脚本也已按用途收进 `legacy/diagnostic_scripts/`：
 
