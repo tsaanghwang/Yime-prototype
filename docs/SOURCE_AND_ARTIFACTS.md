@@ -656,6 +656,28 @@
   - 乐音运行时链路审计文档。
   - 非真源。
 
+#### 13. `data_json_files/` 并入后的映射边界（2026-05）
+
+- `internal_data/ganyin_pinyin_mapping.json`
+  - 分类：项目内生映射真源。
+  - 原因：原 `data_json_files/ganyin_pinyin_mapping.json` 已并入此处；它保存 PUA 音元序列到带调干音字符串的内部映射，不属于外部原始语料。
+
+- `internal_data/ipa_pinyin_mapping.json`
+  - 分类：项目内生对照映射。
+  - 原因：原 `data_json_files/ipa_pinyin_mapping.json` 已并入此处；它保存带调 IPA / 音标串到数字调拼音的内部对照关系，同样不属于外部原始语料。
+
+- `internal_data/key_symbol_mapping.json`
+  - 分类：旧手工键位映射参考文件。
+  - 原因：它仍可作旧手工布局/符号表参考，但不是 `syllable/codec/yinjie_encoder.py` 当前 runtime 链的真源；相关审计说明已收敛到 `internal_data/yinjie_runtime_key_symbol_mapping.json`。
+
+- `internal_data/key_to_symbol.json`
+  - 分类：当前 canonical 槽位到字符映射。
+  - 原因：它与 `internal_data/key_symbol_mapping.json`、`internal_data/yinjie_runtime_key_symbol_mapping.json` 职责不同，不应再按“同名映射”继续合并；前者面向布局 canonical 字符表，后两者分别面向旧手工参考和 runtime 审计。
+
+- `data_json_files/key_symbol_mapping.json`
+  - 分类：已删除的误命名重复副本。
+  - 原因：文件内容与原 `data_json_files/ganyin_pinyin_mapping.json` 实际一致，只是历史上以错误文件名重复保存；在并入 `internal_data` 时已一并清理。
+
 ## 当前结构的主要问题
 
 ### 1. 语义层缺失独立文件
