@@ -1,7 +1,7 @@
-"""Legacy diagnostic: verify the retained class-base naming relationship."""
+"""Legacy diagnostic: verify the retained NoiseYinyuan base-class relationship."""
 
 
-def test_class_renaming():
+def test_noise_yinyuan_base_class_relationship() -> None:
     from syllable.analysis.yinyuan import UncertainPitchYinyuan
     from syllable.analysis.zaoyin_yinyuan import NoiseYinyuan
 
@@ -10,7 +10,7 @@ def test_class_renaming():
 
 
 def main() -> None:
-    test_class_renaming()
+    test_noise_yinyuan_base_class_relationship()
     print("类名重构验证通过")
 
 
