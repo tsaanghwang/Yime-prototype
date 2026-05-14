@@ -192,6 +192,9 @@ class GanyinEncoder:
         project_root = self.module_dir.parent.parent
         return project_root / "internal_data" / self.DERIVED_OUTPUT_DIRNAME / filename
 
+    def runtime_output_path(self, filename: str) -> Path:
+        return self.syllable_dir / self.DATA_SUBDIR / filename
+
     def convert_pianyin_to_yinyuan(self, pianyin: str) -> str:
         """将片音转换为音元"""
         if not pianyin:
@@ -279,7 +282,7 @@ class GanyinEncoder:
             for ganyin_type in notes_data
             for ganyin_name, parts in notes_data[ganyin_type].items()
         }
-        fixed_length_encoding_output_path = output_file.with_name(self.DINGCHANGMA_FILENAME)
+        fixed_length_encoding_output_path = self.runtime_output_path(self.DINGCHANGMA_FILENAME)
         self.save_yinyuan_data(fixed_length_encoding_output_path, simplified_notes_data)
 
         # 6. 生成干音简式拼式字典
