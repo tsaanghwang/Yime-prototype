@@ -1,11 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import  sys
+import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from syllable.analysis.slice.ganyin_categorizer import GanyinCategorizer
 import json
+
+
+SLICE_DIR = REPO_ROOT / "syllable" / "analysis" / "slice"
+
+
+def _flatten_grouped_ganyin(document: dict) -> dict[str, str]:
+    grouped = document.get("ganyin", {})
+    return {
+        key: value
+        for group in grouped.values()
+        for key, value in group.items()
+    }
 
 
 def test_shejian_processing():
@@ -14,9 +30,9 @@ def test_shejian_processing():
 
     # 读取实际数据
     try:
-        with open('yinyuan/ganyin.json', 'r', encoding='utf-8') as f:
+        with (SLICE_DIR / 'yinyuan' / 'ganyin.json').open('r', encoding='utf-8') as f:
             data = json.load(f)
-        ganyin_data = data['ganyin']
+        ganyin_data = _flatten_grouped_ganyin(data)
     except FileNotFoundError:
         print("错误: ganyin.json 文件不存在，请先运行 ganyin.py")
         return
