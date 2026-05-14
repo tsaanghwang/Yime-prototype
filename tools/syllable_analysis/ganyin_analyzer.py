@@ -20,7 +20,7 @@ def _find_repo_root(start: Path) -> Path:
 class GanyinAnalyzer:
     def __init__(self, file):
         root = _find_repo_root(Path(file).resolve())
-        runtime_dir = root / 'syllable' / 'analysis' / 'slice' / 'yinyuan'
+        runtime_dir = root / 'syllable' / 'yinyuan'
 
         self.input_path = os.path.normpath(str(
             root / 'internal_data' / 'pinyin_source_db' / 'lexicon_exports' / 'pinyin_normalized.json'

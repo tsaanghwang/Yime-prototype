@@ -8,19 +8,18 @@ from pathlib import Path
 from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
 
 
-ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "syllable" / "analysis"
+SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
+YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 
 
 def extract_yueyin_yinyuan():
     """生成乐音类音元数据文件"""
 
-    base_dir = ANALYSIS_DIR
-
     # 输入输出文件路径
-    input_path = base_dir / 'yinyuan' / 'pitched_pianyin.json'
-    output_mid_high_median_model_path = base_dir / 'yinyuan' / \
+    input_path = YINYUAN_DIR / 'pitched_pianyin.json'
+    output_mid_high_median_model_path = YINYUAN_DIR / \
         'pitched_yinyuan_of_mid_high_median_model.json'
-    output_mid_level_median_model_path = base_dir / 'yinyuan' / \
+    output_mid_level_median_model_path = YINYUAN_DIR / \
         'pitched_yinyuan_of_mid_level_median_model.json'
 
     # 读取输入数据

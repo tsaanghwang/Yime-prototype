@@ -12,7 +12,7 @@ from syllable.analysis.ganyin_categorizer import GanyinCategorizer
 import json
 
 
-SLICE_DIR = REPO_ROOT / "syllable" / "analysis" / "slice"
+YINYUAN_DIR = REPO_ROOT / "syllable" / "yinyuan"
 
 
 def _flatten_grouped_ganyin(document: dict) -> dict[str, str]:
@@ -30,7 +30,7 @@ def test_shejian_processing():
 
     # 读取实际数据
     try:
-        with (SLICE_DIR / 'yinyuan' / 'ganyin.json').open('r', encoding='utf-8') as f:
+        with (YINYUAN_DIR / 'ganyin.json').open('r', encoding='utf-8') as f:
             data = json.load(f)
         ganyin_data = _flatten_grouped_ganyin(data)
     except FileNotFoundError:

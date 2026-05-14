@@ -19,8 +19,8 @@ EXTERNAL_KLC_PATH = EXTERNAL_REPO / "yinyuan.klc"
 RUNTIME_SYMBOL_PATH = ROOT / "syllable" / "codec" / "key_to_code.json"
 CANONICAL_SYMBOL_PATH = ROOT / "internal_data" / "key_to_symbol.json"
 PROJECTION_PATH = ROOT / "internal_data" / "bmp_pua_trial_projection.json"
-SHOUYIN_PATH = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "shouyin_codepoint.json"
-YINYUAN_PATH = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "yinyuan_codepoint.json"
+SHOUYIN_PATH = ROOT / "syllable" / "yinyuan" / "shouyin_codepoint.json"
+YINYUAN_PATH = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
 
 KLC_ROW_RE = re.compile(
     r"^\s*(?P<scan>[0-9A-Fa-f]+)\s+"

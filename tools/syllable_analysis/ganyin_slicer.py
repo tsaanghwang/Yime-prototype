@@ -11,7 +11,6 @@ from syllable.analysis.ganyin import Ganyin
 from syllable.analysis.pitched_pianyin import YueyinPianyin
 
 
-SLICE_DIR = PROJECT_ROOT / "syllable" / "analysis" / "slice"
 DERIVED_OUTPUT_DIR = PROJECT_ROOT / "internal_data" / "yinyuan_derived"
 GANYIN_CLASS = cast(Any, Ganyin)
 YUEYIN_PIANYIN_CLASS = cast(Any, YueyinPianyin)

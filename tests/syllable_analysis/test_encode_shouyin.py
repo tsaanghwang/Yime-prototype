@@ -6,7 +6,7 @@ from pathlib import Path
 from syllable.analysis.shouyin_encoder import ShouyinEncoder
 
 
-ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "syllable" / "analysis"
+SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
 
 class TestShouyinEncoder(unittest.TestCase):
     """测试 ShouyinEncoder 类的 encode_shouyin 方法"""
@@ -14,9 +14,9 @@ class TestShouyinEncoder(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """测试类初始化，创建编码器实例"""
-        data_path = ANALYSIS_DIR / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
+        data_path = SYLLABLE_DIR / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
         cls.encoder = ShouyinEncoder(data_path)
-        runtime_path = ANALYSIS_DIR / "yinyuan" / "shouyin_codepoint.json"
+        runtime_path = SYLLABLE_DIR / "yinyuan" / "shouyin_codepoint.json"
         with runtime_path.open('r', encoding='utf-8') as f:
             cls.runtime_map = json.load(f)["首音"]
 

@@ -9,7 +9,7 @@ class GanyinEncoder:
     """干音编码处理器，整合音元映射和音元序列生成功能"""
 
     # 类常量
-    SUBDIR = "yinyuan"
+    DATA_SUBDIR = "yinyuan"
     YUEYIN_SOURCE_FILENAME = "yueyin_yinyuan_enhanced.json"
     YUEYIN_COMPAT_FILENAME = "yueyin_yinyuan.json"
     YINYUAN_FILENAME = "yinyuan_codepoint.json"
@@ -20,12 +20,13 @@ class GanyinEncoder:
     def __init__(self):
         self.yueyin_yinyuan = YueyinYinyuan(quality="", pitch="")
         self.module_dir = Path(__file__).parent
+        self.syllable_dir = self.module_dir.parent
         self.yueyin_source = self._load_yueyin_source()
         self.yueyin_codepoints = self._load_yueyin_codepoints()
         self.ganyin_part_map = self._load_ganyin_part_map()
 
     def _load_yueyin_source(self) -> Dict[str, Any]:
-        source_path = self.module_dir / self.SUBDIR / self.YUEYIN_SOURCE_FILENAME
+        source_path = self.syllable_dir / self.DATA_SUBDIR / self.YUEYIN_SOURCE_FILENAME
         with source_path.open('r', encoding='utf-8') as f:
             return json.load(f)
 

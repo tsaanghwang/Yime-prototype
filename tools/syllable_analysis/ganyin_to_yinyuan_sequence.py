@@ -15,7 +15,6 @@ if str(PROJECT_ROOT) not in sys.path:
 from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
 
 
-SLICE_DIR = PROJECT_ROOT / "syllable" / "analysis" / "slice"
 DERIVED_OUTPUT_DIR = PROJECT_ROOT / "internal_data" / "yinyuan_derived"
 
 

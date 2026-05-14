@@ -34,9 +34,8 @@ include = ["yime*", "syllable*", "utils*"]
 exclude = ["tests*", "tools*", "yime.legacy*"]
 
 [tool.setuptools.package-data]
-"syllable.analysis" = ["yinyuan/*.json"]
+"syllable" = ["yinyuan/*.json"]
 "syllable.codec" = ["*.json"]
-"syllable.pianyin" = ["*.json"]
 "yime" = ["*.json", "*.sql", "*.txt", "*.csv"]
 
 [tool.pytest.ini_options]

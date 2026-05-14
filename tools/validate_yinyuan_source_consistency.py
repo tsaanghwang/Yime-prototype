@@ -8,11 +8,11 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_LAYOUT_MAP = ROOT / "syllable" / "codec" / "key_to_code.json"
-DEFAULT_SHOUYIN_SOURCE = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
-DEFAULT_YUEYIN_SOURCE = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "yueyin_yinyuan_enhanced.json"
-DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "shouyin_codepoint.json"
-DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "yinyuan_codepoint.json"
-DEFAULT_GANYIN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "ganyin_to_fixed_length_yinyuan_sequence.json"
+DEFAULT_SHOUYIN_SOURCE = ROOT / "syllable" / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
+DEFAULT_YUEYIN_SOURCE = ROOT / "syllable" / "yinyuan" / "yueyin_yinyuan_enhanced.json"
+DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "yinyuan" / "shouyin_codepoint.json"
+DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
+DEFAULT_GANYIN_RUNTIME = ROOT / "syllable" / "yinyuan" / "ganyin_to_fixed_length_yinyuan_sequence.json"
 
 
 def load_json(path: Path) -> dict[str, Any]:
