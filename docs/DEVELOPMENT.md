@@ -169,6 +169,12 @@ python tools/rebuild_encoding_assets.py
 .venv\Scripts\python.exe tools\rebuild_encoding_assets.py
 ```
 
+如果你是在 Git Bash 里执行，同一条命令请改用正斜杠：
+
+```bash
+.venv/Scripts/python.exe tools/rebuild_encoding_assets.py
+```
+
 这个入口当前会顺序重建：
 
 - `syllable/yinyuan/shouyin_codepoint.json`
@@ -182,6 +188,12 @@ python tools/rebuild_encoding_assets.py
 
 ```bash
 python tools/rebuild_encoding_assets.py --skip-code-pinyin
+```
+
+Git Bash 下对应写法：
+
+```bash
+.venv/Scripts/python.exe tools/rebuild_encoding_assets.py --skip-code-pinyin
 ```
 
 注意：`python run_input_method.py` 本身不会自动重建这些产物；它只会读取现成的 `syllable/codec/yinjie_code.json` 和相关运行时 JSON。所以规则改完但没先执行重建时，启动输入法不会自动带出新编码。
