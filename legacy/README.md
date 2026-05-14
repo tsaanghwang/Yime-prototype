@@ -139,9 +139,11 @@
 - `syllable_prototypes/three_models.py`
 - `syllable_prototypes/syllable_analyzer_strategy.py`
 - `syllable_prototypes/analysis/initial_final_with_tone/initial_final_with_tone_analyzer.py`
-- `syllable_prototypes/analysis/slice/slice_analyzer.py`
+- `syllable_prototypes/analysis/slice_analyzer.py`
 
 这些文件主要服务于早期“声母韵母声调 <-> slice”原型抽象，当前运行时、`yinjie` 编码链、测试和打包面都不再消费；继续留在活动包根目录只会制造它们仍属现行 API 的误解。
+
+这一组对象目前仍适合整体保留在 `legacy/syllable_prototypes/` 下，而不是继续拆成更多零散快照目录，因为它们和 `analysis/initial_final_with_tone/` 一起构成了一套相对完整的早期原型尝试。当前更合适的整理方式是只消掉没有信息增量的单文件子目录，例如把只剩一个 `slice_analyzer.py` 的 `analysis/slice/` 扁平化，而不是把整个原型包拆碎。
 
 另外，原 `syllable/analysis/initial_final_with_tone/` 目录下剩余的整条旧分析链也已整体迁入 `legacy/syllable_prototypes/analysis/initial_final_with_tone/`：
 
