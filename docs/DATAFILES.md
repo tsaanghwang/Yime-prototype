@@ -4,7 +4,9 @@
 
 ## 1. 主要数据文件
 
-- data_json_files/key_symbol_mapping.json：键位与音元符号映射
+- internal_data/key_symbol_mapping.json：键位与音元符号映射
+- internal_data/ganyin_pinyin_mapping.json：PUA 音元序列到带调干音字符串映射
+- internal_data/ipa_pinyin_mapping.json：带调 IPA / 音标串到数字调拼音映射
 - syllable/codec/key_to_code.json：运行时键位槽位到字符映射
 - yime/reports/phoneme_dict.json：音元分类导出报告
 
@@ -12,7 +14,7 @@
 
 ## 2. 字段说明与示例
 
-### key_symbol_mapping.json
+### internal_data/key_symbol_mapping.json
 
 ```json
 {
@@ -23,6 +25,18 @@
 
 - 键：键位
 - 值：音元符号
+
+### internal_data/ganyin_pinyin_mapping.json
+
+- 键：项目内部使用的 PUA 音元序列
+- 值：对应的带调干音字符串
+- 性质：项目内生映射，不属于外部原始语料
+
+### internal_data/ipa_pinyin_mapping.json
+
+- 键：带调 IPA / 音标串
+- 值：对应的数字调拼音
+- 性质：项目内生对照映射，不属于外部原始语料
 
 ### syllable/codec/key_to_code.json
 
