@@ -4,6 +4,14 @@
 
 已迁入本目录的对象只用于历史审计、人工排障或对照旧生成方式，不再作为当前推荐入口，也为后续彻底删除预留独立清理边界。
 
+## Reading Guide
+
+阅读本目录时，可以先按三类理解：
+
+- 带有“当前主线请改走”说明的段落：表示这里只保留历史链，真实入口已经迁到现行目录。
+- `legacy/*_tools/`、`legacy/*_scripts/`、`legacy/diagnostic_scripts/`：表示仍可手动运行、但只用于旧链路排障或兼容包装的历史脚本。
+- `legacy/*_snapshots/`、`legacy/*_generated/`、`legacy/comparison_chain/` 这类目录：表示历史快照、派生产物或旧数据链，不应再视为当前真源。
+
 这条旧链现已整体下沉到 `legacy/raw_yaml_chain/`，大致包括：
 
 - `raw_yaml_chain/hanzi_pinyin_raw.yaml`
@@ -155,7 +163,7 @@
 
 其中，`tools/syllable_analysis/ganyin_to_pianyin_sequence.py` 现在只保留为旧命名入口的兼容包装；当前实际实现已经收敛到 `tools/syllable_analysis/ganyin_slicer.py`。
 
-同时，原 `syllable/analysis/slice/reverse_key_value_pairs.py` 也已迁入 `legacy/syllable_analysis_slice/`。当前活动重建链已经使用 `yime/reverse_key_value_pairs.py`，因此 `slice` 内这份旧 helper 不再需要留在活动实现面。
+同时，原 `syllable/analysis/slice/reverse_key_value_pairs.py` 也已并入 `legacy/syllable_analysis_tools/`。当前活动重建链已经使用 `yime/reverse_key_value_pairs.py`，因此这份旧 helper 只保留作历史工具链对照，不再需要继续挂在独立的 `slice` 目录下。
 
 这轮又补做了最后一批边界清理：
 
@@ -182,6 +190,12 @@
 - `mysql_conn_script.py`
 
 其中 `check_punctuation.py` 依赖的 `理论文件/` 目录已不复存在；`class_renaming_script.py` 与 `renaming_script.py` 只是类名调整时的一次性断言片段；`mysql_conn_script.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
+
+另外，原 `syllable/analysis/slice/temp.py` 这类未命名的临时实验脚本也已按用途收进 `legacy/diagnostic_scripts/`：
+
+- `tone_mark_sort_probe.py`
+
+这类脚本主要用于一次性验证声调符号排序、Unicode 组合字符行为等局部问题；保留它们的价值在于历史排障记录，而不是作为某条长期维护的分析链入口。
 
 此外，原 `scripts/generate_ci_report.py` 也已迁入 `legacy/ci_scripts/`。
 
