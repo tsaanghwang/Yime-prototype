@@ -1,4 +1,4 @@
-"""Legacy MySQL connectivity probe for a local root account."""
+"""Legacy MySQL root-account connectivity probe for local environments."""
 
 import os
 
