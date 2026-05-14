@@ -2,14 +2,27 @@
 """
 韵母动态添加功能总结测试
 """
-import  sys
+import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from ganyin_categorizer import GanyinCategorizer
-from syllable_analyzer import YinjieAnalyzer
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import json
 import os
+
+from syllable import YinjieAnalyzer
+from syllable.analysis.slice.ganyin_categorizer import GanyinCategorizer
+
+
+def _flatten_grouped_ganyin(document: dict) -> dict[str, str]:
+    grouped = document.get("ganyin", {})
+    return {
+        key: value
+        for group in grouped.values()
+        for key, value in group.items()
+    }
 
 def final_test():
     """最终测试韵母动态添加功能"""
@@ -52,7 +65,7 @@ def final_test():
     if os.path.exists(analyzer.ganyin_path):
         with open(analyzer.ganyin_path, 'r', encoding='utf-8') as f:
             ganyin_data = json.load(f)
-        entries = len(ganyin_data.get('ganyin', {}))
+        entries = len(_flatten_grouped_ganyin(ganyin_data))
         print(f"     干音数据文件: {entries} 条记录")
 
     if os.path.exists(analyzer.shouyin_path):

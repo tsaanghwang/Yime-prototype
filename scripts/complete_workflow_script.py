@@ -2,14 +2,27 @@
 """
 完整测试韵母动态添加功能
 """
-import  sys
+import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from ganyin_categorizer import GanyinCategorizer
-from syllable_analyzer import YinjieAnalyzer
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 import json
 import os
+
+from syllable import YinjieAnalyzer
+from syllable.analysis.slice.ganyin_categorizer import GanyinCategorizer
+
+
+def _flatten_grouped_ganyin(document: dict) -> dict[str, str]:
+    grouped = document.get("ganyin", {})
+    return {
+        key: value
+        for group in grouped.values()
+        for key, value in group.items()
+    }
 
 
 def test_complete_workflow():
@@ -60,11 +73,11 @@ def test_complete_workflow():
     if os.path.exists(analyzer.ganyin_path):
         with open(analyzer.ganyin_path, 'r', encoding='utf-8') as f:
             ganyin_data = json.load(f)
-        ganyin_count = len(ganyin_data.get('ganyin', {}))
+        ganyin_finals = _flatten_grouped_ganyin(ganyin_data)
+        ganyin_count = len(ganyin_finals)
         print(f"   干音数据: {ganyin_count} 项")
 
         # 检查一些新韵母是否在生成的数据中
-        ganyin_finals = ganyin_data.get('ganyin', {})
         test_entries = ['ian1', 'iong1', 'ong1', 'ua1']
         for entry in test_entries:
             if entry in ganyin_finals:
