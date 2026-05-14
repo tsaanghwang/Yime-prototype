@@ -19,6 +19,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+RAW_YAML_FILENAME = 'hanzi_pinyin_raw.yaml'
+RAW_YAML_IMPORT_HINT = (
+    '缺少 hanzi_pinyin_raw.yaml。该文件来自外部开源免费资源，'
+    '本仓库不再跟踪；如需运行旧 raw-YAML 链，请先自行导入相关资源到当前目录。'
+)
+
 
 class YAMLToJSONConverter:
     """将YAML格式的拼音数据转换为JSON格式的转换器"""
@@ -135,6 +141,9 @@ class YAMLToJSONConverter:
     def convert(self, yaml_file: str, json_file: str) -> None:
         """执行转换过程"""
         try:
+            if not os.path.exists(yaml_file):
+                raise FileNotFoundError(f"{RAW_YAML_IMPORT_HINT}\n期望路径: {yaml_file}")
+
             # 读取文件内容
             with open(yaml_file, 'r', encoding='utf-8') as f:
                 content = f.read()
@@ -172,8 +181,8 @@ class YAMLToJSONConverter:
             # 打印报告
             self._print_report()
 
-        except FileNotFoundError:
-            logger.error(f"文件未找到: {yaml_file}")
+        except FileNotFoundError as exc:
+            logger.error(str(exc))
             raise
         except Exception as e:
             logger.error(f"转换过程中发生错误: {str(e)}")
@@ -182,11 +191,13 @@ class YAMLToJSONConverter:
 
 def main():
     """主函数，处理命令行参数"""
-    parser = argparse.ArgumentParser(description='将YAML格式的拼音数据转换为JSON格式')
+    parser = argparse.ArgumentParser(
+        description='将YAML格式的拼音数据转换为JSON格式（若使用 raw 版本，请先导入外部开源免费资源 hanzi_pinyin_raw.yaml）'
+    )
     parser.add_argument('yaml_file', nargs='?',
                         default=os.path.join(os.path.dirname(
-                            __file__), 'hanzi_pinyin_raw.yaml'),
-                        help='输入的YAML文件路径 (默认: 同目录下的hanzi_pinyin_raw.yaml)')
+                            __file__), RAW_YAML_FILENAME),
+                        help='输入的YAML文件路径 (默认: 同目录下的 hanzi_pinyin_raw.yaml；该文件需先自行导入)')
     parser.add_argument('json_file', nargs='?',
                         default=os.path.join(os.path.dirname(
                             __file__), 'hanzi_to_pinyin.json'),
@@ -199,7 +210,10 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     converter = YAMLToJSONConverter()
-    converter.convert(args.yaml_file, args.json_file)
+    try:
+        converter.convert(args.yaml_file, args.json_file)
+    except FileNotFoundError:
+        raise SystemExit(1)
 
 
 if __name__ == '__main__':
