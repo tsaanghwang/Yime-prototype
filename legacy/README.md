@@ -161,6 +161,17 @@
 - 原 `tools/syllable_analysis/run_syllable_analyzer.py` 已迁入 `legacy/syllable_analysis_tools/`，因为它只是绕回旧的 `slice/syllable_analyzer.py` 包装入口，且没有活动消费者。
 - 原 `tools/syllable_analysis/extract_musical_element.py` 已迁入 `legacy/syllable_analysis_tools/`，因为它与 `tools/syllable_analysis/extract_yueyin_yinyuan.py` 为重复实现，只是旧命名残留。
 
+此外，`scripts/` 下几份早期 syllable 手工验证脚本也已迁入 `legacy/syllable_analysis_scripts/`：
+
+- `complete_workflow_script.py`
+- `final_test_script.py`
+- `dynamic_finals_script.py`
+- `ganyin_final_definition_script.py`
+- `ganyin_script.py`
+- `shejian_script.py`
+
+这几份脚本没有活动消费者，主要承担一次性检查、打印式验证或早期行为演示；它们对应的分类/编码/一致性检查现在已由 `tests/syllable_analysis/` 和 `tools/syllable_analysis/` 中的现行工具覆盖，因此不再需要继续保留在顶层 `scripts/` 目录。
+
 另外，原 `syllable/` 根目录下几份没有活动代码读取的旧 JSON 快照也已迁入 `legacy/syllable_root_snapshots/`：
 
 - `syllable_root_snapshots/ganyin.json`
