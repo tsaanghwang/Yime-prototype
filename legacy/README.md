@@ -192,12 +192,12 @@
 
 另外，几份更早的独立诊断/重命名试验脚本也已迁入 `legacy/diagnostic_scripts/`：
 
-- `check_punctuation.py`
+- `theory_markdown_punctuation_probe.py`
 - `noise_yinyuan_base_class_probe.py`
 - `noise_yinyuan_rename_probe.py`
-- `mysql_conn_script.py`
+- `mysql_root_connectivity_probe.py`
 
-其中 `check_punctuation.py` 依赖的 `理论文件/` 目录已不复存在；`noise_yinyuan_base_class_probe.py` 与 `noise_yinyuan_rename_probe.py` 只保留作 `NoiseYinyuan` / `UncertainPitchYinyuan` 历史重命名关系的一次性断言；`mysql_conn_script.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
+其中 `theory_markdown_punctuation_probe.py` 依赖的 `理论文件/` 目录已不复存在；`noise_yinyuan_base_class_probe.py` 与 `noise_yinyuan_rename_probe.py` 只保留作 `NoiseYinyuan` / `UncertainPitchYinyuan` 历史重命名关系的一次性断言；`mysql_root_connectivity_probe.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
 
 另外，原 `syllable/analysis/slice/temp.py` 这类未命名的临时实验脚本也已按用途收进 `legacy/diagnostic_scripts/`：
 
@@ -229,7 +229,7 @@
 - `ganyin_theoretical.json`
 - `ganyin_encoding.json`
 
-这批文件在仓库内已经没有任何精确到 `syllable/yinyuan/` 的活动消费者；它们更像历史分析快照、兼容副本或早期派生产物，而不是当前 `yinyuan` 目录的现行真源。保留在活动目录里只会继续抬高“哪些文件真的参与当前链路”的辨识成本。
+当前 `yinyuan` 目录的现行真源应优先看 `syllable/yinyuan/` 下仍被运行时和重建链读取的资产；本目录这批对象只保留作历史分析快照、兼容副本或早期派生产物对照。仓库内已经没有任何精确到这些旧路径的活动消费者，因此把它们留在活动目录里只会继续抬高“哪些文件真的参与当前链路”的辨识成本。
 
 同时，以下仍会从现行真源生成、但不应继续占据 `syllable/yinyuan/` 活动目录的兼容/辅助输出，已统一迁到 `internal_data/yinyuan_derived/`：
 
@@ -242,7 +242,7 @@
 - `ganyin_to_yinyuan_seq_marks.json`
 - `ganyin_to_yinyuan_seq_notes.json`
 
-它们并非运行时真源，也不参与当前输入法主链读取；保留它们的目的主要是旧脚本兼容、人工查看和辅助分析，因此更适合放在派生输出目录，而不是继续与 `yinyuan` 真源和运行时产物混放。
+这批对象的当前替代面就是 `internal_data/yinyuan_derived/` 本身：它们并非运行时真源，也不参与当前输入法主链读取；保留它们的目的主要是旧脚本兼容、人工查看和辅助分析，因此更适合放在派生输出目录，而不是继续与 `yinyuan` 真源和运行时产物混放。
 
 另外，原 `syllable/` 根目录下几份没有活动代码读取的旧 JSON 快照也已迁入 `legacy/syllable_root_snapshots/`：
 
@@ -256,4 +256,4 @@
 - `syllable_root_snapshots/shouyin_shengmu.json`
 - `syllable_root_snapshots/syllabic_quality.json`
 
-这批文件更接近旧分析链或理论快照，而不是当前 `syllable/yinyuan/` 运行资产；其中 `ganyin.json` 的唯一活动读取方也已切回 `syllable/yinyuan/ganyin.json`，因此不再需要继续占据 `syllable/` 包根目录。
+当前对应的活动读取面已经切回 `syllable/yinyuan/` 与相关现行分析模块；这批文件更接近旧分析链或理论快照，而不是当前 `syllable/yinyuan/` 运行资产。其中 `ganyin.json` 的唯一活动读取方也已切回 `syllable/yinyuan/ganyin.json`，因此它们不再需要继续占据 `syllable/` 包根目录。

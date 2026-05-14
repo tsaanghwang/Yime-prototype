@@ -1,8 +1,7 @@
+"""Legacy punctuation probe for the removed 理论文件 markdown tree."""
+
 from pathlib import Path
 import re
-
-
-"""Legacy diagnostic for the removed 理论文件 markdown tree."""
 
 
 TARGET_DIR = Path("理论文件")
