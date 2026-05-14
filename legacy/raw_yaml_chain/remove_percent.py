@@ -2,12 +2,21 @@ import re
 import os
 
 
-def remove_percent_and_save(input_file, output_file):
+RAW_YAML_FILENAME = "hanzi_pinyin_raw.yaml"
+RAW_YAML_IMPORT_HINT = (
+    "缺少 hanzi_pinyin_raw.yaml。该文件来自外部开源免费资源，"
+    "本仓库不再跟踪；如需运行旧 raw-YAML 链，请先自行导入相关资源到当前目录。"
+)
+
+
+def remove_percent_and_save(input_file: str, output_file: str) -> None:
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"{RAW_YAML_IMPORT_HINT}\n期望路径: {input_file}")
+
     with open(input_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
-    original_count = len(lines)
-    processed_lines = []
+    processed_lines: list[str] = []
     removed_count = 0
     no_tone_count = 0
 
@@ -38,6 +47,10 @@ def remove_percent_and_save(input_file, output_file):
 if __name__ == "__main__":
     # 使用绝对路径
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    input_file = os.path.join(base_dir, "hanzi_pinyin_raw.yaml")
+    input_file = os.path.join(base_dir, RAW_YAML_FILENAME)
     output_file = os.path.join(base_dir, "hanzi_pinyin.yaml")
-    remove_percent_and_save(input_file, output_file)
+    try:
+        remove_percent_and_save(input_file, output_file)
+    except FileNotFoundError as exc:
+        print(exc)
+        raise SystemExit(1)

@@ -15,6 +15,7 @@
 这条旧链现已整体下沉到 `legacy/raw_yaml_chain/`，大致包括：
 
 - `raw_yaml_chain/hanzi_pinyin_raw.yaml`
+  - 说明：该文件来自外部开源免费资源，仓库现已不再跟踪；如需运行旧 raw-YAML 链，请先自行导入后再运行相关脚本。
 - `raw_yaml_chain/remove_percent.py`
 - `raw_yaml_chain/hanzi_pinyin.yaml`
 - `raw_yaml_chain/split_yaml_file.py`
