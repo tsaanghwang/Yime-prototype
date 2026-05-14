@@ -114,8 +114,11 @@
 - `pinyin_generated/keys_to_yunmu.py`
 - `pinyin_generated/keys_to_yunmu.json`
 - `pinyin_analysis/compare_pinyin_lists.py`
+- `pinyin_analysis/copy2.py`
+- `pinyin_analysis/duplicate_checker.py`
+- `pinyin_analysis/process_duplicates.py`
 
-其中 `keys_to_yunmu` 只是从 `yunmu_to_keys.json` 派生反向映射的孤立导出链，没有主线消费者；`compare_pinyin_lists.py` 则直接依赖已不存在的 `pinyin/pinyin_to_hanzi.json`，属于失效的历史分析脚本。
+其中 `keys_to_yunmu` 只是从 `yunmu_to_keys.json` 派生反向映射的孤立导出链，没有主线消费者；`compare_pinyin_lists.py` 则直接依赖已不存在的 `pinyin/pinyin_to_hanzi.json`，属于失效的历史分析脚本。`copy2.py`、`duplicate_checker.py` 与 `process_duplicates.py` 也都只是旧拼音侧的一次性复制、查重、格式转换 helper，没有文档主流程或活动代码再使用，继续留在 `tools/` 顶层只会增加杂项噪音。
 
 另外，原 `pinyin/` 包剩余的 `yunmu` helper 实现也已整体迁入 `legacy/pinyin_package/`：
 
@@ -145,6 +148,12 @@
 这些文件主要服务于早期“声母韵母声调 <-> slice”原型抽象，当前运行时、`yinjie` 编码链、测试和打包面都不再消费；继续留在活动包根目录只会制造它们仍属现行 API 的误解。
 
 这一组对象目前仍适合整体保留在 `legacy/syllable_prototypes/` 下，而不是继续拆成更多零散快照目录，因为它们和 `analysis/initial_final_with_tone/` 一起构成了一套相对完整的早期原型尝试。当前更合适的整理方式是只消掉没有信息增量的单文件子目录，例如把只剩一个 `slice_analyzer.py` 的 `analysis/slice/` 扁平化，而不是把整个原型包拆碎。
+
+另外，原 `tools/pitch_variables.json` 也已迁入 `legacy/syllable_prototypes/`：
+
+- `syllable_prototypes/pitch_variables.json`
+
+它没有任何活动代码或文档消费者，内容也更像通用声学变量占位说明，而不是当前项目工具链需要持续维护的输入资产；因此不再适合继续留在 `tools/` 顶层。
 
 另外，原 `syllable/analysis/initial_final_with_tone/` 目录下剩余的整条旧分析链也已整体迁入 `legacy/syllable_prototypes/analysis/initial_final_with_tone/`：
 
@@ -179,6 +188,9 @@
 - 原 `syllable/analysis/slice/shouyin_analyzer.py` 已迁到 `tools/syllable_analysis/shouyin_analyzer.py`，因为它负责生成和更新 `syllable/yinyuan/pianyin_initial.json`，属于资产生成脚本而不是运行时实现。
 - 原 `tools/syllable_analysis/run_syllable_analyzer.py` 已迁入 `legacy/syllable_analysis_tools/analyzer_cli_wrapper.py`，因为它只是绕回当前 analyzer CLI 的旧包装入口，且没有活动消费者。
 - 原 `tools/syllable_analysis/extract_musical_element.py` 已迁入 `legacy/syllable_analysis_tools/extract_yueyin_yinyuan_wrapper.py`，因为它与 `tools/syllable_analysis/extract_yueyin_yinyuan.py` 为重复实现，只保留旧入口兼容语义。
+- 原 `tools/ganyin_analyzer.py`、`tools/ganyin_to_pianyin_sequence.py`、`tools/ganyin_to_yinyuan_sequence.py`、`tools/shouyin.py`、`tools/yinyuan.py`、`tools/yinyuan_classifier.py` 已迁入 `legacy/syllable_analysis_tools/`，因为它们都属于早期音节分析实现或试验脚本，当前没有文档主流程、测试或活动代码再直接引用，而且职责已被 `tools/syllable_analysis/` 或 `syllable/analysis/` 中的现行实现替代。
+- 原 `tools/orchestrator.py`、`tools/pianyin_analyzer.py`、`tools/pianyin_counter.py`、`tools/yinyuan_pianyin_mapping.py` 与 `tools/count_replacements.py` 也已迁入 `legacy/syllable_analysis_tools/`，因为它们组成的是一条早期 finals/片音/音元分析流水线；其中 orchestrator 仍引用已失配的旧脚本名，不再适合作为当前工具目录中的活动入口，只保留作历史链路对照。
+- 原 `tools/musical_pianyin.py`、`tools/musical_yinyuan.py`、`tools/noise_yinyuan.py`、`tools/ganyin_de_pinyin.py` 与 `tools/supplement.py` 也已迁入 `legacy/syllable_analysis_tools/`，因为它们属于更早的表示法类或一次性补丁/生成脚本：有的仍依赖已不存在的旧模块名，有的直接写旧 `pinyin/` 数据文件，已经不适合继续留在当前 `tools/` 顶层。
 
 此外，`scripts/` 下几份早期 syllable 手工验证脚本也已迁入 `legacy/syllable_analysis_scripts/`：
 
