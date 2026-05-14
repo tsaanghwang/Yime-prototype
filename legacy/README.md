@@ -172,6 +172,15 @@
 
 这几份脚本没有活动消费者，主要承担一次性检查、打印式验证或早期行为演示；它们对应的分类/编码/一致性检查现在已由 `tests/syllable_analysis/` 和 `tools/syllable_analysis/` 中的现行工具覆盖，因此不再需要继续保留在顶层 `scripts/` 目录。
 
+另外，几份更早的独立诊断/重命名试验脚本也已迁入 `legacy/diagnostic_scripts/`：
+
+- `check_punctuation.py`
+- `class_renaming_script.py`
+- `renaming_script.py`
+- `mysql_conn_script.py`
+
+其中 `check_punctuation.py` 依赖的 `理论文件/` 目录已不复存在；`class_renaming_script.py` 与 `renaming_script.py` 只是类名调整时的一次性断言片段；`mysql_conn_script.py` 则是依赖本地环境变量和数据库实例的临时连通性诊断脚本。它们都没有活动消费者，也不构成当前仓库的可复用工具链。
+
 另外，原 `syllable/` 根目录下几份没有活动代码读取的旧 JSON 快照也已迁入 `legacy/syllable_root_snapshots/`：
 
 - `syllable_root_snapshots/ganyin.json`
