@@ -11,6 +11,27 @@
 """
 
 
+class Ganyin:
+    """由韵母和与其联结调段组成的轻量值对象。"""
+
+    def __init__(self, final: str, gandiao: str = None):
+        self.final = final
+        self.gandiao = gandiao
+
+    @classmethod
+    def from_syllable(cls, syllable: "Syllable"):
+        if not isinstance(syllable, Syllable):
+            raise TypeError("输入必须是Syllable对象")
+
+        return cls(final=syllable.final, gandiao=syllable.tone)
+
+    def __str__(self):
+        return f"Ganyin(final={self.final}, gandiao={self.gandiao})"
+
+    def __repr__(self):
+        return self.__str__()
+
+
 class Syllable:
     """
     音节类

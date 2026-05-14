@@ -1,5 +1,6 @@
 import json
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, cast
 
@@ -7,13 +8,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from syllable.analysis.ganyin import Ganyin
 from syllable.analysis.pitched_pianyin import YueyinPianyin
 
 
 DERIVED_OUTPUT_DIR = PROJECT_ROOT / "internal_data" / "yinyuan_derived"
-GANYIN_CLASS = cast(Any, Ganyin)
 YUEYIN_PIANYIN_CLASS = cast(Any, YueyinPianyin)
+
+
+@dataclass
+class Ganyin:
+    final: str
+    gandiao: str | None = None
 
 
 class GanyinSlicer:
@@ -43,7 +48,7 @@ class GanyinSlicer:
             ipa = str(value["ipa"])
             # 仅用于创建 Ganyin 对象时取第一个变体
             first_ipa = ipa.split("/")[0] if "/" in ipa else ipa
-            ganyin = GANYIN_CLASS(
+            ganyin = Ganyin(
                 final=str(value.get("ime", "")),
                 gandiao=first_ipa.split("˥")[0].split("˦")[0].split("˧")[
                     0].split("˨")[0].split("˩")[0]
