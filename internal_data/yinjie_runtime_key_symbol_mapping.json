@@ -14,10 +14,6 @@
       "note": "Legacy/manual mapping file. Not read by syllable/codec/yinjie_encoder.py when generating syllable/codec/yinjie_code.json."
     },
     {
-      "path": "data_json_files/key_symbol_mapping.json",
-      "note": "Legacy/manual mapping file. Not read by syllable/codec/yinjie_encoder.py when generating syllable/codec/yinjie_code.json."
-    },
-    {
       "path": "tools/key_symbol_mapping.py",
       "note": "Manual generator for an older symbol set. Not part of the current yinjie_encoder runtime chain."
     }

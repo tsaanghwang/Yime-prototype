@@ -3,7 +3,7 @@ import os
 import sys
 
 # 定义 JSON 文件的相对路径（相对于项目根目录）
-json_file_path = os.path.join("data_json_files", "key_symbol_mapping.json")
+json_file_path = os.path.join("internal_data", "key_symbol_mapping.json")
 
 # 获取当前脚本所在的目录
 script_dir = os.path.dirname(os.path.abspath(__file__))

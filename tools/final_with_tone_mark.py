@@ -65,7 +65,7 @@ class FinalsToneMarker:
         2. For final "iu", mark tone on the following "u"
         3. For final "ui", mark tone on the following "i"
         4. For finals "in/ing/un/", mark tone on the preceding "i/u"
-        
+
         Note: Add additional rules for any exceptions
         """
         # 规则1：对有"a/o/e"的韵母在"a/o/e"上标调
@@ -73,19 +73,19 @@ class FinalsToneMarker:
             pos = pinyin.find(vowel)
             if pos != -1:
                 return pinyin[:pos] + pinyin[pos] + self.tone_markers[tone] + pinyin[pos+1:]
-        
+
         # 规则2：对韵母"iu"在后面的"u"上标调
         if pinyin == "iu":
             return "i" + "u" + self.tone_markers[tone]
-        
+
         # 规则3：对韵母"ui"在后面的"i"上标调
         if pinyin == "ui":
             return "u" + "i" + self.tone_markers[tone]
-        
+
         # 规则4：对韵母"in/ing/un/"在前面的"i/u"上标调
         if pinyin in ["in", "ing", "un"]:
             return pinyin[0] + self.tone_markers[tone] + pinyin[1:]
-        
+
         # 默认情况：在中间位置加调号
         mid = len(pinyin) // 2
         return pinyin[:mid] + self.tone_markers[tone] + pinyin[mid:]
@@ -93,39 +93,39 @@ class FinalsToneMarker:
     def generate_all_tones(self):
         """Generate tone marked results for all finals (为所有韵母生成四声标调结果)"""
         results = {}
-        
+
         # 处理单质韵母
         for final in self.classified_finals["单质韵母"]:
             pinyin = final["拼音"]
             results[pinyin] = {
-                tone: self.mark_single_quality(pinyin, tone) 
+                tone: self.mark_single_quality(pinyin, tone)
                 for tone in range(1, 5)
             }
-        
+
         # 处理后长韵母
         for final in self.classified_finals["后长韵母"]:
             pinyin = final["拼音"]
             results[pinyin] = {
-                tone: self.mark_post_long(pinyin, tone) 
+                tone: self.mark_post_long(pinyin, tone)
                 for tone in range(1, 5)
             }
-        
+
         # 处理前长韵母
         for final in self.classified_finals["前长韵母"]:
             pinyin = final["拼音"]
             results[pinyin] = {
-                tone: self.mark_pre_long(pinyin, tone) 
+                tone: self.mark_pre_long(pinyin, tone)
                 for tone in range(1, 5)
             }
-        
+
         # 处理三质韵母
         for final in self.classified_finals["三质韵母"]:
             pinyin = final["拼音"]
             results[pinyin] = {
-                tone: self.mark_triple_quality(pinyin, tone) 
+                tone: self.mark_triple_quality(pinyin, tone)
                 for tone in range(1, 5)
             }
-        
+
         return results
 
     def print_results(self, results: Dict[str, Dict[int, str]]):
@@ -141,7 +141,7 @@ class FinalsToneMarker:
     def save_results(self, results: Dict[str, Dict[int, str]]):
         """Save tone marking results to JSON file (保存标调结果到JSON文件)"""
         import os
-        os.makedirs("data_json_files", exist_ok=True)
+        os.makedirs("internal_data", exist_ok=True)
         with open("internal_data/marked_finals.json", "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
