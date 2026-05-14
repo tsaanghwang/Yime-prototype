@@ -12,7 +12,8 @@ from typing import TypedDict
 from syllable.analysis.zaoyin_yinyuan import ClearNoise, VoicedNoise
 
 
-ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "syllable" / "analysis"
+SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
+YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
 
@@ -93,11 +94,10 @@ def generate_zaoyin_yinyuan():
     """
     读取 yinyuan/pianyin_initial.json，生成噪音类音元 JSON 文件。
     """
-    base_dir = SLICE_DIR
-    input_path = base_dir / 'yinyuan' / 'pianyin_initial.json'
-    output_path = base_dir / 'yinyuan' / 'zaoyin_yinyuan_enhanced.json'
+    input_path = YINYUAN_DIR / 'pianyin_initial.json'
+    output_path = YINYUAN_DIR / 'zaoyin_yinyuan_enhanced.json'
     simplified_output_path = DERIVED_OUTPUT_DIR / 'zaoyin_yinyuan.json'
-    runtime_path = base_dir / 'yinyuan' / 'shouyin_codepoint.json'
+    runtime_path = YINYUAN_DIR / 'shouyin_codepoint.json'
     existing_runtime_chars = load_existing_runtime_chars(output_path)
     existing_layout_slots = load_existing_layout_slots(output_path)
     runtime_fallback = load_runtime_fallback(runtime_path)

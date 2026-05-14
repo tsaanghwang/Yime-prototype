@@ -5,7 +5,8 @@ from pathlib import Path
 from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
 
 
-ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "syllable" / "analysis"
+SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
+YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
 def load_and_validate_input(input_path: Path) -> dict:
@@ -57,10 +58,8 @@ def convert_pitch_style(input_data: dict, yueyin: YueyinYinyuan) -> dict:
 
 def main():
     # 获取当前脚本所在目录
-    script_dir = ANALYSIS_DIR
-
     # 输入输出文件路径（使用绝对路径）
-    input_path = script_dir / 'yinyuan' / 'pitched_yinyuan_of_mid_high_median_model.json'
+    input_path = YINYUAN_DIR / 'pitched_yinyuan_of_mid_high_median_model.json'
     output_path = DERIVED_OUTPUT_DIR / 'yueyin_yinyuan.json'
 
     # 确保输出目录存在

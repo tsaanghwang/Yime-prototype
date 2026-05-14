@@ -15,8 +15,8 @@ DEFAULT_LAYOUT_SYMBOLS = ROOT / "internal_data" / "key_to_symbol.json"
 DEFAULT_BMP_PROJECTION = ROOT / "internal_data" / "bmp_pua_trial_projection.json"
 DEFAULT_RESOLVED_LAYOUT = ROOT / "internal_data" / "manual_key_layout.resolved.json"
 DEFAULT_RUNTIME_REPORT = ROOT / "internal_data" / "yinjie_runtime_key_symbol_mapping.json"
-DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "shouyin_codepoint.json"
-DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "yinyuan_codepoint.json"
+DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "yinyuan" / "shouyin_codepoint.json"
+DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
 
 
 def load_json(path: Path):

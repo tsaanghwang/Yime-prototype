@@ -144,20 +144,20 @@
 
 这条链只消费当前数字调拼音表并在目录内自生成 `initial/final/possible syllables` 派生产物，没有任何活动代码、测试或运行时入口再依赖它；保留仅为历史分析方法对照。
 
-另外，原 `syllable/analysis/slice/` 中几份只负责生成现行 `slice/yinyuan` JSON 资产、但并不属于运行时实现面的脚本已迁到 `tools/syllable_analysis/`：
+另外，原 `syllable/analysis/slice/` 中几份只负责生成现行 `syllable/yinyuan` JSON 资产、但并不属于运行时实现面的脚本已迁到 `tools/syllable_analysis/`：
 
 - `ganyin_enhanced.py`
 - `ganyin_slicer.py`
 - `ganyin_to_pianyin_sequence.py`
 - `ganyin_to_yinyuan_sequence.py`
 
-它们现在仍可用于重建 `ganyin_enhanced.json`、`ganyin_to_pianyin_sequence.json`、`ganyin_to_yinyuan_sequence.json` 等产物，但不再占据 `syllable.analysis.slice` 这个实现目录。
+它们现在仍可用于重建 `ganyin_enhanced.json`、`ganyin_to_pianyin_sequence.json`、`ganyin_to_yinyuan_sequence.json` 等产物，但不再占据 `syllable.analysis.slice` 这个旧实现目录。
 
 同时，原 `syllable/analysis/slice/reverse_key_value_pairs.py` 也已迁入 `legacy/syllable_analysis_slice/`。当前活动重建链已经使用 `yime/reverse_key_value_pairs.py`，因此 `slice` 内这份旧 helper 不再需要留在活动实现面。
 
 这轮又补做了最后一批边界清理：
 
-- 原 `syllable/analysis/slice/shouyin_analyzer.py` 已迁到 `tools/syllable_analysis/shouyin_analyzer.py`，因为它负责生成和更新 `slice/yinyuan/pianyin_initial.json`，属于资产生成脚本而不是运行时实现。
+- 原 `syllable/analysis/slice/shouyin_analyzer.py` 已迁到 `tools/syllable_analysis/shouyin_analyzer.py`，因为它负责生成和更新 `syllable/yinyuan/pianyin_initial.json`，属于资产生成脚本而不是运行时实现。
 - 原 `tools/syllable_analysis/run_syllable_analyzer.py` 已迁入 `legacy/syllable_analysis_tools/`，因为它只是绕回旧的 `slice/syllable_analyzer.py` 包装入口，且没有活动消费者。
 - 原 `tools/syllable_analysis/extract_musical_element.py` 已迁入 `legacy/syllable_analysis_tools/`，因为它与 `tools/syllable_analysis/extract_yueyin_yinyuan.py` 为重复实现，只是旧命名残留。
 
@@ -187,7 +187,7 @@
 
 这份脚本只会读取本地 `python-coverage.json` 并写出一次性的 `ci-summary.json` 汇总样本；当前 GitHub Actions 与发布链均未再调用它，因此不再需要继续占据顶层 `scripts/` 目录。
 
-另外，原 `syllable/analysis/yinyuan/` 下又分离出一批已经脱离当前运行/生成链的旧快照与副本，统一迁入 `legacy/syllable_yinyuan_snapshots/`：
+另外，原 `syllable/yinyuan/` 下又分离出一批已经脱离当前运行/生成链的旧快照与副本，统一迁入 `legacy/syllable_yinyuan_snapshots/`：
 
 - `initial_pianyin.json`
 - `merged_musical_yinyuan.json`
@@ -205,9 +205,9 @@
 - `ganyin_theoretical.json`
 - `ganyin_encoding.json`
 
-这批文件在仓库内已经没有任何精确到 `syllable/analysis/yinyuan/` 的活动消费者；它们更像历史分析快照、兼容副本或早期派生产物，而不是当前 `yinyuan` 目录的现行真源。保留在活动目录里只会继续抬高“哪些文件真的参与当前链路”的辨识成本。
+这批文件在仓库内已经没有任何精确到 `syllable/yinyuan/` 的活动消费者；它们更像历史分析快照、兼容副本或早期派生产物，而不是当前 `yinyuan` 目录的现行真源。保留在活动目录里只会继续抬高“哪些文件真的参与当前链路”的辨识成本。
 
-同时，以下仍会从现行真源生成、但不应继续占据 `syllable/analysis/yinyuan/` 活动目录的兼容/辅助输出，已统一迁到 `internal_data/yinyuan_derived/`：
+同时，以下仍会从现行真源生成、但不应继续占据 `syllable/yinyuan/` 活动目录的兼容/辅助输出，已统一迁到 `internal_data/yinyuan_derived/`：
 
 - `zaoyin_yinyuan.json`
 - `yueyin_yinyuan.json`
@@ -232,4 +232,4 @@
 - `syllable_root_snapshots/shouyin_shengmu.json`
 - `syllable_root_snapshots/syllabic_quality.json`
 
-这批文件更接近旧分析链或理论快照，而不是当前 `syllable.analysis.slice.yinyuan/` 运行资产；其中 `ganyin.json` 的唯一活动读取方也已切回 `slice/yinyuan/ganyin.json`，因此不再需要继续占据 `syllable/` 包根目录。
+这批文件更接近旧分析链或理论快照，而不是当前 `syllable/yinyuan/` 运行资产；其中 `ganyin.json` 的唯一活动读取方也已切回 `syllable/yinyuan/ganyin.json`，因此不再需要继续占据 `syllable/` 包根目录。

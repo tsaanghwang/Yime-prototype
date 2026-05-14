@@ -50,10 +50,10 @@ def build_input_visual_map(repo_root: Path) -> Dict[str, str]:
     )
     key_to_symbol = _load_visual_json(repo_root / "internal_data" / "key_to_symbol.json")
     shouyin_payload = _load_visual_json(
-        repo_root / "syllable" / "analysis" / "slice" / "yinyuan" / "shouyin_codepoint.json"
+        repo_root / "syllable" / "yinyuan" / "shouyin_codepoint.json"
     )
     yinyuan_payload = _load_visual_json(
-        repo_root / "syllable" / "analysis" / "slice" / "yinyuan" / "yinyuan_codepoint.json"
+        repo_root / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
     )
 
     label_by_bmp: Dict[str, str] = {}

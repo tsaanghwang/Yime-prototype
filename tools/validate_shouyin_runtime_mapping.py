@@ -7,9 +7,9 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SOURCE = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
-DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "shouyin_codepoint.json"
-DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "analysis" / "slice" / "yinyuan" / "yinyuan_codepoint.json"
+DEFAULT_SOURCE = ROOT / "syllable" / "yinyuan" / "zaoyin_yinyuan_enhanced.json"
+DEFAULT_SHOUYIN_RUNTIME = ROOT / "syllable" / "yinyuan" / "shouyin_codepoint.json"
+DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
 
 
 def load_json(path: Path) -> dict[str, Any]:

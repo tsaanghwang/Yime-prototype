@@ -9,7 +9,7 @@ class ShouyinEncoder:
     """首音编码处理器，整合音元映射和音元序列生成功能"""
 
     # 类常量
-    SUBDIR = "yinyuan"
+    DATA_SUBDIR = "yinyuan"
     ZAOYIN_SOURCE_FILENAME = "zaoyin_yinyuan_enhanced.json"
     ZAOYIN_COMPAT_FILENAME = "zaoyin_yinyuan.json"
     SHOUYIN_FILENAME = "shouyin_codepoint.json"
@@ -20,7 +20,8 @@ class ShouyinEncoder:
         self.zaoyin_yinyuan = NoiseYinyuan(quality="")
         self.shouyin_data = None
         self.module_dir = Path(__file__).parent
-        self.default_data_path = self.module_dir / self.SUBDIR / self.ZAOYIN_SOURCE_FILENAME
+        self.syllable_dir = self.module_dir.parent
+        self.default_data_path = self.syllable_dir / self.DATA_SUBDIR / self.ZAOYIN_SOURCE_FILENAME
         if data_path:
             self.load_shouyin_data(data_path)
 
@@ -39,7 +40,7 @@ class ShouyinEncoder:
 
     def _load_codepoint_mapping(self):
         """私有方法加载码位映射表"""
-        map_path = self.module_dir / self.SUBDIR / self.SHOUYIN_FILENAME
+        map_path = self.syllable_dir / self.DATA_SUBDIR / self.SHOUYIN_FILENAME
         with open(map_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             self._codepoint_map = data["首音"]
