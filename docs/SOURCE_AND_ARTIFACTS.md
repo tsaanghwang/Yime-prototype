@@ -688,7 +688,7 @@
 
 - `external_data/finals_IPA_mapping.json`
   - 分类：外部语音学输入映射。
-  - 原因：它承担 finals 侧 IPA 到项目拼写约定的外部输入面，当前仍被 `tools/final_components.py`、`tools/final_classifier.py`、`tools/orchestrator.py` 等链路当作上游输入；因此不应与 `internal_data/ipa_of_finals.json`、`internal_data/yinyuan_pianyin_mapping.json` 这类内部派生产物混并。
+  - 原因：它承担 finals 侧 IPA 到项目拼写约定的外部输入面，当前仍被 `tools/final_components.py`、`tools/final_classifier.py` 等现行链路当作上游输入；因此不应与 `internal_data/ipa_of_finals.json`、`internal_data/yinyuan_pianyin_mapping.json` 这类内部派生产物混并。旧 `tools/orchestrator.py` 分析链已归档到 `legacy/syllable_analysis_tools/`，不再视为当前入口。
 
 - `external_data/initials_IPA_mapping.json`
   - 分类：外部声母 IPA 输入映射。
