@@ -3,7 +3,7 @@
 from pathlib import Path
 import json
 
-from syllable.analysis.final_categorizer import FinalCategorizer
+from syllable.analysis.ganyin_categorizer import FinalCategorizer
 
 
 CATEGORY_TO_GROUP_NAME = {
