@@ -153,6 +153,8 @@
 
 它们现在仍可用于重建 `ganyin_enhanced.json`、`ganyin_to_pianyin_sequence.json`、`ganyin_to_yinyuan_sequence.json` 等产物，但不再占据 `syllable.analysis.slice` 这个旧实现目录。
 
+其中，`tools/syllable_analysis/ganyin_to_pianyin_sequence.py` 现在只保留为旧命名入口的兼容包装；当前实际实现已经收敛到 `tools/syllable_analysis/ganyin_slicer.py`。
+
 同时，原 `syllable/analysis/slice/reverse_key_value_pairs.py` 也已迁入 `legacy/syllable_analysis_slice/`。当前活动重建链已经使用 `yime/reverse_key_value_pairs.py`，因此 `slice` 内这份旧 helper 不再需要留在活动实现面。
 
 这轮又补做了最后一批边界清理：

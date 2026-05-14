@@ -1,3 +1,5 @@
+"""Legacy command alias retained for the old ganyin-to-pianyin sequence entry name."""
+
 import sys
 from pathlib import Path
 
