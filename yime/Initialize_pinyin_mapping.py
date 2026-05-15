@@ -12,6 +12,7 @@ import logging
 from pathlib import Path
 from db_manager import DB_PATH
 from yime.utils.pinyin_zhuyin import PinyinZhuyinConverter
+from yime.rebuild_yinyuan_structure_table import rebuild_yinyuan_structure_table
 from yime.split_numeric_pinyin import rebuild_numeric_pinyin
 import sys
 
@@ -186,6 +187,13 @@ def rebuild_dependent_numeric_pinyin(db_path: str | Path) -> int:
     return refreshed
 
 
+def rebuild_dependent_yinyuan_structure(db_path: str | Path) -> int:
+    """资料层重建后，显式刷新音元拼音结构表，避免保留结构表滞后。"""
+    refreshed = rebuild_yinyuan_structure_table(db_path)
+    logger.info(f"已自动刷新音元拼音，共 {refreshed} 条")
+    return refreshed
+
+
 def resolve_db_path(argv=None) -> Path:
     """兼容 legacy argv 形状，只解析数据库路径。"""
     argv = list(argv or [])
@@ -206,6 +214,7 @@ def main(argv=None):
         with sqlite3.connect(str(db_path)) as conn:
             conn.row_factory = sqlite3.Row
             count = rebuild_mappings_from_db(conn)
+        rebuild_dependent_yinyuan_structure(db_path)
         rebuild_dependent_numeric_pinyin(db_path)
         logger.info(f"重建完成，共写入 {count} 条记录到数据库 {db_path}")
         print(f"重建完成，共写入 {count} 条记录到数据库 {db_path}")
