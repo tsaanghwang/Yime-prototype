@@ -5,7 +5,7 @@ import tempfile
 import os
 import gc
 from pathlib import Path
-from yime.db_manager import 数据库管理器, 表管理器
+from yime.legacy.pending_removal.db_manager import 数据库管理器, 表管理器
 
 class Test数据库管理器(unittest.TestCase):
     """测试数据库管理器"""

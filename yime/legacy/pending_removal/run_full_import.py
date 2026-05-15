@@ -24,7 +24,7 @@ import logging
 from datetime import datetime
 
 # minimal one-click pipeline runner for yime import steps
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 DB_DEFAULT = PROJECT_DIR / "pinyin_hanzi.db"
 BACKUP_DIR = PROJECT_DIR / "backup"
 LOG_FILE = PROJECT_DIR / "run_full_import.log"
@@ -88,7 +88,7 @@ def run():
 
     # run schema migrations
     try:
-        import yime.db_manager as db_manager
+        import yime.legacy.pending_removal.db_manager as db_manager
         logger.info("确保 DB schema/索引...")
         if hasattr(db_manager, "run_schema_migrations"):
             db_manager.run_schema_migrations(db_path)
@@ -100,7 +100,7 @@ def run():
 
     # Initialize mappings
     try:
-        import yime.Initialize_pinyin_mapping as init_map
+        import yime.legacy.pending_removal.Initialize_pinyin_mapping as init_map
         logger.info("初始化拼音映射 (Initialize_pinyin_mapping)...")
         # init_map.main expects argv-like list based on earlier code
         argv = ["Initialize_pinyin_mapping.py"]
@@ -119,7 +119,7 @@ def run():
 
     # import numeric pinyin (数字标调)
     try:
-        import yime.split_numeric_pinyin as imp_num
+        import yime.legacy.pending_removal.split_numeric_pinyin as imp_num
         logger.info("导入数字标调拼音 (split_numeric_pinyin)...")
         if hasattr(imp_num, "main"):
             imp_num.main()
@@ -131,26 +131,24 @@ def run():
 
     # import audio / yime pinyin (音元拼音)
     try:
-        import yime.pinyin_importer as importer_mod
-        logger.info("导入音元拼音 (pinyin_importer)...")
+        import yime.legacy.pending_removal.rebuild_yinyuan_structure_table as importer_mod
+        logger.info("导入音元拼音 (rebuild_yinyuan_structure_table)...")
         if hasattr(importer_mod, "main"):
-            # ensure working dir and args consistent with module expectations
             importer_mod.main()
         else:
-            # fallback: construct importer and run
             if hasattr(importer_mod, "PinyinImporter"):
                 imp = importer_mod.PinyinImporter(db_path)
-                data = imp.load_from_mapping_table()
-                imp.import_pinyin(data)
+                mapping_rows = imp.load_mapping_rows_from_db()
+                imp.import_pinyin(mapping_rows)
             else:
-                logger.warning("pinyin_importer 没有 main 或 PinyinImporter，跳过")
+                logger.warning("rebuild_yinyuan_structure_table 没有 main 或 PinyinImporter，跳过")
     except Exception as e:
         logger.exception("导入音元拼音失败")
         sys.exit(7)
 
     # optional: run consolidation reports (dry-run) and optionally apply
     try:
-        import yime.consolidate_mappings as cons
+        import yime.legacy.pending_removal.consolidate_mappings as cons
         logger.info("运行一致性检测 (consolidate_mappings.py)...")
         if hasattr(cons, "main"):
             if apply_mapping:

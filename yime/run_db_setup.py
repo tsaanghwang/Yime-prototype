@@ -1,3 +1,9 @@
+"""Compatibility bootstrap for db_manager schema checks.
+
+This script only ensures the legacy-compatible schema layer is present. It does
+not rebuild the current source_pinyin.db -> prototype -> runtime mainline.
+"""
+
 from pathlib import Path
 import sqlite3
 import logging
@@ -10,6 +16,15 @@ DB = PROJECT / "pinyin_hanzi.db"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+
+def _import_run_schema_migrations():
+    try:
+        from yime.legacy.pending_removal.db_manager import run_schema_migrations
+        return run_schema_migrations
+    except Exception as e:
+        logger.error("无法导入 pending_removal.db_manager.run_schema_migrations: %s", e)
+        sys.exit(1)
+
 def main():
     # 允许通过命令行覆盖 DB 路径： python run_db_setup.py C:\path\to\db
     if len(sys.argv) > 1:
@@ -18,35 +33,10 @@ def main():
         db_path = DB.resolve()
     logger.info("使用数据库文件: %s", db_path)
 
-    # 简单建表/完整性检查示例（假设 yime.db_manager 提供可用接口）
-    # 尝试以包名导入，若脚本直接在模块目录运行则回退为本地导入
-    try:
-        import yime.db_manager as dbm
-    except Exception as e:
-        logger.warning("import yime.db_manager 失败，尝试本地导入：%s", e)
-        try:
-            import db_manager as dbm
-        except Exception as e2:
-            logger.error("无法导入 db_manager: %s", e2)
-            sys.exit(1)
+    run_schema_migrations = _import_run_schema_migrations()
 
     try:
-        if hasattr(dbm, "run_schema_migrations"):
-            dbm.run_schema_migrations(db_path)
-        else:
-            # 回退接口：创建连接并尽量调用兼容函数
-            conn = sqlite3.connect(str(db_path))
-            try:
-                conn.execute("PRAGMA foreign_keys = ON;")
-                if hasattr(dbm, "表管理器") and hasattr(dbm.表管理器, "创建表"):
-                    dbm.表管理器.创建表(conn)
-                elif hasattr(dbm, "创建表"):
-                    dbm.创建表(conn)
-                else:
-                    logger.error("未找到可用的创建表接口，跳过")
-                conn.commit()
-            finally:
-                conn.close()
+        run_schema_migrations(db_path)
         logger.info("schema/索引 已确保")
     except Exception as e:
         logger.exception("执行 schema 创建/迁移 失败: %s", e)
@@ -63,7 +53,7 @@ def main():
 
     logger.info(
         "数据库建立/检查完成。当前主线下一步：导入 prototype tables 后执行 refresh_runtime_yime_codes.py --apply；"
-        "Initialize_pinyin_mapping / Import_yinyuan_pinyin 仅保留 legacy-compatible 用途。"
+        "旧 schema 维护脚本已隔离到 yime/legacy/pending_removal/；run_db_setup 只是兼容脚本入口。"
     )
 
 if __name__ == "__main__":

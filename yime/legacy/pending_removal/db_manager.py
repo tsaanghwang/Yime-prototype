@@ -1,3 +1,10 @@
+"""Legacy-compatible schema/migration helpers for the old Chinese-table database surface.
+
+This module is still kept at the package root because older scripts, tests, and
+manual maintenance entrypoints import it directly. It is not the current mainline
+rebuild entry. The stable compatibility surface here is `run_schema_migrations()`.
+"""
+
 import sqlite3
 import logging
 from pathlib import Path
@@ -10,11 +17,15 @@ if not logger.hasHandlers():
     logger.addHandler(handler)
 
 # 统一数据库路径为 yime\pinyin_hanzi.db
-DB_PATH = Path(__file__).parent / "pinyin_hanzi.db"
+DB_PATH = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
 CANONICAL_MAPPING_TABLE = "多式拼音映射关系"
 MAPPING_VIEW_NAME = "拼音映射视图"
 UNUSED_SHORT_MAPPING_TABLE = "拼音映射"
 UNUSED_HOMOPHONE_TABLE = "音元拼音同音表"
+UNUSED_LEGACY_TABLES = (
+    "拼音映射初始数据",
+    "数字标调全拼",
+)
 
 class 数据库管理器:
     """封装数据库连接和基本操作"""
@@ -381,6 +392,12 @@ def _删除未使用短表名残留(连接: sqlite3.Connection) -> None:
             游标.execute(f'DROP TABLE IF EXISTS "{表名}"')
 
 
+def _删除未使用遗留空表(连接: sqlite3.Connection) -> None:
+    游标 = 连接.cursor()
+    for 表名 in UNUSED_LEGACY_TABLES:
+        游标.execute(f'DROP TABLE IF EXISTS "{表名}"')
+
+
 def run_schema_migrations(db_path: str | Path | None = None) -> None:
     目标路径 = Path(db_path) if db_path else DB_PATH
     with sqlite3.connect(str(目标路径)) as 连接:
@@ -389,6 +406,7 @@ def run_schema_migrations(db_path: str | Path | None = None) -> None:
         try:
             _确保多式拼音映射关系(连接)
             _删除未使用短表名残留(连接)
+            _删除未使用遗留空表(连接)
             连接.commit()
         finally:
             连接.execute('PRAGMA foreign_keys = ON;')

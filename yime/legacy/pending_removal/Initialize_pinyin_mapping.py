@@ -1,20 +1,16 @@
-"""
-初始化拼音映射：从库内基础映射面重建 pinyin_hanzi.db 中的表 "多式拼音映射关系"。
-特点：
-- 数据源固定为库内 `pinyin_yime_code`
-- 每次刷新时整表重建，编号从 1 开始连续重排
-- 生成双向映射（数字标调 -> 音元拼音，音元拼音 -> 数字标调）
-- 写入完成后返回当前表中的实际记录数
-"""
-from typing import List, Tuple
-import sqlite3
+"""Archived legacy-compatible implementation for rebuilding canonical pinyin mappings."""
+
+from __future__ import annotations
+
 import logging
-from pathlib import Path
-from db_manager import DB_PATH
-from yime.utils.pinyin_zhuyin import PinyinZhuyinConverter
-from yime.rebuild_yinyuan_structure_table import rebuild_yinyuan_structure_table
-from yime.split_numeric_pinyin import rebuild_numeric_pinyin
+import sqlite3
 import sys
+from pathlib import Path
+
+from yime.legacy.pending_removal.split_numeric_pinyin import rebuild_numeric_pinyin
+from yime.legacy.pending_removal.rebuild_yinyuan_structure_table import rebuild_yinyuan_structure_table
+from yime.utils.pinyin_zhuyin import PinyinZhuyinConverter
+
 
 CANONICAL_MAPPING_TABLE = "多式拼音映射关系"
 SOURCE_TABLE = "pinyin_yime_code"
@@ -23,7 +19,7 @@ NUMERIC_TYPE = "数字标调"
 YIME_TYPE = "音元拼音"
 ZHUYIN_TYPE = "注音符号"
 
-SCRIPT_DIR = Path(__file__).parent
+SCRIPT_DIR = Path(__file__).resolve().parents[2]
 DEFAULT_DB = SCRIPT_DIR / "pinyin_hanzi.db"
 LEGACY_WARNING = (
     "Initialize_pinyin_mapping.py 仅保留 legacy-compatible 用途；"
@@ -34,13 +30,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 if not logger.handlers:
     _handler = logging.StreamHandler()
-    _handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    _handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
     logger.addHandler(_handler)
+
 
 def ensure_mapping_table_exists(conn: sqlite3.Connection) -> None:
     """创建规范资料层表。"""
     cur = conn.cursor()
-    cur.execute('''
+    cur.execute(
+        '''
         CREATE TABLE IF NOT EXISTS "多式拼音映射关系" (
             "映射编号" INTEGER PRIMARY KEY AUTOINCREMENT,
             "原拼音类型" TEXT NOT NULL,
@@ -55,7 +53,8 @@ def ensure_mapping_table_exists(conn: sqlite3.Connection) -> None:
             "创建时间" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             UNIQUE("原拼音类型", "原拼音", "目标拼音类型", "目标拼音", "关系类型", "数据来源")
         )
-    ''')
+        '''
+    )
     conn.commit()
     logger.info("确保表 '多式拼音映射关系' 存在（若不存在已创建）")
 
@@ -68,14 +67,20 @@ def _inspect_db(conn: sqlite3.Connection) -> None:
     logger.info(f"数据库表: {tables}")
     if CANONICAL_MAPPING_TABLE in tables:
         try:
-            cur.execute(f'SELECT COUNT(*) FROM "{CANONICAL_MAPPING_TABLE}" WHERE "数据来源" = ?', (SOURCE_LABEL,))
+            cur.execute(
+                f'SELECT COUNT(*) FROM "{CANONICAL_MAPPING_TABLE}" WHERE "数据来源" = ?',
+                (SOURCE_LABEL,),
+            )
             cnt = cur.fetchone()[0] or 0
             logger.info(f"'{CANONICAL_MAPPING_TABLE}'（来源={SOURCE_LABEL}）记录数: {cnt}")
-            cur.execute(f'SELECT "映射编号","原拼音","目标拼音" FROM "{CANONICAL_MAPPING_TABLE}" WHERE "数据来源" = ? ORDER BY "映射编号" LIMIT 10', (SOURCE_LABEL,))
+            cur.execute(
+                f'SELECT "映射编号","原拼音","目标拼音" FROM "{CANONICAL_MAPPING_TABLE}" WHERE "数据来源" = ? ORDER BY "映射编号" LIMIT 10',
+                (SOURCE_LABEL,),
+            )
             samples = cur.fetchall()
             logger.info(f"样例记录（最多10条）: {samples}")
-        except sqlite3.Error as e:
-            logger.error(f"读取表样例失败: {e}")
+        except sqlite3.Error as exc:
+            logger.error(f"读取表样例失败: {exc}")
 
 
 def _load_source_rows(conn: sqlite3.Connection) -> list[tuple[str, str, str]]:
@@ -100,55 +105,65 @@ def _load_source_rows(conn: sqlite3.Connection) -> list[tuple[str, str, str]]:
     return [(str(row[0]), str(row[1]), str(row[2] or "")) for row in rows]
 
 
-def _build_records_from_db_rows(source_rows: list[tuple[str, str, str]]) -> list[tuple[str, str, str, str, str, str, str, str, str]]:
+def _build_records_from_db_rows(
+    source_rows: list[tuple[str, str, str]],
+) -> list[tuple[str, str, str, str, str, str, str, str, str]]:
     records: list[tuple[str, str, str, str, str, str, str, str, str]] = []
     for pinyin_tone, yime_code, code_source in source_rows:
         version = code_source or SOURCE_TABLE
         zhuyin = PinyinZhuyinConverter.convert_pinyin_to_zhuyin(pinyin_tone)
-        records.append((
-            NUMERIC_TYPE,
-            pinyin_tone,
-            YIME_TYPE,
-            yime_code,
-            "对应",
-            "",
-            SOURCE_LABEL,
-            version,
-            "数字标调转音元",
-        ))
-        records.append((
-            YIME_TYPE,
-            yime_code,
-            NUMERIC_TYPE,
-            pinyin_tone,
-            "对应",
-            "",
-            SOURCE_LABEL,
-            version,
-            "音元转数字标调",
-        ))
-        records.append((
-            NUMERIC_TYPE,
-            pinyin_tone,
-            ZHUYIN_TYPE,
-            zhuyin,
-            "对应",
-            "",
-            SOURCE_LABEL,
-            version,
-            "数字标调转注音",
-        ))
-        records.append((
-            ZHUYIN_TYPE,
-            zhuyin,
-            NUMERIC_TYPE,
-            pinyin_tone,
-            "对应",
-            "",
-            SOURCE_LABEL,
-            version,
-            "注音转数字标调",
-        ))
+        records.append(
+            (
+                NUMERIC_TYPE,
+                pinyin_tone,
+                YIME_TYPE,
+                yime_code,
+                "对应",
+                "",
+                SOURCE_LABEL,
+                version,
+                "数字标调转音元",
+            )
+        )
+        records.append(
+            (
+                YIME_TYPE,
+                yime_code,
+                NUMERIC_TYPE,
+                pinyin_tone,
+                "对应",
+                "",
+                SOURCE_LABEL,
+                version,
+                "音元转数字标调",
+            )
+        )
+        records.append(
+            (
+                NUMERIC_TYPE,
+                pinyin_tone,
+                ZHUYIN_TYPE,
+                zhuyin,
+                "对应",
+                "",
+                SOURCE_LABEL,
+                version,
+                "数字标调转注音",
+            )
+        )
+        records.append(
+            (
+                ZHUYIN_TYPE,
+                zhuyin,
+                NUMERIC_TYPE,
+                pinyin_tone,
+                "对应",
+                "",
+                SOURCE_LABEL,
+                version,
+                "注音转数字标调",
+            )
+        )
     return records
 
 
@@ -172,9 +187,7 @@ def rebuild_mappings_from_db(conn: sqlite3.Connection) -> int:
     )
     conn.commit()
 
-    exact_count = int(
-        cur.execute(f'SELECT COUNT(*) FROM "{CANONICAL_MAPPING_TABLE}"').fetchone()[0] or 0
-    )
+    exact_count = int(cur.execute(f'SELECT COUNT(*) FROM "{CANONICAL_MAPPING_TABLE}"').fetchone()[0] or 0)
     logger.info(f"重建完成，{CANONICAL_MAPPING_TABLE} 当前记录数: {exact_count}")
     _inspect_db(conn)
     return exact_count
@@ -219,9 +232,9 @@ def main(argv=None):
         logger.info(f"重建完成，共写入 {count} 条记录到数据库 {db_path}")
         print(f"重建完成，共写入 {count} 条记录到数据库 {db_path}")
         return 0
-    except Exception as e:
-        logger.error(f"执行出错: {e}", exc_info=True)
-        print(f"意外错误: {e}")
+    except Exception as exc:
+        logger.error(f"执行出错: {exc}", exc_info=True)
+        print(f"意外错误: {exc}")
         return 1
 
 

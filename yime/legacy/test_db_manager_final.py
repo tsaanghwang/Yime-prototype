@@ -14,7 +14,7 @@ class Test数据库基础功能(unittest.TestCase):
     def setUp(self):
         """设置测试环境"""
         self.conn = sqlite3.connect(":memory:")
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
         # 正确调用方法（添加括号）
         表管理器.创建表
 
