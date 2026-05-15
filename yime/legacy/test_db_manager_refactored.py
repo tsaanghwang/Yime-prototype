@@ -22,7 +22,7 @@ class Test数据库管理器(unittest.TestCase):
 
     def test_上下文管理器进入(self):
         """测试上下文管理器进入"""
-        from yime.db_manager import 数据库管理器
+        from yime.legacy.pending_removal.db_manager import 数据库管理器
 
         with 数据库管理器(self.db_path) as conn:
             self.assertIsNotNone(conn)
@@ -30,7 +30,7 @@ class Test数据库管理器(unittest.TestCase):
 
     def test_上下文管理器退出成功(self):
         """测试上下文管理器正常退出"""
-        from yime.db_manager import 数据库管理器
+        from yime.legacy.pending_removal.db_manager import 数据库管理器
 
         # 内存数据库不支持 WAL 模式，跳过此测试
         self.skipTest("内存数据库不支持 WAL 模式")
@@ -51,7 +51,7 @@ class Test表管理器(unittest.TestCase):
 
     def test_创建表_基本结构(self):
         """测试创建基本表结构"""
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
 
         # 创建表不应抛出异常
         try:
@@ -61,7 +61,7 @@ class Test表管理器(unittest.TestCase):
 
     def test_创建表_表存在性(self):
         """测试表是否正确创建"""
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
 
         # 正确调用方法（添加括号）
         表管理器.创建表
@@ -78,7 +78,7 @@ class Test表管理器(unittest.TestCase):
 
     def test_创建表_重复调用(self):
         """测试重复创建表（应该不会出错）"""
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
 
         # 第一次创建（添加括号）
         表管理器.创建表
@@ -94,7 +94,7 @@ class Test表管理器(unittest.TestCase):
 
     def test_检查索引存在(self):
         """测试索引检查功能"""
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
 
         表管理器.创建表
 
@@ -110,7 +110,7 @@ class Test数据库操作集成(unittest.TestCase):
         """设置完整测试环境"""
         self.conn = sqlite3.connect(":memory:")
 
-        from yime.db_manager import 表管理器
+        from yime.legacy.pending_removal.db_manager import 表管理器
         # 正确调用方法（传入连接参数）
         表管理器.创建表
 
@@ -205,7 +205,7 @@ class Test数据库操作集成(unittest.TestCase):
         rows = cursor.fetchall()
 
         self.assertEqual(len(rows), 1)
-        self.assertEqual(rows[0][1], "zhong")  # 全拼
+        self.assertEqual(rows[0][1], "zhong")
 
     def test_更新操作(self):
         """测试更新操作"""

@@ -31,12 +31,15 @@ package-dir = {"" = "."}
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["yime*", "syllable*"]
-exclude = ["tests*", "tools*", "yime.legacy*"]
+exclude = ["tests*", "tools*"]
 
 [tool.setuptools.package-data]
 "syllable" = ["yinyuan/*.json"]
 "syllable.codec" = ["*.json"]
-"yime" = ["*.json", "*.sql", "*.txt", "*.csv"]
+"yime" = ["*.json", "*.sql", "*.txt", "*.csv", "legacy/pending_removal/compat_internal_data/*.json"]
+
+[tool.setuptools.exclude-package-data]
+"yime" = ["yinjie_mapping.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

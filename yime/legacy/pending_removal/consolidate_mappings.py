@@ -9,7 +9,7 @@ import sqlite3
 import csv
 import sys
 
-PROJECT_DIR = Path(__file__).resolve().parents[1]
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 DB = PROJECT_DIR / "pinyin_hanzi.db"
 REPORT_DIR = PROJECT_DIR / "reports"
 REPORT_DIR.mkdir(exist_ok=True)

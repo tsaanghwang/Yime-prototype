@@ -1,15 +1,16 @@
+import logging
 import sqlite3
 import time
-import logging
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
 
-# 配置日志
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class 拼音信息:
@@ -18,8 +19,10 @@ class 拼音信息:
     标准拼音: str
     注音符号: str
 
+
 class 数据库管理器:
     """封装数据库连接和基本操作"""
+
     def __init__(self, 数据库路径: str):
         self.数据库路径 = Path(数据库路径)
 
@@ -34,14 +37,15 @@ class 数据库管理器:
             self.连接.commit()
         self.连接.close()
 
+
 class 表管理器:
     """管理数据库表结构和索引"""
+
     @staticmethod
     def 创建表(连接: sqlite3.Connection) -> None:
         """创建所有必要的数据库表"""
         游标 = 连接.cursor()
 
-        # 创建新表结构
         表定义 = {
             '汉字': '''
                 CREATE TABLE IF NOT EXISTS 汉字 (
@@ -93,7 +97,6 @@ class 表管理器:
             游标.execute(f"DROP TABLE IF EXISTS {表名}")
             游标.execute(定义)
 
-        # 创建索引
         索引 = [
             ('索引_汉字_字符', '汉字(字符)'),
             ('索引_汉字音元拼音映射_汉字', '汉字音元拼音映射(汉字编号)'),
@@ -109,10 +112,12 @@ class 表管理器:
 
         logger.info("数据库表结构创建/验证完成")
 
+
 class 数据库迁移器:
     """重构后的主迁移类"""
+
     def __init__(self, 数据库路径: str = None):
-        self.数据库路径 = Path(数据库路径) if 数据库路径 else Path(__file__).parent / "pinyin_hanzi.db"
+        self.数据库路径 = Path(数据库路径) if 数据库路径 else Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
 
     def 迁移(self) -> None:
         """执行完整的数据迁移流程"""
@@ -120,14 +125,10 @@ class 数据库迁移器:
 
         try:
             with sqlite3.connect(str(self.数据库路径)) as 连接:
-                # 启用WAL模式提高并发性能
                 连接.execute("PRAGMA journal_mode=WAL")
-                连接.isolation_level = None  # 禁用自动事务
+                连接.isolation_level = None
 
-                # 创建表结构
                 表管理器.创建表(连接)
-
-                # 优化数据库
                 连接.execute("VACUUM")
 
                 总耗时 = time.time() - 开始时间
@@ -136,6 +137,7 @@ class 数据库迁移器:
         except Exception as e:
             logger.error(f"数据库初始化失败: {e}")
             raise
+
 
 if __name__ == "__main__":
     迁移器 = 数据库迁移器()

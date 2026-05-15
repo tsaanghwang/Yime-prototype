@@ -1,5 +1,5 @@
 """
-音元拼音结构表导入工具。
+Legacy-compatible 音元拼音结构表导入工具。
 
 用途：
 - 从库内基础映射面 `pinyin_yime_code` 读取单音节完整音元编码。
@@ -10,6 +10,7 @@
 定位：
 - 这张表是简拼实验和音节结构分析的基础层，不是当前 runtime 主线候选表。
 - 当前 runtime 主线仍然是 `source_pinyin.db -> prototype tables -> refresh_runtime_yime_codes`。
+- 该模块的真实实现现已移到 `yime/legacy/pending_removal/`，主目录只保留兼容包装层。
 """
 
 import sqlite3
@@ -28,10 +29,9 @@ except ModuleNotFoundError:
     from yime.syllable_decoder import SyllableDecoder
     from yime.utils_charfilter import is_allowed_code_char
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-DB_PATH = Path(__file__).resolve().parent / "pinyin_hanzi.db"
-PROJECTION_PATH = REPO_ROOT / "internal_data" / "bmp_pua_trial_projection.json"
-CANONICAL_SYMBOL_PATH = REPO_ROOT / "internal_data" / "key_to_symbol.json"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DB_PATH = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
+PACKAGE_COMPAT_DATA_DIR = Path(__file__).resolve().parent / "compat_internal_data"
 TABLE_NAME_CANDIDATES = ("syllable_structure", "音元拼音")
 BASE_YIME_CODE_TABLE = "pinyin_yime_code"
 COMPAT_MAPPING_TABLE = "mapping_yime_code"
@@ -47,9 +47,19 @@ def _load_json(path: Path) -> dict:
         return json.load(handle)
 
 
+def _resolve_compat_json_path(file_name: str) -> Path:
+    repo_level_path = REPO_ROOT / "internal_data" / file_name
+    if repo_level_path.exists():
+        return repo_level_path
+    package_level_path = PACKAGE_COMPAT_DATA_DIR / file_name
+    if package_level_path.exists():
+        return package_level_path
+    raise FileNotFoundError(f"未找到兼容映射资源: {file_name}")
+
+
 def _build_bmp_to_canonical_map() -> dict[str, str]:
-    projection = _load_json(PROJECTION_PATH)
-    canonical_symbols = _load_json(CANONICAL_SYMBOL_PATH)
+    projection = _load_json(_resolve_compat_json_path("bmp_pua_trial_projection.json"))
+    canonical_symbols = _load_json(_resolve_compat_json_path("key_to_symbol.json"))
     bmp_to_canonical: dict[str, str] = {}
 
     for slot_key, slot_info in projection.get("used_mapping", {}).items():

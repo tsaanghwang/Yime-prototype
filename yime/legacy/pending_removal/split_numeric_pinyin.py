@@ -1,4 +1,10 @@
-"""将数字标调拼音拆分为声母、韵母、声调并重建目标表。"""
+"""Legacy-compatible numeric-pinyin rebuild implementation.
+
+This module still lives at the package root because compatibility callers and
+focused tests import it directly. It rebuilds the retained `数字标调拼音` table,
+but it is not part of the current `source_pinyin.db -> prototype -> runtime`
+mainline rebuild path.
+"""
 
 import sqlite3
 import logging
@@ -8,7 +14,7 @@ from syllable.analysis.syllable_splitter import SyllableSplitter
 
 CANONICAL_MAPPING_TABLE = "多式拼音映射关系"
 NUMERIC_SOURCE_TYPE = "音元拼音"
-DEFAULT_DB = Path(__file__).resolve().parent / "pinyin_hanzi.db"
+DEFAULT_DB = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
 
 
 class 数字标调拼音导入器:
