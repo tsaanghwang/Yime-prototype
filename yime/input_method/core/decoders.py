@@ -19,6 +19,7 @@ from .char_code_index import CharCodeCandidate
 from .runtime_decoder_base import (
     RuntimeDecoderBase as _RuntimeDecoderBase,
     build_pinyin_to_canonical_code_map as _build_pinyin_to_canonical_code_map,
+    load_numeric_to_marked_pinyin_map as _load_numeric_to_marked_pinyin_map,
     resolve_canonical_code_from_pinyin_tone as _resolve_canonical_code_from_pinyin_tone,
 )
 from .runtime_json_store import JSONRuntimeCandidateStore
@@ -48,7 +49,7 @@ class StaticCandidateDecoder:
         repo_root = app_dir.parent
         projection_path = repo_root / "internal_data" / "bmp_pua_trial_projection.json"
         key_to_symbol_path = repo_root / "internal_data" / "key_to_symbol.json"
-        mapping_path = app_dir / "enhanced_yinjie_mapping.json"
+        marked_pinyin_path = app_dir / "pinyin_normalized.json"
         pinyin_hanzi_paths = [app_dir / "pinyin_hanzi.json"]
 
         self.bmp_to_canonical = self._build_bmp_to_canonical_map(
@@ -59,7 +60,7 @@ class StaticCandidateDecoder:
             repo_root,
             self.bmp_to_canonical,
         )
-        self.code_mapping = self._build_code_mapping(repo_root, mapping_path)
+        self.code_mapping = self._build_code_mapping(marked_pinyin_path)
         self.pinyin_hanzi = self._load_first_available_json(pinyin_hanzi_paths)
 
     def _load_json(self, path: Path) -> JSONDict:
@@ -96,25 +97,16 @@ class StaticCandidateDecoder:
 
     def _build_code_mapping(
         self,
-        repo_root: Path,
-        mapping_path: Path,
+        marked_pinyin_path: Path,
     ) -> Dict[str, JSONDict]:
-        mapping_payload = self._load_json(mapping_path)
-        supplemental_mapping = mapping_payload.get("音元符号")
-        supplemental_by_numeric: Dict[str, dict[str, object]] = {}
-        if not isinstance(supplemental_mapping, dict):
-            supplemental_mapping = {}
-        for metadata in supplemental_mapping.values():
-            if not isinstance(metadata, dict):
-                continue
-            numeric_pinyin = str(metadata.get("数字标调", "")).strip()
-            if numeric_pinyin and numeric_pinyin not in supplemental_by_numeric:
-                supplemental_by_numeric[numeric_pinyin] = cast(JSONDict, dict(metadata))
+        numeric_to_marked = _load_numeric_to_marked_pinyin_map(str(marked_pinyin_path))
 
         code_mapping: Dict[str, JSONDict] = {}
         for numeric_pinyin, canonical_code in self.pinyin_to_canonical.items():
-            metadata = dict(supplemental_by_numeric.get(numeric_pinyin, {}))
-            metadata["数字标调"] = numeric_pinyin
+            metadata: JSONDict = {
+                "数字标调": numeric_pinyin,
+                "调号标调": numeric_to_marked.get(numeric_pinyin, numeric_pinyin),
+            }
             code_mapping[canonical_code] = metadata
         return code_mapping
 
