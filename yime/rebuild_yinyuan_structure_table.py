@@ -616,5 +616,12 @@ def main():
         logging.error(f"导入失败: {e}")
         raise
 
+
+def rebuild_yinyuan_structure_table(db_path: str | Path | None = None) -> int:
+    """对外暴露的重建入口：从库内基础映射面全量刷新音元拼音结构表。"""
+    importer = PinyinImporter(db_path)
+    mapping_rows = importer.load_mapping_rows_from_db()
+    return importer.import_pinyin(mapping_rows)
+
 if __name__ == "__main__":
     main()
