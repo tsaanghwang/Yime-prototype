@@ -80,12 +80,8 @@ c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/export_yaml_
 
 下面这些对象仍然保留在仓库里，但不属于当前主线 rebuild：
 
-- `yime/db_manager.py`
-- `yime/hanzi_db_manager.py`
-- `yime/split_numeric_pinyin.py`
-- `yime/rebuild_yinyuan_structure_table.py`
-- `yime/consolidate_mappings.py`（兼容包装入口；主体已归档到 `yime/legacy/`）
-- `yime/run_full_import.py`（兼容包装入口；主体已归档到 `yime/legacy/`）
+- 兼容脚本入口：`yime/run_db_setup.py`
+- 待清除实现层：`yime/legacy/pending_removal/` 下的旧 DB / JSON 实现与兼容资源
 
 保留原因：
 
@@ -93,6 +89,12 @@ c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/export_yaml_
 - 仍可用于历史库审计、兼容导入或旧结构排障。
 
 但它们不再定义当前主线的“正确 rebuild 方式”。
+
+兼容层分工可以这样理解：
+
+- `yime/run_db_setup.py` 只是指向 `yime/legacy/pending_removal/db_manager.py` 的兼容脚本入口，不负责当前主线 rebuild。
+- 旧 DB / JSON 真实实现不再保留主目录或 `yime/legacy/` 顶层同名壳，统一直接放在 `yime/legacy/pending_removal/`。
+- 当前主线如果需要真正刷新可消费数据，仍应回到本文第 1 节的 `source_pinyin.db -> prototype tables -> runtime` 链。
 
 ## 4. 已归档的旧脚本
 

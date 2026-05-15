@@ -296,7 +296,7 @@ sqlite3 yime/pinyin_hanzi.db
 
 ### 2. 添加新表
 
-如果你是在维护 legacy-compatible 中文表结构，才在 `yime/db_manager.py` 中修改；
+如果你是在维护 legacy-compatible 中文表结构，才在 `yime/legacy/pending_removal/db_manager.py` 中修改；
 如果你是在维护当前主线 rebuild/runtime 链，应优先修改：
 
 - `yime/create_prototype_schema_additions.sql`

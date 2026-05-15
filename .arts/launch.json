@@ -140,7 +140,7 @@
       "name": "convert_pinyin_to_hanzi",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}\\yime\\convert_pinyin_to_hanzi.py",
+      "program": "${workspaceFolder}\\yime\\legacy\\convert_pinyin_to_hanzi.py",
       "currentFileConfiguration": false,
       "cwd": "${workspaceFolder}\\yime",
       "addSourceRootsToPythonpath": true
@@ -152,16 +152,6 @@
       "program": "${workspaceFolder}\\utils\\pinyin_normalizer.py",
       "currentFileConfiguration": false,
       "cwd": "${workspaceFolder}",
-      "addSourceRootsToPythonpath": true,
-      "noDebug": true
-    },
-    {
-      "name": "transform_dict_structure",
-      "type": "python",
-      "request": "launch",
-      "program": "${workspaceFolder}\\yime\\transform_dict_structure.py",
-      "currentFileConfiguration": false,
-      "cwd": "${workspaceFolder}\\yime",
       "addSourceRootsToPythonpath": true,
       "noDebug": true
     },

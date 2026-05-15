@@ -150,6 +150,10 @@
   - 当前是最终音节到四字符编码的产物。
   - 应从首音语义层、干音语义层和码点映射层生成。
 
+- `yime/pinyin_normalized.json`
+  - 当前承担 `数字标调拼音 -> 调号标调拼音` 的显示层资料。
+  - 静态候选解码链直接将它与 `syllable/codec/yinjie_code.json`、`yime/pinyin_hanzi.json` 组合使用，不再经过 `yinjie_mapping.json` / `enhanced_yinjie_mapping.json` 中间产物。
+
 #### 3. 布局解析与布局安装产物
 
 - `internal_data/manual_key_layout.resolved.json`
@@ -282,16 +286,23 @@
   - 分类：旧结构归档脚本目录。
   - 原因：该目录下的脚本只服务旧 `音元拼音 / 数字标调拼音 / 词汇` 结构审计或迁移，不再属于当前主线 rebuild 面。
 
+- `yime/legacy/convert_pinyin_to_hanzi.py`
+  - 分类：已归档的旧数据库实验脚本。
+  - 原因：仓库主线已经切到 `yinjie_code.json + pinyin_normalized.json + input_method decoder` 组合链；该脚本只剩手动调试价值，因此迁入 `yime/legacy/`。
+
+- 待清除实现层：`yime/legacy/pending_removal/Initialize_pinyin_mapping.py`、`yime/legacy/pending_removal/Initialize_hanzi_pinyin.py`、`yime/legacy/pending_removal/hanzi_db_manager.py`
+  - 分类：已从主目录剥离的 legacy-compatible 初始化/数据库接口实现。
+  - 原因：当前主线已不再通过主目录入口暴露这些旧接口；真实旧实现统一收拢到 `yime/legacy/pending_removal/`。
+
+- 待清除实现层：`yime/legacy/pending_removal/split_numeric_pinyin.py`、`yime/legacy/pending_removal/rebuild_yinyuan_structure_table.py`
+  - 分类：已从主目录剥离的 legacy-compatible 实现模块。
+  - 原因：聚焦测试和旧维护脚本已改为直接引用 `pending_removal` 下的实现；它们不再作为 root-level compatibility implementation 保留。
+
 当前处理原则补充：
 
 1. 主线重建优先走 `internal_data/pinyin_source_db/` 与 prototype 导入链，不再把旧中文表维护脚本当成默认入口。
 2. `.yaml` 词库导出已经独立到 `internal_data/pinyin_source_db/export_yaml_lexicon_json.py`，可单独执行，不必穿过 SQLite 链。
-3. `yime/legacy/` 中的脚本默认不继续扩展新功能，只保留历史兼容与审计用途。
-
-当前处理原则补充：
-
-1. 数据库维护脚本若需要自动备份，应统一写入 `yime/backup/` 或其他明确的本地临时位置。
-2. 任何 `pinyin_hanzi` 相关 `.bak`/`pre_*` 文件都应视为本地回退副产物，不应再被提交。
+3. `yime/legacy/` 中的脚本默认不继续扩展新功能，只保留历史兼容与审计用途；其中旧 DB / JSON 实现现已进一步集中到 `yime/legacy/pending_removal/`。数据库维护脚本产生的 `.bak`/`pre_*` 等回退文件应统一视为本地副产物，不再提交。
 
 #### 6C. `yime/reports/` 运行桥接文件与分析产物（2026-05）
 
@@ -632,9 +643,13 @@
   - 分类：已删除的旧脚本备份件。
   - 原因：当前仓库已保留 `syllable/analysis/shouyin.py` 作为现行实现；`.bak.py` 版本不再被主线代码引用，仅残留在旧打包清单中。
 
+- `yime/transform_dict_structure.py`
+  - 分类：已删除的旧显示映射生成脚本。
+  - 原因：静态候选解码现在直接从 `syllable/codec/yinjie_code.json` 与 `yime/pinyin_normalized.json` 构建显示映射，不再需要 `yinjie_mapping.json -> enhanced_yinjie_mapping.json` 这条中间生成链。
+
 - `yime/transform_dict_structure.bak.py`
   - 分类：已删除的旧脚本备份件。
-  - 原因：当前仓库已保留 `yime/transform_dict_structure.py` 作为现行实现；`.bak.py` 版本只剩一条调试启动配置引用，不再承担维护职责。
+  - 原因：对应现行实现也已移除；该 `.bak.py` 文件不再有任何维护价值。
 
 ### E. 审计与过渡辅助文件
 
