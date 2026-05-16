@@ -39,7 +39,8 @@ class Test实际数据库(unittest.TestCase):
         self.assertIn('数字标调拼音', tables)
         self.assertNotIn('汉字拼音初始数据', tables)
         self.assertIn('汉字频率', tables)
-        self.assertIn('词汇', tables)
+        self.assertNotIn('词汇', tables)
+        self.assertIn('phrase_inventory', tables)
 
     def test_音元拼音数据(self):
         """测试音元拼音数据"""
@@ -49,13 +50,13 @@ class Test实际数据库(unittest.TestCase):
         self.assertGreater(count, 0)
         print(f"音元拼音数据: {count} 条")
 
-    def test_词汇数据(self):
-        """测试词汇数据"""
+    def test_phrase_inventory数据(self):
+        """测试 prototype 词语数据"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT COUNT(*) FROM "词汇"')
+        cursor.execute('SELECT COUNT(*) FROM phrase_inventory')
         count = cursor.fetchone()[0]
         self.assertGreater(count, 0)
-        print(f"词汇数据: {count} 条")
+        print(f"phrase_inventory 数据: {count} 条")
 
     def test_查询音元拼音(self):
         """测试查询音元拼音"""
@@ -64,10 +65,10 @@ class Test实际数据库(unittest.TestCase):
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
-    def test_查询词汇(self):
-        """测试查询词汇"""
+    def test_查询phrase_inventory(self):
+        """测试查询 prototype 词语表"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM "词汇" LIMIT 5')
+        cursor.execute('SELECT * FROM phrase_inventory LIMIT 5')
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
@@ -103,10 +104,10 @@ class Test数据库CRUD操作(unittest.TestCase):
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
-    def test_查询特定词汇(self):
-        """测试查询特定词汇"""
+    def test_查询特定短语(self):
+        """测试查询特定短语"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM "词汇" WHERE "词语" LIKE ?', ('中国%',))
+        cursor.execute('SELECT * FROM phrase_inventory WHERE phrase LIKE ?', ('中国%',))
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
@@ -118,13 +119,13 @@ class Test数据库CRUD操作(unittest.TestCase):
         self.assertGreater(count, 0)
         print(f"不同拼音数量: {count}")
 
-    def test_统计词汇数量(self):
-        """测试统计词汇数量"""
+    def test_统计短语数量(self):
+        """测试统计 prototype 词语数量"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT COUNT(DISTINCT "词语") FROM "词汇"')
+        cursor.execute('SELECT COUNT(DISTINCT phrase) FROM phrase_inventory')
         count = cursor.fetchone()[0]
         self.assertGreater(count, 0)
-        print(f"不同词汇数量: {count}")
+        print(f"不同短语数量: {count}")
 
 
 if __name__ == '__main__':

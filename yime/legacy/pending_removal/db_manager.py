@@ -27,6 +27,7 @@ UNUSED_LEGACY_TABLES = (
     "数字标调全拼",
     "汉字音元拼音映射",
     "汉字数字标调拼音映射",
+    "词汇",
 )
 UNUSED_LEGACY_VIEWS = (
     "多音字视图",
@@ -147,17 +148,6 @@ class 表管理器:
                     "最近更新" TIMESTAMP
                 )
             ''',
-            '词汇': '''
-                CREATE TABLE IF NOT EXISTS "词汇" (
-                    "编号" INTEGER PRIMARY KEY,
-                    "词语" TEXT NOT NULL,
-                    "音元拼音" TEXT NOT NULL,
-                    "频率" FLOAT,
-                    "长度" INTEGER,
-                    "常用词语" BOOLEAN DEFAULT 1,
-                    "最近更新" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            '''
         }
 
         # 修改 表管理器.创建表() 方法中的删除逻辑
@@ -183,8 +173,6 @@ class 表管理器:
 
             # 汉字相关索引
             ('索引_汉字_字符', '"汉字"("字符")'),
-            ('索引_词汇_词语', '"词汇"("词语")'),
-            ('索引_词汇_音元拼音', '"词汇"("音元拼音")')
         ]
 
         for 索引名, 列名 in 索引列表:

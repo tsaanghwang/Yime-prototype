@@ -28,18 +28,18 @@ WHERE pinyin_tone IS NOT NULL
   AND yime_code IS NULL
 ORDER BY hanzi, pinyin_tone;
 
--- 6. 看看哪些词语已经有词条，但还没有数字标调拼音。
+-- 6. 看看哪些词语已经有 prototype 词条，但还没有数字标调拼音。
 SELECT
-    w."编号",
-    w."词语",
-    w."音元拼音",
-    w."频率",
-    w."长度"
-FROM "词汇" w
+  pi.id,
+  pi.phrase,
+  pi.yime_code,
+  pi.phrase_frequency,
+  pi.phrase_length
+FROM phrase_inventory pi
 LEFT JOIN phrase_pinyin_map ppm
-    ON w."编号" = ppm.phrase_id
+  ON pi.id = ppm.phrase_id
 WHERE ppm.id IS NULL
-ORDER BY w."词语";
+ORDER BY pi.phrase;
 
 -- 7. 看看哪些单字还没有频率。
 SELECT *
