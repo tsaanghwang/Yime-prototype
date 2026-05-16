@@ -268,7 +268,7 @@
 
 - `yime/backup/`
   - 分类：本地数据库备份目录。
-  - 原因：`yime/run_full_import.py` 与 `yime/borrow_wanxiang_frequency.py` 会在修改 `yime/pinyin_hanzi.db` 前生成保护性备份；这些文件属于本地维护副产物，不应进入版本控制。
+  - 原因：`yime/run_full_import.py` 与 `yime/borrow_wanxiang_frequency.py`（现为 shim，真实实现位于 `yime/utils/wanxiang_frequency_import.py`）会在修改 `yime/pinyin_hanzi.db` 前生成保护性备份；这些文件属于本地维护副产物，不应进入版本控制。
 
 - `yime/*.wanxiang_borrow_*.bak`
 - `yime/*.pre_*`

@@ -13,8 +13,8 @@ import unicodedata
 from tkinter import messagebox, simpledialog
 from typing import Callable, Mapping, Optional, cast
 
-from ..borrow_wanxiang_frequency import marked_pinyin_to_numeric
 from ..asset_paths import resolve_runtime_candidates_json_path
+from ..utils.marked_pinyin import marked_pinyin_to_numeric
 from .core.decoders import CompositeCandidateDecoder
 from .core.input_visualization import (
     build_code_display,

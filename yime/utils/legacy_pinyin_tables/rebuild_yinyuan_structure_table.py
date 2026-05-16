@@ -27,7 +27,7 @@ try:
 except ModuleNotFoundError:
     from yime.utils.legacy_pinyin_tables.syllable_structure import SyllableStructure
     from yime.utils.legacy_pinyin_tables.syllable_decoder import SyllableDecoder
-    from yime.utils_charfilter import is_allowed_code_char
+    from yime.utils.charfilter import is_allowed_code_char
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DB_PATH = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
