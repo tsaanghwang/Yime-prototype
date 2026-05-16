@@ -423,7 +423,7 @@ for data in data_list:
 
 ```sql
 CREATE INDEX idx_pinyin ON "音元拼音"("全拼");
-CREATE INDEX idx_frequency ON "汉字频率"("绝对频率" DESC);
+CREATE INDEX idx_char_frequency ON char_inventory(char_frequency_abs DESC);
 ```
 
 #### 查询优化
