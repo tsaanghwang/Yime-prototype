@@ -61,11 +61,12 @@ npm test
 ```text
 YIME/
 ├── yime/                 # Python 核心引擎
-│   ├── syllable_decoder.py    # 音节解码器
-│   ├── syllable_structure.py  # 音节结构
+│   ├── syllable_decoder.py    # legacy shim，公开兼容导入路径
+│   ├── syllable_structure.py  # legacy shim，公开兼容导入路径
 │   ├── import_danzi_into_prototype_tables.py  # 单字 prototype 导入主线
 │   ├── import_duozi_into_prototype_tables.py  # 词语 prototype 导入主线
 │   ├── refresh_runtime_yime_codes.py          # canonical/runtime 同步主线
+│   ├── utils/legacy_pinyin_tables/            # 保留的旧拼音参考表链与兼容实现
 │   └── legacy/pending_removal/                # legacy-compatible 旧数据库接口归档
 │       └── db_manager.py                      # 旧数据库管理入口
 │

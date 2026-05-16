@@ -25,8 +25,8 @@ try:
     from syllable_decoder import SyllableDecoder
     from utils_charfilter import is_allowed_code_char
 except ModuleNotFoundError:
-    from yime.syllable_structure import SyllableStructure
-    from yime.syllable_decoder import SyllableDecoder
+    from yime.utils.legacy_pinyin_tables.syllable_structure import SyllableStructure
+    from yime.utils.legacy_pinyin_tables.syllable_decoder import SyllableDecoder
     from yime.utils_charfilter import is_allowed_code_char
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
