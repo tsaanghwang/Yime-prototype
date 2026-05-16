@@ -310,6 +310,10 @@
   - 分类：已移除的旧数据库观察/占位表。
   - 原因：这些表没有活动代码读取面，主库中也只剩空表或空字符串占位行；继续保留只会扩大历史 schema 面，并与当前 `char_inventory / phrase_inventory` 原型链并存制造误导。
 
+- 已清退旧全文检索虚拟表与影子表：`词语搜索*`、`通用单字搜索*`
+  - 分类：已移除的旧数据库 FTS5 虚拟表及影子表。
+  - 原因：仓库内已无任何代码、文档或脚本再读取这两组全文检索对象；继续保留只会把无消费者的 FTS5 影子表留在主库里，扩大历史 schema 面。
+
 - 待清除实现层：`yime/utils/legacy_pinyin_tables/split_numeric_pinyin.py`、`yime/utils/legacy_pinyin_tables/rebuild_yinyuan_structure_table.py`
   - 分类：已从主目录剥离的 legacy-compatible 实现模块。
   - 原因：它们只服务 `多式拼音映射关系 / 音元拼音 / 数字标调拼音` 三表的生成链，已从 `legacy` 归档目录移到 `utils` 下的专用子包。
