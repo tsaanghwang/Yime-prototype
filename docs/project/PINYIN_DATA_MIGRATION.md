@@ -80,7 +80,8 @@ c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/export_yaml_
 
 下面这些对象仍然保留在仓库里，但不属于当前主线 rebuild：
 
-- 兼容脚本入口：`yime/run_db_setup.py`
+- 兼容脚本入口：`yime/run_db_setup.py`（legacy shim）
+- 兼容实现位置：`yime/legacy/pending_removal/run_db_setup.py`
 - 待清除实现层：`yime/legacy/pending_removal/` 下的旧 DB / JSON 实现与兼容资源
 
 保留原因：
@@ -92,7 +93,7 @@ c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/export_yaml_
 
 兼容层分工可以这样理解：
 
-- `yime/run_db_setup.py` 只是指向 `yime/legacy/pending_removal/db_manager.py` 的兼容脚本入口，不负责当前主线 rebuild。
+- `yime/run_db_setup.py` 只是指向 `yime/legacy/pending_removal/run_db_setup.py` 的兼容 shim；真实实现仍只服务 `db_manager.py` 这层 legacy schema 维护，不负责当前主线 rebuild。
 - 旧 DB / JSON 真实实现不再保留主目录或 `yime/legacy/` 顶层同名壳；旧 schema / 汉字接口保留在 `yime/legacy/pending_removal/`，三表生成链移到 `yime/utils/legacy_pinyin_tables/`。
 - 当前主线如果需要真正刷新可消费数据，仍应回到本文第 1 节的 `source_pinyin.db -> prototype tables -> runtime` 链。
 

@@ -42,6 +42,8 @@ npm install
 python yime/run_db_setup.py
 ```
 
+这条命令现在只是 legacy shim；真实兼容实现位于 `yime/legacy/pending_removal/run_db_setup.py`。
+
 #### 5. 运行测试
 
 ```bash
