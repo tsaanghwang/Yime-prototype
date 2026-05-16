@@ -29,7 +29,14 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 
-if __name__ == "__main__":
-    from yime.input_method.app import main
+def main() -> None:
+    from yime.input_method.app import main as app_main
 
-    main()
+    app_main()
+
+
+__all__ = ["main"]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

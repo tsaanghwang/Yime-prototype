@@ -6,3 +6,10 @@ from yime.utils.asset_paths import (
     resolve_runtime_candidates_json_path,
     resolve_source_pinyin_db_path,
 )
+
+__all__ = [
+    "generated_runtime_candidates_json_path",
+    "generated_source_pinyin_db_path",
+    "resolve_runtime_candidates_json_path",
+    "resolve_source_pinyin_db_path",
+]
