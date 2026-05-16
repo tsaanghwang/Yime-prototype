@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any
 
 try:
-    from yime.utils_charfilter import is_allowed_code_char, is_pua_char
+    from yime.utils.charfilter import is_allowed_code_char, is_pua_char
 except Exception:
     from utils_charfilter import is_allowed_code_char, is_pua_char
 from syllable.codec.yinjie_decoder import YinjieDecoder

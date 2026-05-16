@@ -12,9 +12,9 @@ from itertools import product
 from pathlib import Path
 
 try:
-    from yime.backup_utils import create_timestamped_backup
+    from yime.utils.backup import create_timestamped_backup
 except ImportError:
-    from backup_utils import create_timestamped_backup
+    from utils.backup import create_timestamped_backup
 
 from yime.canonical_yime_mapping import (
     load_canonical_code_map,
