@@ -14,7 +14,7 @@
       "name": "test_duplicate_groups",
       "type": "python",
       "request": "launch",
-      "program": "${workspaceFolder}\\yime\\legacy\\test_duplicate_groups.py",
+      "program": "${workspaceFolder}\\yime\\legacy\\maintenance_tests\\test_duplicate_groups.py",
       "currentFileConfiguration": false,
       "cwd": "${workspaceFolder}",
       "addSourceRootsToPythonpath": true
