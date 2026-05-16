@@ -33,8 +33,13 @@ def parse_phrase_frequency(path: Path) -> dict[str, int]:
     return freq_by_phrase
 
 def update_phrase_frequencies(conn: sqlite3.Connection, freq_by_phrase: dict[str, int]) -> tuple[int, int]:
-    # 只更新表中已有的多字词条
-    phrase_id_map = {row[1]: row[0] for row in conn.execute('SELECT "编号", "词语" FROM "词汇" WHERE LENGTH("词语") > 1')}
+    # 只更新 prototype 词语主表中已有的多字词条
+    phrase_id_map = {
+        row[1]: row[0]
+        for row in conn.execute(
+            'SELECT id, phrase FROM phrase_inventory WHERE LENGTH(phrase) > 1'
+        )
+    }
     updated = 0
     skipped = 0
     for phrase, freq in freq_by_phrase.items():
@@ -42,15 +47,18 @@ def update_phrase_frequencies(conn: sqlite3.Connection, freq_by_phrase: dict[str
         if phrase_id is None:
             skipped += 1
             continue
-        conn.execute('UPDATE "词汇" SET "频率" = ? WHERE "编号" = ?', (freq, phrase_id))
+        conn.execute(
+            'UPDATE phrase_inventory SET phrase_frequency = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            (freq, phrase_id),
+        )
         updated += 1
     return updated, skipped
 
 def write_import_metadata(conn: sqlite3.Connection, updated: int, skipped: int) -> None:
     rows = [
         ("prototype_xiandaihaiyu_phrase_freq_source", str(SOURCE_PATH), "现代汉语常用词表词频导入来源"),
-        ("prototype_xiandaihaiyu_phrase_freq_updated", str(updated), "本次更新到词汇表的多字词条数"),
-        ("prototype_xiandaihaiyu_phrase_freq_skipped", str(skipped), "因词汇表无对应多字词而跳过的行数"),
+        ("prototype_xiandaihaiyu_phrase_freq_updated", str(updated), "本次更新到 phrase_inventory 的多字词条数"),
+        ("prototype_xiandaihaiyu_phrase_freq_skipped", str(skipped), "因 phrase_inventory 无对应多字词而跳过的行数"),
     ]
     conn.executemany(
         '''

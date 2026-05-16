@@ -38,7 +38,8 @@ class Test实际数据库(unittest.TestCase):
         self.assertIn('音元拼音', tables)
         self.assertIn('数字标调拼音', tables)
         self.assertNotIn('汉字拼音初始数据', tables)
-        self.assertIn('词汇', tables)
+        self.assertNotIn('词汇', tables)
+        self.assertIn('phrase_inventory', tables)
 
     def test_音元拼音数据(self):
         """测试音元拼音数据"""
@@ -48,13 +49,13 @@ class Test实际数据库(unittest.TestCase):
         self.assertGreater(count, 0)
         print(f"\n音元拼音数据: {count} 条")
 
-    def test_词汇数据(self):
-        """测试词汇数据"""
+    def test_phrase_inventory数据(self):
+        """测试 prototype 词语数据"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT COUNT(*) FROM "词汇"')
+        cursor.execute('SELECT COUNT(*) FROM phrase_inventory')
         count = cursor.fetchone()[0]
         self.assertGreater(count, 0)
-        print(f"词汇数据: {count} 条")
+        print(f"phrase_inventory 数据: {count} 条")
 
     def test_查询音元拼音(self):
         """测试查询音元拼音"""
@@ -63,10 +64,10 @@ class Test实际数据库(unittest.TestCase):
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
-    def test_查询词汇(self):
-        """测试查询词汇"""
+    def test_查询phrase_inventory(self):
+        """测试查询 prototype 词语表"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM "词汇" LIMIT 5')
+        cursor.execute('SELECT * FROM phrase_inventory LIMIT 5')
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
@@ -105,15 +106,15 @@ class Test数据库CRUD操作(unittest.TestCase):
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
-    def test_查询特定词汇(self):
-        """测试查询特定词汇"""
+    def test_查询特定短语(self):
+        """测试查询特定短语"""
         cursor = self.conn.cursor()
-        # 先获取一个词汇
-        cursor.execute('SELECT "词语" FROM "词汇" LIMIT 1')
+        # 先获取一个短语
+        cursor.execute('SELECT phrase FROM phrase_inventory LIMIT 1')
         word = cursor.fetchone()[0]
 
-        # 查询这个词汇
-        cursor.execute('SELECT * FROM "词汇" WHERE "词语" = ?', (word,))
+        # 查询这个短语
+        cursor.execute('SELECT * FROM phrase_inventory WHERE phrase = ?', (word,))
         rows = cursor.fetchall()
         self.assertGreater(len(rows), 0)
 
@@ -125,13 +126,13 @@ class Test数据库CRUD操作(unittest.TestCase):
         self.assertGreater(count, 0)
         print(f"\n不同拼音数量: {count}")
 
-    def test_统计词汇数量(self):
-        """测试统计词汇数量"""
+    def test_统计短语数量(self):
+        """测试统计 prototype 词语数量"""
         cursor = self.conn.cursor()
-        cursor.execute('SELECT COUNT(DISTINCT "词语") FROM "词汇"')
+        cursor.execute('SELECT COUNT(DISTINCT phrase) FROM phrase_inventory')
         count = cursor.fetchone()[0]
         self.assertGreater(count, 0)
-        print(f"不同词汇数量: {count}")
+        print(f"不同短语数量: {count}")
 
     def test_拼音数据完整性(self):
         """测试拼音数据完整性"""
@@ -141,11 +142,11 @@ class Test数据库CRUD操作(unittest.TestCase):
         null_count = cursor.fetchone()[0]
         self.assertEqual(null_count, 0)
 
-    def test_词汇数据完整性(self):
-        """测试词汇数据完整性"""
+    def test_phrase_inventory数据完整性(self):
+        """测试 prototype 词语数据完整性"""
         cursor = self.conn.cursor()
         # 检查是否有空值
-        cursor.execute('SELECT COUNT(*) FROM "词汇" WHERE "词语" IS NULL OR "词语" = ""')
+        cursor.execute('SELECT COUNT(*) FROM phrase_inventory WHERE phrase IS NULL OR phrase = ""')
         null_count = cursor.fetchone()[0]
         self.assertEqual(null_count, 0)
 
@@ -192,7 +193,7 @@ class Test数据库性能(unittest.TestCase):
 
         # 模糊查询
         start = time.time()
-        cursor.execute('SELECT * FROM "词汇" WHERE "词语" LIKE ?', ('中%',))
+        cursor.execute('SELECT * FROM phrase_inventory WHERE phrase LIKE ?', ('中%',))
         cursor.fetchall()
         end = time.time()
 
