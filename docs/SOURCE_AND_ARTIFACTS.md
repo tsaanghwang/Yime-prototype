@@ -318,6 +318,14 @@
   - 分类：已从主目录剥离的 legacy-compatible 实现模块。
   - 原因：它们只服务 `多式拼音映射关系 / 音元拼音 / 数字标调拼音` 三表的生成链，已从 `legacy` 归档目录移到 `utils` 下的专用子包。
 
+- 保留中的兼容实现：`yime/utils/legacy_pinyin_tables/syllable_decoder.py`
+  - 分类：已从主目录剥离的 legacy-compatible 音节解码实现。
+  - 原因：源码内活动消费者只剩三表重建链；主包根目录 `yime/syllable_decoder.py` 现仅保留公开导入路径与 API 文档入口所需的 shim。
+
+- 保留中的兼容实现：`yime/utils/legacy_pinyin_tables/syllable_structure.py`
+  - 分类：已从主目录剥离的 legacy-compatible 音节结构实现。
+  - 原因：源码内活动消费者只剩三表重建链和兼容音节解码器；主包根目录 `yime/syllable_structure.py` 现仅保留公开导入路径与 API 文档入口所需的 shim。
+
 - 已清退旧中文辅助视图：`多音字视图`、`拼音映射视图`、`汉字拼音映射视图`、`汉字标准拼音视图`、`汉字音元拼音视图`
   - 分类：已移除的旧数据库辅助视图。
   - 原因：它们只服务旧中文表观察/审计，不再被当前主线 rebuild/runtime 或保留的 legacy-compatible 三表生成链读取；继续保留只会扩大历史 schema 面。
