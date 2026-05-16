@@ -363,6 +363,10 @@
   - 分类：已删除的根级旧初始化脚本。
   - 原因：它默认操作根目录 `pinyin_hanzi.db`，与 `yime/run_db_setup.py` 这条模块内链重复，保留它只会继续制造“根目录库 vs 模块目录库”的混淆。
 
+- `yime/legacy/pending_removal/run_db_setup.py`
+  - 分类：保留中的 legacy-compatible DB bootstrap 实现。
+  - 原因：它只负责调用 `db_manager.run_schema_migrations()` 维护旧 schema 兼容面；主包根目录的 `yime/run_db_setup.py` 现已降级为同名 shim，避免把真实兼容实现继续留在主目录。
+
 当前处理原则补充：
 
 1. 数据库相关脚本若仍以仓库根目录 `pinyin_hanzi.db` 为默认目标，应优先视为旧原型链候选，而不是当前主线入口。
