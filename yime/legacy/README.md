@@ -5,20 +5,21 @@
 当前已归档到这里的文件：
 
 - `manual_db_experiments/convert_pinyin_to_hanzi.py`
+- `maintenance_tests/test_db_manager.py`
+- `maintenance_tests/test_db_manager_real.py`
+- `maintenance_tests/test_db_manager_final_v2.py`
+- `maintenance_tests/test_duplicate_groups.py`
 - `pinyin_db_prototype/create_table.py`
 - `pinyin_db_prototype/import_initial.py`
 - `pinyin_db_prototype/pinyin.db`
 - `pinyin_db_prototype/update_table.py`
 - `pinyin_db_prototype/shengmu.csv`
-- `test_db_manager.py`
-- `test_db_manager_real.py`
-- `test_db_manager_final_v2.py`
-- `test_duplicate_groups.py`
 这些脚本的共同特点是：
 
 - 直接检查或修改旧 `音元拼音 / 数字标调拼音` 结构。
 - 一部分文件还是带阶段命名的试验性测试变体，用于当时逐步试错 `db_manager.py` 的旧表结构与连接方式。
 - 另一部分则是旧数据库驱动的实验入口或一次性原型脚本，并不属于当前应维护的自动化测试面。
+- 其中 `maintenance_tests/` 保留仍会被人工执行的旧结构维护/观测测试。
 - 其中 `manual_db_experiments/` 只保留仍会直连主 `pinyin_hanzi.db` 做手动排查的旧实验入口。
 - `pinyin_db_prototype/` 则保留一条更早的 `pinyin.db` 原型链：用 `create_table.py` 建库、`import_initial.py` 导入 `shengmu.csv`、再由 `update_table.py` 把上层 `initial_ipa.json` 写回旧 `initial` 表；对应的旧实验数据库也一并归档在同目录。
 - 不再属于当前主线 `source_pinyin.db -> prototype tables -> runtime_candidates` 的必要环节。

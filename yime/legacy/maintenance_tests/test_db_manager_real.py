@@ -14,7 +14,7 @@ class Test实际数据库(unittest.TestCase):
 
     def setUp(self):
         """设置测试环境"""
-        self.db_path = Path(__file__).resolve().parent.parent / "pinyin_hanzi.db"
+        self.db_path = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
         self.conn = sqlite3.connect(str(self.db_path))
 
     def tearDown(self):
@@ -96,7 +96,7 @@ class Test数据库CRUD操作(unittest.TestCase):
 
     def setUp(self):
         """设置测试环境"""
-        self.db_path = Path(__file__).resolve().parent.parent / "pinyin_hanzi.db"
+        self.db_path = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
         self.conn = sqlite3.connect(str(self.db_path))
 
     def tearDown(self):

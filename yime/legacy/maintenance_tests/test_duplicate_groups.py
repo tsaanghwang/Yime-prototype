@@ -2,7 +2,7 @@
 from pathlib import Path
 import sqlite3
 
-DB = Path(__file__).resolve().parent / "pinyin_hanzi.db"
+DB = Path(__file__).resolve().parents[2] / "pinyin_hanzi.db"
 SQL = """
 SELECT COUNT(*) AS duplicate_groups
 FROM (
