@@ -188,6 +188,10 @@
   - 分类：待确认旧链。
   - 原因：它属于“把词语数据导入原型数据库”的维护脚本，角色与单字导入脚本相同，目前更像原型库维护链的一部分，而不是当前交互主线的一部分；真实实现现已下沉到 `yime/utils/prototype_phrase_import.py`，根路径保留兼容脚本入口。
 
+- `yime/refresh_runtime_yime_codes.py`
+  - 分类：当前间接依赖。
+  - 原因：它仍是当前 `source_pinyin.db -> prototype tables -> runtime_candidates` 主线中的 runtime 刷新入口，但真实实现现已下沉到 `yime/utils/runtime_codes_refresh.py`，根路径仅保留兼容脚本入口。
+
 - `releases/`
   - 分类：可归档但暂不删除。
   - 原因：该目录更接近历史发布/打包沉积区，包含安装包、MSI 和按架构拆分的打包结果；当前没有发现运行时代码对它的直接依赖，但它仍可能承载可用安装样本与发布记录，因此现阶段先归档理解，不做删除处理。
