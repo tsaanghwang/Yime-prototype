@@ -286,7 +286,7 @@
   - 分类：旧结构归档脚本目录。
   - 原因：该目录下的脚本只服务旧 `音元拼音 / 数字标调拼音 / 词汇` 结构审计或迁移，不再属于当前主线 rebuild 面。
 
-- `yime/legacy/convert_pinyin_to_hanzi.py`
+- `yime/legacy/manual_db_experiments/convert_pinyin_to_hanzi.py`
   - 分类：已归档的旧数据库实验脚本。
   - 原因：仓库主线已经切到 `yinjie_code.json + pinyin_normalized.json + input_method decoder` 组合链；该脚本只剩手动调试价值，因此迁入 `yime/legacy/`。
 
