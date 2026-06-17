@@ -122,6 +122,37 @@ def test_manual_input_keypress_allows_native_numpad_decimal(monkeypatch) -> None
     assert root.after_idle_calls == []
 
 
+def test_manual_input_keypress_intercepts_number_row_via_layout_resolver(monkeypatch) -> None:
+    entry = _FakeEntry()
+    root = _FakeRoot()
+    box = _build_box(entry, root)
+    box._manual_key_output_resolver = lambda key, modifiers: "\U00100015" if key == "1" else ""
+    box._manual_input_transformer = lambda text: "\ue4fe" if text == "\U00100015" else text
+    event = SimpleNamespace(widget=entry, char="1", keycode=49, keysym="1")
+
+    monkeypatch.setattr(
+        ManualInputResolver,
+        "get_manual_key_modifiers",
+        classmethod(lambda cls: {"shift": False, "ctrl": False, "alt_gr": False}),
+    )
+    monkeypatch.setattr(
+        ManualInputResolver,
+        "normalize_event_physical_key",
+        classmethod(lambda cls, current_event: "1"),
+    )
+    monkeypatch.setattr(
+        ManualInputResolver,
+        "resolve_manual_input_text",
+        classmethod(lambda cls, current_event: "1"),
+    )
+
+    result = CandidateBox._on_manual_input_key_press(box, event)
+
+    assert result == "break"
+    assert entry.insert_calls == [("insert", "\ue4fe")]
+    assert len(root.after_idle_calls) == 1
+
+
 def test_manual_input_keypress_allows_native_numpad_digit(monkeypatch) -> None:
     entry = _FakeEntry()
     root = _FakeRoot()

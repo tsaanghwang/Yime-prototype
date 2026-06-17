@@ -692,8 +692,10 @@ class CandidateBox(CandidateRendererMixin):
             return None
 
         translated_text = ""
+        resolved_from_layout = ""
         if self._manual_key_output_resolver and physical_key:
-            translated_text = self._manual_key_output_resolver(physical_key, modifiers)
+            resolved_from_layout = self._manual_key_output_resolver(physical_key, modifiers)
+            translated_text = resolved_from_layout
 
         if not translated_text:
             translated_text = ManualInputResolver.resolve_manual_input_text(event)
@@ -706,7 +708,11 @@ class CandidateBox(CandidateRendererMixin):
             return None
 
         native_char = getattr(event, "char", "") or ""
-        should_intercept = bool(modifiers.get("alt_gr") or native_char != translated_text)
+        should_intercept = bool(
+            modifiers.get("alt_gr")
+            or resolved_from_layout
+            or native_char != translated_text
+        )
         if not should_intercept:
             return None
 

@@ -8,7 +8,6 @@ yime/*.db-shm
 yime/backup/
 yime/*.bak*
 yime/*.bak.*
-yime/*.wanxiang_borrow_*.bak
 yime/*.pre_*
 
 # Ignore virtual environment
@@ -59,12 +58,18 @@ pip-wheel-metadata/
 
 internal_data/pinyin_source_db/source_pinyin.db
 internal_data/hanzi_pinyin/hanzi_pinyin.db
+internal_data/phrase_pinyin/phrase_pinyin.db
+internal_data/phrase_pinyin/phrase_pinyin.txt
+yime/pinyin_hanzi.db
 external_data/unicode_hanzi.txt
 external_data/Unihan_Readings.txt
-external_data/pinyin.txt
+external_data/hanzi_pinyin.txt
 external_data/zdic.txt
+external_data/phrase_pinyin.txt
+external_data/word_freq/
 internal_data/hanzi_pinyin/pinyin.txt
 external_data/char_freq/
+external_data/unihan_readings/
 yime/reports/efficiency_baseline.json
 yime/reports/phrase_code_backfill.json
 yime/reports/phoneme_dict.json
