@@ -23,7 +23,7 @@
 
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
-- `[Decoder] 运行时候选已回退到 SQLite 数据库视图 runtime_candidates`
+- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
 
 这些都不一定表示出错，要结合环境和启动日志一起判断。
 

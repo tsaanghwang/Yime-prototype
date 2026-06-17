@@ -27,7 +27,7 @@
 - `conda`
 - Git LFS
 
-说明：即使没有完整拉取 Git LFS，当前实现也可以通过 SQLite 回退链路取候选。
+说明：即使没有完整拉取 Git LFS，只要本地有 `yime/pinyin_hanzi.db`，运行时即可通过 SQLite 查候选。
 
 ### Q2：最短安装路径是什么？
 
@@ -70,10 +70,9 @@ python -m yime.input_method.app
 
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
+- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
 
-如果运行时候选从数据库回退，还可能看到：
-
-- `[Decoder] 运行时候选已回退到 SQLite 数据库视图 runtime_candidates`
+最后一行表示 SQLite 主路径已启用，属于正常情况。
 
 ### Q5：为什么文档里仍然会提到 Git LFS？
 
@@ -81,9 +80,9 @@ python -m yime.input_method.app
 
 但当前实现已经具备：
 
-- JSON 读取
-- SQLite `runtime_candidates` 回退
-- 静态候选兜底
+- SQLite `runtime_candidates` 主路径（默认）
+- JSON 导出备用
+- 静态候选兜底（可选）
 
 所以缺少 Git LFS 文件并不等于应用无法运行。
 

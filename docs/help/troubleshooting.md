@@ -15,11 +15,11 @@
 
 先不要立刻认定为安装失败。
 
-当前候选有多级回退：
+当前候选有多级回退（**SQLite 优先**）：
 
-- 运行时 JSON
-- SQLite `runtime_candidates` 视图
-- 静态候选表
+1. SQLite `yime/pinyin_hanzi.db` → `runtime_candidates` 视图
+2. 可选 JSON 导出（`.generated/runtime_candidates_by_code_true.json`）
+3. 静态层（拼音解码 + 可选 `pinyin_hanzi.json`）
 
 优先看启动日志确认当前实际使用的是哪一层。
 

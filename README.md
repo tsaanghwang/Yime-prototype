@@ -12,9 +12,11 @@
 当前主线已经能稳定给出几类可验证结果：
 
 - 带调全拼音节在当前主线下统一为 4 码编码。
-- 运行时候选与重码情况已经可以用基线报告量化。
+- 运行时候选以 SQLite `pinyin_hanzi.db` 为主路径查词。
 - 音元全拼 / 简拼 / 标准全拼的结构码长可以在同语料上并列比较。
 - 单字排序与首屏命中率仍是当前优化重点。
+
+数据 rebuild 与运行时消费见 [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)。
 
 当前可重复生成的第一版指标表见 [docs/EFFICIENCY_BASELINE.md](docs/EFFICIENCY_BASELINE.md)。
 
@@ -70,7 +72,7 @@ YIME/
 
 - 安装与启动： [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)、 [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)
 - 当前实现边界： [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)
-- 细分文档与约束： [docs/README.md](docs/README.md)、 [docs/CODEPOINT_POLICY.md](docs/CODEPOINT_POLICY.md)、 [docs/SOURCE_AND_ARTIFACTS.md](docs/SOURCE_AND_ARTIFACTS.md)
+- 文档入口： [docs/README.md](docs/README.md)、 [docs/CODEPOINT_POLICY.md](docs/CODEPOINT_POLICY.md)、 [docs/SOURCE_AND_ARTIFACTS.md](docs/SOURCE_AND_ARTIFACTS.md)、 [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)
 
 ## 授权说明
 

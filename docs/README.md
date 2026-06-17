@@ -55,6 +55,7 @@ KLC 文档分工：
 ### 核心文档
 
 - **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** - 当前 Windows 桌面输入法原型的实现状态、边界和后续方向
+- **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** - rebuild 链、SQLite 主路径、已删除 legacy 脚本
 - **[连续输入候选组织草案](project/CONTINUOUS_INPUT_CANDIDATE_ORGANIZATION_DRAFT.md)** - 说明连续输入阶段如何划分状态、组织候选以及叠加现有单字兜底与词语优先
 - **[效率基线报告](EFFICIENCY_BASELINE.md)** - 基于现有运行时候选导出生成的第一版效率指标表
 - **[API 参考手册](API.md)** - 完整的 API 文档和示例
@@ -101,6 +102,21 @@ KLC 文档分工：
 2. 不要把这类文档直接当成当前操作手册
 3. 当前流程仍以本页“快速开始”和上面的 KLC 主入口说明为准
 
+## 2026-06 主线更新（维护摘要）
+
+近期仓库清理与文档对齐要点：
+
+| 主题 | 当前状态 |
+| --- | --- |
+| 数据 rebuild | `source_pinyin.db` → prototype 导入 → `refresh_runtime_yime_codes` |
+| 运行时查词 | **SQLite** `pinyin_hanzi.db` / `runtime_candidates` 为主；JSON 导出可选 |
+| 已删除 | `db_manager`、`run_db_setup`、`legacy_pinyin_tables` 三表链 |
+| 兼容保留 | `yime/utils/syllable_compat/`；`yime/legacy/pending_removal/windows_candidate_box.py` |
+| 静态兜底 | `pinyin_hanzi.json` 已 gitignore，缺失不影响主链 |
+| 本地验证 | `scripts/run_tests.cmd`（unittest + pytest input_method） |
+
+细节与历史删除清单见 [PINYIN_DATA_MIGRATION.md](project/PINYIN_DATA_MIGRATION.md)、[SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md)（§6D 起为归档摘要，逐项清单查 `git log`）。
+
 ## 获取帮助
 
 1. 先查 [FAQ.md](FAQ.md)
@@ -109,5 +125,5 @@ KLC 文档分工：
 
 ---
 
-**最后更新**: 2026-04-11
-**文档版本**: 1.0.0
+**最后更新**: 2026-06-17
+**文档版本**: 1.1.0
