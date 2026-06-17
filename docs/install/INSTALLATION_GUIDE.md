@@ -55,7 +55,7 @@
 说明：
 
 - 仓库里有一些历史文档提到其他 Python 版本，但当前 Windows 输入法主线应以 Python 3.12 为准。
-- 即使未拉取完整 Git LFS 数据，当前运行时也可以回退到 SQLite 视图 `runtime_candidates` 取候选，不是安装阻塞项。
+- 即使未拉取完整 Git LFS 数据，只要本地有 `yime/pinyin_hanzi.db`，运行时即可通过 SQLite `runtime_candidates` 查候选，不是安装阻塞项。
 
 ## 依赖
 
@@ -199,9 +199,9 @@ python -m yime.input_method.app --font-family "Microsoft YaHei"
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
 
-如果启用了 SQLite 回退链路，还可能看到：
+如果 SQLite 主路径正常，还可能看到：
 
-- `[Decoder] 运行时候选已回退到 SQLite 数据库视图 runtime_candidates`
+- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
 
 这些输出都属于当前实现允许的正常路径。
 
@@ -273,12 +273,12 @@ pip install --force-reinstall pywin32
 
 这不一定是安装失败。
 
-当前实现支持两条来源：
+当前实现支持两条来源（**SQLite 优先**）：
 
-- JSON 导出文件
-- SQLite `runtime_candidates` 回退视图
+- SQLite `yime/pinyin_hanzi.db` → `runtime_candidates`（默认主路径）
+- 可选 JSON 导出文件（`.generated/runtime_candidates_by_code_true.json`，仅 SQLite 不可用时）
 
-如果仓库中的运行时 JSON 只是 Git LFS 指针文件，程序仍可能通过 SQLite 正常工作。
+缺少 JSON 导出或 Git LFS 未拉全，只要数据库在，程序仍可正常工作。
 
 ### 4. 启动了，但没有“系统级输入法”效果
 

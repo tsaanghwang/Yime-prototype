@@ -56,12 +56,9 @@ python -m yime.input_method.app --font-family "Microsoft YaHei"
 
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
+- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
 
-如果运行时候选从数据库回退，还可能看到：
-
-- `[Decoder] 运行时候选已回退到 SQLite 数据库视图 runtime_candidates`
-
-这几类提示都属于当前实现允许的正常路径。
+以上都属于当前实现允许的正常路径。
 
 ## 当前交互模型
 

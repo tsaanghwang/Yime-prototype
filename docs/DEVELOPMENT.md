@@ -259,8 +259,10 @@ pytest tests/yinjie/ -k your_case
 ```bash
 sqlite3 yime/pinyin_hanzi.db
 .tables
-.schema "音元拼音"
+.schema runtime_candidates
 ```
+
+当前主线表结构见 `yime/create_prototype_schema_additions.sql`；旧中文表 `音元拼音` 等已随 2026-06 legacy 清理删除。
 
 `音元拼音` 表的定位：
 

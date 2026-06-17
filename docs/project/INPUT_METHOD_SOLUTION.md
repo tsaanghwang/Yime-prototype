@@ -113,16 +113,15 @@
 
 当前策略：
 
-1. 优先读取运行时 JSON 候选文件
-2. 如果 JSON 实际上只是 Git LFS 指针，则自动回退
-3. 回退到 SQLite `runtime_candidates` 视图
-4. 如果运行时候选仍不可用，再回退到静态拼音候选表
+1. **优先** `yime/pinyin_hanzi.db` → SQLite `runtime_candidates` 视图（默认主路径）
+2. SQLite 不可用时，回退到 `.generated/runtime_candidates_by_code_true.json`
+3. 运行层仍无候选时，再回退静态层（`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 提供汉字）
 
 当前真实情况：
 
-- 当前仓库中的运行时 JSON 文件并不总是可直接使用。
-- SQLite 回退已实现并可用。
-- 启动时会打印当前运行时候选来源，如 `json` 或 `sqlite`。
+- 自用只要 `yime/pinyin_hanzi.db` 在且导入链跑通，即可正常查词。
+- JSON 导出主要用于人工 diff / 备用，不是日常必需。
+- 启动时会打印当前来源，如 `sqlite` 或 `json`。
 
 ### 5. 候选框 UI 层
 
