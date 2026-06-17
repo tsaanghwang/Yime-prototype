@@ -145,10 +145,12 @@ def query_source_db(term: str, use_like: bool, limit: int) -> None:
         phrase_rows = fetch_rows(
             connection,
             f"""
-            SELECT phrase, marked_pinyin, numeric_pinyin, reading_rank, source_name
-            FROM phrase_readings
-            WHERE phrase {comparator} ?
-            ORDER BY phrase, reading_rank, source_name
+            SELECT pr.phrase, pr.marked_pinyin, pr.numeric_pinyin, pr.reading_rank,
+                   sf.source_path AS source_name
+            FROM phrase_readings pr
+            LEFT JOIN source_files sf ON sf.source_kind = 'phrase'
+            WHERE pr.phrase {comparator} ?
+            ORDER BY pr.phrase, pr.reading_rank
             LIMIT ?
             """,
             match_value,
@@ -160,10 +162,12 @@ def query_source_db(term: str, use_like: bool, limit: int) -> None:
         char_rows = fetch_rows(
             connection,
             f"""
-            SELECT hanzi, marked_pinyin, numeric_pinyin, reading_rank, source_name
-            FROM single_char_readings
-            WHERE hanzi {comparator} ?
-            ORDER BY hanzi, reading_rank, source_name
+            SELECT cr.hanzi, cr.marked_pinyin, cr.numeric_pinyin, cr.reading_rank,
+                   sf.source_path AS source_name
+            FROM char_readings cr
+            LEFT JOIN source_files sf ON sf.source_kind = 'char'
+            WHERE cr.hanzi {comparator} ?
+            ORDER BY cr.hanzi, cr.reading_rank
             LIMIT ?
             """,
             match_value,

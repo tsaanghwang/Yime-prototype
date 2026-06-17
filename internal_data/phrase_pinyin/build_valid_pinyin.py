@@ -20,15 +20,13 @@ def run(script_name: str, args: list[str] | None = None) -> None:
 
 
 def main():
-    print("一键构建 hanzi_pinyin 库")
+    print("一键构建 phrase_pinyin 库")
     print("=" * 60)
 
-    run("hanzi_codepoint.py")
-    run("hanzi_pinyin.py")
-    run("hanzi_frequency.py")
-    run("pinyin_source_staging.py")
+    run("phrase_pinyin.py")
+    run("phrase_source_staging.py")
     run("append_pinyin.py")
-    run("export_hanzi_txt.py")
+    run("export_phrase_txt.py")
 
     print(f"\n{'='*60}")
     print("  全部完成！")

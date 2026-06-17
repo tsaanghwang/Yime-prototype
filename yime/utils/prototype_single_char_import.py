@@ -7,6 +7,7 @@ from pathlib import Path
 from yime.asset_paths import resolve_source_pinyin_db_path
 from yime.canonical_yime_mapping import sync_canonical_mapping_table
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
+from yime.utils.source_pinyin_db_loader import prototype_source_name, uses_v2_source_schema
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
@@ -23,6 +24,43 @@ def apply_schema(conn: sqlite3.Connection) -> None:
 def load_source_single_char_rows(path: Path) -> tuple[list[tuple[str, str, str]], list[tuple[int, str, str, str, str, str, int, int, str | None, str]]]:
     with sqlite3.connect(path) as source_conn:
         source_cur = source_conn.cursor()
+        if uses_v2_source_schema(source_conn):
+            source_files = [
+                (prototype_source_name(source_kind, source_path), source_kind, source_path)
+                for source_kind, source_path in source_cur.execute(
+                    '''
+                    SELECT source_kind, source_path
+                    FROM source_files
+                    WHERE source_kind = 'char'
+                    ORDER BY source_kind
+                    '''
+                ).fetchall()
+            ]
+            default_source_name = source_files[0][0] if source_files else "char:pinyin.txt"
+            rows = [
+                (
+                    row_id,
+                    default_source_name,
+                    codepoint,
+                    hanzi,
+                    marked_pinyin,
+                    numeric_pinyin,
+                    reading_rank,
+                    is_primary,
+                    None,
+                    "",
+                )
+                for row_id, codepoint, hanzi, marked_pinyin, numeric_pinyin, reading_rank, is_primary in source_cur.execute(
+                    '''
+                    SELECT id, codepoint, hanzi, marked_pinyin, numeric_pinyin,
+                           reading_rank, is_primary
+                    FROM char_readings
+                    ORDER BY id
+                    '''
+                ).fetchall()
+            ]
+            return source_files, rows
+
         source_files = source_cur.execute(
             '''
             SELECT source_name, source_kind, source_path

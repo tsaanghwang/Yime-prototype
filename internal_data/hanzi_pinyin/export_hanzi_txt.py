@@ -3,15 +3,19 @@ import csv
 import sqlite3
 from pathlib import Path
 
-
 DB_FILE = Path(__file__).resolve().with_name("hanzi_pinyin.db")
 DEFAULT_OUTPUT_FILE = Path(__file__).resolve().with_name("pinyin.txt")
 DELIMITER = "\t"
-OUTPUT_COMMENT = "# 本拼音库，拼音原始数据绝大多数从 Unihan_Readings.txt 中提取，极小部分自汉典网 (zdic.net) 上抓取。目前数据库中包含了 Unicode 17.0 版的汉字及其对应的拼音，且每个汉字的拼音数据主要是采自汉典网的数据都经过了多轮人工校对和修正。强调说明，为便按照一字一音原则根据音元拼音编码输入单字双音汉字，这类汉字字音只取一个音节作为编码候选拼音。"
+OUTPUT_COMMENT = (
+    "# 本文件由 hanzi_pinyin.db 的 hanzi_pinyin 表导出（仅含 Unihan 有读音汉字）。"
+    "数据源为 external_data/hanzi_pinyin.txt（Unihan mandarin_readings_merged 导出），"
+    "经 pinyin_source_staging 导入后直接写入 hanzi_pinyin。"
+    "构建流水线见 internal_data/hanzi_pinyin/build_valid_pinyin.py。"
+)
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Export hanzi_pinyin table to pinyin.txt.")
+    parser = argparse.ArgumentParser(description="Export hanzi_pinyin table to tab-separated text.")
     parser.add_argument("--db", default=str(DB_FILE), help="Source hanzi_pinyin.db path")
     parser.add_argument(
         "--output-file",
@@ -33,22 +37,31 @@ def export_hanzi_table(db_file: Path, output_file: Path) -> None:
 
     cur.execute(
         """
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM hanzi_pinyin
         ORDER BY codepoint ASC
         """
     )
+    rows = cur.fetchall()
+    conn.close()
+
+    header = [
+        "codepoint",
+        "hanzi",
+        "common_reading",
+        "readings",
+        "common_reading_source",
+        "is_single",
+    ]
 
     with output_file.open("w", encoding="utf-8", newline="") as file_obj:
         file_obj.write(f"{OUTPUT_COMMENT}\n")
         writer = csv.writer(file_obj, delimiter=DELIMITER, lineterminator="\n")
-        writer.writerow(["codepoint", "hanzi", "common_reading", "readings"])
-        writer.writerows(cur)
+        writer.writerow(header)
+        writer.writerows(rows)
 
-    conn.close()
-
-    print(f"导出完成: {output_file}")
-    print("字段顺序: codepoint, hanzi, common_reading, readings")
+    print(f"导出完成: {output_file} ({len(rows):,} 条)")
+    print("字段顺序: " + ", ".join(header))
     print(r"分隔符: \t")
 
 

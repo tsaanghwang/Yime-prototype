@@ -4,8 +4,16 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from hanzi_pinyin_source_io import (
+    DEFAULT_SOURCE_FILE,
+    STAGING_DDL,
+    parse_hanzi_pinyin_txt,
+)
+
 DB_FILE = str(Path(__file__).parent / "hanzi_pinyin.db")
-VALID_MARKED_PINYIN_PATH = Path(__file__).resolve().parents[2] / "internal_data" / "pinyin_source_db" / "lexicon_exports" / "pinyin_normalized.json"
+VALID_MARKED_PINYIN_PATH = (
+    Path(__file__).resolve().parents[1] / "pinyin_source_db" / "lexicon_exports" / "pinyin_normalized.json"
+)
 
 TONE_CHAR_MAP = {
     "ā": "a1",
@@ -43,106 +51,49 @@ NUMERIC_SYLLABLE_RE = re.compile(r"^[a-zêü]+[1-5]$")
 TONE_MARK_CHARS = "āáǎàēéěèếềīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ̄́̌̀"
 
 
-def build_staging_table():
-    conn = sqlite3.connect(DB_FILE)
-    conn.execute("PRAGMA foreign_keys = ON")
-    cur = conn.cursor()
-
-    cur.execute("""
-        CREATE TABLE IF NOT EXISTS pinyin_source_staging (
-            codepoint       TEXT PRIMARY KEY REFERENCES hanzi(codepoint) ON DELETE RESTRICT,
-            hanzi           TEXT NOT NULL,
-            common_reading  TEXT,
-            readings        TEXT
-        )
-    """)
-
-    conn.commit()
-
-    count = cur.execute("SELECT COUNT(*) FROM pinyin_source_staging").fetchone()[0]
-
-    conn.close()
-
-    print(f"pinyin_source_staging 表已就绪，当前 {count:,} 条记录")
-    print(f"数据库: {DB_FILE}")
-
-
-def _is_untoned_pinyin(pinyin: str) -> bool:
-    numeric = marked_syllable_to_numeric(pinyin)
-    return numeric and numeric[-1] == '5'
-
-
-def _reorder_candidates(candidates: list[str]) -> list[str]:
-    if len(candidates) <= 1:
-        return candidates
-    toned = [p for p in candidates if not _is_untoned_pinyin(p)]
-    untoned = [p for p in candidates if _is_untoned_pinyin(p)]
-    return toned + untoned
-
-
-def import_to_staging(source_path: str) -> None:
+def import_to_staging(source_path: str | Path) -> None:
     path = Path(source_path)
-    if not path.exists():
-        raise FileNotFoundError(f"拼音源文件未找到: {path}")
-
-    readings_map: dict[str, tuple[str, str]] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "#" in line:
-            line = line.split("#", 1)[0].rstrip()
-        if not line or ":" not in line:
-            continue
-        cp_part, rest = line.split(":", 1)
-        codepoint = cp_part.strip().upper()
-        if not codepoint.startswith("U+"):
-            continue
-        pinyin_part = rest.strip()
-        if not pinyin_part:
-            continue
-        pinyin_list = [p.strip() for p in pinyin_part.split(",") if p.strip()]
-        if not pinyin_list:
-            continue
-        pinyin_list = _reorder_candidates(pinyin_list)
-        existing = readings_map.get(codepoint)
-        if existing:
-            merged = list(existing[1].split(",")) + pinyin_list
-            seen: set[str] = set()
-            deduped: list[str] = []
-            for p in merged:
-                if p not in seen:
-                    seen.add(p)
-                    deduped.append(p)
-            deduped = _reorder_candidates(deduped)
-            readings_map[codepoint] = (deduped[0], ",".join(deduped))
-        else:
-            readings_map[codepoint] = (pinyin_list[0], ",".join(pinyin_list))
+    parsed_rows = parse_hanzi_pinyin_txt(path)
 
     conn = sqlite3.connect(DB_FILE)
     conn.execute("PRAGMA foreign_keys = ON")
     cur = conn.cursor()
 
-    cur.execute("DELETE FROM pinyin_source_staging")
+    cur.execute("DROP TABLE IF EXISTS pinyin_source_staging")
+    cur.execute(STAGING_DDL)
 
     inserted = 0
-    for codepoint, (common, readings) in readings_map.items():
-        cur.execute("SELECT hanzi FROM hanzi WHERE codepoint = ?", (codepoint,))
-        row = cur.fetchone()
-        if not row:
+    skipped = 0
+    for row in parsed_rows:
+        known = cur.execute(
+            "SELECT hanzi FROM hanzi WHERE codepoint = ?",
+            (row.codepoint,),
+        ).fetchone()
+        if not known:
+            skipped += 1
             continue
-        hanzi = row[0]
+        hanzi = known[0]
         cur.execute(
-            "INSERT OR IGNORE INTO pinyin_source_staging (codepoint, hanzi, common_reading, readings) VALUES (?, ?, ?, ?)",
-            (codepoint, hanzi, common, readings),
+            "INSERT INTO pinyin_source_staging "
+            "(codepoint, hanzi, common_reading, readings, common_reading_source, is_single) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                row.codepoint,
+                hanzi,
+                row.common_reading or None,
+                row.readings,
+                row.common_reading_source or None,
+                row.is_single,
+            ),
         )
-        if cur.rowcount > 0:
-            inserted += 1
+        inserted += 1
 
     conn.commit()
     conn.close()
 
-    print(f"staging 导入完成: {inserted:,} 条新记录 (来源: {path.name})")
+    print(f"staging 导入完成: {inserted:,} 条 (来源: {path})")
+    if skipped:
+        print(f"跳过: {skipped:,} 条（码点不在 hanzi 主表）")
 
 
 def console_print(message: str) -> None:
@@ -268,32 +219,32 @@ def create_views():
 
     cur.execute("""
         CREATE VIEW view_staging_with_pinyin AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM pinyin_source_staging
         WHERE COALESCE(common_reading, '') <> ''
     """)
 
     cur.execute("""
         CREATE VIEW view_staging_without_pinyin AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM pinyin_source_staging
         WHERE common_reading IS NULL OR common_reading = ''
     """)
 
     cur.execute("""
         CREATE VIEW view_staging_with_multireadings AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM pinyin_source_staging
         WHERE COALESCE(common_reading, '') <> ''
-          AND readings LIKE '%,%'
+          AND is_single = 0
     """)
 
     cur.execute("""
         CREATE VIEW view_staging_single_reading_not_toned AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM pinyin_source_staging
         WHERE COALESCE(common_reading, '') <> ''
-          AND readings NOT LIKE '%,%'
+          AND is_single = 1
           AND common_reading NOT GLOB '*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ]*'
     """)
 
@@ -306,6 +257,8 @@ def create_views():
             hf.frequency,
             s.common_reading AS pinyin,
             s.readings AS pinyin_candidates,
+            s.common_reading_source,
+            s.is_single,
             CASE
                 WHEN s.readings IS NULL OR s.readings = '' THEN 0
                 ELSE LENGTH(s.readings) - LENGTH(REPLACE(s.readings, ',', '')) + 1
@@ -315,9 +268,8 @@ def create_views():
                 ELSE 1
             END AS has_pinyin,
             CASE
-                WHEN s.readings IS NOT NULL
-                     AND s.readings <> ''
-                     AND LENGTH(s.readings) - LENGTH(REPLACE(s.readings, ',', '')) + 1 > 1 THEN 1
+                WHEN s.is_single = 1 THEN 0
+                WHEN s.readings IS NOT NULL AND s.readings <> '' THEN 1
                 ELSE 0
             END AS is_polyphonic,
             CASE
@@ -484,27 +436,17 @@ def create_views():
 
 
 if __name__ == "__main__":
-    DEFAULT_PINYIN = str(Path(__file__).resolve().parents[2] / "external_data" / "pinyin.txt")
-    DEFAULT_ZDIC = str(Path(__file__).resolve().parents[2] / "external_data" / "zdic.txt")
+    import argparse
 
-    print("选择导入源:")
-    print(f"  1) 导入 pinyin.txt [默认]")
-    print(f"  2) 导入 zdic.txt")
-    print(f"  3) 输入自定义文件路径")
-    choice = input("请选择 [1]: ").strip()
+    parser = argparse.ArgumentParser(
+        description="Import external_data/hanzi_pinyin.txt into pinyin_source_staging.",
+    )
+    parser.add_argument(
+        "--source",
+        default=str(DEFAULT_SOURCE_FILE),
+        help=f"TSV source path (default: {DEFAULT_SOURCE_FILE})",
+    )
+    args = parser.parse_args()
 
-    if choice == "" or choice == "1":
-        source_path = DEFAULT_PINYIN
-    elif choice == "2":
-        source_path = DEFAULT_ZDIC
-    elif choice == "3":
-        source_path = input("请输入文件路径: ").strip()
-        if not source_path:
-            print("未输入路径，退出")
-            raise SystemExit(1)
-    else:
-        print("无效选择，退出")
-        raise SystemExit(1)
-
-    import_to_staging(source_path)
+    import_to_staging(args.source)
     create_views()

@@ -11,6 +11,97 @@ ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DB_PATH = resolve_source_pinyin_db_path(ROOT)
 DEFAULT_TABLE_NAME = "m_distinct_syllable_inventory"
 
+# Inline flattening: char_readings rows + phrase_readings split by spaces.
+# Original workflow materialized directly; no persistent v_flat_distinct_syllables view.
+_FLAT_SYLLABLES_CTE = """
+        WITH RECURSIVE phrase_syllable_split AS (
+            SELECT
+                id,
+                1 AS syllable_index,
+                TRIM(
+                    SUBSTR(
+                        numeric_pinyin || ' ',
+                        1,
+                        INSTR(numeric_pinyin || ' ', ' ') - 1
+                    )
+                ) AS numeric_syllable,
+                TRIM(
+                    SUBSTR(
+                        marked_pinyin || ' ',
+                        1,
+                        INSTR(marked_pinyin || ' ', ' ') - 1
+                    )
+                ) AS marked_syllable,
+                TRIM(
+                    SUBSTR(
+                        numeric_pinyin || ' ',
+                        INSTR(numeric_pinyin || ' ', ' ') + 1
+                    )
+                ) AS rest_numeric,
+                TRIM(
+                    SUBSTR(
+                        marked_pinyin || ' ',
+                        INSTR(marked_pinyin || ' ', ' ') + 1
+                    )
+                ) AS rest_marked
+            FROM phrase_readings
+            WHERE TRIM(COALESCE(numeric_pinyin, '')) <> ''
+              AND TRIM(COALESCE(marked_pinyin, '')) <> ''
+
+            UNION ALL
+
+            SELECT
+                id,
+                syllable_index + 1,
+                TRIM(
+                    SUBSTR(
+                        rest_numeric || ' ',
+                        1,
+                        INSTR(rest_numeric || ' ', ' ') - 1
+                    )
+                ),
+                TRIM(
+                    SUBSTR(
+                        rest_marked || ' ',
+                        1,
+                        INSTR(rest_marked || ' ', ' ') - 1
+                    )
+                ),
+                TRIM(
+                    SUBSTR(
+                        rest_numeric || ' ',
+                        INSTR(rest_numeric || ' ', ' ') + 1
+                    )
+                ),
+                TRIM(
+                    SUBSTR(
+                        rest_marked || ' ',
+                        INSTR(rest_marked || ' ', ' ') + 1
+                    )
+                )
+            FROM phrase_syllable_split
+            WHERE rest_numeric <> ''
+        ),
+        flat_distinct_syllables AS (
+            SELECT
+                numeric_pinyin AS numeric_syllable,
+                marked_pinyin AS marked_syllable,
+                'single_char' AS source_table
+            FROM char_readings
+            WHERE TRIM(COALESCE(numeric_pinyin, '')) <> ''
+              AND TRIM(COALESCE(marked_pinyin, '')) <> ''
+
+            UNION ALL
+
+            SELECT
+                numeric_syllable,
+                marked_syllable,
+                'phrase' AS source_table
+            FROM phrase_syllable_split
+            WHERE TRIM(COALESCE(numeric_syllable, '')) <> ''
+              AND TRIM(COALESCE(marked_syllable, '')) <> ''
+        ),
+"""
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -46,6 +137,8 @@ def refresh_materialized_table(connection: sqlite3.Connection, table_name: str) 
 
     connection.executescript(
         f"""
+        DROP VIEW IF EXISTS v_flat_distinct_syllables;
+
         DROP TABLE IF EXISTS {quoted_table};
 
         CREATE TABLE {quoted_table} (
@@ -70,7 +163,8 @@ def refresh_materialized_table(connection: sqlite3.Connection, table_name: str) 
             phrase_distinct_count,
             flattened_distinct_count
         )
-        WITH syllable_usage AS (
+        {_FLAT_SYLLABLES_CTE}
+        syllable_usage AS (
             SELECT
                 numeric_syllable,
                 marked_syllable,
@@ -79,7 +173,7 @@ def refresh_materialized_table(connection: sqlite3.Connection, table_name: str) 
                 SUM(CASE WHEN source_table = 'single_char' THEN 1 ELSE 0 END) AS single_char_distinct_count,
                 SUM(CASE WHEN source_table = 'phrase' THEN 1 ELSE 0 END) AS phrase_distinct_count,
                 COUNT(*) AS flattened_distinct_count
-            FROM v_flat_distinct_syllables
+            FROM flat_distinct_syllables
             WHERE TRIM(COALESCE(numeric_syllable, '')) <> ''
               AND TRIM(COALESCE(marked_syllable, '')) <> ''
             GROUP BY numeric_syllable, marked_syllable

@@ -20,6 +20,7 @@ WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
 DEFAULT_OUTPUT_PATH = SCRIPT_DIR / "lexicon_exports" / "pinyin_normalized.json"
 DEFAULT_CODEBOOK_PATH = WORKSPACE_ROOT / "syllable" / "codec" / "yinjie_code.json"
 DEFAULT_SUPPLEMENTAL_PATCH_PATH = SCRIPT_DIR / "pinyin_normalized_patch.json"
+DEFAULT_INVENTORY_TABLE = "m_distinct_syllable_inventory"
 
 PRECOMPOSED_TONE_MARKS = {
     "a": {"1": "ā", "2": "á", "3": "ǎ", "4": "à"},
@@ -47,6 +48,23 @@ def parse_args() -> argparse.Namespace:
         help="Optional JSON object of extra numeric_pinyin -> marked_pinyin pairs to include in the export domain",
     )
     parser.add_argument(
+        "--inventory-table",
+        default=DEFAULT_INVENTORY_TABLE,
+        help=(
+            "Materialized syllable inventory table used as the export domain "
+            f"(default: {DEFAULT_INVENTORY_TABLE})."
+        ),
+    )
+    parser.add_argument(
+        "--export-domain",
+        choices=("inventory", "codebook"),
+        default="inventory",
+        help=(
+            "inventory: export every numeric syllable observed in the lexicon inventory "
+            "(plus patch keys). codebook: legacy domain from yinjie_code.json keys only."
+        ),
+    )
+    parser.add_argument(
         "--allow-validation-warnings",
         action="store_true",
         help="Allow export even if validation emits warnings. Errors still block export.",
@@ -61,20 +79,83 @@ def validate_db_for_export(conn: sqlite3.Connection) -> dict:
     return finalize_report(report)
 
 
-def collect_numeric_to_marked_pairs(conn: sqlite3.Connection) -> dict[str, set[str]]:
+def quote_identifier(identifier: str) -> str:
+    return '"' + identifier.replace('"', '""') + '"'
+
+
+def inventory_table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def load_inventory_numeric_syllables(conn: sqlite3.Connection, table_name: str) -> list[str]:
+    if not inventory_table_exists(conn, table_name):
+        raise ValueError(
+            f"inventory table not found: {table_name}. "
+            "Run tools/refresh_materialized_syllable_inventory.py first."
+        )
+    quoted_table = quote_identifier(table_name)
+    query = f"""
+        SELECT DISTINCT numeric_syllable
+        FROM {quoted_table}
+        WHERE TRIM(COALESCE(numeric_syllable, '')) <> ''
+        ORDER BY numeric_syllable
+    """
+    return [row[0] for row in conn.execute(query)]
+
+
+def collect_numeric_to_marked_pairs(
+    conn: sqlite3.Connection,
+    inventory_table: str,
+) -> dict[str, set[str]]:
     mapping: dict[str, set[str]] = defaultdict(set)
-    query = """
+    char_query = """
         SELECT DISTINCT numeric_pinyin, marked_pinyin
         FROM char_readings
         ORDER BY numeric_pinyin, marked_pinyin
     """
-    for numeric_pinyin, marked_pinyin in conn.execute(query):
+    char_numerics: set[str] = set()
+    for numeric_pinyin, marked_pinyin in conn.execute(char_query):
         mapping[numeric_pinyin].add(marked_pinyin)
+        char_numerics.add(numeric_pinyin)
+
+    if not inventory_table_exists(conn, inventory_table):
+        return mapping
+
+    quoted_table = quote_identifier(inventory_table)
+    phrase_only_query = f"""
+        SELECT DISTINCT numeric_syllable, marked_syllable
+        FROM {quoted_table}
+        WHERE has_single_char = 0
+          AND TRIM(COALESCE(numeric_syllable, '')) <> ''
+          AND TRIM(COALESCE(marked_syllable, '')) <> ''
+        ORDER BY numeric_syllable, marked_syllable
+    """
+    for numeric_syllable, marked_syllable in conn.execute(phrase_only_query):
+        if numeric_syllable in char_numerics:
+            continue
+        mapping[numeric_syllable].add(marked_syllable)
     return mapping
 
 
+def is_numeric_syllable_key(key: str) -> bool:
+    return bool(key) and key[-1].isdigit()
+
+
 def load_codebook_keys(path: Path) -> list[str]:
-    return sorted(json.loads(path.read_text(encoding="utf-8")).keys())
+    all_keys = json.loads(path.read_text(encoding="utf-8")).keys()
+    numeric_keys = sorted(key for key in all_keys if is_numeric_syllable_key(key))
+    ignored = sorted(key for key in all_keys if not is_numeric_syllable_key(key))
+    if ignored:
+        preview = ", ".join(ignored[:8])
+        suffix = "..." if len(ignored) > 8 else ""
+        print(
+            f"codebook_non_numeric_keys_ignored: {len(ignored)} ({preview}{suffix})"
+        )
+    return numeric_keys
 
 
 def load_supplemental_patch(path: Path) -> dict[str, str]:
@@ -207,13 +288,17 @@ def main() -> int:
                 "Re-run with --allow-validation-warnings if this is intentional."
             )
 
-        numeric_to_marked = collect_numeric_to_marked_pairs(conn)
+        numeric_to_marked = collect_numeric_to_marked_pairs(conn, args.inventory_table)
+        inventory_keys = load_inventory_numeric_syllables(conn, args.inventory_table)
     finally:
         conn.close()
 
     codebook_keys = load_codebook_keys(codebook_path)
     supplemental_patch = load_supplemental_patch(supplemental_patch_path)
-    allowed_keys = sorted(set(codebook_keys) | set(supplemental_patch))
+    if args.export_domain == "inventory":
+        allowed_keys = sorted(set(inventory_keys) | set(supplemental_patch))
+    else:
+        allowed_keys = sorted(set(codebook_keys) | set(supplemental_patch))
     export_mapping, missing_keys = build_export_mapping(
         numeric_to_marked,
         allowed_keys,
@@ -227,10 +312,20 @@ def main() -> int:
 
     print(f"database: {db_path}")
     print(f"output: {output_path}")
+    print(f"export_domain: {args.export_domain}")
     print(f"rows_exported: {len(export_mapping)}")
+    print(f"inventory_keys: {len(inventory_keys)}")
     print(f"codebook_keys: {len(codebook_keys)}")
     print(f"supplemental_patch_keys: {len(supplemental_patch)}")
-    print(f"source_only_keys_ignored: {len(set(numeric_to_marked) - set(allowed_keys))}")
+    inventory_numeric = set(inventory_keys)
+    export_keys = set(export_mapping)
+    print(
+        f"inventory_not_exported: {len(inventory_numeric - export_keys)}"
+    )
+    print(
+        f"export_beyond_codebook: {len(export_keys - set(codebook_keys))}"
+    )
+    print(f"source_only_keys_ignored: {len(set(numeric_to_marked) - export_keys)}")
     print(f"missing_keys_backfilled: {len(missing_keys)}")
     print(f"validation_errors: {validation_report['summary']['error_count']}")
     print(f"validation_warnings: {validation_report['summary']['warning_count']}")
