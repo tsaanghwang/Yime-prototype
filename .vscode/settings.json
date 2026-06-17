@@ -2,7 +2,7 @@
   "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*test.py"],
   "python.testing.pytestEnabled": false,
   "python.testing.unittestEnabled": true,
-  "python.analysis.extraPaths": ["./tools"],
+  "python.analysis.extraPaths": ["./tools", "./internal_data/hanzi_pinyin"],
   "workbench.editor.autoLockGroups": {
     "pdf.preview": true,
     "mainThreadWebview-markdown.preview": true,
@@ -129,17 +129,17 @@
   "[jsonc]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "editor.fontFamily": "\"Noto Sans\", \"YinYuan\", \"音元\", “MiSans L3”, “FiraCode-Regular”, Consolas, 'Courier New', monospace",
-  "terminal.integrated.fontFamily": "Consolas, 'Courier New', monospace",
+  "editor.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan\", \"音元\", Consolas, 'Courier New', monospace",
+  "terminal.integrated.fontFamily": "\"Noto Sans\", \"MiSans L3\", Consolas, 'Courier New', monospace",
   "terminal.integrated.fontLigatures.enabled": true,
   "[query-editor]": {
     "editor.defaultFormatter": "yy0931.vscode-sqlite3-editor"
   },
-  "chat.editor.fontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
-  "editor.inlayHints.fontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
-  "scm.inputFontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
-  "notebook.output.fontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
-  "workbench.list.fontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
+  "chat.editor.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
+  "editor.inlayHints.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
+  "scm.inputFontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
+  "notebook.output.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
+  "workbench.list.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
   "sqltools.connections": [
     {
       "name": "Yime Pinyin Hanzi",
@@ -156,9 +156,9 @@
     }
   ],
   "sqltools.results.customization": {
-    "font-family": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace"
+    "font-family": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace"
   },
-  "pgsql.resultsFontFamily": "\"YinYuan Regular\", \"音元 常规\", \"Noto Sans\", \"Microsoft YaHei\", Consolas, 'Courier New', monospace",
+  "pgsql.resultsFontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"音元 常规\", Consolas, 'Courier New', monospace",
   "latex-workshop.latex.tools": [
     {
       "name": "xelatex",
@@ -178,7 +178,7 @@
     "editor.defaultFormatter": "mathematic.vscode-latex"
   },
   "markdown.styles": [".vscode/markdown.css"],
-  "markdown.preview.fontFamily": "\"Noto Sans\", \"YinYuan Regular\", \"Microsoft YaHei\", sans-serif",
+  "markdown.preview.fontFamily": "\"Noto Sans\", \"MiSans L3\", \"YinYuan Regular\", \"Microsoft YaHei\", sans-serif",
   "livePreview.defaultPreviewPath": "/临时.html",
   "files.exclude": {
     "venv_broken_python314": true
@@ -192,5 +192,9 @@
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "python-envs.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "sqltools.useNodeRuntime": false,
-  "python-envs.defaultPackageManager": "ms-python.python:conda"
+  "python-envs.defaultPackageManager": "ms-python.python:conda",
+  "cursorpyright.analysis.extraPaths": [
+    "./tools",
+    "./internal_data/hanzi_pinyin"
+  ]
 }

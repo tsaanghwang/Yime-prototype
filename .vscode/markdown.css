@@ -11,9 +11,9 @@
 /* 应用到正文与代码（按需调整选择器） */
 .markdown-body,
 .markdown-preview {
-  font-family: "Noto Sans", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-family: "Noto Sans", "MiSans L3", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
 }
 pre,
 code {
-  font-family: "Noto Sans", Consolas, "Courier New", monospace;
+  font-family: "Noto Sans", "MiSans L3", Consolas, "Courier New", monospace;
 }
