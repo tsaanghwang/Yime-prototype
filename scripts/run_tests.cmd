@@ -44,8 +44,18 @@ if errorlevel 1 (
   tests\yime\test_blcu_word_frequency_import.py ^
   tests\yime\test_unihan_readings_frequency.py ^
   tests\test_pinyin_normalizer.py
+if errorlevel 1 (
+  set "EXIT_CODE=%ERRORLEVEL%"
+  goto :finish
+)
 
+"%PYTHON%" -m pytest ^
+  tests\test_asset_paths.py ^
+  tests\input_method\ ^
+  -q --tb=short
 set "EXIT_CODE=%ERRORLEVEL%"
+
+:finish
 
 if not "%EXIT_CODE%"=="0" (
   echo.

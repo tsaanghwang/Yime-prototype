@@ -43,8 +43,10 @@ def _load_ranked_char_bucket(yime_code: str) -> list[sqlite3.Row]:
 
 def test_special_tier_chars_remain_reachable_in_real_collision_bucket() -> None:
     ranked = _load_ranked_char_bucket(REAL_COLLISION_CODE)
-    first_page = [str(row["hanzi"] or "") for row in ranked[:FIRST_PAGE_LIMIT]]
+    hanzi_order = [str(row["hanzi"] or "") for row in ranked]
+    first_page = hanzi_order[:FIRST_PAGE_LIMIT]
 
     assert "魋" in first_page
     assert "𬯎" in first_page
-    assert first_page.index("魋") < first_page.index("𪨇")
+    assert "𪨇" in hanzi_order
+    assert hanzi_order.index("魋") < hanzi_order.index("𪨇")
