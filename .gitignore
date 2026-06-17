@@ -23,6 +23,10 @@ venv_broken_python314/
 __pycache__/
 .pytest_cache/
 .tmp/
+.tmp_wheelcheck/
+.arts/
+.codeartsdoer/
+.venvLibsite-packages/
 *.swp
 *.swo
 .DS_Store
