@@ -2,22 +2,18 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import re
 import shutil
 import sqlite3
 from pathlib import Path
-from typing import Any, cast
-
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
 DEFAULT_DB_PATH = WORKSPACE_ROOT / ".generated" / "source_pinyin.db"
 LEGACY_DB_PATH = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "source_pinyin.db"
 DEFAULT_SCHEMA_PATH = SCRIPT_DIR / "schema.sql"
-# Default char source now comes from workspace-level external_data
-DEFAULT_CHAR_SOURCE = WORKSPACE_ROOT / "external_data" / "unicode_hanzi.txt"
-DEFAULT_PHRASE_SOURCE = Path("C:/dev/pinyin-data/tools/phrase-pinyin-data/pinyin.txt")
+DEFAULT_CHAR_SOURCE = WORKSPACE_ROOT / "internal_data" / "hanzi_pinyin" / "pinyin.txt"
+DEFAULT_PHRASE_SOURCE = WORKSPACE_ROOT / "internal_data" / "phrase_pinyin" / "phrase_pinyin.txt"
 NUMERIC_SYLLABLE_RE = re.compile(r"^[a-zêü]+[1-5]$")
 
 TONE_CHAR_MAP = {
@@ -53,18 +49,33 @@ TONE_CHAR_MAP = {
     "ḿ": "m2",
 }
 
-
-def make_source_name(source_kind: str, source_path: Path) -> str:
-    return f"{source_kind}:{source_path.name}"
+# 成音节辅音「儿化 r」在编码前归并为完整音节 er5（与 legacy merge_json 口径一致）。
+SYLLABIC_ERHUA_MARKED_TO_NUMERIC = {
+    "r": "er5",
+}
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build the source pinyin SQLite database from upstream text files.")
+    parser = argparse.ArgumentParser(
+        description="Build source_pinyin.db from internal_data hanzi/phrase pinyin TSV exports.",
+    )
     parser.add_argument("--db", default=str(DEFAULT_DB_PATH), help="Output SQLite database path")
     parser.add_argument("--schema", default=str(DEFAULT_SCHEMA_PATH), help="Schema SQL file path")
-    parser.add_argument("--char-source", default=str(DEFAULT_CHAR_SOURCE), help="Unicode Hanzi TSV source path")
-    parser.add_argument("--phrase-source", default=str(DEFAULT_PHRASE_SOURCE), help="Optional upstream phrase pinyin.txt path")
-    parser.add_argument("--keep-existing", action="store_true", help="Keep existing imported rows instead of replacing them")
+    parser.add_argument(
+        "--char-source",
+        default=str(DEFAULT_CHAR_SOURCE),
+        help="Hanzi pinyin TSV (internal_data/hanzi_pinyin/pinyin.txt)",
+    )
+    parser.add_argument(
+        "--phrase-source",
+        default=str(DEFAULT_PHRASE_SOURCE),
+        help="Phrase pinyin TSV (internal_data/phrase_pinyin/phrase_pinyin.txt)",
+    )
+    parser.add_argument(
+        "--keep-existing",
+        action="store_true",
+        help="Keep existing imported rows instead of replacing them",
+    )
     return parser.parse_args()
 
 
@@ -73,6 +84,10 @@ def apply_schema(conn: sqlite3.Connection, schema_path: Path) -> None:
     conn.execute("DROP INDEX IF EXISTS idx_single_char_numeric")
     conn.execute("DROP INDEX IF EXISTS idx_single_char_codepoint")
     conn.execute("DROP TABLE IF EXISTS single_char_readings")
+    conn.execute("DROP TABLE IF EXISTS char_readings")
+    conn.execute("DROP TABLE IF EXISTS phrase_readings")
+    conn.execute("DROP TABLE IF EXISTS source_files")
+    conn.execute("DROP TABLE IF EXISTS metadata")
     conn.executescript(schema_path.read_text(encoding="utf-8"))
 
 
@@ -111,6 +126,9 @@ def marked_syllable_to_numeric(marked: str) -> str:
     if marked in special_combining:
         return special_combining[marked]
 
+    if marked in SYLLABIC_ERHUA_MARKED_TO_NUMERIC:
+        return SYLLABIC_ERHUA_MARKED_TO_NUMERIC[marked]
+
     numeric = marked + "5"
     for char in marked:
         if char in TONE_CHAR_MAP:
@@ -124,116 +142,70 @@ def marked_phrase_to_numeric(marked_phrase: str) -> str:
     return " ".join(marked_syllable_to_numeric(syllable) for syllable in marked_phrase.split())
 
 
-def split_comment(raw_line: str) -> tuple[str, str | None]:
-    if "#" not in raw_line:
-        return raw_line.rstrip(), None
-    content, comment = raw_line.split("#", 1)
-    return content.rstrip(), comment.strip() or None
-
-
-def parse_phrase_source_content(content: str) -> tuple[str, str] | None:
-    if ":" in content:
-        phrase_part, pinyin_part = content.split(":", 1)
-        phrase = phrase_part.strip()
-        marked_pinyin = pinyin_part.strip()
-        if phrase and marked_pinyin:
-            return phrase, marked_pinyin
-        return None
-
-    parts = [part.strip() for part in content.split("\t")]
-    if len(parts) < 2:
-        return None
-
-    phrase = parts[0]
-    marked_pinyin = parts[1]
-    if not phrase or not marked_pinyin:
-        return None
-    return phrase, marked_pinyin
-
-
-def load_char_candidates(primary: str, candidates_json: str) -> list[str]:
-    try:
-        parsed_candidates: Any = json.loads(candidates_json) if candidates_json else []
-    except json.JSONDecodeError:
-        parsed_candidates = []
-
-    raw_candidates = cast(list[Any], parsed_candidates) if isinstance(parsed_candidates, list) else []
-    candidates: list[str] = []
+def split_char_readings(readings: str) -> list[str]:
     seen: set[str] = set()
-
-    if primary:
-        seen.add(primary)
-        candidates.append(primary)
-
-    for item in raw_candidates:
-        if not isinstance(item, str):
-            continue
-        candidate = item.strip()
-        if not candidate or candidate in seen:
-            continue
-        seen.add(candidate)
-        candidates.append(candidate)
-
-    return candidates
+    ordered: list[str] = []
+    for part in readings.split(","):
+        candidate = part.strip()
+        if candidate and candidate not in seen:
+            seen.add(candidate)
+            ordered.append(candidate)
+    return ordered
 
 
 def is_supported_char_reading(marked_pinyin: str) -> bool:
     return bool(NUMERIC_SYLLABLE_RE.match(marked_syllable_to_numeric(marked_pinyin)))
 
 
-def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
-    source_name = make_source_name("char", source_path)
+def register_source_file(conn: sqlite3.Connection, source_kind: str, source_path: Path) -> None:
     conn.execute(
-        "INSERT OR REPLACE INTO source_files (source_name, source_kind, source_path) VALUES (?, 'char', ?)",
-        (source_name, str(source_path)),
+        "INSERT OR REPLACE INTO source_files (source_kind, source_path) VALUES (?, ?)",
+        (source_kind, str(source_path)),
     )
 
+
+def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
+    register_source_file(conn, "char", source_path)
+
     inserted = 0
-    with source_path.open("r", encoding="utf-8") as handle:
+    with source_path.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.reader(handle, delimiter="\t")
         for row in reader:
-            raw_line = "\t".join(row)
-            stripped = raw_line.strip()
-            if not stripped or stripped.startswith("#"):
+            if not row or row[0].startswith("#"):
                 continue
             if row[0] == "codepoint" or len(row) < 4:
                 continue
 
             codepoint = row[0].strip().upper()
             hanzi = row[1].strip()
-            primary = row[2].strip()
-            candidates_json = row[3].strip()
-            pinyins = load_char_candidates(primary, candidates_json)
-            if not codepoint or not hanzi or not pinyins:
+            readings = row[3].strip()
+            if not codepoint or not hanzi or not readings:
                 continue
 
-            valid_pinyins = [marked_pinyin for marked_pinyin in pinyins if is_supported_char_reading(marked_pinyin)]
+            candidates = split_char_readings(readings)
+            valid_pinyins = [p for p in candidates if is_supported_char_reading(p)]
+            if not valid_pinyins:
+                continue
 
             for index, marked_pinyin in enumerate(valid_pinyins, start=1):
                 conn.execute(
                     """
                     INSERT OR REPLACE INTO char_readings (
-                        source_name,
                         codepoint,
                         hanzi,
                         marked_pinyin,
                         numeric_pinyin,
                         reading_rank,
-                        is_primary,
-                        comment,
-                        raw_line
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        is_primary
+                    ) VALUES (?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        source_name,
                         codepoint,
                         hanzi,
                         marked_pinyin,
                         marked_syllable_to_numeric(marked_pinyin),
                         index,
                         1 if index == 1 else 0,
-                        None,
-                        raw_line,
                     ),
                 )
                 inserted += 1
@@ -242,49 +214,54 @@ def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
 
 
 def import_phrase_source(conn: sqlite3.Connection, source_path: Path) -> int:
-    source_name = make_source_name("phrase", source_path)
-    conn.execute(
-        "INSERT OR REPLACE INTO source_files (source_name, source_kind, source_path) VALUES (?, 'phrase', ?)",
-        (source_name, str(source_path)),
-    )
+    register_source_file(conn, "phrase", source_path)
 
     inserted = 0
-    with source_path.open("r", encoding="utf-8") as handle:
-        for line in handle:
-            raw_line = line.rstrip("\n")
-            stripped = raw_line.strip()
-            if not stripped or stripped.startswith("#"):
+    with source_path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.reader(handle, delimiter="\t")
+        for row in reader:
+            if not row or row[0].startswith("#"):
+                continue
+            if row[0] == "phrase" or len(row) < 4:
                 continue
 
-            content, comment = split_comment(raw_line)
-            parsed = parse_phrase_source_content(content)
-            if parsed is None:
+            phrase = row[0].strip()
+            try:
+                phrase_len = int(row[1].strip())
+            except ValueError:
+                phrase_len = len(phrase)
+            readings = row[3].strip()
+            if not phrase or not readings:
                 continue
-            phrase, marked_pinyin = parsed
 
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO phrase_readings (
-                    source_name,
-                    phrase,
-                    marked_pinyin,
-                    numeric_pinyin,
-                    reading_rank,
-                    comment,
-                    raw_line
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    source_name,
-                    phrase,
-                    marked_pinyin,
-                    marked_phrase_to_numeric(marked_pinyin),
-                    1,
-                    comment,
-                    raw_line,
-                ),
-            )
-            inserted += 1
+            reading_list: list[str] = []
+            seen: set[str] = set()
+            for part in readings.split("|"):
+                candidate = part.strip()
+                if candidate and candidate not in seen:
+                    seen.add(candidate)
+                    reading_list.append(candidate)
+
+            for index, marked_pinyin in enumerate(reading_list, start=1):
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO phrase_readings (
+                        phrase,
+                        phrase_len,
+                        marked_pinyin,
+                        numeric_pinyin,
+                        reading_rank
+                    ) VALUES (?, ?, ?, ?, ?)
+                    """,
+                    (
+                        phrase,
+                        phrase_len,
+                        marked_pinyin,
+                        marked_phrase_to_numeric(marked_pinyin),
+                        index,
+                    ),
+                )
+                inserted += 1
 
     return inserted
 
@@ -314,7 +291,7 @@ def main() -> None:
     if not char_source.exists():
         raise FileNotFoundError(
             f"char source not found: {char_source}\n"
-            "需先提供 unicode_hanzi.txt，再运行 source_pinyin 建库脚本。"
+            "请先运行 internal_data/hanzi_pinyin/build_valid_pinyin.py 生成 pinyin.txt。"
         )
     if not schema_path.exists():
         raise FileNotFoundError(f"schema file not found: {schema_path}")
@@ -330,8 +307,10 @@ def main() -> None:
         phrase_rows = 0
         if phrase_source.exists():
             phrase_rows = import_phrase_source(conn, phrase_source)
+        else:
+            print(f"phrase source not found, skipping: {phrase_source}")
 
-        write_metadata(conn, "schema_version", "source_pinyin_v1")
+        write_metadata(conn, "schema_version", "source_pinyin_v2")
         write_metadata(conn, "char_source", str(char_source))
         write_metadata(conn, "char_rows", str(char_rows))
         write_metadata(conn, "phrase_source", str(phrase_source) if phrase_source.exists() else "")

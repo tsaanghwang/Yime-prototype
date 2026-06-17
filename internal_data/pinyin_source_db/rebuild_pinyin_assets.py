@@ -8,13 +8,11 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from build_source_pinyin_db import DEFAULT_CHAR_SOURCE, DEFAULT_DB_PATH, DEFAULT_PHRASE_SOURCE
+
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
-DEFAULT_DB_PATH = WORKSPACE_ROOT / ".generated" / "source_pinyin.db"
-# Default char source now comes from workspace-level external_data
-DEFAULT_CHAR_SOURCE = WORKSPACE_ROOT / "external_data" / "unicode_hanzi.txt"
-DEFAULT_PHRASE_SOURCE = Path("C:/dev/pinyin-data/tools/phrase-pinyin-data/pinyin.txt")
 DEFAULT_NORMALIZED_OUTPUT = SCRIPT_DIR / "lexicon_exports" / "pinyin_normalized.json"
 DEFAULT_YINJIE_OUTPUT = WORKSPACE_ROOT / "syllable" / "codec" / "yinjie_code.json"
 DEFAULT_SUMMARY_OUTPUT = SCRIPT_DIR / "rebuild_summary.json"
@@ -22,20 +20,39 @@ DEFAULT_SUMMARY_OUTPUT = SCRIPT_DIR / "rebuild_summary.json"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Rebuild source pinyin assets: import -> validate -> export -> regenerate yinjie_code.json"
+        description=(
+            "Rebuild source pinyin assets: import -> validate -> export pinyin_normalized.json. "
+            "By default the syllable codebook is left unchanged; use --apply-codebook for phase 2."
+        )
     )
     parser.add_argument("--db", default=str(DEFAULT_DB_PATH), help="SQLite database path")
-    parser.add_argument("--char-source", default=str(DEFAULT_CHAR_SOURCE), help="Unicode Hanzi TSV source")
-    parser.add_argument("--phrase-source", default=str(DEFAULT_PHRASE_SOURCE), help="Optional phrase pinyin.txt")
+    parser.add_argument(
+        "--char-source",
+        default=str(DEFAULT_CHAR_SOURCE),
+        help="Hanzi pinyin TSV (default: internal_data/hanzi_pinyin/pinyin.txt)",
+    )
+    parser.add_argument(
+        "--phrase-source",
+        default=str(DEFAULT_PHRASE_SOURCE),
+        help="Phrase pinyin TSV (default: internal_data/phrase_pinyin/phrase_pinyin.txt)",
+    )
     parser.add_argument(
         "--normalized-output",
         default=str(DEFAULT_NORMALIZED_OUTPUT),
         help="Output path for pinyin_normalized.json",
     )
     parser.add_argument(
+        "--apply-codebook",
+        action="store_true",
+        help=(
+            "Phase 2: regenerate syllable/codec/yinjie_code.json via tools/rebuild_encoding_assets.py "
+            "after export and validation. Default leaves the checked-in codebook untouched."
+        ),
+    )
+    parser.add_argument(
         "--skip-yinjie",
         action="store_true",
-        help="Skip regenerating yinjie_code.json after exporting pinyin_normalized.json",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--summary-output",
@@ -67,7 +84,7 @@ def build_summary(
     db_path: Path,
     normalized_output: Path,
     yinjie_output: Path,
-    skip_yinjie: bool,
+    apply_codebook: bool,
 ) -> dict[str, object]:
     metadata = load_db_metadata(db_path)
     summary: dict[str, object] = {
@@ -75,7 +92,7 @@ def build_summary(
         "db_path": str(db_path),
         "normalized_output": str(normalized_output),
         "yinjie_output": str(yinjie_output),
-        "skip_yinjie": skip_yinjie,
+        "apply_codebook": apply_codebook,
         "db_metadata": metadata,
         "counts": {
             "char_rows": int(metadata.get("char_rows", metadata.get("single_char_rows", "0"))),
@@ -116,6 +133,14 @@ def main() -> int:
     ]
     run_step("validate", validate_command)
 
+    inventory_command = [
+        sys.executable,
+        str(WORKSPACE_ROOT / "tools" / "refresh_materialized_syllable_inventory.py"),
+        "--db-path",
+        str(db_path),
+    ]
+    run_step("syllable-inventory", inventory_command)
+
     export_command = [
         sys.executable,
         str(SCRIPT_DIR / "export_pinyin_normalized.py"),
@@ -126,12 +151,13 @@ def main() -> int:
     ]
     run_step("export", export_command)
 
-    if not args.skip_yinjie:
-        yinjie_command = [
+    apply_codebook = args.apply_codebook and not args.skip_yinjie
+    if apply_codebook:
+        codebook_command = [
             sys.executable,
-            str(WORKSPACE_ROOT / "syllable" / "codec" / "yinjie_encoder.py"),
+            str(WORKSPACE_ROOT / "tools" / "rebuild_encoding_assets.py"),
         ]
-        run_step("encode", yinjie_command)
+        run_step("apply-codebook", codebook_command)
 
     validate_yinyuan_command = [
         sys.executable,
@@ -144,7 +170,7 @@ def main() -> int:
         db_path=db_path,
         normalized_output=normalized_output,
         yinjie_output=DEFAULT_YINJIE_OUTPUT,
-        skip_yinjie=args.skip_yinjie,
+        apply_codebook=apply_codebook,
     )
     summary_output.write_text(
         json.dumps(summary, ensure_ascii=False, indent=2),

@@ -2,6 +2,8 @@ import sqlite3
 import sys
 from pathlib import Path
 
+from hanzi_pinyin_source_io import HANZI_PINYIN_DDL
+
 DB_FILE = str(Path(__file__).parent / "hanzi_pinyin.db")
 
 
@@ -11,28 +13,15 @@ def build_hanzi_pinyin():
     cur = conn.cursor()
 
     cur.execute("DROP TABLE IF EXISTS hanzi_pinyin")
-
-    cur.execute("""
-        CREATE TABLE hanzi_pinyin (
-            codepoint       TEXT PRIMARY KEY REFERENCES hanzi(codepoint) ON DELETE RESTRICT,
-            hanzi           TEXT NOT NULL,
-            common_reading  TEXT,
-            readings        TEXT
-        )
-    """)
-
-    cur.execute("""
-        INSERT INTO hanzi_pinyin (codepoint, hanzi)
-        SELECT codepoint, hanzi FROM hanzi
-    """)
+    cur.execute(HANZI_PINYIN_DDL)
 
     conn.commit()
 
-    count = cur.execute("SELECT COUNT(*) FROM hanzi_pinyin").fetchone()[0]
+    hanzi_count = cur.execute("SELECT COUNT(*) FROM hanzi").fetchone()[0]
 
     conn.close()
 
-    print(f"hanzi_pinyin 表已创建，共 {count:,} 条记录")
+    print(f"hanzi_pinyin 表已创建（空表，仅存有拼音汉字；hanzi 主表 {hanzi_count:,} 条）")
     print(f"数据库: {DB_FILE}")
 
 
@@ -57,7 +46,6 @@ def create_views():
     cur.execute("DROP VIEW IF EXISTS view_pinyin_with_multireadings")
     cur.execute("DROP VIEW IF EXISTS view_pinyin_single_reading_not_toned")
     cur.execute("DROP VIEW IF EXISTS view_pinyin_staging_diff")
-    cur.execute("DROP TABLE IF EXISTS hanzi_invalid_pinyin")
 
     cur.execute("""
         CREATE VIEW view_pinyin_inspection AS
@@ -65,9 +53,12 @@ def create_views():
             h.codepoint,
             h.hanzi,
             h.block,
+            h.block_order,
             hf.frequency,
             hr.common_reading AS pinyin,
             hr.readings AS pinyin_candidates,
+            hr.common_reading_source,
+            hr.is_single,
             CASE
                 WHEN hr.readings IS NULL OR hr.readings = '' THEN 0
                 ELSE LENGTH(hr.readings) - LENGTH(REPLACE(hr.readings, ',', '')) + 1
@@ -77,9 +68,8 @@ def create_views():
                 ELSE 1
             END AS has_pinyin,
             CASE
-                WHEN hr.readings IS NOT NULL
-                     AND hr.readings <> ''
-                     AND LENGTH(hr.readings) - LENGTH(REPLACE(hr.readings, ',', '')) + 1 > 1 THEN 1
+                WHEN hr.is_single = 1 THEN 0
+                WHEN hr.readings IS NOT NULL AND hr.readings <> '' THEN 1
                 ELSE 0
             END AS is_polyphonic,
             CASE
@@ -96,65 +86,96 @@ def create_views():
 
     cur.execute("""
         CREATE VIEW view_pinyin_with_pinyin AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM hanzi_pinyin
-        WHERE COALESCE(common_reading, '') <> ''
     """)
 
     cur.execute("""
         CREATE VIEW view_pinyin_without_pinyin AS
-        SELECT codepoint, hanzi, common_reading, readings
-        FROM hanzi_pinyin
-        WHERE common_reading IS NULL OR common_reading = ''
+        SELECT
+            h.codepoint,
+            h.hanzi,
+            NULL AS common_reading,
+            NULL AS readings,
+            NULL AS common_reading_source,
+            NULL AS is_single
+        FROM hanzi h
+        LEFT JOIN hanzi_pinyin hr ON h.codepoint = hr.codepoint
+        WHERE hr.codepoint IS NULL
     """)
 
     cur.execute("""
         CREATE VIEW view_pinyin_with_multireadings AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM hanzi_pinyin
-        WHERE COALESCE(common_reading, '') <> ''
-          AND readings LIKE '%,%'
+        WHERE is_single = 0
     """)
 
     cur.execute("""
         CREATE VIEW view_pinyin_single_reading_not_toned AS
-        SELECT codepoint, hanzi, common_reading, readings
+        SELECT codepoint, hanzi, common_reading, readings, common_reading_source, is_single
         FROM hanzi_pinyin
-        WHERE COALESCE(common_reading, '') <> ''
-          AND readings NOT LIKE '%,%'
-           AND common_reading NOT GLOB '*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ]*'
+        WHERE is_single = 1
+          AND common_reading NOT GLOB '*[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ]*'
     """)
 
     cur.execute("""
         CREATE VIEW view_pinyin_staging_diff AS
         SELECT
-            h.codepoint,
-            h.hanzi,
+            ps.codepoint,
+            ps.hanzi,
             hp.common_reading AS pinyin_reading,
             hp.readings AS pinyin_candidates,
+            hp.common_reading_source AS pinyin_source,
+            hp.is_single AS pinyin_is_single,
             ps.common_reading AS staging_reading,
             ps.readings AS staging_candidates,
+            ps.common_reading_source AS staging_source,
+            ps.is_single AS staging_is_single,
             CASE
-                WHEN hp.readings = ps.readings THEN 'same'
-                WHEN hp.readings IS NULL OR hp.readings = '' THEN 'only_in_staging'
-                WHEN ps.readings IS NULL OR ps.readings = '' THEN 'only_in_pinyin'
+                WHEN hp.codepoint IS NULL THEN 'only_in_staging'
+                WHEN hp.readings = ps.readings
+                     AND COALESCE(hp.common_reading, '') = COALESCE(ps.common_reading, '')
+                     AND hp.is_single = ps.is_single
+                THEN 'same'
                 ELSE 'different'
             END AS diff_type
-        FROM hanzi h
-        LEFT JOIN hanzi_pinyin hp ON h.codepoint = hp.codepoint
-        LEFT JOIN pinyin_source_staging ps ON h.codepoint = ps.codepoint
-        WHERE hp.readings <> ps.readings
-           OR (hp.readings IS NULL AND ps.readings IS NOT NULL)
-           OR (hp.readings IS NOT NULL AND ps.readings IS NULL)
+        FROM pinyin_source_staging ps
+        LEFT JOIN hanzi_pinyin hp ON ps.codepoint = hp.codepoint
+        WHERE hp.codepoint IS NULL
+           OR hp.readings <> ps.readings
+           OR COALESCE(hp.common_reading, '') <> COALESCE(ps.common_reading, '')
+           OR hp.is_single <> ps.is_single
+        UNION ALL
+        SELECT
+            hp.codepoint,
+            hp.hanzi,
+            hp.common_reading,
+            hp.readings,
+            hp.common_reading_source,
+            hp.is_single,
+            ps.common_reading,
+            ps.readings,
+            ps.common_reading_source,
+            ps.is_single,
+            'only_in_pinyin' AS diff_type
+        FROM hanzi_pinyin hp
+        LEFT JOIN pinyin_source_staging ps ON hp.codepoint = ps.codepoint
+        WHERE ps.codepoint IS NULL
     """)
 
     conn.commit()
 
     cur.execute(
         "SELECT hanzi, pinyin, candidate_count, is_polyphonic, frequency_band "
-        "FROM view_pinyin_inspection ORDER BY frequency DESC, codepoint ASC LIMIT 5"
+        "FROM view_pinyin_inspection WHERE has_pinyin = 1 "
+        "ORDER BY block_order ASC, codepoint ASC LIMIT 5"
     )
-    console_print(f"view_pinyin_inspection 前5个: {cur.fetchall()}")
+    console_print(f"view_pinyin_inspection 有拼音前5个: {cur.fetchall()}")
+
+    pinyin_count = cur.execute("SELECT COUNT(*) FROM hanzi_pinyin").fetchone()[0]
+    without_count = cur.execute("SELECT COUNT(*) FROM view_pinyin_without_pinyin").fetchone()[0]
+    console_print(f"hanzi_pinyin: {pinyin_count:,} 条；view_pinyin_without_pinyin: {without_count:,} 条")
 
     conn.close()
 

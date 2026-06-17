@@ -62,17 +62,16 @@ def codepoint_to_char(codepoint: str) -> str | None:
 
 def validate_char_rows(conn: sqlite3.Connection, report: dict[str, Any]) -> None:
     query = """
-        SELECT id, source_name, codepoint, hanzi, marked_pinyin, numeric_pinyin, reading_rank, is_primary
+        SELECT id, codepoint, hanzi, marked_pinyin, numeric_pinyin, reading_rank, is_primary
         FROM char_readings
         ORDER BY id
     """
-    primary_counts: dict[tuple[str, str], int] = defaultdict(int)
+    primary_counts: dict[str, int] = defaultdict(int)
 
     for row in conn.execute(query):
-        row_id, source_name, codepoint, hanzi, marked_pinyin, numeric_pinyin, reading_rank, is_primary = row
+        row_id, codepoint, hanzi, marked_pinyin, numeric_pinyin, reading_rank, is_primary = row
         report["summary"]["char_rows"] += 1
-        key = (source_name, codepoint)
-        primary_counts[key] += int(bool(is_primary))
+        primary_counts[codepoint] += int(bool(is_primary))
 
         if not CODEPOINT_RE.match(codepoint):
             record_issue(report, "errors", "invalid_codepoint_format", {
@@ -136,10 +135,9 @@ def validate_char_rows(conn: sqlite3.Connection, report: dict[str, Any]) -> None
                 "is_primary": is_primary,
             })
 
-    for (source_name, codepoint), count in primary_counts.items():
+    for codepoint, count in primary_counts.items():
         if count != 1:
             record_issue(report, "errors", "primary_reading_count_violation", {
-                "source_name": source_name,
                 "codepoint": codepoint,
                 "primary_count": count,
             })
@@ -147,13 +145,21 @@ def validate_char_rows(conn: sqlite3.Connection, report: dict[str, Any]) -> None
 
 def validate_phrase_rows(conn: sqlite3.Connection, report: dict[str, Any]) -> None:
     query = """
-        SELECT id, source_name, phrase, marked_pinyin, numeric_pinyin, reading_rank
+        SELECT id, phrase, phrase_len, marked_pinyin, numeric_pinyin, reading_rank
         FROM phrase_readings
         ORDER BY id
     """
     for row in conn.execute(query):
-        row_id, source_name, phrase, marked_pinyin, numeric_pinyin, reading_rank = row
+        row_id, phrase, phrase_len, marked_pinyin, numeric_pinyin, reading_rank = row
         report["summary"]["phrase_rows"] += 1
+
+        if phrase_len != len(phrase):
+            record_issue(report, "warnings", "phrase_len_mismatch", {
+                "id": row_id,
+                "phrase": phrase,
+                "phrase_len": phrase_len,
+                "actual_len": len(phrase),
+            })
 
         if any(char.isdigit() for char in marked_pinyin):
             record_issue(report, "errors", "phrase_marked_pinyin_contains_digit", {
@@ -202,20 +208,16 @@ def validate_phrase_rows(conn: sqlite3.Connection, report: dict[str, Any]) -> No
                 "reading_rank": reading_rank,
             })
 
-        if source_name == "":
-            record_issue(report, "errors", "missing_phrase_source_name", {"id": row_id, "phrase": phrase})
-
 
 def validate_source_file_metadata(conn: sqlite3.Connection, report: dict[str, Any]) -> None:
-    rows = list(conn.execute("SELECT source_name, source_kind, source_path FROM source_files ORDER BY source_name"))
+    rows = list(conn.execute("SELECT source_kind, source_path FROM source_files ORDER BY source_kind"))
     if not rows:
         record_issue(report, "errors", "missing_source_files_metadata", {"detail": "source_files table is empty"})
         return
 
-    for source_name, source_kind, source_path in rows:
+    for source_kind, source_path in rows:
         if not Path(source_path).exists():
             record_issue(report, "warnings", "missing_source_path_on_disk", {
-                "source_name": source_name,
                 "source_kind": source_kind,
                 "source_path": source_path,
             })

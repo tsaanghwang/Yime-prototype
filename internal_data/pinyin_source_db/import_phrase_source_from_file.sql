@@ -1,3 +1,5 @@
+-- DEPRECATED: legacy v1 schema (source_name / raw_line per row).
+-- Use build_source_pinyin_db.py with internal_data/phrase_pinyin/phrase_pinyin.txt instead.
 .bail on
 
 .parameter init
