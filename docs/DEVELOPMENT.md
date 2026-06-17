@@ -235,8 +235,10 @@ python -m pytest tests/syllable_analysis/test_encode_ganyin.py tests/yinjie/test
 
 ### 3. 转换流程
 
+当前 rebuild 链（详见 `docs/project/PINYIN_DATA_MIGRATION.md`）：
+
 ```text
-标准拼音 → 数字标调拼音 → 音元拼音 → 音元编码
+上游文本 → source_pinyin.db → prototype tables → runtime_candidates（SQLite）
 ```
 
 ---
@@ -262,15 +264,13 @@ sqlite3 yime/pinyin_hanzi.db
 .schema runtime_candidates
 ```
 
-当前主线表结构见 `yime/create_prototype_schema_additions.sql`；旧中文表 `音元拼音` 等已随 2026-06 legacy 清理删除。
+当前主线表结构见 `yime/create_prototype_schema_additions.sql`。查运行时候选：
 
-`音元拼音` 表的定位：
-
-- 它是一个保留的音节结构表，不是当前 runtime 主线候选表。
-- 它保存的是按音元分析法拆开的单音节结构结果，用来承载 `全拼 -> 简拼` 与 `全拼 -> 首音/干音/呼音/主音/末音/间音/韵音` 这两类结构信息。
-- 其中 `全拼` 指完整音元编码；`简拼` 是在完整音节结构上做机械压缩得到的缩写结果，可作为后续简拼输入实验的基础层。
-- `首音`、`干音`、`呼音`、`主音`、`末音`、`间音`、`韵音` 这些列用于从不同观察角度保留同一个音节的拆分结果，方便做结构分析、简拼规则验证与旧库排障。
-- 当前运行时主线仍然是 `source_pinyin.db -> prototype tables -> refresh_runtime_yime_codes -> runtime_candidates`，不会直接读取这个表来出候选。
+```sql
+SELECT entry_type, text, yime_code, sort_weight
+FROM runtime_candidates
+LIMIT 10;
+```
 
 ### 2. 添加新表
 
@@ -281,44 +281,11 @@ sqlite3 yime/pinyin_hanzi.db
 - `yime/import_duozi_into_prototype_tables.py`（兼容入口；真实实现位于 `yime/utils/prototype_phrase_import.py`）
 - `yime/refresh_runtime_yime_codes.py`（兼容入口；真实实现位于 `yime/utils/runtime_codes_refresh.py`）
 
-legacy-compatible 表结构示例：
-
-```python
-表结构 = {
-    '新表名': '''
-        CREATE TABLE IF NOT EXISTS "新表名" (
-            "编号" INTEGER PRIMARY KEY,
-            "字段1" TEXT NOT NULL,
-            "字段2" INTEGER
-        )
-    ''',
-    # 其他表...
-}
-```
-
-如果你维护的是 `音元拼音` 这张保留结构表，请优先把它理解为“结构分析与简拼基础层”，而不是当前 runtime 主线的编码真源。
-真到需要给外部接口、跨语言工具或 ORM 提供更稳定命名时，再考虑在此表之上增加 ASCII 视图或别名层；当前仓库内逻辑仍以现有中文表名为准。
+prototype 表结构示例见 `yime/create_prototype_schema_additions.sql`。
 
 ### 3. 数据迁移
 
-创建迁移脚本：
-
-注意：下面仅演示迁移脚本结构。旧的 legacy-compatible 迁移辅助脚本已从仓库移除，不属于当前主线 rebuild 流程，也不参与当前包构建与分发。
-
-```python
-# migration_001.py
-import sqlite3
-
-def upgrade(conn):
-    cursor = conn.cursor()
-    cursor.execute('ALTER TABLE "音元拼音" ADD COLUMN "新字段" TEXT')
-    conn.commit()
-
-def downgrade(conn):
-    cursor = conn.cursor()
-    # SQLite 不支持 DROP COLUMN，需要重建表
-    pass
-```
+Schema 变更应直接修改 `create_prototype_schema_additions.sql` 并重建/迁移本地 `yime/pinyin_hanzi.db`；旧 `db_manager` 中文表迁移链已删除。
 
 ---
 
@@ -399,7 +366,7 @@ for data in data_list:
 #### 创建索引
 
 ```sql
-CREATE INDEX idx_pinyin ON "音元拼音"("全拼");
+CREATE INDEX idx_char_yime_code ON char_lexicon(yime_code);
 CREATE INDEX idx_char_frequency ON char_inventory(char_frequency_abs DESC);
 ```
 
