@@ -109,16 +109,6 @@
 				"noDebug": true
 			},
 			{
-				"name": "normalize_pinyin_file",
-				"type": "python",
-				"request": "launch",
-				"program": "${workspaceFolder}\\utils\\pinyin_normalizer.py",
-				"currentFileConfiguration": false,
-				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
-			},
-			{
 				"name": "reverse_key_value_pairs",
 				"type": "python",
 				"request": "launch",
@@ -126,25 +116,6 @@
 				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\yime",
 				"addSourceRootsToPythonpath": true
-			},
-			{
-				"name": "example",
-				"type": "python",
-				"request": "launch",
-				"program": "${workspaceFolder}\\utils\\example.py",
-				"currentFileConfiguration": false,
-				"cwd": "${workspaceFolder}\\utils",
-				"addSourceRootsToPythonpath": true
-			},
-			{
-				"name": "yinjie_decoder",
-				"type": "python",
-				"request": "launch",
-				"program": "${workspaceFolder}\\syllable\\codec\\yinjie_decoder.py",
-				"currentFileConfiguration": false,
-				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "interactive_yinjie",
@@ -430,36 +401,6 @@
 				"cwd": "${workspaceFolder}",
 				"addSourceRootsToPythonpath": true,
 				"noDebug": true
-			},
-			{
-				"name": "Python: Django Server",
-				"type": "debug",
-				"request": "launch",
-				"django": {
-					"host": "",
-					"port": 8000,
-					"runBrowser": true,
-					"runBrowserUri": "http://127.0.0.1:8000/",
-					"commandLineOptions": [],
-					"noReload": false,
-					"testServer": false,
-					"fixtures": []
-				},
-				"subProcess": true,
-				"justMyCode": true,
-				"addSourceRootsToPythonpath": true
-			},
-			{
-				"args": [
-					"--extensionDevelopmentPath=${workspaceFolder}"
-				],
-				"name": "启动扩展",
-				"outFiles": [
-					"${workspaceFolder}/out/**/*.js"
-				],
-				"preLaunchTask": "npm",
-				"request": "launch",
-				"type": "extensionHost"
 			},
 			{
 				"name": "ganyin_to_yinyuan_sequence",
