@@ -14,21 +14,21 @@ FROM char_lexicon
 WHERE pinyin_tone = 'yi4'
 ORDER BY sort_weight DESC;
 
--- 4. 按音元拼音/编码找候选。
+-- 4. 按 yime 四码找候选（见 yinjie_slot_decomposition 查看各槽分解）。
 -- 把这里的四码替换成你的一键转码脚本生成的编码。
 SELECT *
 FROM runtime_candidates
 WHERE yime_code = '􀀕􀀩􀀩􀀩'
 ORDER BY entry_type, sort_weight DESC, text;
 
--- 5. 看看哪些汉字已经有数字标调拼音，但还没有音元拼音/编码。
+-- 5. 看看哪些汉字已有 pinyin_tone 但还没有 yime_code。
 SELECT *
 FROM char_lexicon
 WHERE pinyin_tone IS NOT NULL
   AND yime_code IS NULL
 ORDER BY hanzi, pinyin_tone;
 
--- 6. 看看哪些词语已经有 prototype 词条，但还没有数字标调拼音。
+-- 6. 看看哪些词语已有 prototype 词条，但还没有 phrase_pinyin_map 读音行。
 SELECT
   pi.id,
   pi.phrase,

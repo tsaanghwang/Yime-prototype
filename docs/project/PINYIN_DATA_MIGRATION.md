@@ -83,8 +83,10 @@ scripts/run_tests.cmd
 
 - `yime/run_db_setup.py` 与 `yime/legacy/pending_removal/db_manager.py`（旧中文 schema 维护链）
 - `yime/utils/legacy_pinyin_tables/`（`多式拼音映射关系` / `数字标调拼音` / `音元拼音` 三表生成链）
+- `yime/syllable_structure.py` 与 `yime/utils/syllable_compat/`（音节结构已收编至 `syllable/codec/yinjie.py`）
+- 本地 DB 旧中文表：`数字标调拼音`、`多式拼音映射关系`、`音元拼音`（见 `tools/drop_legacy_chinese_pinyin_tables.py`）
 
-音节结构/解码兼容实现已迁到 `yime/utils/syllable_compat/`；公开 shim 仍为 `yime/syllable_structure.py` 与 `yime/syllable_decoder.py`。
+**仍保留的旧 import 路径：** `yime/syllable_decoder.py`（``SyllableDecoder`` 直接继承 ``syllable.codec.YinjieDecoder``）。音节结构真源为 ``syllable.codec.yinjie.Yinjie``；legacy 宽松切分见 ``syllable.codec.yinjie_loose_split``；简拼草稿见 ``syllable.codec.yinjie_jianpin_draft``（非 IME 输入链）。
 
 当前主线如果需要真正刷新可消费数据，仍应回到本文第 1 节的 `source_pinyin.db -> prototype tables -> runtime` 链。
 
