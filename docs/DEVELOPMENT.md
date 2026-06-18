@@ -48,15 +48,14 @@ pytest
 ```text
 YIME/
 ├── yime/                 # Python 核心引擎
-│   ├── syllable_decoder.py    # legacy shim，公开兼容导入路径
-│   ├── syllable_structure.py  # legacy shim，公开兼容导入路径
+│   ├── syllable_decoder.py    # SyllableDecoder 旧 import 路径（继承 syllable.codec.YinjieDecoder）
 │   ├── import_danzi_into_prototype_tables.py  # 兼容入口；真实实现位于 yime/utils/prototype_single_char_import.py
 │   ├── import_duozi_into_prototype_tables.py  # 兼容入口；真实实现位于 yime/utils/prototype_phrase_import.py
 │   ├── refresh_runtime_yime_codes.py          # 兼容 shim；真实实现位于 yime/utils/runtime_codes_refresh.py
-│   └── utils/syllable_compat/                 # 音节结构/解码兼容实现
+│   └── utils/                # 导入、runtime 刷新等实现
 │
 ├── tools/                # 维护脚本（含 BCC 频表 merge）
-├── syllable/             # 音节分析模块
+├── syllable/             # 音节分析、编解码（Yinjie 真源见 syllable/codec/yinjie.py）
 ├── docs/                 # 文档
 ├── tests/                # 测试
 ├── requirements.txt
@@ -134,7 +133,7 @@ python tools/rebuild_encoding_assets.py
 .venv/Scripts/python.exe tools/rebuild_encoding_assets.py
 ```
 
-这个入口当前会顺序重建：
+这个入口当前会顺序重建（完整清单见 [syllable/README.md](../syllable/README.md)）：
 
 - `syllable/yinyuan/shouyin_codepoint.json`
 - `syllable/yinyuan/yinyuan_codepoint.json`

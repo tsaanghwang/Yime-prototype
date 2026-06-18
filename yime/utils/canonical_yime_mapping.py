@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
+from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
@@ -185,4 +186,5 @@ def sync_canonical_mapping_table(
         ''',
         mapping_rows,
     )
+    sync_yinjie_slot_decomposition(conn)
     return len(pinyin_rows)

@@ -278,8 +278,17 @@
   - 分类：当前迁移说明。
   - 原因：该文档明确区分当前主线 `source_pinyin.db -> prototype tables -> runtime` rebuild 链与 legacy-compatible 区域。
 
-- `yime/utils/syllable_compat/`
-  - 分类：音节结构/解码兼容实现。
+- `syllable/codec/yinjie.py`（``Yinjie`` 四音元位真源）
+- `syllable/codec/yinjie_loose_split.py`（legacy 可变长切分，非 IME 主链）
+- `syllable/codec/yinjie_jianpin_draft.py`（简拼草稿，非 IME 输入链）
+- `yime/syllable_decoder.py`（``SyllableDecoder`` 旧 import 路径，直接继承 ``YinjieDecoder``）
+
+- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`（2026-06 后合并入主链，恢复请查 git 历史）
+
+- 已清退本地 DB 旧中文拼音表：`数字标调拼音`、`多式拼音映射关系`、`音元拼音`
+  - 分类：legacy 三表链残留（无 Python 读面）
+  - 替代：`numeric_pinyin_inventory`、`pinyin_yime_code`、`yinjie_slot_decomposition`
+  - 清理：`tools/drop_legacy_chinese_pinyin_tables.py`
 
 - 已清退旧汉字拼音映射表：`汉字音元拼音映射`、`汉字数字标调拼音映射`
   - 分类：已移除的旧数据库关联表。
@@ -377,7 +386,7 @@ git log --oneline --grep='Remove\|legacy\|cleanup\|删除'
 git show <commit> --stat
 ```
 
-2026-06 Phase F 后仍保留的兼容层：`yime/utils/syllable_compat/`（见 docs/project/PINYIN_DATA_MIGRATION.md）。
+2026-06 后音节结构已收编至 `syllable/codec/yinjie.py`；`yime/utils/syllable_compat/` 与 `yime/syllable_structure.py` 已删除。旧 import 路径仅保留 `yime/syllable_decoder.py`（见 [PINYIN_DATA_MIGRATION.md](project/PINYIN_DATA_MIGRATION.md)）。
 
 ### E. 审计与过渡辅助文件
 

@@ -342,6 +342,7 @@ def main() -> None:
         conn.execute('DROP TABLE IF EXISTS char_pinyin_map')
         conn.execute('DROP TABLE IF EXISTS char_inventory')
         conn.execute('DROP TABLE IF EXISTS numeric_pinyin_inventory')
+        conn.execute('DROP TABLE IF EXISTS yinjie_slot_decomposition')
         conn.execute('DROP TABLE IF EXISTS pinyin_yime_code')
         conn.execute('DROP TABLE IF EXISTS mapping_yime_code')
         apply_schema(conn)

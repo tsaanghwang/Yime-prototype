@@ -1,8 +1,27 @@
 # 拼音资料层 Schema
 
-## 结论
+## 当前状态（2026-06）
 
-当前仓库的资料层规范表为 `多式拼音映射关系`。
+本地库中的旧中文表 **`数字标调拼音` / `多式拼音映射关系` / `音元拼音`** 已从主线移除；生成脚本 `legacy_pinyin_tables/` 亦已删除。
+
+**Runtime 真源（英文表）：**
+
+| 职责 | 表 |
+|------|-----|
+| 带调音节清单 | `numeric_pinyin_inventory` |
+| 拼音 → 四码 | `pinyin_yime_code` |
+| 四码槽位分解 | `yinjie_slot_decomposition` |
+| 旧 mapping_id 兼容 | `mapping_yime_code` |
+
+清理工具：`tools/drop_legacy_chinese_pinyin_tables.py`
+
+下文「多式拼音映射关系」等描述为**历史设计稿**，供将来扩展多制式资料层时参考，**不是**当前 DB 对象。
+
+---
+
+## 结论（历史设计稿）
+
+资料层曾规划以 `多式拼音映射关系` 为核心对照表。
 
 原因：
 
