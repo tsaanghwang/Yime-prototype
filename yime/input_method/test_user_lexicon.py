@@ -10,6 +10,16 @@ from yime.input_method.utils.user_lexicon import (
 )
 
 
+RUNTIME_DB_PATH = Path(__file__).resolve().parents[2] / "yime" / "pinyin_hanzi.db"
+
+
+def _require_runtime_db() -> None:
+    if not RUNTIME_DB_PATH.exists():
+        import pytest
+
+        pytest.skip("runtime SQLite database is unavailable in this environment")
+
+
 def test_normalize_numeric_pinyin_syllable_spacing_splits_compact_tone_numbers() -> None:
     assert normalize_numeric_pinyin_syllable_spacing("ri4ben3") == "ri4 ben3"
     assert normalize_numeric_pinyin_syllable_spacing("jin1ri4") == "jin1 ri4"
@@ -190,6 +200,7 @@ def test_user_lexicon_store_lists_recent_entries(tmp_path) -> None:
 
 
 def test_runtime_reverse_lookup_prefers_user_phrase_entry(tmp_path) -> None:
+    _require_runtime_db()
     repo_root = Path(__file__).resolve().parents[2]
     user_db_path = tmp_path / "user_lexicon.db"
     store = UserLexiconStore(user_db_path)
@@ -230,6 +241,7 @@ def test_resolve_yime_code_from_v_series_matches_standard_u_umlaut_input() -> No
 
 
 def test_sqlite_runtime_decoder_merges_user_phrase_candidates(tmp_path) -> None:
+    _require_runtime_db()
     repo_root = Path(__file__).resolve().parents[2]
     app_dir = repo_root / "yime"
     user_db_path = tmp_path / "user_lexicon.db"
@@ -253,6 +265,7 @@ def test_sqlite_runtime_decoder_merges_user_phrase_candidates(tmp_path) -> None:
 
 
 def test_sqlite_runtime_decoder_persists_user_frequency_across_instances(tmp_path) -> None:
+    _require_runtime_db()
     repo_root = Path(__file__).resolve().parents[2]
     app_dir = repo_root / "yime"
     user_db_path = tmp_path / "user_lexicon.db"
