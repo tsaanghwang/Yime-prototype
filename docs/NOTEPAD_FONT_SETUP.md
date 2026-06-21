@@ -1,11 +1,13 @@
 # 记事本字体设置指南
 
 ## 问题说明
+
 记事本默认不支持设置字体，但可以通过以下方法解决：
 
 ## 方法1：使用Windows Terminal + Vim/Notepad++
 
 **推荐使用支持字体设置的编辑器**：
+
 - Windows Terminal + Vim
 - Notepad++
 - VS Code
@@ -16,12 +18,14 @@
 ## 方法2：修改记事本默认字体（Windows 10/11）
 
 ### Windows 11
+
 1. 打开记事本
 2. 点击 "格式" → "字体"
 3. 选择 "Noto Sans"
 4. 点击 "确定"
 
 ### Windows 10
+
 记事本不支持自定义字体，建议使用其他编辑器
 
 ---
@@ -44,10 +48,12 @@ Set-ItemProperty -Path $fontKey -Name "lfWeight" -Value "400" -Type DWord -Force
 ## 方法4：使用Notepad++（推荐）
 
 ### 安装Notepad++
-1. 下载：https://notepad-plus-plus.org/downloads/
+
+1. 下载：<https://notepad-plus-plus.org/downloads/>
 2. 安装
 
 ### 设置字体
+
 1. 打开Notepad++
 2. 设置 → 首选项
 3. 选择 "字体" 选项卡
@@ -56,6 +62,7 @@ Set-ItemProperty -Path $fontKey -Name "lfWeight" -Value "400" -Type DWord -Force
 6. 点击 "关闭"
 
 ### 优点
+
 - ✅ 完全支持自定义字体
 - ✅ 支持私用区字符
 - ✅ 功能强大
@@ -66,6 +73,7 @@ Set-ItemProperty -Path $fontKey -Name "lfWeight" -Value "400" -Type DWord -Force
 ## 方法5：使用VS Code
 
 ### 设置字体
+
 1. 打开VS Code
 2. Ctrl + , 打开设置
 3. 搜索 "font family"
@@ -73,6 +81,7 @@ Set-ItemProperty -Path $fontKey -Name "lfWeight" -Value "400" -Type DWord -Force
 5. 保存
 
 ### 或在settings.json中添加
+
 ```json
 {
     "editor.fontFamily": "'Noto Sans', Consolas, 'Courier New', monospace",
@@ -98,7 +107,7 @@ python -c "print('\uE4F1 \uE4E9 \uE4EA')"
 ## 推荐编辑器对比
 
 | 编辑器 | 字体设置 | 私用区字符 | 推荐度 |
-|--------|---------|-----------|--------|
+| --- | --- | --- | --- |
 | **Windows Terminal** | ✅ 支持 | ✅ 显示 | ⭐⭐⭐⭐⭐ |
 | **Notepad++** | ✅ 支持 | ✅ 显示 | ⭐⭐⭐⭐⭐ |
 | **VS Code** | ✅ 支持 | ✅ 显示 | ⭐⭐⭐⭐⭐ |
@@ -111,6 +120,7 @@ python -c "print('\uE4F1 \uE4E9 \uE4EA')"
 ## 测试私用区字符
 
 ### Python测试
+
 ```python
 # 测试音元字符
 chars = ['\uE4F1', '\uE4E9', '\uE4EA', '\uE4EB']
@@ -119,6 +129,7 @@ for char in chars:
 ```
 
 ### PowerShell测试
+
 ```powershell
 # 测试私用区字符
 [char]0xE4F1
@@ -139,10 +150,12 @@ for char in chars:
 ## 建议
 
 **最佳实践**：
+
 1. **开发测试**：使用Windows Terminal
 2. **文档编辑**：使用Word或Notepad++
 3. **代码编辑**：使用VS Code
 
 **避免使用**：
+
 - Windows 10 记事本（不支持自定义字体）
 - 旧版CMD（字体支持有限）

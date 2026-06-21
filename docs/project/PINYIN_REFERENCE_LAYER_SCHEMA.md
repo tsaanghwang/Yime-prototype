@@ -7,7 +7,7 @@
 **Runtime 真源（英文表）：**
 
 | 职责 | 表 |
-|------|-----|
+| --- | --- |
 | 带调音节清单 | `numeric_pinyin_inventory` |
 | 拼音 → 四码 | `pinyin_yime_code` |
 | 四码槽位分解 | `yinjie_slot_decomposition` |

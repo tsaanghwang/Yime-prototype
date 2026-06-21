@@ -3,7 +3,8 @@
 ## 问题
 
 尝试安装 pywin32 时遇到问题：
-```
+
+```text
 ERROR: No matching distribution found: pywin32
 ```
 
@@ -30,7 +31,7 @@ Python 3.14 是非常新的版本，pywin32 官方尚未发布支持 Python 3.14
 ## 功能对比
 
 | 功能 | pywin32 | pynput | pywin32-ctypes |
-|------|---------|--------|----------------|
+| --- | --- | --- | --- |
 | 全局监听 | ✅ | ✅ | ❌ |
 | 按键拦截 | ✅ | ❌ | ❌ |
 | Python 3.14 | ❌ | ✅ | ✅ |
@@ -49,7 +50,7 @@ Python 3.14 是非常新的版本，pywin32 官方尚未发布支持 Python 3.14
 
 等待 pywin32 发布支持 Python 3.14 的版本。
 
-关注: https://github.com/mhammond/pywin32/releases
+关注: <https://github.com/mhammond/pywin32/releases>
 
 ### 方法2: 从源码编译
 
@@ -78,8 +79,9 @@ pip install pywin32
 ### 方法4: 使用预编译 wheel（如果有）
 
 从以下地址查找预编译包：
-- https://github.com/mhammond/pywin32/releases
-- https://www.lfd.uci.edu/~gohlke/pythonlibs/#pywin32
+
+- <https://github.com/mhammond/pywin32/releases>
+- <https://www.lfd.uci.edu/~gohlke/pythonlibs/#pywin32>
 
 ## 推荐方案
 
@@ -88,12 +90,14 @@ pip install pywin32
 **继续使用 pynput**
 
 优势：
+
 - ✅ 已安装并正常工作
 - ✅ 支持 Python 3.14
 - ✅ 跨平台兼容
 - ✅ 足够用于手动输入模式
 
 劣势：
+
 - ❌ 不能拦截按键
 - ❌ 不能实现真正的输入法功能
 
@@ -168,7 +172,7 @@ python run_input_method.py
 
 ## 相关链接
 
-- pywin32 GitHub: https://github.com/mhammond/pywin32
-- pywin32 Releases: https://github.com/mhammond/pywin32/releases
-- pynput 文档: https://pynput.readthedocs.io/
-- Python 下载: https://www.python.org/downloads/
+- pywin32 GitHub: <https://github.com/mhammond/pywin32>
+- pywin32 Releases: <https://github.com/mhammond/pywin32/releases>
+- pynput 文档: <https://pynput.readthedocs.io/>
+- Python 下载: <https://www.python.org/downloads/>
