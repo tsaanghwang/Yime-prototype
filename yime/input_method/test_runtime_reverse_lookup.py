@@ -1,9 +1,19 @@
 from pathlib import Path
 
+import pytest
+
 from yime.input_method.utils.runtime_reverse_lookup import (
     RuntimeReverseLookup,
     looks_like_hanzi_text,
 )
+
+
+DB_PATH = Path(__file__).resolve().parent.parent / "pinyin_hanzi.db"
+
+
+def _require_runtime_db() -> None:
+    if not DB_PATH.exists():
+        pytest.skip("runtime SQLite database is unavailable in this environment")
 
 
 def test_looks_like_hanzi_text_detects_plain_hanzi() -> None:
@@ -17,7 +27,8 @@ def test_looks_like_hanzi_text_accepts_extension_plane_hanzi() -> None:
 
 
 def test_runtime_reverse_lookup_returns_first_char_record() -> None:
-    lookup = RuntimeReverseLookup(Path(__file__).resolve().parent.parent / "pinyin_hanzi.db")
+    _require_runtime_db()
+    lookup = RuntimeReverseLookup(DB_PATH)
 
     record = lookup.lookup_first("日")
 
@@ -29,7 +40,8 @@ def test_runtime_reverse_lookup_returns_first_char_record() -> None:
 
 
 def test_runtime_reverse_lookup_returns_extension_plane_char_record() -> None:
-    lookup = RuntimeReverseLookup(Path(__file__).resolve().parent.parent / "pinyin_hanzi.db")
+    _require_runtime_db()
+    lookup = RuntimeReverseLookup(DB_PATH)
 
     record = lookup.lookup_first("𰀡")
 
@@ -41,6 +53,20 @@ def test_runtime_reverse_lookup_returns_extension_plane_char_record() -> None:
 
 
 def test_runtime_reverse_lookup_returns_none_for_missing_phrase() -> None:
-    lookup = RuntimeReverseLookup(Path(__file__).resolve().parent.parent / "pinyin_hanzi.db")
+    _require_runtime_db()
+    lookup = RuntimeReverseLookup(DB_PATH)
 
     assert lookup.lookup_first("今日不存在") is None
+
+
+def test_require_runtime_db_skips_when_runtime_db_is_absent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    missing_db_path = DB_PATH.parent / "pinyin_hanzi.absent.db"
+    monkeypatch.setattr(
+        "yime.input_method.test_runtime_reverse_lookup.DB_PATH",
+        missing_db_path,
+    )
+
+    with pytest.raises(pytest.skip.Exception, match="runtime SQLite database is unavailable"):
+        _require_runtime_db()
