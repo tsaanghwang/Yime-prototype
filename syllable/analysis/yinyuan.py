@@ -17,6 +17,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Union, Literal
+from .yinyuan_categories import YinyuanCategory, infer_category_from_pitch
 
 # 类型别名定义
 DurationType = Literal['short', 'neutral', 'long']
@@ -30,6 +31,11 @@ class YinyuanBase(ABC):
     quality: str
     duration: DurationType = 'neutral'
     loudness: LoudnessType = 'neutral'
+
+    @property
+    def category(self) -> YinyuanCategory:
+        """返回跨层共享的噪音 / 乐音类别。"""
+        return infer_category_from_pitch(self.pitch)
 
     @property
     @abstractmethod

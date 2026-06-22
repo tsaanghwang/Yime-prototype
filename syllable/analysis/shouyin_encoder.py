@@ -3,7 +3,6 @@ from typing import Dict, Any
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from .zaoyin_yinyuan import NoiseYinyuan
 
 class ShouyinEncoder:
     """首音编码处理器，整合音元映射和音元序列生成功能"""
@@ -17,7 +16,6 @@ class ShouyinEncoder:
     DERIVED_OUTPUT_DIRNAME = "yinyuan_derived"
 
     def __init__(self, data_path: Path | None = None):
-        self.zaoyin_yinyuan = NoiseYinyuan(quality="")
         self.shouyin_data = None
         self.module_dir = Path(__file__).parent
         self.syllable_dir = self.module_dir.parent

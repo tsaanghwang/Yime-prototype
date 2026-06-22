@@ -12,6 +12,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Optional
+from syllable.analysis.yinyuan_categories import YinyuanCategory
 
 
 class Pianyin(ABC):
@@ -36,6 +37,12 @@ class Pianyin(ABC):
         """检查片音对象是否有效，子类必须实现"""
         pass
 
+    @property
+    @abstractmethod
+    def category(self) -> YinyuanCategory:
+        """返回与音元层共享的噪音 / 乐音类别。"""
+        pass
+
     def __str__(self) -> str:
         """返回片音的通用字符串表示"""
         return (f"{self.__class__.__name__}(quality='{self.quality}'"
@@ -54,6 +61,10 @@ class UnpitchedPianyin(Pianyin):
         """噪音只需要有音质即可有效"""
         return bool(self.quality)
 
+    @property
+    def category(self) -> YinyuanCategory:
+        return YinyuanCategory.ZAOYIN
+
 
 class PitchedPianyin(Pianyin):
     """乐音类片音，音调非空，音质和音调构成乐音"""
@@ -64,3 +75,7 @@ class PitchedPianyin(Pianyin):
     def is_valid(self) -> bool:
         """乐音需要有音质和音调才能有效"""
         return bool(self.quality and self.pitch)
+
+    @property
+    def category(self) -> YinyuanCategory:
+        return YinyuanCategory.YUEYIN

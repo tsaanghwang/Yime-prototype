@@ -4,7 +4,7 @@ from typing import Dict, Any
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from .ganyin_yinyuan_slots import GanyinYinyuanSlots
-from .yueyin_yinyuan import YueyinYinyuan
+from .yueyin_mapper import YueyinMapper
 
 class GanyinEncoder:
     """干音编码处理器，整合音元映射和音元序列生成功能"""
@@ -19,9 +19,11 @@ class GanyinEncoder:
     DERIVED_OUTPUT_DIRNAME = "yinyuan_derived"
 
     def __init__(self):
-        self.yueyin_yinyuan = YueyinYinyuan(quality="", pitch="")
         self.module_dir = Path(__file__).parent
         self.syllable_dir = self.module_dir.parent
+        self.mapper = YueyinMapper(
+            self.syllable_dir / self.DATA_SUBDIR / "variables_of_attributes.json"
+        )
         self.yueyin_source = self._load_yueyin_source()
         self.yueyin_codepoints = self._load_yueyin_codepoints()
         self.ganyin_part_map = self._load_ganyin_part_map()
@@ -180,7 +182,7 @@ class GanyinEncoder:
         if not symbol:
             return symbol
 
-        pitch_marks = self.yueyin_yinyuan.config["pitch_variables"]["pitch_marks"]
+        pitch_marks = self.mapper.pitch_variables["pitch_marks"]
         pitch = symbol[-1]
         if pitch not in pitch_marks:
             return symbol
@@ -214,14 +216,7 @@ class GanyinEncoder:
 
     def convert_pianyin_to_yinyuan(self, pianyin: str) -> str:
         """将片音转换为音元"""
-        if not pianyin:
-            return ""
-        pianyin = pianyin.split("/")[0]  # 处理多值情况
-        quality = pianyin[:-1] if len(pianyin) > 1 else pianyin
-        pitch = pianyin[-1] if len(pianyin) > 1 else ""
-        processed = self.yueyin_yinyuan._process_mid_high_model(  # pyright: ignore[reportPrivateUsage]
-            {"temp": (quality, pitch)})
-        return next(iter(processed.keys())) if processed else ""
+        return self.mapper.normalize_pianyin_text(pianyin)
 
     def process_ganyin(self, ganyin_data: Dict[str, Any]) -> Dict[str, Any]:
         """处理干音数据生成音元序列"""
@@ -275,7 +270,7 @@ class GanyinEncoder:
         self.save_yinyuan_data(output_file, yinyuan_data)
 
         # 3. 生成音调标记格式数据
-        marks_data = self.yueyin_yinyuan._change_pitch_style(yinyuan_data)  # pyright: ignore[reportPrivateUsage]
+        marks_data = self.mapper.convert_pitch_style(yinyuan_data)
         marks_output_path = self.derived_output_path("ganyin_to_yinyuan_seq_marks.json")
         self.save_yinyuan_data(marks_output_path, marks_data)
 

@@ -5,7 +5,7 @@
 import json
 from pathlib import Path
 
-from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
+from syllable.analysis.yueyin_mapper import YueyinMapper
 
 
 SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
@@ -29,20 +29,17 @@ def extract_yueyin_yinyuan():
     # 转换数据格式: {"key": "value"} -> {"key": ["quality", "pitch"]}
     converted_data = {key: [key[:-1], key[-1]] for key in input_data.keys()}
 
-    # 创建音元实例
-    yueyin = YueyinYinyuan(
-        quality='neutral',
-        pitch='4',
-        duration='neutral',
-        loudness='neutral',
-        pitch_style='number'
-    )
+    mapper = YueyinMapper(YINYUAN_DIR / 'variables_of_attributes.json')
 
-    # 处理数据 - 使用实例方法
-    mid_high_median_model = yueyin._process_mid_high_model(
-        converted_data)
-    output_mid_level_median_model = yueyin._process_mid_level_model(
-        converted_data)
+    # 处理数据 - 以归并器为唯一真源
+    mid_high_median_model = mapper.group_symbols(
+        converted_data,
+        model='mid_high_median_model',
+    )
+    output_mid_level_median_model = mapper.group_symbols(
+        converted_data,
+        model='mid_level_median_model',
+    )
 
     # 保存结果
     with open(output_mid_high_median_model_path, 'w', encoding='utf-8') as f:

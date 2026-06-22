@@ -5,14 +5,14 @@
 """
 import json
 import sys
-from typing import Any, Dict, cast
+from typing import Any, Dict
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
+from syllable.analysis.yueyin_mapper import YueyinMapper
 
 
 DERIVED_OUTPUT_DIR = PROJECT_ROOT / "internal_data" / "yinyuan_derived"
@@ -22,7 +22,7 @@ class GanyinToYinyuanSequence:
     """将干音转换为音元序列的处理器"""
 
     def __init__(self):
-        self.yueyin_yinyuan = YueyinYinyuan(quality="", pitch="")
+        self.mapper = YueyinMapper(PROJECT_ROOT / "syllable" / "yinyuan" / "variables_of_attributes.json")
 
     def load_ganyin_data(self, input_path: Path) -> Dict[str, Any]:
         """加载干音数据"""
@@ -37,14 +37,7 @@ class GanyinToYinyuanSequence:
 
     def convert_pianyin_to_yinyuan(self, pianyin: str) -> str:
         """将片音转换为音元"""
-        if not pianyin:
-            return ""
-        pianyin = pianyin.split("/")[0]  # 处理多值情况
-        quality = pianyin[:-1] if len(pianyin) > 1 else pianyin
-        pitch = pianyin[-1] if len(pianyin) > 1 else ""
-        processed = cast(Any, self.yueyin_yinyuan)._process_mid_high_model(
-            {"temp": (quality, pitch)})
-        return next(iter(processed.keys())) if processed else ""
+        return self.mapper.normalize_pianyin_text(pianyin)
 
     def process_ganyin(self, ganyin_data: Dict[str, Any]) -> Dict[str, Any]:
         """处理干音数据"""
@@ -75,7 +68,7 @@ def main():
     result = converter.run(input_file, output_file)
 
     # 转换音调标记方式并保存新格式结果
-    marks_data = cast(Any, converter.yueyin_yinyuan)._change_pitch_style(result)
+    marks_data = converter.mapper.convert_pitch_style(result)
     marks_output_path = DERIVED_OUTPUT_DIR / "ganyin_to_yinyuan_seq_marks.json"
     converter.save_yinyuan_data(marks_output_path, marks_data)
 
