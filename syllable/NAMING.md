@@ -1,6 +1,6 @@
 # syllable 代码命名约定
 
-概念定义与中英翻译见 **[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)** 与 **[docs/YINYUAN_TERMINOLOGY.md](../docs/YINYUAN_TERMINOLOGY.md)**。  
+概念定义与中英翻译见 **[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)** 与 **[docs/YINYUAN_TERMINOLOGY.md](../docs/YINYUAN_TERMINOLOGY.md)**。
 本文只规定 **Python 模块、类名、文件名** 的唯一用法，供维护者与 AI 遵守。
 
 ---
@@ -24,9 +24,11 @@
 | ---------- | --------------- | ---------- |
 | 乐音片音（简单模型） | `syllable.pianyin.PitchedPianyin` | ≠ `analysis.pitched_pianyin.PitchedPianyin` |
 | 噪音片音（简单模型） | `syllable.pianyin.UnpitchedPianyin` | |
+| 共享类别轴 | `analysis.yinyuan_categories.YinyuanCategory` | 贯穿片音 / 音元两层；≠ 结构段 |
 | 乐音片音（试验/切片链） | `analysis.pitched_pianyin.YueyinPianyin` | 仅 `tools/syllable_analysis/ganyin_slicer.py` 等试验链；**非**主链默认 |
 | 乐音音元 | `analysis.yueyin_yinyuan.YueyinYinyuan` | 继承 `MusicalYinyuan`；**不**表示「干音」 |
 | 乐音音元基类 | `analysis.pitched_yinyuan.MusicalYinyuan` | |
+| 乐音归并器 | `analysis.yueyin_mapper.YueyinMapper` | 片音 → 乐音音元；调号样式转换；**不是**音元对象 |
 | 音节结构 | `syllable.codec.yinjie.Yinjie` | 内部分解：呼/韵/主/末 |
 | 首音音段 | `syllable.analysis.syllable.Syllable.shouyin` | 声母 + `shoudiao`；通俗即声母/辅音；≠ `Zaoyin*` 类别 |
 | 干音音段 | `syllable.analysis.syllable.Ganyin` | 韵母 + `gandiao`；≠ `YueyinYinyuan` |
@@ -39,8 +41,9 @@
 
 ### 跨层桥接（允许的唯一位置）
 
-- `YueyinYinyuan.from_pianyin(pianyin)` — 片音 → 乐音音元  
-- 不要在其它模块新增第二个 `from_pianyin` 或平行桥接类。
+- `YueyinYinyuan.from_pianyin(pianyin)` — **乐音片音对象** → **乐音音元对象**
+- `YueyinMapper.normalize_pianyin_text(text)` — **片音字符串** → **乐音音元符号**
+- 不要在其它模块新增第二个 `from_pianyin`、第二个归并器，或平行桥接类。
 
 ---
 
@@ -67,12 +70,13 @@
 | `analysis/pianyin.py` | 与 `pianyin/pianyin.py` 重复，**零引用**；**勿 import**；删除前 diff + 见 LEGACY_ANALYSIS |
 | `analysis/unpitched_pianyin.py` | 与 `pianyin/indeterminate_pitch_pianyin.py` 重复，**零引用**；同上 |
 | `analysis/pitched_pianyin.py` | **试验链**（`ganyin_slicer`）；**保留** |
-| `pitched_yinyuan.py` 末尾空壳 `class YueyinYinyuan: pass` | 占位；真类在 `yueyin_yinyuan.py` |
+| `pitched_yinyuan.py` 末尾空壳 `class YueyinYinyuan: pass` | 兼容占位；真类在 `yueyin_yinyuan.py`；**勿扩展** |
 
 ---
 
 ## 相关入口
 
-- 包结构与 CLI：[README.md](README.md)  
-- 遗留模块处置：[LEGACY_ANALYSIS.md](LEGACY_ANALYSIS.md)  
+- 包结构与 CLI：[README.md](README.md)
+- 遗留模块处置：[LEGACY_ANALYSIS.md](LEGACY_ANALYSIS.md)
 - 文档总索引：[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)
+- 重构流程图：[docs/project/YINYUAN_REFACTOR_FLOW.md](../docs/project/YINYUAN_REFACTOR_FLOW.md)

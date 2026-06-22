@@ -169,6 +169,7 @@
 - ❌ 把干音与乐音画成 **同级** 兄弟节点
 - ❌ `ganyin` 与 `yueyin` 可以互换命名类或模块
 - ❌ 把 `GanyinEncoder` 理解成「只编码乐音」——它编码的是 **干音结构**，内部使用乐音类 **音元**（如 `YueyinYinyuan`）作为材料
+- ❌ 把 `YueyinMapper`、`YueyinYinyuan`、`YueyinPianyin` 当成同一层对象（前者是归并/转换流程，后两者分别是音元对象、片音对象）
 - ❌ 用通用英语 onset / rime / nucleus / coda **替换并重组** 上树，再反写回中文术语
 - ❌ 在 README、注释或对外说明里「为了方便」写 **干音即无调韵母** 或 **干音即韵母即乐音**
 

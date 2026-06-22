@@ -2,7 +2,7 @@ import json
 import sys
 from pathlib import Path
 
-from syllable.analysis.yueyin_yinyuan import YueyinYinyuan
+from syllable.analysis.yueyin_mapper import YueyinMapper
 
 
 SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
@@ -27,12 +27,12 @@ def load_and_validate_input(input_path: Path) -> dict:
     except (FileNotFoundError, json.JSONDecodeError) as e:
         raise RuntimeError(f"无法加载输入数据: {str(e)}")
 
-def convert_pitch_style(input_data: dict, yueyin: YueyinYinyuan) -> dict:
+def convert_pitch_style(input_data: dict, mapper: YueyinMapper) -> dict:
     """转换音高样式
 
     Args:
         input_data: 输入数据字典
-        yueyin: YueyinYinyuan实例
+        mapper: 乐音片音到音元的归并/格式转换器
 
     Returns:
         转换后的数据字典
@@ -44,7 +44,7 @@ def convert_pitch_style(input_data: dict, yueyin: YueyinYinyuan) -> dict:
         }
     }
 
-    symbol_data = yueyin._change_pitch_style(converted_data)
+    symbol_data = mapper.convert_pitch_style(converted_data)
 
     result = {}
     for ganyin_type, ganyin_dict in symbol_data.items():
@@ -65,21 +65,14 @@ def main():
     # 确保输出目录存在
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 创建 YueyinYinyuan 实例
-    yueyin = YueyinYinyuan(
-        quality='neutral',
-        pitch='4',
-        duration='neutral',
-        loudness='neutral',
-        pitch_style='number'
-    )
+    mapper = YueyinMapper(YINYUAN_DIR / 'variables_of_attributes.json')
 
     try:
         # 加载并验证输入数据
         input_data = load_and_validate_input(input_path)
 
         # 转换音高样式
-        result = convert_pitch_style(input_data, yueyin)
+        result = convert_pitch_style(input_data, mapper)
 
         # 保存结果
         with open(output_path, 'w', encoding='utf-8') as f:
