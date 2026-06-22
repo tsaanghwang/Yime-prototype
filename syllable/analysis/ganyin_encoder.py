@@ -113,6 +113,9 @@ class GanyinEncoder:
 
     def encode_ganyin_slots(self, ganyin: str) -> GanyinYinyuanSlots:
         """编码干音段为三槽乐音音元（呼 / 主 / 末），与 ``Yinjie.huyin/zhuyin/moyin`` 对齐。"""
+        if not isinstance(ganyin, str):
+            raise ValueError(f"无效的干音输入: '{ganyin}'")
+
         normalized_ganyin = self._normalize_ganyin_name(ganyin)
 
         if not self._is_valid_ganyin(normalized_ganyin):
