@@ -7,7 +7,14 @@ Features:
 """
 
 import json
-from typing import Dict, List, cast
+import sys
+from pathlib import Path
+from typing import Dict, List, TextIO, cast
+
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+WORKSPACE_ROOT = SCRIPT_DIR.parent
+INTERNAL_DATA_DIR = WORKSPACE_ROOT / "internal_data"
 
 class FinalsToneMarker:
     def __init__(self):
@@ -21,8 +28,18 @@ class FinalsToneMarker:
 
     def load_classified_finals(self) -> Dict[str, List[Dict[str, str]]]:
         """Load classified finals data (加载韵母分类数据)"""
-        with open("internal_data/classified_finals.json", "r", encoding="utf-8") as f:
+        with (INTERNAL_DATA_DIR / "classified_finals.json").open("r", encoding="utf-8") as f:
             return cast(Dict[str, List[Dict[str, str]]], json.load(f))
+
+    def _write_line(self, stream: TextIO, text: str) -> None:
+        try:
+            stream.write(text + "\n")
+        except UnicodeEncodeError:
+            fallback = text.encode(stream.encoding or "utf-8", errors="replace").decode(
+                stream.encoding or "utf-8",
+                errors="replace",
+            )
+            stream.write(fallback + "\n")
 
     def mark_single_quality(self, pinyin: str, tone: int) -> str:
         """
@@ -128,21 +145,22 @@ class FinalsToneMarker:
 
         return results
 
-    def print_results(self, results: Dict[str, Dict[int, str]]):
+    def print_results(self, results: Dict[str, Dict[int, str]], stream: TextIO | None = None):
         """Print tone marking results (打印标调结果)"""
-        print("\n韵母标调结果:")
-        print("=" * 60)
+        output = stream or sys.stdout
+        self._write_line(output, "")
+        self._write_line(output, "韵母标调结果:")
+        self._write_line(output, "=" * 60)
         for pinyin, tones in results.items():
-            print(f"{pinyin}:")
+            self._write_line(output, f"{pinyin}:")
             for tone, marked in tones.items():
-                print(f"  第{tone}声: {marked}")
-        print("=" * 60)
+                self._write_line(output, f"  第{tone}声: {marked}")
+        self._write_line(output, "=" * 60)
 
     def save_results(self, results: Dict[str, Dict[int, str]]):
         """Save tone marking results to JSON file (保存标调结果到JSON文件)"""
-        import os
-        os.makedirs("internal_data", exist_ok=True)
-        with open("internal_data/marked_finals.json", "w", encoding="utf-8") as f:
+        INTERNAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        with (INTERNAL_DATA_DIR / "marked_finals.json").open("w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
     def run(self) -> Dict[str, Dict[int, str]]:
