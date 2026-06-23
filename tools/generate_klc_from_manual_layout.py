@@ -3,6 +3,9 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Any, cast
+
+# cspell:ignore LOCALENAME LOCALEID SHIFTSTATE Shft Prnt
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -135,15 +138,20 @@ def load_symbols() -> dict[str, str]:
 
 
 def load_bmp_projection_symbols() -> dict[str, str]:
-    payload = json.loads(BMP_PROJECTION_PATH.read_text(encoding="utf-8"))
-    used_mapping = payload.get("used_mapping", {})
-    if not isinstance(used_mapping, dict):
+    payload = cast(dict[str, Any], json.loads(BMP_PROJECTION_PATH.read_text(encoding="utf-8")))
+    used_mapping_raw = payload.get("used_mapping", {})
+    if not isinstance(used_mapping_raw, dict):
         raise ValueError("bmp_pua_trial_projection.json missing used_mapping object")
-    return {
-        symbol_key: entry["char"]
-        for symbol_key, entry in used_mapping.items()
-        if isinstance(entry, dict) and entry.get("char")
-    }
+    used_mapping = cast(dict[str, Any], used_mapping_raw)
+    symbols: dict[str, str] = {}
+    for symbol_key, entry in used_mapping.items():
+        if not isinstance(entry, dict) or "char" not in entry:
+            continue
+        char_value = cast(object, entry["char"])
+        if not isinstance(char_value, str) or not char_value:
+            continue
+        symbols[symbol_key] = char_value
+    return symbols
 
 
 def parse_args() -> argparse.Namespace:

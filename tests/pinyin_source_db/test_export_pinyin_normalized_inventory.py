@@ -1,10 +1,12 @@
 import json
+import importlib.util
 import sqlite3
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Callable, Iterable, Protocol, cast
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
@@ -12,15 +14,49 @@ PINYIN_SOURCE_DB_DIR = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db"
 if str(PINYIN_SOURCE_DB_DIR) not in sys.path:
     sys.path.insert(0, str(PINYIN_SOURCE_DB_DIR))
 
-from build_source_pinyin_db import marked_syllable_to_numeric
-from export_pinyin_normalized import (
-    collect_numeric_to_marked_pairs,
-    load_inventory_numeric_syllables,
-)
 from syllable.codec.paths import YINJIE_CODE_PATH
 
 
-WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+_build_spec = importlib.util.spec_from_file_location(
+    "build_source_pinyin_db",
+    PINYIN_SOURCE_DB_DIR / "build_source_pinyin_db.py",
+)
+if _build_spec is None or _build_spec.loader is None:
+    raise ImportError("Could not load build_source_pinyin_db module")
+_build_source_pinyin_db = importlib.util.module_from_spec(_build_spec)
+_build_spec.loader.exec_module(_build_source_pinyin_db)
+
+
+_export_spec = importlib.util.spec_from_file_location(
+    "export_pinyin_normalized",
+    PINYIN_SOURCE_DB_DIR / "export_pinyin_normalized.py",
+)
+if _export_spec is None or _export_spec.loader is None:
+    raise ImportError("Could not load export_pinyin_normalized module")
+_export_pinyin_normalized = importlib.util.module_from_spec(_export_spec)
+_export_spec.loader.exec_module(_export_pinyin_normalized)
+
+
+class _ExportPinyinNormalizedModule(Protocol):
+    collect_numeric_to_marked_pairs: Callable[[sqlite3.Connection, str], dict[str, set[str]]]
+    load_inventory_numeric_syllables: Callable[[sqlite3.Connection, str], Iterable[str]]
+
+
+_typed_export_pinyin_normalized = cast(_ExportPinyinNormalizedModule, _export_pinyin_normalized)
+
+
+class _BuildSourcePinyinDbModule(Protocol):
+    marked_syllable_to_numeric: Callable[[str], str]
+
+
+_typed_build_source_pinyin_db = cast(_BuildSourcePinyinDbModule, _build_source_pinyin_db)
+
+
+collect_numeric_to_marked_pairs = _typed_export_pinyin_normalized.collect_numeric_to_marked_pairs
+load_inventory_numeric_syllables = _typed_export_pinyin_normalized.load_inventory_numeric_syllables
+marked_syllable_to_numeric = _typed_build_source_pinyin_db.marked_syllable_to_numeric
+
+
 EXPORT_SCRIPT = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "export_pinyin_normalized.py"
 DEFAULT_DB = WORKSPACE_ROOT / ".generated" / "source_pinyin.db"
 INVENTORY_TABLE = "m_distinct_syllable_inventory"
@@ -57,9 +93,11 @@ class TestExportPinyinNormalizedInventoryDomain(unittest.TestCase):
         with YINJIE_CODE_PATH.open("r", encoding="utf-8") as handle:
             cls.codebook = json.load(handle)
 
-        cls.patch_keys = set(
-            json.loads(PATCH_PATH.read_text(encoding="utf-8")).keys()
-        ) if PATCH_PATH.exists() else set()
+        cls.patch_keys: set[str] = (
+            set(cast(dict[str, object], json.loads(PATCH_PATH.read_text(encoding="utf-8"))).keys())
+            if PATCH_PATH.exists()
+            else set[str]()
+        )
 
     def test_export_covers_lexicon_inventory_and_patch(self):
         self.assertTrue(self.inventory_keys)
@@ -155,14 +193,14 @@ class TestExportPinyinNormalizedInventoryScript(unittest.TestCase):
             payload = json.loads(output_path.read_text(encoding="utf-8"))
             conn = sqlite3.connect(DEFAULT_DB)
             try:
-                inventory_keys = set(
-                    load_inventory_numeric_syllables(conn, INVENTORY_TABLE)
-                )
+                inventory_keys = set(load_inventory_numeric_syllables(conn, INVENTORY_TABLE))
             finally:
                 conn.close()
-            patch_keys = set(
-                json.loads(PATCH_PATH.read_text(encoding="utf-8")).keys()
-            ) if PATCH_PATH.exists() else set()
+            patch_keys: set[str] = (
+                set(cast(dict[str, object], json.loads(PATCH_PATH.read_text(encoding="utf-8"))).keys())
+                if PATCH_PATH.exists()
+                else set[str]()
+            )
             self.assertEqual(set(payload), inventory_keys | patch_keys)
 
 

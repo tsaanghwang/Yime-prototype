@@ -20,7 +20,7 @@ def sha256_file(path: Path) -> str | None:
     return digest.hexdigest()
 
 
-def sqlite_counts(db_path: Path) -> dict[str, int | str]:
+def sqlite_counts(db_path: Path) -> dict[str, object]:
     if not db_path.exists():
         return {"exists": False}
 
@@ -32,7 +32,7 @@ def sqlite_counts(db_path: Path) -> dict[str, int | str]:
                 "SELECT name FROM sqlite_master WHERE type='table'"
             )
         }
-        counts: dict[str, int | str] = {"exists": True}
+        counts: dict[str, object] = {"exists": True}
         for table in (
             "char_readings",
             "phrase_readings",

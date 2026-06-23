@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from internal_data.pinyin_source_db.build_source_pinyin_db import sync_legacy_fallback_db
 from yime.asset_paths import (
     generated_runtime_candidates_json_path,
@@ -11,7 +13,9 @@ from yime.asset_paths import (
 )
 
 
-def test_resolve_runtime_candidates_json_path_prefers_generated_file(tmp_path, monkeypatch) -> None:
+def test_resolve_runtime_candidates_json_path_prefers_generated_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     repo_root = tmp_path
     app_dir = repo_root / "yime"
     app_dir.mkdir()
@@ -24,7 +28,9 @@ def test_resolve_runtime_candidates_json_path_prefers_generated_file(tmp_path, m
     assert resolve_runtime_candidates_json_path(app_dir) == generated_path
 
 
-def test_resolve_runtime_candidates_json_path_prefers_env_override(tmp_path, monkeypatch) -> None:
+def test_resolve_runtime_candidates_json_path_prefers_env_override(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     app_dir = tmp_path / "yime"
     app_dir.mkdir()
     override_path = tmp_path / "external" / "runtime.json"
@@ -33,7 +39,9 @@ def test_resolve_runtime_candidates_json_path_prefers_env_override(tmp_path, mon
     assert resolve_runtime_candidates_json_path(app_dir) == override_path
 
 
-def test_resolve_source_pinyin_db_path_prefers_generated_file(tmp_path, monkeypatch) -> None:
+def test_resolve_source_pinyin_db_path_prefers_generated_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     generated_path = generated_source_pinyin_db_path(tmp_path)
     generated_path.parent.mkdir(parents=True)
     generated_path.write_text("sqlite", encoding="utf-8")
@@ -43,14 +51,16 @@ def test_resolve_source_pinyin_db_path_prefers_generated_file(tmp_path, monkeypa
     assert resolve_source_pinyin_db_path(tmp_path) == generated_path
 
 
-def test_resolve_source_pinyin_db_path_falls_back_to_legacy_path(tmp_path, monkeypatch) -> None:
+def test_resolve_source_pinyin_db_path_falls_back_to_legacy_path(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.delenv("YIME_SOURCE_PINYIN_DB", raising=False)
 
     expected = tmp_path / "internal_data" / "pinyin_source_db" / "source_pinyin.db"
     assert resolve_source_pinyin_db_path(tmp_path) == expected
 
 
-def test_sync_legacy_fallback_db_copies_built_database(tmp_path) -> None:
+def test_sync_legacy_fallback_db_copies_built_database(tmp_path: Path) -> None:
     db_path = tmp_path / ".generated" / "source_pinyin.db"
     db_path.parent.mkdir(parents=True)
     db_path.write_text("new schema", encoding="utf-8")

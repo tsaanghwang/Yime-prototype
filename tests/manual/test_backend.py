@@ -7,6 +7,7 @@
 import sys
 import io
 from pathlib import Path
+from typing import Any, TypedDict
 
 # 设置UTF-8输出
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -22,28 +23,28 @@ def test_imports():
 
     try:
         from yime.input_method import InputMethodApp
-        print("✓ InputMethodApp 导入成功")
+        print(f"✓ {InputMethodApp.__name__} 导入成功")
     except Exception as e:
         print(f"✗ InputMethodApp 导入失败: {e}")
         return False
 
     try:
         from yime.input_method.core.keyboard_listener import KeyboardListener
-        print("✓ KeyboardListener 导入成功")
+        print(f"✓ {KeyboardListener.__name__} 导入成功")
     except Exception as e:
         print(f"✗ KeyboardListener 导入失败: {e}")
         return False
 
     try:
         from yime.input_method.core.input_manager import InputManager
-        print("✓ InputManager 导入成功")
+        print(f"✓ {InputManager.__name__} 导入成功")
     except Exception as e:
         print(f"✗ InputManager 导入失败: {e}")
         return False
 
     try:
         from yime.input_method.core.decoders import CompositeCandidateDecoder
-        print("✓ CompositeCandidateDecoder 导入成功")
+        print(f"✓ {CompositeCandidateDecoder.__name__} 导入成功")
     except Exception as e:
         print(f"✗ CompositeCandidateDecoder 导入失败: {e}")
         return False
@@ -59,16 +60,16 @@ def test_pynput():
 
     try:
         import pynput
-        print("✓ pynput 已安装")
+        print(f"✓ pynput 已安装: {getattr(pynput, '__version__', 'unknown')}")
 
         from pynput import keyboard
         print("✓ keyboard 模块可用")
 
         # 测试创建监听器
-        def on_press(key):
+        def on_press(key: Any) -> None:
             pass
 
-        listener = keyboard.Listener(on_press=on_press)
+        keyboard.Listener(on_press=on_press)
         print("✓ Listener 创建成功")
 
         return True
@@ -176,11 +177,16 @@ def test_input_manager():
     try:
         from yime.input_method.core.input_manager import InputManager
 
+        class KeyInfo(TypedDict):
+            key: str
+            ascii: int
+            time: int
+
         # 创建回调函数
-        def on_candidates_update(candidates, pinyin, code, status):
+        def on_candidates_update(candidates: Any, pinyin: Any, code: Any, status: Any) -> None:
             print(f"  候选词更新: {len(candidates)} 个")
 
-        def on_input_commit(hanzi):
+        def on_input_commit(hanzi: str) -> None:
             print(f"  输入提交: {hanzi}")
 
         # 创建输入管理器
@@ -191,8 +197,8 @@ def test_input_manager():
         print("✓ 输入管理器创建成功")
 
         # 测试按键处理
-        key_info = {'key': 'a', 'ascii': ord('a'), 'time': 0}
-        result = manager.process_key(key_info)
+        key_info: KeyInfo = {'key': 'a', 'ascii': ord('a'), 'time': 0}
+        manager.process_key(dict(key_info))
         print(f"✓ 按键处理测试: buffer={manager.get_buffer()}")
 
         return True
@@ -210,7 +216,7 @@ def main():
     print("=" * 60)
     print()
 
-    results = []
+    results: list[tuple[str, bool]] = []
 
     # 测试1：模块导入
     results.append(("模块导入", test_imports()))

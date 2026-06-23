@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 """将数字标调的干音数据转换为带声调标记和IPA的格式"""
 
@@ -8,15 +9,16 @@ YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
 # 韵母与国际音标（IPA）的映射
-def load_final_styles():
+def load_final_styles() -> dict[str, str]:
     """加载韵母与IPA的映射关系"""
     final_styles_path = YINYUAN_DIR / "final_styles.json"
     with open(final_styles_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
+        data: dict[str, Any] = json.load(f)
 
     # 构建韵母到IPA的映射字典
-    ipa_map = {}
-    for category in data["finals"].values():
+    ipa_map: dict[str, str] = {}
+    finals: dict[str, dict[str, dict[str, str]]] = data["finals"]
+    for category in finals.values():
         for final, info in category.items():
             # 处理特殊韵母"_i"的IPA值（ɿ/ʅ）
             if final == "_i":
@@ -52,8 +54,8 @@ def get_ipa(base: str, tone_num: str) -> str:
     """获取韵母的IPA表示（含声调）"""
     # 特殊处理带下划线的韵母（如"_i"）
     base_key = base if base.startswith("_") else base.lstrip("_")
-    ipa_base = IPA_MAP.get(base_key, base_key)
-    tone_ipa = {
+    ipa_base = str(IPA_MAP.get(base_key, base_key))
+    tone_ipa: dict[str, str] = {
         "1": "˥˥˥",    # 降调
         "2": "˧˦˥",   # 升调
         "3": "˨˩˨",  # 低调
@@ -68,7 +70,7 @@ def get_ipa(base: str, tone_num: str) -> str:
     return ipa_base + tone_ipa.get(tone_num, "")
 
 
-def enhance_ganyin(input_path, output_path):
+def enhance_ganyin(input_path: Path, output_path: Path) -> None:
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 

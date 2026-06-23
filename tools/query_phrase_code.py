@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import sqlite3
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Sequence
 
 from yime.asset_paths import resolve_source_pinyin_db_path
 

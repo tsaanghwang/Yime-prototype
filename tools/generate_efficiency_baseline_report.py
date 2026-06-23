@@ -6,6 +6,7 @@ from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import median
+from typing import Any, Callable, Mapping, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -22,12 +23,12 @@ CHAR_TIER_DEFS = (
 )
 
 
-def load_json(path: Path) -> dict:
+def load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def load_runtime_db_char_rows(path: Path) -> list[dict[str, object]]:
+def load_runtime_db_char_rows(path: Path) -> list[dict[str, Any]]:
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
     try:
@@ -61,9 +62,9 @@ def load_runtime_db_char_rows(path: Path) -> list[dict[str, object]]:
     return [dict(row) for row in rows]
 
 
-def build_char_ordering_comparison(db_path: Path, *, page_size: int) -> dict[str, object]:
+def build_char_ordering_comparison(db_path: Path, *, page_size: int) -> dict[str, Any]:
     rows = load_runtime_db_char_rows(db_path)
-    by_code: dict[str, list[dict[str, object]]] = {}
+    by_code: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         code = str(row.get("yime_code", "") or "").strip()
         if not code:
@@ -71,7 +72,7 @@ def build_char_ordering_comparison(db_path: Path, *, page_size: int) -> dict[str
         by_code.setdefault(code, []).append(row)
 
     scenario_summaries: dict[str, dict[str, float | int]] = {}
-    for scenario_name, scorer in {
+    scenarios: dict[str, Callable[[dict[str, Any]], float]] = {
         "tier_only": lambda entry: float(entry.get("usage_tier_sort_boost", 0.0) or 0.0),
         "tier_plus_frequency": lambda entry: float(entry.get("usage_tier_sort_boost", 0.0) or 0.0)
         + float(entry.get("char_frequency_abs", 0) or 0),
@@ -83,7 +84,8 @@ def build_char_ordering_comparison(db_path: Path, *, page_size: int) -> dict[str
         + (float(entry.get("modern_common_boost", 0.0) or 0.0) if bool(entry.get("is_common")) else 0.0)
         + float(entry.get("reading_phrase_prior_boost", 0.0) or 0.0)
         + float(entry.get("reading_weight", 1.0) or 1.0),
-    }.items():
+    }
+    for scenario_name, scorer in scenarios.items():
         weighted_candidate_sum = 0.0
         weighted_top1_sum = 0.0
         weighted_first_page_sum = 0.0
@@ -167,7 +169,7 @@ def load_runtime_tuning_summary(db_path: Path) -> dict[str, float] | None:
     return {str(key): float(value) for key, value in rows if key is not None and value is not None}
 
 
-def load_char_usage_tier_summary(db_path: Path) -> dict[str, object] | None:
+def load_char_usage_tier_summary(db_path: Path) -> dict[str, Any] | None:
     conn = sqlite3.connect(db_path)
     try:
         rows = conn.execute(
@@ -189,7 +191,7 @@ def load_char_usage_tier_summary(db_path: Path) -> dict[str, object] | None:
 
     weights_by_tier = {
         str(usage_tier): float(max_weight or 0.0)
-        for usage_tier, _count, _min_weight, max_weight in rows
+        for usage_tier, _, _, max_weight in rows
         if usage_tier is not None
     }
     positive_weights = sorted({weight for weight in weights_by_tier.values() if weight > 0.0})
@@ -218,7 +220,7 @@ def load_char_usage_tier_summary(db_path: Path) -> dict[str, object] | None:
     }
 
 
-def load_char_frequency_profile_summary(db_path: Path) -> dict[str, object] | None:
+def load_char_frequency_profile_summary(db_path: Path) -> dict[str, Any] | None:
     conn = sqlite3.connect(db_path)
     try:
         total_row = conn.execute(
@@ -306,7 +308,7 @@ def percentile(values: list[int], pct: float) -> float:
 
 
 def strip_tone_digits(pinyin_tone: str) -> str:
-    syllables = []
+    syllables: list[str] = []
     for segment in pinyin_tone.split():
         if segment and segment[-1].isdigit():
             syllables.append(segment[:-1])
@@ -334,7 +336,7 @@ def full_pinyin_with_tone_number_key_length(pinyin_tone: str) -> int:
     return total
 
 
-def load_runtime_symbol_metadata(path: Path) -> dict[str, object]:
+def load_runtime_symbol_metadata(path: Path) -> dict[str, Any]:
     mapping = load_json(path)
     key_to_symbol = mapping.get("key_to_symbol", {})
     entries = mapping.get("entries", [])
@@ -361,7 +363,7 @@ def load_runtime_symbol_metadata(path: Path) -> dict[str, object]:
     }
 
 
-def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: dict[str, object]) -> int:
+def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: dict[str, Any]) -> int:
     symbols = list(full_code)
     if not symbols:
         return 0
@@ -393,7 +395,7 @@ def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: 
 def yime_jianpin_key_length(
     pinyin_tone: str,
     yinjie_codebook: dict[str, str],
-    runtime_symbol_metadata: dict[str, object],
+    runtime_symbol_metadata: dict[str, Any],
 ) -> tuple[int, int]:
     total_length = 0
     missing_syllable_count = 0
@@ -407,7 +409,7 @@ def yime_jianpin_key_length(
     return total_length, missing_syllable_count
 
 
-def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dict[str, object]) -> dict[str, object]:
+def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dict[str, Any]) -> dict[str, Any]:
     symbols = list(full_code)
     virtual_initial_symbol = str(runtime_symbol_metadata.get("virtual_initial_symbol", ""))
     ganyin_metadata = runtime_symbol_metadata.get("ganyin_symbols", {})
@@ -445,11 +447,11 @@ def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dic
 
 def build_syllable_jianpin_examples(
     yinjie_codebook: dict[str, str],
-    runtime_symbol_metadata: dict[str, object],
+    runtime_symbol_metadata: dict[str, Any],
     *,
     limit: int,
-) -> dict[str, list[dict[str, object]]]:
-    examples: list[dict[str, object]] = []
+) -> dict[str, list[dict[str, Any]]]:
+    examples: list[dict[str, Any]] = []
     for syllable, full_code in yinjie_codebook.items():
         analysis = analyze_syllable_simplification(str(full_code), runtime_symbol_metadata)
         reasons: list[str] = []
@@ -488,8 +490,8 @@ def build_syllable_jianpin_examples(
 
 def build_syllable_jianpin_rule_stats(
     yinjie_codebook: dict[str, str],
-    runtime_symbol_metadata: dict[str, object],
-) -> dict[str, object]:
+    runtime_symbol_metadata: dict[str, Any],
+) -> dict[str, Any]:
     total_syllable_count = 0
     compressed_syllable_count = 0
     no_compression_count = 0
@@ -501,7 +503,7 @@ def build_syllable_jianpin_rule_stats(
 
     combo_counter: Counter[str] = Counter()
 
-    for _syllable, full_code in yinjie_codebook.items():
+    for full_code in yinjie_codebook.values():
         analysis = analyze_syllable_simplification(str(full_code), runtime_symbol_metadata)
         total_syllable_count += 1
         saved_keys = int(analysis["saved_keys"])
@@ -528,13 +530,14 @@ def build_syllable_jianpin_rule_stats(
     def share(count: int) -> float:
         return count / total_syllable_count if total_syllable_count else 0.0
 
-    combo_rows = [
+    combo_items: list[tuple[str, int]] = sorted(combo_counter.items(), key=lambda item: (-item[1], item[0]))
+    combo_rows: list[dict[str, float | int | str]] = [
         {
             "label": label,
             "count": count,
             "share": share(count),
         }
-        for label, count in sorted(combo_counter.items(), key=lambda item: (-item[1], item[0]))
+        for label, count in combo_items
     ]
 
     return {
@@ -597,9 +600,9 @@ def summarize_counts(counts: list[int], row_count: int, threshold: int) -> dict[
 
 
 def summarize_common_visibility(
-    by_code: dict[str, list[dict]],
+    by_code: dict[str, list[dict[str, Any]]],
     *,
-    predicate,
+    predicate: Callable[[int], bool],
     page_size: int,
     selection_window_size: int,
 ) -> dict[str, float | int]:
@@ -657,9 +660,9 @@ def summarize_common_visibility(
 
 
 def summarize_weighted_visibility(
-    by_code: dict[str, list[dict]],
+    by_code: dict[str, list[dict[str, Any]]],
     *,
-    predicate,
+    predicate: Callable[[int], bool],
     page_size: int,
     selection_window_size: int,
 ) -> dict[str, float | int]:
@@ -703,7 +706,7 @@ def summarize_weighted_visibility(
     }
 
 
-def build_char_tier_sets(by_code: dict[str, list[dict]]) -> dict[str, set[str]]:
+def build_char_tier_sets(by_code: dict[str, list[dict[str, Any]]]) -> dict[str, set[str]]:
     char_peak_weights: dict[str, float] = {}
     for entries in by_code.values():
         for entry in entries:
@@ -716,23 +719,23 @@ def build_char_tier_sets(by_code: dict[str, list[dict]]) -> dict[str, set[str]]:
                 char_peak_weights[text] = weight
 
     ranked_chars = sorted(char_peak_weights.items(), key=lambda item: (-item[1], item[0]))
-    tiers = {"all": {text for text, _weight in ranked_chars}}
-    for tier_key, tier_size, _tier_label in CHAR_TIER_DEFS:
-        tiers[tier_key] = {text for text, _weight in ranked_chars[:tier_size]}
+    tiers = {"all": {text for text, _ in ranked_chars}}
+    for tier_key, tier_size, _ in CHAR_TIER_DEFS:
+        tiers[tier_key] = {text for text, _ in ranked_chars[:tier_size]}
     return tiers
 
 
 def summarize_tier_metrics(
-    by_code: dict[str, list[dict]],
+    by_code: dict[str, list[dict[str, Any]]],
     *,
     char_set: set[str],
     page_size: int,
     selection_window_size: int,
-) -> dict[str, float | int]:
+) -> dict[str, Any]:
     counts: list[int] = []
     row_count = 0
 
-    def predicate(entry: dict) -> bool:
+    def predicate(entry: dict[str, Any]) -> bool:
         return int(entry.get("text_length", 0)) == 1 and str(entry.get("text", "")) in char_set
 
     for entries in by_code.values():
@@ -742,15 +745,9 @@ def summarize_tier_metrics(
         counts.append(len(filtered))
         row_count += len(filtered)
 
-    result = summarize_counts(counts, row_count, page_size)
+    result: dict[str, Any] = summarize_counts(counts, row_count, page_size)
     result["share_le_9"] = sum(1 for count in counts if count <= 9) / len(counts) if counts else 0.0
     result["char_count"] = len(char_set)
-    result["weighted_visibility"] = summarize_weighted_visibility(
-        by_code,
-        predicate=lambda text_length: False,
-        page_size=page_size,
-        selection_window_size=selection_window_size,
-    )
 
     weighted_candidate_sum = 0.0
     weighted_top1_sum = 0.0
@@ -791,11 +788,11 @@ def summarize_tier_metrics(
 
 
 def summarize_code_length_baseline(
-    by_code: dict[str, list[dict]],
+    by_code: dict[str, list[dict[str, Any]]],
     *,
-    predicate,
+    predicate: Callable[[dict[str, Any]], bool],
     yinjie_codebook: dict[str, str],
-    runtime_symbol_metadata: dict[str, object],
+    runtime_symbol_metadata: dict[str, Any],
 ) -> dict[str, float | int]:
     weighted_sum = 0.0
     yime_full_sum = 0.0
@@ -854,12 +851,12 @@ def summarize_code_length_baseline(
 
 
 def build_top_examples(
-    by_code: dict[str, list[dict]],
+    by_code: dict[str, list[dict[str, Any]]],
     *,
-    predicate,
+    predicate: Callable[[int], bool],
     limit: int,
-) -> list[dict[str, object]]:
-    examples = []
+) -> list[dict[str, Any]]:
+    examples: list[dict[str, Any]] = []
     for code, entries in by_code.items():
         filtered = [entry for entry in entries if predicate(int(entry.get("text_length", 0)))]
         if not filtered:
@@ -882,9 +879,9 @@ def build_top_examples(
     )[:limit]
 
 
-def build_payload(report: dict, page_size: int, db_path: Path) -> dict[str, object]:
-    metadata = report.get("metadata", {})
-    by_code = report.get("by_code", {})
+def build_payload(report: dict[str, Any], page_size: int, db_path: Path) -> dict[str, Any]:
+    metadata: dict[str, Any] = report.get("metadata", {})
+    by_code: dict[str, list[dict[str, Any]]] = report.get("by_code", {})
     yinjie_codebook = load_json(DEFAULT_YINJIE_CODEBOOK)
     runtime_symbol_metadata = load_runtime_symbol_metadata(DEFAULT_RUNTIME_SYMBOL_MAPPING)
 
@@ -893,7 +890,7 @@ def build_payload(report: dict, page_size: int, db_path: Path) -> dict[str, obje
     char_rows = 0
     phrase_rows = 0
 
-    for _code, entries in by_code.items():
+    for entries in by_code.values():
         char_entries = [entry for entry in entries if entry.get("text_length") == 1]
         phrase_entries = [entry for entry in entries if entry.get("text_length", 0) > 1]
         if char_entries:
@@ -1045,7 +1042,7 @@ def make_metric_row(label: str, metrics: dict[str, float | int], page_size: int)
     )
 
 
-def make_tier_row(label: str, metrics: dict[str, object], selection_window_size: int) -> str:
+def make_tier_row(label: str, metrics: dict[str, Any]) -> str:
     visibility = metrics["weighted_visibility"]
     return (
         f"| {label} | {metrics['char_count']} | {metrics['code_bucket_count']} | {metrics['max_per_code']} | "
@@ -1062,7 +1059,7 @@ def make_code_length_row(label: str, metrics: dict[str, float | int]) -> str:
     )
 
 
-def build_markdown(payload: dict[str, object]) -> str:
+def build_markdown(payload: dict[str, Any]) -> str:
     headline = payload["headline"]
     char_metrics = payload["char_metrics"]
     phrase_metrics = payload["phrase_metrics"]
@@ -1079,15 +1076,34 @@ def build_markdown(payload: dict[str, object]) -> str:
     page_size = headline["page_thresholds"]["current_page_size"]
     selection_window_size = headline["page_thresholds"]["selection_window_size"]
     generated_at = payload["generated_at"]
-    tier_step = float((char_usage_tier_summary or {}).get("tier_step", 0.0) or 0.0)
-    top100_share = float((char_frequency_profile_summary or {}).get("top100_frequency_share", 0.0) or 0.0)
-    synthetic_share = float((char_frequency_profile_summary or {}).get("synthetic_frequency_share", 0.0) or 0.0)
-    bcc_source_rows = [
-        row
-        for row in (char_frequency_profile_summary or {}).get("source_rows", [])
-        if row.get("frequency_source") == "external_data/BCC-word-freq"
+    char_usage_tier_summary_obj: dict[str, Any] = {}
+    if isinstance(char_usage_tier_summary, Mapping):
+        for key, value in cast(Mapping[object, Any], char_usage_tier_summary).items():
+            char_usage_tier_summary_obj[str(key)] = value
+
+    char_frequency_profile_summary_obj: dict[str, Any] = {}
+    if isinstance(char_frequency_profile_summary, Mapping):
+        for key, value in cast(Mapping[object, Any], char_frequency_profile_summary).items():
+            char_frequency_profile_summary_obj[str(key)] = value
+    tier_step = float(char_usage_tier_summary_obj.get("tier_step", 0.0) or 0.0)
+    top100_share = float(char_frequency_profile_summary_obj.get("top100_frequency_share", 0.0) or 0.0)
+    synthetic_share = float(char_frequency_profile_summary_obj.get("synthetic_frequency_share", 0.0) or 0.0)
+
+    source_rows_obj = char_frequency_profile_summary_obj.get("source_rows", [])
+    source_rows: list[dict[str, Any]] = []
+    if isinstance(source_rows_obj, list):
+        for raw_row in cast(list[object], source_rows_obj):
+            if isinstance(raw_row, Mapping):
+                row = cast(Mapping[object, Any], raw_row)
+                normalized_row: dict[str, Any] = {}
+                for key, value in row.items():
+                    normalized_row[str(key)] = value
+                source_rows.append(normalized_row)
+
+    bcc_source_rows: list[dict[str, Any]] = [
+        row for row in source_rows if str(row.get("frequency_source", "")) == "external_data/BCC-word-freq"
     ]
-    bcc_char_count = int(bcc_source_rows[0]["count"]) if bcc_source_rows else 0
+    bcc_char_count = int(bcc_source_rows[0].get("count", 0) or 0) if bcc_source_rows else 0
 
     lines = [
         "# 效率基线报告",
@@ -1139,10 +1155,10 @@ def build_markdown(payload: dict[str, object]) -> str:
         "",
         f"| 层级 | 覆盖字形数 | 编码桶数 | 最大同码数 | 加权首选命中率 | 加权首屏可见率 | 加权 1-{selection_window_size} 可见率 | 首选即最高权重桶占比 |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
-        make_tier_row("一级字（前 3500）", char_tiers["level_1"], selection_window_size),
-        make_tier_row("二级前字（前 6500）", char_tiers["level_2"], selection_window_size),
-        make_tier_row("三级前字（前 8105）", char_tiers["level_3"], selection_window_size),
-        make_tier_row("单字全量", char_tiers["all"], selection_window_size),
+        make_tier_row("一级字（前 3500）", char_tiers["level_1"]),
+        make_tier_row("二级前字（前 6500）", char_tiers["level_2"]),
+        make_tier_row("三级前字（前 8105）", char_tiers["level_3"]),
+        make_tier_row("单字全量", char_tiers["all"]),
         "",
         "## 单字排序策略对比",
         "",

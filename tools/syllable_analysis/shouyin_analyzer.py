@@ -4,6 +4,7 @@
 """
 import json
 from pathlib import Path
+from typing import Any, cast
 
 from syllable.analysis.zaoyin_yinyuan import ClearNoise, VoicedNoise
 from syllable.analysis.syllable_splitter import SyllableSplitter
@@ -19,7 +20,7 @@ VOICED_INITIALS = {
 }
 
 
-def map_shouyin_to_ipa(initial=None):
+def map_shouyin_to_ipa(initial: str | None = None) -> dict[str, list[str]] | list[str]:
     """
     把首音映射到音标
     参数:
@@ -30,10 +31,11 @@ def map_shouyin_to_ipa(initial=None):
     try:
         # 尝试从配置文件中读取映射关系
         with (YINYUAN_DIR / 'initial_ipa.json').open('r', encoding='utf-8') as f:
-            initial_ipa_mapping = json.load(f).get('initial', {})
+            loaded = cast(dict[str, Any], json.load(f))
+            initial_ipa_mapping = cast(dict[str, list[str]], loaded.get('initial', {}))
     except (FileNotFoundError, json.JSONDecodeError, KeyError):
         # 如果文件不存在或格式不正确，使用内置的默认映射
-        initial_ipa_mapping = {
+        initial_ipa_mapping: dict[str, list[str]] = {
             'b': ['p'],
             'p': ['pʰ'],
             'f': ['f'],
@@ -65,13 +67,13 @@ def map_shouyin_to_ipa(initial=None):
     return initial_ipa_mapping.get(initial, [])
 
 
-def create_uncertain_pitch_pianyin():
+def create_uncertain_pitch_pianyin() -> dict[str, dict[str, list[str]]]:
     """创建噪音对象并分类为清音和浊音"""
-    voiceless = {}
-    voiced = {}
+    voiceless: dict[str, list[str]] = {}
+    voiced: dict[str, list[str]] = {}
 
     # 获取所有可能的声母
-    initial_ipa_mapping = map_shouyin_to_ipa()
+    initial_ipa_mapping = cast(dict[str, list[str]], map_shouyin_to_ipa())
     all_initials = VOICED_INITIALS.union(set(initial_ipa_mapping.keys()))
 
     for initial in all_initials:
@@ -95,12 +97,12 @@ def merge_shouyin_data():
     2. 用map_shouyin_to_ipa中的音标列表替换匹配的声母音标
     """
     # 获取所有可能的声母
-    initial_ipa_mapping = map_shouyin_to_ipa()
+    initial_ipa_mapping = cast(dict[str, list[str]], map_shouyin_to_ipa())
     initials = VOICED_INITIALS.union(set(initial_ipa_mapping.keys()))
 
     # 生成原始首音数据 - 创建一个模拟的拼音字典，只包含声母
     mock_pinyin_data = {initial: initial for initial in initials}
-    shouyin_data = SyllableSplitter.generate_shouyin_data(mock_pinyin_data)
+    shouyin_data = cast(dict[str, list[str]], SyllableSplitter.generate_shouyin_data(mock_pinyin_data))
 
     # 替换匹配的声母音标，保持原始列表形式
     for initial in initials:
@@ -115,7 +117,7 @@ def main():
     """主函数，执行首音分析流程"""
     try:
         # 1. 生成并合并首音数据
-        shouyin_data = merge_shouyin_data()
+        merge_shouyin_data()
 
         # 2. 使用UnpitchedPianyin类验证噪音数据并分类
         classified_noise = create_uncertain_pitch_pianyin()
@@ -125,13 +127,17 @@ def main():
         pianyin_initial_path = YINYUAN_DIR / 'pianyin_initial.json'
 
         with pianyin_initial_path.open('r', encoding='utf-8') as f:
-            pianyin_initial = json.load(f)
+            pianyin_initial = cast(dict[str, Any], json.load(f))
+
+        name = str(pianyin_initial.get("name", ""))
+        description = str(pianyin_initial.get("description", ""))
+        note = str(pianyin_initial.get("note", ""))
 
         # 4. 更新噪音部分并保留元数据
-        output = {
-            "name": pianyin_initial["name"],
-            "description": pianyin_initial["description"],
-            "note": pianyin_initial["note"],
+        output: dict[str, object] = {
+            "name": name,
+            "description": description,
+            "note": note,
             "uncertain_pitch_pianyin": classified_noise
         }
 

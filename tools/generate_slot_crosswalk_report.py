@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import sqlite3
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -18,8 +19,37 @@ OUTPUT_MD_PATH = ROOT / "internal_data" / "slot_symbol_crosswalk.md"
 OUTPUT_TABLE = "slot_xw"
 
 
-def load_json(path: Path) -> object:
+def load_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def ensure_dict(value: Any) -> dict[str, Any]:
+    if isinstance(value, dict):
+        result: dict[str, Any] = {}
+        for key, item in cast(dict[Any, Any], value).items():
+            if isinstance(key, str):
+                result[key] = item
+        return result
+    return {}
+
+
+def ensure_dict_list(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        return []
+    result: list[dict[str, Any]] = []
+    for item in cast(list[Any], value):
+        if isinstance(item, dict):
+            result.append(ensure_dict(item))
+    return result
+
+
+def ensure_str_map(value: Any) -> dict[str, str]:
+    data = ensure_dict(value)
+    result: dict[str, str] = {}
+    for key, item in data.items():
+        if isinstance(item, str):
+            result[key] = item
+    return result
 
 
 def format_codepoint(value: str) -> str:
@@ -30,14 +60,14 @@ def format_codepoint(value: str) -> str:
 def build_label_index() -> dict[str, str]:
     labels: dict[str, str] = {}
 
-    shouyin_payload = load_json(SHOUYIN_PATH)
-    shouyin_map = shouyin_payload.get("首音", {})
+    shouyin_payload = ensure_dict(load_json(SHOUYIN_PATH))
+    shouyin_map = ensure_dict(shouyin_payload.get("首音", {}))
     for label, char in shouyin_map.items():
         labels[str(char)] = str(label)
 
-    yinyuan_payload = load_json(YINYUAN_PATH)
+    yinyuan_payload = ensure_dict(load_json(YINYUAN_PATH))
     for namespace in ("zaoyin", "yueyin"):
-        namespace_map = yinyuan_payload.get(namespace, {})
+        namespace_map = ensure_dict(yinyuan_payload.get(namespace, {}))
         for label, char in namespace_map.items():
             labels[str(char)] = str(label)
 
@@ -45,21 +75,20 @@ def build_label_index() -> dict[str, str]:
 
 
 def build_physical_key_index() -> dict[str, list[str]]:
-    payload = load_json(LAYOUT_PATH)
-    layers = payload.get("layers", [])
+    payload = ensure_dict(load_json(LAYOUT_PATH))
+    layers = ensure_dict_list(payload.get("layers", []))
     physical: dict[str, list[str]] = {}
 
     for entry in layers:
-        if not isinstance(entry, dict):
+        slot_key_value = entry.get("symbol_key")
+        if not isinstance(slot_key_value, str) or not slot_key_value:
             continue
-        slot_key = entry.get("symbol_key")
-        if not slot_key:
-            continue
+        slot_key = slot_key_value
         physical_key = str(entry.get("physical_key", "")).strip()
         output_layer = str(entry.get("output_layer", "")).strip()
         display_label = str(entry.get("display_label", "")).strip()
         binding = f"{physical_key}:{output_layer}:{display_label}"
-        physical.setdefault(str(slot_key), []).append(binding)
+        physical.setdefault(slot_key, []).append(binding)
 
     for bindings in physical.values():
         bindings.sort()
@@ -68,20 +97,19 @@ def build_physical_key_index() -> dict[str, list[str]]:
 
 
 def build_display_label_index() -> dict[str, list[str]]:
-    payload = load_json(LAYOUT_PATH)
-    layers = payload.get("layers", [])
+    payload = ensure_dict(load_json(LAYOUT_PATH))
+    layers = ensure_dict_list(payload.get("layers", []))
     labels: dict[str, list[str]] = {}
 
     for entry in layers:
-        if not isinstance(entry, dict):
+        slot_key_value = entry.get("symbol_key")
+        if not isinstance(slot_key_value, str) or not slot_key_value:
             continue
-        slot_key = entry.get("symbol_key")
-        if not slot_key:
-            continue
+        slot_key = slot_key_value
         display_label = str(entry.get("display_label", "")).strip()
         if not display_label:
             continue
-        labels.setdefault(str(slot_key), []).append(display_label)
+        labels.setdefault(slot_key, []).append(display_label)
 
     for items in labels.values():
         items.sort()
@@ -94,21 +122,21 @@ def slot_sort_key(slot_key: str) -> tuple[int, int]:
     return (prefix, int(slot_key[1:]))
 
 
-def build_rows() -> list[dict[str, object]]:
-    runtime_map = load_json(RUNTIME_PATH)
-    canonical_map = load_json(CANONICAL_PATH)
-    projection_payload = load_json(PROJECTION_PATH)
-    projection_map = projection_payload.get("used_mapping", {})
+def build_rows() -> list[dict[str, Any]]:
+    runtime_map = ensure_str_map(load_json(RUNTIME_PATH))
+    canonical_map = ensure_str_map(load_json(CANONICAL_PATH))
+    projection_payload = ensure_dict(load_json(PROJECTION_PATH))
+    projection_map = ensure_dict(projection_payload.get("used_mapping", {}))
 
     label_index = build_label_index()
     physical_index = build_physical_key_index()
     display_label_index = build_display_label_index()
 
     slot_keys = sorted(projection_map.keys(), key=slot_sort_key)
-    rows: list[dict[str, object]] = []
+    rows: list[dict[str, Any]] = []
 
     for slot_key in slot_keys:
-        projection_entry = projection_map.get(slot_key, {})
+        projection_entry = ensure_dict(projection_map.get(slot_key, {}))
         runtime_char = runtime_map.get(slot_key)
         projection_char = projection_entry.get("char")
         canonical_char = canonical_map.get(slot_key)
@@ -158,7 +186,7 @@ def build_rows() -> list[dict[str, object]]:
     return rows
 
 
-def build_payload(rows: list[dict[str, object]]) -> dict[str, object]:
+def build_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     runtime_projection_mismatches = sum(1 for row in rows if not row["projection_matches_runtime"])
     bmp_canonical_differences = sum(
         1 for row in rows if row["layer_relation"] == "runtime_bmp_differs_from_canonical"
@@ -180,7 +208,7 @@ def build_payload(rows: list[dict[str, object]]) -> dict[str, object]:
     }
 
 
-def build_markdown(rows: list[dict[str, object]], payload: dict[str, object]) -> str:
+def build_markdown(rows: list[dict[str, Any]], payload: dict[str, Any]) -> str:
     metadata = payload["metadata"]
     lines = [
         "# Slot Symbol Crosswalk",
@@ -217,7 +245,7 @@ def build_markdown(rows: list[dict[str, object]], payload: dict[str, object]) ->
     return "\n".join(lines) + "\n"
 
 
-def write_sqlite(rows: list[dict[str, object]]) -> None:
+def write_sqlite(rows: list[dict[str, Any]]) -> None:
     conn = sqlite3.connect(DB_PATH)
     try:
         cur = conn.cursor()

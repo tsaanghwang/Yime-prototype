@@ -6,6 +6,7 @@ import json
 import shutil
 import tempfile
 from pathlib import Path
+from typing import cast
 
 from yime.input_method.app_base import BaseInputMethodApp
 from yime.input_method.utils.user_lexicon import UserLexiconStore
@@ -47,7 +48,8 @@ def build_probe_app(app_dir: Path) -> BaseInputMethodApp:
 
 def run_seed_import(app_dir: Path) -> tuple[dict[str, int], UserLexiconStore]:
     app = build_probe_app(app_dir)
-    result = BaseInputMethodApp._maybe_import_seed_user_lexicon(app)
+    maybe_import_seed = getattr(BaseInputMethodApp, "_maybe_import_seed_user_lexicon")
+    result = maybe_import_seed(app)
     return result, app.user_lexicon_store
 
 
@@ -59,8 +61,10 @@ def copy_seed(seed_path: Path, app_dir: Path) -> Path:
 
 
 def count_seed_phrases(seed_path: Path) -> int:
-    payload = json.loads(seed_path.read_text(encoding="utf-8"))
-    phrase_entries = payload.get("phrase_entries") or []
+    payload_raw = json.loads(seed_path.read_text(encoding="utf-8"))
+    payload: dict[str, object] = cast(dict[str, object], payload_raw) if isinstance(payload_raw, dict) else {}
+    phrase_entries_raw: object = payload.get("phrase_entries")
+    phrase_entries = cast(list[object], phrase_entries_raw) if isinstance(phrase_entries_raw, list) else []
     return len(phrase_entries)
 
 
@@ -87,12 +91,12 @@ def scenario_missing_db(seed_path: Path, install_root: Path, expected_phrase_cou
     )
 
 
-def scenario_precreated_empty_db(
+def scenario_empty_db_initialized(
     seed_path: Path,
     install_root: Path,
     expected_phrase_count: int,
 ) -> None:
-    app_dir = install_root / "scenario_precreated_empty_db" / "yime"
+    app_dir = install_root / "scenario_empty_db_initialized" / "yime"
     copy_seed(seed_path, app_dir)
     UserLexiconStore(app_dir / "user_lexicon.db")
     result, store = run_seed_import(app_dir)
@@ -147,7 +151,7 @@ def main() -> None:
         print(f"acceptance_install_root={install_root}")
 
         scenario_missing_db(seed_path, install_root, expected_phrase_count)
-        scenario_precreated_empty_db(seed_path, install_root, expected_phrase_count)
+        scenario_empty_db_initialized(seed_path, install_root, expected_phrase_count)
         scenario_second_launch_no_reimport(seed_path, install_root, expected_phrase_count)
 
         if args.keep_temp:

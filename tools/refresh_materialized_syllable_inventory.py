@@ -6,6 +6,7 @@ from pathlib import Path
 
 from yime.asset_paths import resolve_source_pinyin_db_path
 
+# cspell:ignore zcsr jqxy uēng uéng uěng uèng
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DB_PATH = resolve_source_pinyin_db_path(ROOT)

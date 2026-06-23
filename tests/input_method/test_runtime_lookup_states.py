@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any, cast
+
 from yime.input_method.core.char_code_index import CharCodeIndex
 from yime.input_method.core.decoders import RuntimeCandidateDecoder
 from yime.input_method.core.runtime_lookup import build_runtime_lookup_plan
@@ -9,13 +11,14 @@ def _build_runtime_decoder() -> RuntimeCandidateDecoder:
     runtime_decoder = RuntimeCandidateDecoder.__new__(RuntimeCandidateDecoder)
     runtime_decoder.bmp_to_canonical = {}
     runtime_decoder.numeric_to_marked_pinyin = {}
-    runtime_decoder._user_freq_by_candidate = {}
-    runtime_decoder._local_phrase_priority_rules = {}
-    runtime_decoder._continuous_input_priority_rules = {}
-    runtime_decoder.by_code = {}
-    runtime_decoder._char_sort_weight_by_text = {}
-    runtime_decoder._phrase_prefix_index = {}
-    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(runtime_decoder.by_code)
+    cast(Any, runtime_decoder)._user_freq_by_candidate = {}
+    cast(Any, runtime_decoder)._local_phrase_priority_rules = {}
+    cast(Any, runtime_decoder)._continuous_input_priority_rules = {}
+    by_code: dict[str, list[dict[str, Any]]] = {}
+    runtime_decoder.by_code = by_code
+    cast(Any, runtime_decoder)._char_sort_weight_by_text = {}
+    cast(Any, runtime_decoder)._phrase_prefix_index = {}
+    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(by_code)
     return runtime_decoder
 
 
@@ -60,7 +63,7 @@ def test_build_runtime_lookup_plan_marks_continuous_input_states() -> None:
 
 def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket() -> None:
     runtime_decoder = _build_runtime_decoder()
-    runtime_decoder.by_code = {
+    by_code: dict[str, list[dict[str, Any]]] = {
         "abcd": [
             {
                 "text": "你",
@@ -73,7 +76,8 @@ def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket()
             }
         ]
     }
-    runtime_decoder._phrase_prefix_index = {
+    runtime_decoder.by_code = by_code
+    cast(Any, runtime_decoder)._phrase_prefix_index = {
         "abcdxy": [
             {
                 "text": "你好啊",
@@ -86,7 +90,7 @@ def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket()
             }
         ]
     }
-    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(runtime_decoder.by_code)
+    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(by_code)
 
     _canonical, _active, _pinyin, candidates, _status = runtime_decoder.decode_text("abcdxy")
 
@@ -95,7 +99,7 @@ def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket()
 
 def test_phrase_prefix_pool_limits_differ_between_recent_and_long_context() -> None:
     runtime_decoder = _build_runtime_decoder()
-    runtime_decoder._phrase_prefix_index = {
+    cast(Any, runtime_decoder)._phrase_prefix_index = {
         "abcd": [
             {
                 "text": f"词{index:02d}",
@@ -167,7 +171,7 @@ def test_phrase_prefix_pool_limits_differ_between_recent_and_long_context() -> N
 
 def test_stage_b_keeps_a_rare_char_representative_on_second_page_for_dense_exact_bucket() -> None:
     runtime_decoder = _build_runtime_decoder()
-    runtime_decoder._phrase_prefix_index = {
+    cast(Any, runtime_decoder)._phrase_prefix_index = {
         "abcd": [
             {
                 "text": f"词{index:02d}",
@@ -181,7 +185,7 @@ def test_stage_b_keeps_a_rare_char_representative_on_second_page_for_dense_exact
             for index in range(5)
         ]
     }
-    runtime_decoder.by_code = {
+    by_code: dict[str, list[dict[str, Any]]] = {
         "abcd": [
             {
                 "text": chr(0x4E00 + index),
@@ -208,7 +212,10 @@ def test_stage_b_keeps_a_rare_char_representative_on_second_page_for_dense_exact
             }
         ]
     }
-    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(runtime_decoder.by_code)
+    runtime_decoder.by_code = by_code
+    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(
+        by_code
+    )
 
     _canonical, _active, _pinyin, candidates, _status = runtime_decoder.decode_text("abcd")
 

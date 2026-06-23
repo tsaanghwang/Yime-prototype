@@ -4,8 +4,10 @@ import ctypes
 import importlib
 import sys
 
+import pytest
 
-def test_user_lexicon_import_does_not_require_windll(monkeypatch) -> None:
+
+def test_user_lexicon_import_does_not_require_windll(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delattr(ctypes, "WinDLL", raising=False)
 
     for module_name in (

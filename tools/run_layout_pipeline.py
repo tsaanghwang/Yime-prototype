@@ -5,6 +5,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,14 +25,18 @@ DEFAULT_MSKLC_PATH = Path(r"C:\Program Files (x86)\Microsoft Keyboard Layout Cre
 
 
 def validate_required_paths(args: argparse.Namespace) -> None:
-    required_paths = [
+    layout = cast(Path, args.layout)
+    symbols = cast(Path, args.symbols)
+    export_visual_table = cast(bool, args.export_visual_table)
+
+    required_paths: list[Path] = [
         CONSISTENCY_SCRIPT,
         RESOLVE_SCRIPT,
         GENERATE_KLC_SCRIPT,
-        args.layout,
-        args.symbols,
+        layout,
+        symbols,
     ]
-    if args.export_visual_table:
+    if export_visual_table:
         required_paths.append(EXPORT_VISUAL_SCRIPT)
 
     missing_paths = [path for path in required_paths if not path.exists()]
@@ -45,15 +50,24 @@ def run_step(title: str, command: list[str]) -> None:
     subprocess.run(command, check=True, cwd=ROOT)
 
 
-def load_json(path: Path) -> dict:
+def load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
+def coerce_string_list(value: object) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    items = cast(list[object], value)
+    return [str(item) for item in items]
+
+
 def resolve_warning_policy(args: argparse.Namespace) -> str:
-    if args.fail_on_warning:
+    fail_on_warning = cast(bool, args.fail_on_warning)
+    on_warning = cast(str, args.on_warning)
+    if fail_on_warning:
         return "stop"
-    return args.on_warning
+    return on_warning
 
 
 def prompt_on_warning(notes: list[str]) -> None:
@@ -66,7 +80,7 @@ def prompt_on_warning(notes: list[str]) -> None:
         raise SystemExit(1)
 
     while True:
-        answer = input("Warnings found. Continue anyway? [c]ontinue / [s]top: ").strip().lower()
+        answer = input("Warnings found. Continue anyway? [c]continue / [s]stop: ").strip().lower()
         if answer in {"c", "continue"}:
             return
         if answer in {"s", "stop", "n", "no"}:
@@ -76,7 +90,7 @@ def prompt_on_warning(notes: list[str]) -> None:
 
 
 def resolve_open_policy(args: argparse.Namespace) -> str:
-    return args.open_msklc
+    return cast(str, args.open_msklc)
 
 
 def prompt_open_msklc(klc_path: Path, msklc_path: Path) -> bool:
@@ -129,8 +143,10 @@ def maybe_open_msklc(klc_path: Path, msklc_path: Path, open_policy: str) -> None
 def enforce_consistency_status(report_path: Path, warning_policy: str) -> None:
     report = load_json(report_path)
     status = report.get("status")
-    notes = report.get("notes", [])
-    issues = report.get("issues", [])
+
+    notes = coerce_string_list(report.get("notes", []))
+
+    issues = coerce_string_list(report.get("issues", []))
 
     if status == "error":
         print("Consistency check reported error status. Pipeline stopped.")
@@ -240,57 +256,69 @@ def main() -> int:
     warning_policy = resolve_warning_policy(args)
     open_policy = resolve_open_policy(args)
 
+    layout = cast(Path, args.layout)
+    symbols = cast(Path, args.symbols)
+    resolved_layout = cast(Path, args.resolved_layout)
+    consistency_report = cast(Path, args.consistency_report)
+    ignore_stale_artifacts = cast(bool, args.ignore_stale_artifacts)
+    symbol_mode = cast(str, args.symbol_mode)
+    ligature_mode = cast(str, args.ligature_mode)
+    keyboard_name = cast(str, args.keyboard_name)
+    keyboard_description = cast(str, args.keyboard_description)
+    export_visual_table = cast(bool, args.export_visual_table)
+    msklc_path = cast(Path, args.msklc_path)
+
     consistency_command = [
         str(python_executable),
         str(CONSISTENCY_SCRIPT),
         "--layout",
-        str(args.layout),
+        str(layout),
         "--symbols",
-        str(args.symbols),
+        str(symbols),
         "--resolved-layout",
-        str(args.resolved_layout),
+        str(resolved_layout),
         "--json-output",
-        str(args.consistency_report),
+        str(consistency_report),
     ]
-    if args.ignore_stale_artifacts:
+    if ignore_stale_artifacts:
         consistency_command.append("--ignore-stale-artifacts")
 
     resolve_command = [
         str(python_executable),
         str(RESOLVE_SCRIPT),
         "--layout",
-        str(args.layout),
+        str(layout),
         "--symbols",
-        str(args.symbols),
+        str(symbols),
         "--output",
-        str(args.resolved_layout),
+        str(resolved_layout),
     ]
 
     generate_klc_command = [
         str(python_executable),
         str(GENERATE_KLC_SCRIPT),
         "--symbol-mode",
-        args.symbol_mode,
+        symbol_mode,
         "--ligature-mode",
-        args.ligature_mode,
+        ligature_mode,
         "--keyboard-name",
-        args.keyboard_name,
+        keyboard_name,
         "--keyboard-description",
-        args.keyboard_description,
+        keyboard_description,
     ]
 
     run_step("1/4 consistency", consistency_command)
-    enforce_consistency_status(args.consistency_report, warning_policy)
+    enforce_consistency_status(consistency_report, warning_policy)
     run_step("2/4 resolve", resolve_command)
     run_step("3/4 generate-klc", generate_klc_command)
 
-    if args.export_visual_table:
+    if export_visual_table:
         export_visual_command = [str(python_executable), str(EXPORT_VISUAL_SCRIPT)]
         run_step("4/4 export-visual", export_visual_command)
     else:
         print("[4/4 export-visual] skipped")
 
-    maybe_open_msklc(DEFAULT_KLC_PATH, args.msklc_path, open_policy)
+    maybe_open_msklc(DEFAULT_KLC_PATH, msklc_path, open_policy)
 
     print("Layout pipeline completed.")
     return 0

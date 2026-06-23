@@ -5,6 +5,7 @@
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 # 添加项目根目录到路径
 project_root = Path(__file__).resolve().parents[2]
@@ -20,7 +21,7 @@ def test_keyboard_listener():
     print("\n检查依赖:")
 
     try:
-        import win32api
+        __import__("win32api")
         print("[OK] pywin32 已安装")
         has_win32 = True
     except ImportError:
@@ -28,7 +29,7 @@ def test_keyboard_listener():
         has_win32 = False
 
     try:
-        import pyHook
+        __import__("pyHook")
         print("[OK] pyHook 已安装")
         has_pyhook = True
     except ImportError:
@@ -36,7 +37,7 @@ def test_keyboard_listener():
         has_pyhook = False
 
     try:
-        from pynput import keyboard
+        __import__("pynput")
         print("[OK] pynput 已安装")
         has_pynput = True
     except ImportError:
@@ -54,9 +55,9 @@ def test_keyboard_listener():
         from yime.input_method.core.keyboard_listener import KeyboardListener
 
         # 创建回调
-        key_presses = []
+        key_presses: list[dict[str, Any]] = []
 
-        def on_key_press(key_info):
+        def on_key_press(key_info: dict[str, Any]) -> bool:
             key_presses.append(key_info)
             print(f"  按键: {key_info.get('key')}")
             return True  # 继续传递

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import cast
 
 from yime.input_method.utils.user_lexicon import (
     UserLexiconStore,
@@ -33,7 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    init_db = subparsers.add_parser("init-db", help="显式创建空用户词库文件。")
+    subparsers.add_parser("init-db", help="显式创建空用户词库文件。")
 
     list_phrases = subparsers.add_parser("list-phrases", help="列出用户词条。")
     list_phrases.add_argument("term", nargs="?", default="", help="可选，按词语过滤。")
@@ -123,19 +124,21 @@ def collect_import_normalization_examples(
     limit: int = 5,
 ) -> list[str]:
     examples: list[str] = []
-    phrase_entries = payload.get("phrase_entries") or []
-    if not isinstance(phrase_entries, list):
+    raw_phrase_entries = payload.get("phrase_entries")
+    if not isinstance(raw_phrase_entries, list):
         return examples
+    phrase_entries = cast(list[object], raw_phrase_entries)
 
     for raw_entry in phrase_entries:
         if not isinstance(raw_entry, dict):
             continue
-        raw_numeric = str(raw_entry.get("numeric_pinyin") or "")
+        entry = cast(dict[str, object], raw_entry)
+        raw_numeric = str(entry.get("numeric_pinyin") or "")
         normalized_numeric = normalize_numeric_pinyin_syllable_spacing(raw_numeric)
         raw_trimmed = " ".join(raw_numeric.split())
         if not normalized_numeric or normalized_numeric == raw_trimmed:
             continue
-        phrase = str(raw_entry.get("phrase") or "").strip()
+        phrase = str(entry.get("phrase") or "").strip()
         examples.append(
             f"phrase={phrase} raw_numeric_pinyin={raw_trimmed} normalized_numeric_pinyin={normalized_numeric}"
         )
@@ -234,9 +237,10 @@ def main() -> None:
         return
     if args.command == "import":
         input_path = Path(args.input).resolve()
-        payload = json.loads(input_path.read_text(encoding="utf-8"))
-        if not isinstance(payload, dict):
+        loaded_payload: object = json.loads(input_path.read_text(encoding="utf-8"))
+        if not isinstance(loaded_payload, dict):
             raise ValueError("导入文件格式无效：顶层必须是 JSON object")
+        payload = cast(dict[str, object], loaded_payload)
         normalized_examples = collect_import_normalization_examples(payload)
         result = store.import_payload(
             payload,

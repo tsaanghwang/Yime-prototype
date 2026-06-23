@@ -3,7 +3,6 @@
 """
 
 import sys
-import time
 from pathlib import Path
 
 # 添加项目根目录到路径
@@ -83,7 +82,7 @@ def test_decoder_functionality():
 
         for test_input, desc in test_cases:
             try:
-                result = decoder.decode_text(test_input)
+                decoder.decode_text(test_input)
                 print(f"[PASS] 解码测试: {desc}")
             except Exception as e:
                 print(f"[FAIL] 解码测试 {desc}: {e}")
@@ -105,13 +104,13 @@ def test_input_manager():
     try:
         from yime.input_method.core.input_manager import InputManager
 
-        updates = []
-        commits = []
+        updates: list[tuple[object, ...]] = []
+        commits: list[tuple[object, ...]] = []
 
-        def on_update(*args):
+        def on_update(*args: object) -> None:
             updates.append(args)
 
-        def on_commit(*args):
+        def on_commit(*args: object) -> None:
             commits.append(args)
 
         manager = InputManager(
@@ -146,7 +145,7 @@ def main():
     """运行所有测试"""
     print("开始测试输入法应用\n")
 
-    results = []
+    results: list[tuple[str, bool]] = []
 
     # 测试初始化
     results.append(("应用初始化", test_app_initialization()))

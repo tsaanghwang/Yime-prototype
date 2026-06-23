@@ -4,7 +4,7 @@
 
 目的：
 
-- 追踪 `syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json` 中干音乐音码元的来源链。
+- 追踪 `syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json` 中构成干音的乐音码元的来源链。
 - 对比运行时 `yueyin` 码元与当前布局侧 `M01-M33` 乐音槽位的对应关系。
 
 ## 一、来源链总表

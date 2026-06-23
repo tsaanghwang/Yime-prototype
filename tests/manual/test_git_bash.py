@@ -9,6 +9,7 @@ Git Bash 键盘响应测试
 import sys
 import io
 from pathlib import Path
+from typing import Any
 
 # 设置UTF-8输出
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -29,7 +30,6 @@ def test_git_bash_keyboard():
     # 1. 检查pynput
     print("1. 检查pynput")
     try:
-        import pynput
         from pynput import keyboard
         print("   pynput已安装")
     except ImportError:
@@ -41,7 +41,7 @@ def test_git_bash_keyboard():
     print("2. 检查键盘监听器")
     try:
         from yime.input_method.core.keyboard_listener import KeyboardListener
-        print("   KeyboardListener可导入")
+        print(f"   {KeyboardListener.__name__}可导入")
     except Exception as e:
         print(f"   导入失败: {e}")
         return
@@ -55,7 +55,7 @@ def test_git_bash_keyboard():
 
     key_count = [0]
 
-    def on_press(key):
+    def on_press(key: Any) -> None:
         key_count[0] += 1
         try:
             key_str = str(key)

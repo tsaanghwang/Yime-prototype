@@ -1,5 +1,6 @@
 import unittest
 from pathlib import Path
+from typing import cast
 
 from syllable.analysis.yinyuan_categories import YinyuanCategory
 from syllable.analysis.yueyin_mapper import YueyinMapper
@@ -52,7 +53,7 @@ class TestYinyuanRefactorFlow(unittest.TestCase):
         self.assertEqual(yueyin.pitch, "4")
 
         with self.assertRaises(ValueError):
-            YueyinYinyuan.from_pianyin(UnpitchedPianyin("p"))
+            YueyinYinyuan.from_pianyin(cast(PitchedPianyin, UnpitchedPianyin("p")))
 
 
 if __name__ == "__main__":

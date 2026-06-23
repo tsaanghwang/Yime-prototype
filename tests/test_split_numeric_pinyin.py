@@ -3,7 +3,7 @@ import unittest
 from syllable.analysis.syllable_splitter import SyllableSplitter
 
 
-def parse_numeric_tone_pinyin(pinyin_str: str) -> dict:
+def parse_numeric_tone_pinyin(pinyin_str: str) -> dict[str, str | int]:
     """Parse numeric-tone pinyin into initial, final, and tone (same rules as legacy importer)."""
     shouyin, ganyin = SyllableSplitter.split_syllable(pinyin_str)
     normalized_initial = "" if shouyin == "'" else shouyin
