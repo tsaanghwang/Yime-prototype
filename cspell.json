@@ -14,6 +14,11 @@
       "addWords": true
     },
     {
+      "name": "yime-wiki-terms",
+      "path": "./Yime.wiki/.cspell/yime-wiki-terms.txt",
+      "addWords": true
+    },
+    {
       "name": "yime-windows-terms",
       "path": "./.cspell/yime-windows-terms.txt",
       "addWords": true
@@ -28,6 +33,7 @@
     "yime-pinyin-normalized",
     "yime-domain-terms",
     "yime-windows-terms",
-    "yime-tooling-terms"
+    "yime-tooling-terms",
+    "yime-wiki-terms"
   ]
 }
