@@ -1,5 +1,5 @@
 @echo off
-chcp 65001 >nul
+mode con cp select=65001 >nul 2>&1
 cd /d "%~dp0\.."
 
 echo ============================================================
@@ -28,13 +28,13 @@ if exist venv312\Scripts\activate.bat (
     echo.
     echo Checking pywin32...
     python -c "import win32api; print('  OK - pywin32 installed')" 2>nul
-    if errorlevel 1 (
+    if %ERRORLEVEL% GEQ 1 (
         echo   Not installed. Run: pip install pywin32
     )
     echo.
     echo Checking pynput...
     python -c "import pynput; print('  OK - pynput installed')" 2>nul
-    if errorlevel 1 (
+    if %ERRORLEVEL% GEQ 1 (
         echo   Not installed. Run: pip install pynput
     )
     echo.

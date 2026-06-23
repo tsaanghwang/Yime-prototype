@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+# cSpell:words pathlib SPECPATH datas hiddenimports pathex hookspath hooksconfig noarchive
 
 from pathlib import Path
 
