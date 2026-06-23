@@ -41,6 +41,27 @@ scripts/run_tests.cmd
 pytest
 ```
 
+### 5. 维护 cSpell 词表
+
+仓库里的 cSpell 现在按 3 层管理，新增词时先判断作用域，再决定放在哪里：
+
+- `dictionary`：项目共享词，提交到仓库。
+当前拆成 4 个文件：`.cspell/yime-pinyin-normalized.txt`（数调拼音和带调拼音）、`.cspell/yime-domain-terms.txt`（音系、术语、项目领域词）、`.cspell/yime-windows-terms.txt`（Windows API、Tk/GUI、键盘事件相关词）、`.cspell/yime-tooling-terms.txt`（Python、SQLite、构建与工具链相关词，例如 `pycache`、`pytest`）。
+- `workspace`：只放当前工作区特有、但不值得进仓库词典的编辑器或扩展标识词。当前 `.vscode/settings.json` 只保留这类词。
+- `user`：只放你个人跨仓库常用、且不应该提交到本仓库的词，位置在 VS Code user settings 的 `cSpell.userWords`。
+
+判断原则：
+
+- 只要别的协作者拉下仓库后也会遇到这个词，就优先放 `dictionary`。
+- 只在本工作区的 VS Code 配置字面量里出现的词，放 `workspace`。
+- 只和你的个人环境、写作习惯或别的仓库有关的词，放 `user`。
+
+改完词表后，至少跑一次和改动范围相符的检查，例如：
+
+```bash
+npx cspell lint yime/pinyin_normalized.json internal_data/ipa_pinyin_mapping.json internal_data/tonally_marked_finals.json tools/final_with_tone_mark.py --no-progress --no-summary --words-only --unique
+```
+
 ---
 
 ## 项目结构
