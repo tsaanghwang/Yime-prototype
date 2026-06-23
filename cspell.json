@@ -1,0 +1,33 @@
+{
+  "version": "0.2",
+  "language": "en,zh-CN",
+  "useGitignore": true,
+  "dictionaryDefinitions": [
+    {
+      "name": "yime-pinyin-normalized",
+      "path": "./.cspell/yime-pinyin-normalized.txt",
+      "addWords": true
+    },
+    {
+      "name": "yime-domain-terms",
+      "path": "./.cspell/yime-domain-terms.txt",
+      "addWords": true
+    },
+    {
+      "name": "yime-windows-terms",
+      "path": "./.cspell/yime-windows-terms.txt",
+      "addWords": true
+    },
+    {
+      "name": "yime-tooling-terms",
+      "path": "./.cspell/yime-tooling-terms.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": [
+    "yime-pinyin-normalized",
+    "yime-domain-terms",
+    "yime-windows-terms",
+    "yime-tooling-terms"
+  ]
+}
