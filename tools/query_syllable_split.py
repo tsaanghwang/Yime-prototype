@@ -11,6 +11,7 @@ from yime.asset_paths import resolve_source_pinyin_db_path
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DB_PATH = resolve_source_pinyin_db_path(ROOT)
 
+# cspell:ignore jqxy zcsr
 APPROVED_RULE_MISMATCHES = {
     ("jqxy_u_to_umlaut", "jqx_umlaut_family"),
     ("jqxy_u_to_umlaut", "yu_umlaut_family"),

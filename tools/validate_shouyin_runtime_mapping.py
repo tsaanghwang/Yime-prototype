@@ -3,7 +3,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -14,7 +14,10 @@ DEFAULT_YINYUAN_RUNTIME = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.jso
 
 def load_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+        data = json.load(handle)
+    if isinstance(data, dict):
+        return cast(dict[str, Any], data)
+    return {}
 
 
 def collect_duplicates(values: dict[str, str], label: str) -> list[str]:
@@ -39,21 +42,27 @@ def validate_shouyin_mapping(
     issues: list[str] = []
 
     source_data = load_json(source_path)
-    entries = source_data.get("entries", {})
-    if not isinstance(entries, dict) or not entries:
+    entries_obj = source_data.get("entries", {})
+    if not isinstance(entries_obj, dict) or not entries_obj:
         return [f"source file has no usable entries: {source_path}"]
+    entries: dict[str, Any] = cast(dict[str, Any], entries_obj)
 
     source_semantic_codes: dict[str, str] = {}
     source_runtime_chars: dict[str, str] = {}
 
-    for shouyin, entry in entries.items():
-        if not isinstance(entry, dict):
+    for shouyin, entry_obj in entries.items():
+
+        if not isinstance(entry_obj, dict):
             issues.append(f"source entry is not an object: {shouyin}")
             continue
+        entry: dict[str, Any] = cast(dict[str, Any], entry_obj)
 
-        semantic_code = entry.get("semantic_code", "")
-        runtime_char = entry.get("runtime_char", "")
-        ipa = entry.get("ipa", [])
+        semantic_code_obj = entry.get("semantic_code", "")
+        runtime_char_obj = entry.get("runtime_char", "")
+        ipa_obj = entry.get("ipa", [])
+
+        semantic_code = semantic_code_obj if isinstance(semantic_code_obj, str) else ""
+        runtime_char = runtime_char_obj if isinstance(runtime_char_obj, str) else ""
 
         if not semantic_code:
             issues.append(f"missing semantic_code: {shouyin}")
@@ -65,21 +74,31 @@ def validate_shouyin_mapping(
         else:
             source_runtime_chars[shouyin] = runtime_char
 
-        if not isinstance(ipa, list):
+        if not isinstance(ipa_obj, list):
             issues.append(f"ipa must be a list: {shouyin}")
 
     issues.extend(collect_duplicates(source_semantic_codes, "semantic_code"))
     issues.extend(collect_duplicates(source_runtime_chars, "runtime_char"))
 
-    shouyin_runtime = load_json(shouyin_runtime_path).get("首音", {})
-    if not isinstance(shouyin_runtime, dict):
+    shouyin_runtime_obj = load_json(shouyin_runtime_path).get("首音", {})
+    if not isinstance(shouyin_runtime_obj, dict):
         issues.append(f"runtime file is missing 首音 mapping: {shouyin_runtime_path}")
-        shouyin_runtime = {}
+        shouyin_runtime_obj = {}
+    shouyin_runtime: dict[str, str] = {}
+    shouyin_runtime_items = cast(dict[Any, Any], shouyin_runtime_obj)
+    for key_obj, value_obj in shouyin_runtime_items.items():
+        if isinstance(key_obj, str) and isinstance(value_obj, str):
+            shouyin_runtime[key_obj] = value_obj
 
-    yinyuan_runtime = load_json(yinyuan_runtime_path).get("zaoyin", {})
-    if not isinstance(yinyuan_runtime, dict):
+    yinyuan_runtime_obj = load_json(yinyuan_runtime_path).get("zaoyin", {})
+    if not isinstance(yinyuan_runtime_obj, dict):
         issues.append(f"runtime file is missing zaoyin mapping: {yinyuan_runtime_path}")
-        yinyuan_runtime = {}
+        yinyuan_runtime_obj = {}
+    yinyuan_runtime: dict[str, str] = {}
+    yinyuan_runtime_items = cast(dict[Any, Any], yinyuan_runtime_obj)
+    for key_obj, value_obj in yinyuan_runtime_items.items():
+        if isinstance(key_obj, str) and isinstance(value_obj, str):
+            yinyuan_runtime[key_obj] = value_obj
 
     source_keys = set(source_runtime_chars)
     shouyin_keys = set(shouyin_runtime)

@@ -1,12 +1,19 @@
 import argparse
 import json
 import sys
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Callable, cast
+
+
+ResolvedLayoutBuilder = Callable[[object, object], dict[str, object]]
 
 try:
-    from tools.resolve_manual_key_layout import build_resolved_layout
+    from tools.resolve_manual_key_layout import build_resolved_layout as _build_resolved_layout  # pyright: ignore[reportUnknownVariableType]
 except ImportError:
-    from resolve_manual_key_layout import build_resolved_layout
+    from resolve_manual_key_layout import build_resolved_layout as _build_resolved_layout  # pyright: ignore[reportUnknownVariableType]
+
+build_resolved_layout = cast(ResolvedLayoutBuilder, _build_resolved_layout)
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,7 +31,7 @@ def load_json(path: Path):
         return json.load(handle)
 
 
-def sort_symbol_keys(values):
+def sort_symbol_keys(values: Iterable[str]) -> list[str]:
     def sort_key(item: str):
         return item[0], int(item[1:])
 
@@ -32,7 +39,7 @@ def sort_symbol_keys(values):
 
 
 def derive_runtime_key_to_symbol(shouyin_runtime: dict[str, str], yueyin_runtime: dict[str, str]) -> dict[str, str]:
-    runtime_key_to_symbol = {}
+    runtime_key_to_symbol: dict[str, str] = {}
     for index, symbol in enumerate(shouyin_runtime.values(), start=1):
         runtime_key_to_symbol[f"N{index:02d}"] = symbol
     for index, symbol in enumerate(yueyin_runtime.values(), start=1):
@@ -41,20 +48,30 @@ def derive_runtime_key_to_symbol(shouyin_runtime: dict[str, str], yueyin_runtime
 
 
 def load_bmp_projection_symbols(path: Path) -> dict[str, str]:
-    payload = load_json(path)
-    used_mapping = payload.get("used_mapping", {})
-    if not isinstance(used_mapping, dict):
-        raise ValueError("bmp_pua_trial_projection.json missing used_mapping object")
+    payload_obj = load_json(path)
+    if not isinstance(payload_obj, dict):
+        raise ValueError("bmp_pua_trial_projection.json must be a JSON object")
+    payload = cast(dict[str, object], payload_obj)
 
-    return {
-        symbol_key: entry["char"]
-        for symbol_key, entry in used_mapping.items()
-        if isinstance(entry, dict) and entry.get("char")
-    }
+    used_mapping_obj = payload.get("used_mapping", {})
+    if not isinstance(used_mapping_obj, dict):
+        raise ValueError("bmp_pua_trial_projection.json missing used_mapping object")
+    used_mapping = cast(dict[str, object], used_mapping_obj)
+
+    symbols: dict[str, str] = {}
+    for symbol_key, entry in used_mapping.items():
+        if not isinstance(entry, dict):
+            continue
+        entry_dict = cast(dict[str, object], entry)
+        char_obj = entry_dict.get("char")
+        if isinstance(char_obj, str) and char_obj:
+            symbols[symbol_key] = char_obj
+
+    return symbols
 
 
 def compare_key_maps(left_name: str, left_map: dict[str, str], right_name: str, right_map: dict[str, str]) -> list[str]:
-    issues = []
+    issues: list[str] = []
 
     left_keys = set(left_map)
     right_keys = set(right_map)
@@ -83,7 +100,7 @@ def compare_key_maps(left_name: str, left_map: dict[str, str], right_name: str, 
 
 
 def compare_runtime_internal_consistency(shouyin_runtime: dict[str, str], zaoyin_runtime: dict[str, str]) -> list[str]:
-    issues = []
+    issues: list[str] = []
     shouyin_names = list(shouyin_runtime)
     zaoyin_names = list(zaoyin_runtime)
     if shouyin_names != zaoyin_names:
@@ -100,13 +117,25 @@ def compare_runtime_internal_consistency(shouyin_runtime: dict[str, str], zaoyin
 
 
 def collect_layout_assignments(resolved_layout: dict[str, object]) -> tuple[dict[str, dict[str, object]], list[str]]:
-    assignments = {}
-    issues = []
+    assignments: dict[str, dict[str, object]] = {}
+    issues: list[str] = []
 
-    for item in resolved_layout.get("layers", []):
-        symbol_key = item.get("symbol_key")
-        if symbol_key is None:
+    layers_obj = resolved_layout.get("layers", [])
+    if not isinstance(layers_obj, list):
+        issues.append("resolved layout 的 layers 字段类型错误，预期为数组。")
+        return assignments, issues
+    layers = cast(list[object], layers_obj)
+
+    for raw_item in layers:
+        if not isinstance(raw_item, dict):
             continue
+
+        item = cast(dict[str, object], raw_item)
+        symbol_key_obj = item.get("symbol_key")
+        if not isinstance(symbol_key_obj, str):
+            continue
+        symbol_key = symbol_key_obj
+
         if symbol_key in assignments:
             previous = assignments[symbol_key]
             issues.append(
@@ -124,8 +153,8 @@ def compare_layout_assignments(
     runtime_key_to_symbol: dict[str, str],
     bmp_projection_symbols: dict[str, str],
 ) -> tuple[list[str], list[str]]:
-    issues = []
-    notes = []
+    issues: list[str] = []
+    notes: list[str] = []
 
     for symbol_key in sort_symbol_keys(assignments):
         item = assignments[symbol_key]
@@ -284,8 +313,8 @@ def main() -> None:
     runtime_key_to_symbol = derive_runtime_key_to_symbol(shouyin_runtime, yueyin_runtime)
     assignments, assignment_issues = collect_layout_assignments(resolved_layout)
 
-    issues = []
-    notes = []
+    issues: list[str] = []
+    notes: list[str] = []
 
     issues.extend(compare_runtime_internal_consistency(shouyin_runtime, zaoyin_runtime))
     issues.extend(compare_key_maps("运行时生成侧", runtime_key_to_symbol, "BMP 投影表", bmp_projection_symbols))
@@ -326,7 +355,10 @@ def main() -> None:
 
 
 def assignments_to_map(assignments: dict[str, dict[str, object]]) -> dict[str, str]:
-    return {symbol_key: item.get("symbol_char") for symbol_key, item in assignments.items()}
+    return {
+        symbol_key: symbol_char if isinstance(symbol_char := item.get("symbol_char"), str) else ""
+        for symbol_key, item in assignments.items()
+    }
 
 
 if __name__ == "__main__":

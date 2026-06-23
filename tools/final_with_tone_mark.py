@@ -7,7 +7,7 @@ Features:
 """
 
 import json
-from typing import Dict, List
+from typing import Dict, List, cast
 
 class FinalsToneMarker:
     def __init__(self):
@@ -22,7 +22,7 @@ class FinalsToneMarker:
     def load_classified_finals(self) -> Dict[str, List[Dict[str, str]]]:
         """Load classified finals data (加载韵母分类数据)"""
         with open("internal_data/classified_finals.json", "r", encoding="utf-8") as f:
-            return json.load(f)
+            return cast(Dict[str, List[Dict[str, str]]], json.load(f))
 
     def mark_single_quality(self, pinyin: str, tone: int) -> str:
         """
@@ -52,7 +52,7 @@ class FinalsToneMarker:
         Mark tone on the first character that serves as the final nucleus (韵腹)
         """
         # 查找韵腹起始位置
-        vowels = "aeiouü"
+        vowels = {"a", "e", "i", "o", "u", "ü"}
         for i, c in enumerate(pinyin):
             if c in vowels:
                 return pinyin[:i] + pinyin[i] + self.tone_markers[tone] + pinyin[i+1:]
@@ -90,9 +90,9 @@ class FinalsToneMarker:
         mid = len(pinyin) // 2
         return pinyin[:mid] + self.tone_markers[tone] + pinyin[mid:]
 
-    def generate_all_tones(self):
+    def generate_all_tones(self) -> Dict[str, Dict[int, str]]:
         """Generate tone marked results for all finals (为所有韵母生成四声标调结果)"""
-        results = {}
+        results: Dict[str, Dict[int, str]] = {}
 
         # 处理单质韵母
         for final in self.classified_finals["单质韵母"]:
@@ -145,7 +145,7 @@ class FinalsToneMarker:
         with open("internal_data/marked_finals.json", "w", encoding="utf-8") as f:
             json.dump(results, f, ensure_ascii=False, indent=2)
 
-    def run(self):
+    def run(self) -> Dict[str, Dict[int, str]]:
         """Execute tone marking process (执行标调流程)"""
         results = self.generate_all_tones()
         self.print_results(results)

@@ -3,7 +3,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -45,19 +45,25 @@ def validate_source_entries(
     entries = source_data.get("entries", {})
     if not isinstance(entries, dict) or not entries:
         return [f"{source_name}: source file has no usable entries: {source_path}"], {}
+    entries_dict = cast(dict[str, Any], entries)
 
     semantic_codes: dict[str, str] = {}
     runtime_chars: dict[str, str] = {}
     layout_slots: dict[str, str] = {}
 
-    for entry_name, entry in entries.items():
+    for entry_name, entry in entries_dict.items():
         if not isinstance(entry, dict):
             issues.append(f"{source_name}: source entry is not an object: {entry_name}")
             continue
+        entry_dict = cast(dict[str, Any], entry)
 
-        semantic_code = entry.get("semantic_code", "")
-        runtime_char = entry.get("runtime_char", "")
-        layout_slot = entry.get("layout_slot", "")
+        semantic_code_raw = entry_dict.get("semantic_code", "")
+        runtime_char_raw = entry_dict.get("runtime_char", "")
+        layout_slot_raw = entry_dict.get("layout_slot", "")
+
+        semantic_code = semantic_code_raw if isinstance(semantic_code_raw, str) else ""
+        runtime_char = runtime_char_raw if isinstance(runtime_char_raw, str) else ""
+        layout_slot = layout_slot_raw if isinstance(layout_slot_raw, str) else ""
 
         if not semantic_code:
             issues.append(f"{source_name}: missing semantic_code: {entry_name}")

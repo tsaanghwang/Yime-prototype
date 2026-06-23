@@ -1,8 +1,9 @@
 import json
 import os
+from typing import Dict
 
 # 定义键值对数据
-data = {
+data: Dict[str, str] = {
     "A": "󰌾",  # key: ASCII, value: '󰌾' (U+F033E, Private Use Area)
     "B": "󰎄",  # key: ASCII, value: '󰎄' (U+F0384, Private Use Area)
     "C": "ĉ",   # key: ASCII, value: 'ĉ' (U+0109, Latin Small Letter C with Circumflex)
@@ -58,7 +59,7 @@ data = {
 }
 
 # 字符校验函数
-def check_character(char):
+def check_character(char: str) -> str:
     """检查字符属性并返回结果"""
     code = ord(char)
     is_ascii = code <= 127
@@ -73,11 +74,12 @@ def check_character(char):
             return "Private Use Area-A"
         elif 0x100000 <= code <= 0x10FFFD:
             return "Private Use Area-B"
+        return "Private Use Area"
     else:
         return f"Non-ASCII (Unicode {hex(code)})"
 
 # 校验data对象中的所有键值对
-def validate_data_mapping(data):
+def validate_data_mapping(data: Dict[str, str]) -> None:
     """校验data对象中的所有键值对"""
     print("\n=== 键值对校验结果 ===")
     for key, value in data.items():

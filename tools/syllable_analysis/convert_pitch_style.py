@@ -1,6 +1,6 @@
 import json
-import sys
 from pathlib import Path
+from typing import Any
 
 from syllable.analysis.yueyin_mapper import YueyinMapper
 
@@ -9,7 +9,7 @@ SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
 YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
-def load_and_validate_input(input_path: Path) -> dict:
+def load_and_validate_input(input_path: Path) -> dict[str, Any]:
     """加载并验证输入数据
 
     Args:
@@ -27,7 +27,7 @@ def load_and_validate_input(input_path: Path) -> dict:
     except (FileNotFoundError, json.JSONDecodeError) as e:
         raise RuntimeError(f"无法加载输入数据: {str(e)}")
 
-def convert_pitch_style(input_data: dict, mapper: YueyinMapper) -> dict:
+def convert_pitch_style(input_data: dict[str, Any], mapper: YueyinMapper) -> dict[str, Any]:
     """转换音高样式
 
     Args:
@@ -46,8 +46,8 @@ def convert_pitch_style(input_data: dict, mapper: YueyinMapper) -> dict:
 
     symbol_data = mapper.convert_pitch_style(converted_data)
 
-    result = {}
-    for ganyin_type, ganyin_dict in symbol_data.items():
+    result: dict[str, Any] = {}
+    for ganyin_dict in symbol_data.values():
         for key, value in ganyin_dict.items():
             new_key = value["呼音"]
             if key in input_data:
@@ -72,7 +72,7 @@ def main():
         input_data = load_and_validate_input(input_path)
 
         # 转换音高样式
-        result = convert_pitch_style(input_data, mapper)
+        result: dict[str, Any] = convert_pitch_style(input_data, mapper)
 
         # 保存结果
         with open(output_path, 'w', encoding='utf-8') as f:

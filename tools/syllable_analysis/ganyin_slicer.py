@@ -18,7 +18,7 @@ YUEYIN_PIANYIN_CLASS = cast(Any, YueyinPianyin)
 @dataclass
 class Ganyin:
     final: str
-    gandiao: str | None = None
+    gandiao: str = ""
 
 
 class GanyinSlicer:

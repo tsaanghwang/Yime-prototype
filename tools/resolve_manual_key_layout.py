@@ -1,6 +1,7 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Any
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -9,15 +10,15 @@ DEFAULT_SYMBOLS = ROOT / "internal_data" / "key_to_symbol.json"
 DEFAULT_OUTPUT = ROOT / "internal_data" / "manual_key_layout.resolved.json"
 
 
-def load_json(path: Path):
+def load_json(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
 
-def validate_layers(layers, key_to_symbol):
-    seen_slots = {}
-    seen_symbol_keys = {}
-    resolved_layers = []
+def validate_layers(layers: list[dict[str, Any]], key_to_symbol: dict[str, str]) -> list[dict[str, Any]]:
+    seen_slots: dict[tuple[Any, Any], Any] = {}
+    seen_symbol_keys: dict[str, dict[str, Any]] = {}
+    resolved_layers: list[dict[str, Any]] = []
 
     for item in layers:
         physical_key = item["physical_key"]
@@ -76,12 +77,12 @@ def validate_layers(layers, key_to_symbol):
     return resolved_layers
 
 
-def build_resolved_layout(layout_data, key_to_symbol):
-    metadata = dict(layout_data.get("metadata", {}))
+def build_resolved_layout(layout_data: dict[str, Any], key_to_symbol: dict[str, str]) -> dict[str, Any]:
+    metadata: dict[str, Any] = dict(layout_data.get("metadata", {}))
     metadata["resolved_from"] = "internal_data/manual_key_layout.json + internal_data/key_to_symbol.json"
     metadata["resolved_output"] = "internal_data/manual_key_layout.resolved.json"
 
-    layers = layout_data.get("layers", [])
+    layers: list[dict[str, Any]] = layout_data.get("layers", [])
     resolved_layers = validate_layers(layers, key_to_symbol)
 
     return {

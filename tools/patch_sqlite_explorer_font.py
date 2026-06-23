@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# cspell:ignore BlinkMacSystemFont Segoe Roboto
+
 import argparse
 import json
 import os

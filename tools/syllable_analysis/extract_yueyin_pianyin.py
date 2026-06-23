@@ -9,17 +9,18 @@
 import json
 from pathlib import Path
 from collections import OrderedDict
+from typing import Dict, List, Tuple
 
 
 SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
 YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
-def extract_yueyin(input_path, output_path):
+def extract_yueyin(input_path: Path, output_path: Path) -> None:
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
-    yueyin_map = {}
+    yueyin_map: Dict[str, str] = {}
 
     # 处理所有干音类别
     for category in data.values():
@@ -68,7 +69,7 @@ def extract_yueyin(input_path, output_path):
 
     # 如果 yueyin_map 为空，sorted_items 设为空列表，避免未定义错误
     if yueyin_map:
-        sorted_items = sorted(
+        sorted_items: List[Tuple[str, str]] = sorted(
             yueyin_map.items(),
             key=lambda x: (
                 quality_priority.get(x[1][:-1], len(priority_order)),  # 按音质优先级排序
@@ -76,7 +77,7 @@ def extract_yueyin(input_path, output_path):
             )
         )
     else:
-        sorted_items = []
+        sorted_items: List[Tuple[str, str]] = []
 
     # 转换为有序字典
     ordered_yueyin = OrderedDict(sorted_items)

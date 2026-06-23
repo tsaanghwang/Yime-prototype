@@ -1,6 +1,7 @@
 import argparse
 import json
 from pathlib import Path
+from typing import Any, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -8,7 +9,7 @@ DEFAULT_OUTPUT = ROOT / "internal_data" / "yinjie_runtime_key_symbol_mapping.jso
 DEFAULT_CANONICAL_OUTPUT = ROOT / "internal_data" / "key_to_symbol.json"
 
 
-def load_json(path: Path):
+def load_json(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as handle:
         return json.load(handle)
 
@@ -83,16 +84,17 @@ def build_ganyin_entries(
                     "ganyin_names": [],
                 },
             )
-            bucket["used_in_yinjie_position"].add(position + 1)
-            names = bucket["ganyin_names"]
+            positions = cast(set[int], bucket["used_in_yinjie_position"])
+            positions.add(position + 1)
+            names = cast(list[str], bucket["ganyin_names"])
             if ganyin not in names:
                 names.append(ganyin)
 
     entries: list[dict[str, object]] = []
     for symbol, entry in aggregated.items():
         examples = usage.get(symbol, [])[:5]
-        entry["used_in_yinjie_position"] = sorted(entry["used_in_yinjie_position"])
-        entry["ganyin_names"] = entry["ganyin_names"][:12]
+        entry["used_in_yinjie_position"] = sorted(cast(set[int], entry["used_in_yinjie_position"]))
+        entry["ganyin_names"] = cast(list[str], entry["ganyin_names"])[:12]
         entry["example_syllables"] = examples
         entries.append(entry)
 
@@ -115,7 +117,7 @@ def build_report() -> dict[str, object]:
 
     shouyin_entries = build_shouyin_entries(shouyin_map, symbol_to_key, usage)
     ganyin_entries = build_ganyin_entries(ganyin_map, symbol_to_key, usage)
-    entries = sorted(shouyin_entries + ganyin_entries, key=lambda item: ord(item["symbol"]))
+    entries = sorted(shouyin_entries + ganyin_entries, key=lambda item: ord(cast(str, item["symbol"])))
 
     return {
         "description": "Canonical runtime key-symbol mapping derived from syllable/codec/yinjie_encoder.py dependencies.",
@@ -148,10 +150,16 @@ def build_report() -> dict[str, object]:
 
 
 def build_canonical_key_symbol_mapping(report: dict[str, object]) -> dict[str, str]:
-    key_to_symbol = report.get("key_to_symbol", {})
-    if not isinstance(key_to_symbol, dict):
+    key_to_symbol_obj = report.get("key_to_symbol", {})
+    if not isinstance(key_to_symbol_obj, dict):
         raise ValueError("report['key_to_symbol'] must be a mapping")
-    return dict(key_to_symbol)
+    key_to_symbol = cast(dict[object, object], key_to_symbol_obj)
+    canonical: dict[str, str] = {}
+    for key, value in key_to_symbol.items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise ValueError("report['key_to_symbol'] must map str to str")
+        canonical[key] = value
+    return canonical
 
 
 def main() -> None:

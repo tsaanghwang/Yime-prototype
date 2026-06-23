@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -17,18 +18,18 @@ ROW_KEYS = {
 }
 
 
-def load_layout() -> dict:
+def load_layout() -> dict[str, Any]:
     return json.loads(LAYOUT_PATH.read_text(encoding="utf-8"))
 
 
-def build_lookup(layout: dict) -> dict[tuple[str, str], dict]:
+def build_lookup(layout: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
     return {
         (entry["physical_key"], entry["output_layer"]): entry
         for entry in layout["layers"]
     }
 
 
-def format_cell(entry: dict | None) -> str:
+def format_cell(entry: dict[str, Any] | None) -> str:
     if not entry:
         return ""
     if entry.get("symbol_key"):
@@ -38,7 +39,7 @@ def format_cell(entry: dict | None) -> str:
     return ""
 
 
-def render_grid(lookup: dict[tuple[str, str], dict], layer: str) -> list[str]:
+def render_grid(lookup: dict[tuple[str, str], dict[str, Any]], layer: str) -> list[str]:
     lines: list[str] = []
     for row_name in ROW_ORDER:
         keys = ROW_KEYS[row_name]
@@ -51,7 +52,7 @@ def render_grid(lookup: dict[tuple[str, str], dict], layer: str) -> list[str]:
     return lines
 
 
-def render_category_table(layout: dict, category: str) -> list[str]:
+def render_category_table(layout: dict[str, Any], category: str) -> list[str]:
     lines = [f"## {category.capitalize()} Only", "| Key | Layer | Symbol | Codepoint |", "| --- | --- | --- | --- |"]
     for entry in layout["layers"]:
         if entry.get("resolved_category") != category:
@@ -63,7 +64,7 @@ def render_category_table(layout: dict, category: str) -> list[str]:
     return lines
 
 
-def render_literal_table(layout: dict) -> list[str]:
+def render_literal_table(layout: dict[str, Any]) -> list[str]:
     lines = ["## Literal Only", "| Key | Layer | Value | Codepoint |", "| --- | --- | --- | --- |"]
     for entry in layout["layers"]:
         if entry.get("resolved_category") != "literal":

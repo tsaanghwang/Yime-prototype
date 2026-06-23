@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Any, cast
 
-from yime.input_method.core.decoders import (
-    SQLiteRuntimeCandidateDecoder,
-    _runtime_candidate_sort_key,
-)
+from yime.input_method.core import decoders as decoder_module
+from yime.input_method.core.decoders import SQLiteRuntimeCandidateDecoder
 from yime.input_method.utils.user_lexicon import resolve_canonical_code_from_numeric_pinyin
 
 
@@ -40,9 +39,10 @@ def main() -> None:
     args = parse_args()
     decoder = SQLiteRuntimeCandidateDecoder(APP_DIR, user_db_path=USER_DB_PATH)
     lookup_code = resolve_lookup_code(args, decoder)
-    raw_candidates = decoder.by_code.get(lookup_code, [])
-    records = decoder._payload_to_runtime_candidates(lookup_code, raw_candidates)
-    ranked = decoder._rank_runtime_candidates(records)
+    decoder_any = cast(Any, decoder)
+    raw_candidates = decoder_any.by_code.get(lookup_code, [])
+    records = cast(Any, decoder)._payload_to_runtime_candidates(lookup_code, raw_candidates)
+    ranked = cast(Any, decoder)._rank_runtime_candidates(records)
 
     print(f"user_lexicon_db={USER_DB_PATH}")
     print(f"lookup_code={lookup_code}")
@@ -54,11 +54,17 @@ def main() -> None:
         return
 
     for index, candidate in enumerate(ranked[: args.limit], start=1):
-        user_freq = decoder._user_freq_by_candidate.get(
+        user_freq_by_candidate = cast(Any, getattr(decoder, "_user_freq_by_candidate", {}))
+        user_freq = user_freq_by_candidate.get(
             (candidate.lookup_code, candidate.text),
             0,
         )
-        sort_key = _runtime_candidate_sort_key(candidate, user_freq)
+        runtime_sort_key_fn = cast(Any, getattr(decoder_module, "_runtime_candidate_sort_key", None))
+        sort_key = (
+            cast(Any, runtime_sort_key_fn(candidate, user_freq))
+            if callable(runtime_sort_key_fn)
+            else "<unavailable>"
+        )
         print(
             f"#{index} candidate_text={candidate.text} entry_type={candidate.entry_type} "
             f"pinyin={candidate.pinyin_tone} sort_weight={candidate.sort_weight} "

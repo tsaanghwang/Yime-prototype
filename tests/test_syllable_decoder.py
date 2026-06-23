@@ -3,14 +3,21 @@ import unittest
 import json
 import tempfile
 import os
-from pathlib import Path
+from typing import cast
+from collections.abc import Callable
 from yime.syllable_decoder import (
     SyllableDecoder,
     is_pua_string,
     is_valid_encoded_string,
-    _normalize_split,
 )
+import yime.syllable_decoder as syllable_decoder_module
 from syllable.codec.yinjie import Yinjie
+
+NormalizeSplitResult = tuple[object, object, tuple[str, str], tuple[str, str]] | None
+_normalize_split = cast(
+    Callable[[object], NormalizeSplitResult],
+    getattr(syllable_decoder_module, "_normalize_split"),
+)
 
 class TestSyllableDecoder(unittest.TestCase):
     """测试音节解码器"""
@@ -59,17 +66,17 @@ class TestSyllableDecoder(unittest.TestCase):
 
     def test_get_code_existing(self):
         """测试获取已存在的编码"""
-        code = self.decoder._get_code("zhong")
+        code = getattr(self.decoder, "_get_code")("zhong")
         self.assertEqual(code, "中")
 
     def test_get_code_nonexistent(self):
         """测试获取不存在的编码"""
-        code = self.decoder._get_code("nonexistent")
+        code = getattr(self.decoder, "_get_code")("nonexistent")
         self.assertIsNone(code)
 
     def test_get_code_by_value(self):
         """测试通过值反查编码"""
-        code = self.decoder._get_code("中")
+        code = getattr(self.decoder, "_get_code")("中")
         self.assertEqual(code, "中")
 
     def test_split_encoded_syllable_basic(self):
@@ -109,12 +116,12 @@ class TestUtilityFunctions(unittest.TestCase):
     def test_normalize_split_none(self):
         """测试 None 输入归一化"""
         result = _normalize_split(None)
-        self.assertIsNone(result)
+        self.assertIsNone(cast(object, result))
 
     def test_normalize_split_empty(self):
         """测试空列表归一化"""
         result = _normalize_split([])
-        self.assertIsNone(result)
+        self.assertIsNone(cast(object, result))
 
     def test_normalize_split_four_elements(self):
         """测试四元素列表归一化"""
@@ -126,13 +133,13 @@ class TestUtilityFunctions(unittest.TestCase):
         """测试三元素列表归一化"""
         input_data = ("zh", None, ("o", "ng"))
         result = _normalize_split(input_data)
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result), 4)
+        if result is None:
+            self.fail("_normalize_split returned None")
+        self.assertEqual(len(cast(tuple[object, ...], result)), 4)
 
     def test_normalize_split_invalid(self):
         """测试无效输入归一化"""
-        result = _normalize_split("invalid")
-        self.assertIsNone(result)
+        self.assertIsNone(cast(object, _normalize_split("invalid")))
 
 
 class TestSyllableDecoderIntegration(unittest.TestCase):

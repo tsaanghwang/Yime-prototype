@@ -4,7 +4,7 @@ import argparse
 import json
 import sqlite3
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence, TypedDict, cast
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -54,6 +54,27 @@ STRONG_FRAGMENT_SUFFIXES = (
     "的话",
 )
 WEAK_FRAGMENT_SUFFIX_CHARS = frozenset("能会要在将给让")
+
+
+class TargetBoostEntry(TypedDict):
+    text: str
+    boost: float
+
+
+class SeedTargetEntry(TargetBoostEntry):
+    yime_code: str
+    text_length: int
+
+
+class RuleEntry(TypedDict):
+    lookup_pinyin_tone: str
+    targets: list[TargetBoostEntry]
+
+
+class ContinuousSeedRuleEntry(TypedDict):
+    lookup_code: str
+    lookup_pinyin_tone: str
+    targets: list[SeedTargetEntry]
 
 
 def parse_args() -> argparse.Namespace:
@@ -223,18 +244,15 @@ def _iter_continuous_lookup_codes(full_code: str, *, text_length: int = 0) -> li
 
 
 def _build_continuous_rules_payload(
-    bucket_rules: list[dict[str, Any]],
+    bucket_rules: list[ContinuousSeedRuleEntry],
     *,
     source: str,
 ) -> dict[str, Any]:
     rule_map: dict[str, dict[str, float]] = {}
     for bucket_rule in bucket_rules:
         targets = bucket_rule.get("targets")
-        if not isinstance(targets, list):
-            continue
-        for target in targets:
-            if not isinstance(target, dict):
-                continue
+        for target_obj in targets:
+            target = cast(dict[str, Any], target_obj)
             text = str(target.get("text") or "").strip()
             full_code = str(target.get("yime_code") or "").strip()
             boost = float(target.get("boost") or 0.0)
@@ -245,7 +263,7 @@ def _build_continuous_rules_payload(
                 target_boosts = rule_map.setdefault(lookup_code, {})
                 target_boosts[text] = max(target_boosts.get(text, 0.0), boost)
 
-    serialized_rules = [
+    serialized_rules: list[dict[str, Any]] = [
         {
             "lookup_code": lookup_code,
             "targets": [
@@ -274,7 +292,7 @@ def _build_sample_bucket_entry(
     lookup_code: str,
     lookup_pinyin_tone: str,
     prefix_phrases: list[dict[str, Any]],
-    targets: list[dict[str, Any]],
+    targets: Sequence[TargetBoostEntry],
 ) -> dict[str, Any]:
     return {
         "lookup_code": lookup_code,
@@ -301,8 +319,8 @@ def build_payloads(
         step=DEFAULT_BOOST_STEP,
     )
 
-    rules: list[dict[str, Any]] = []
-    continuous_seed_rules: list[dict[str, Any]] = []
+    rules: list[RuleEntry] = []
+    continuous_seed_rules: list[ContinuousSeedRuleEntry] = []
     sample_buckets: list[dict[str, Any]] = []
 
     with sqlite3.connect(RUNTIME_DB_PATH) as conn:
@@ -317,16 +335,15 @@ def build_payloads(
                     f"高碰撞桶 {lookup_pinyin_tone} 仅找到 {len(prefix_phrases)} 条词语样本，少于 target_count={target_count}"
                 )
 
-            targets = [
+            targets: list[SeedTargetEntry] = [
                 {
-                    "text": prefix_phrases[index]["phrase"],
-                    "yime_code": prefix_phrases[index]["yime_code"],
+                    "text": str(prefix_phrases[index]["phrase"]),
+                    "yime_code": str(prefix_phrases[index]["yime_code"]),
                     "text_length": len(str(prefix_phrases[index]["phrase"])),
-                    "boost": boosts[index],
+                    "boost": float(boosts[index]),
                 }
                 for index in range(target_count)
             ]
-            sample_phrases = [entry["phrase"] for entry in prefix_phrases]
 
             rules.append(
                 {
@@ -341,7 +358,7 @@ def build_payloads(
                 {
                     "lookup_code": lookup_code,
                     "lookup_pinyin_tone": lookup_pinyin_tone,
-                    "targets": [dict(target) for target in targets],
+                    "targets": list(targets),
                 }
             )
             sample_buckets.append(
@@ -354,13 +371,13 @@ def build_payloads(
                 )
             )
 
-    rules_payload = {
+    rules_payload: dict[str, Any] = {
         "version": 1,
         "scope": "single_syllable_prefix",
         "description": "Local phrase-priority boosts for the highest-collision single-syllable buckets. Rules only apply to partial phrase expansion after one full syllable.",
         "rules": rules,
     }
-    samples_payload = {
+    samples_payload: dict[str, Any] = {
         "version": 1,
         "source": "yime/reports/runtime_tuning_scan.json baseline.high_collision_focus.buckets + runtime phrase_lexicon_view prefix query",
         "scope": "single_syllable_prefix",

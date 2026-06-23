@@ -30,8 +30,6 @@ class TestGanyinEncoder(unittest.TestCase):
         for ganyin, expected in self.encoding_map.items():
             with self.subTest(ganyin=ganyin):
                 result = self.encoder.encode_ganyin(ganyin)
-                normalized = self.encoder._normalize_ganyin_name(ganyin)
-                expected = self.encoding_map.get(normalized, expected)
                 self.assertEqual(
                     result, expected,
                     f"干音 '{ganyin}' 编码错误: 预期 '{expected}' (U+{ord(expected[0]):04X}...), 实际得到 '{result}'"

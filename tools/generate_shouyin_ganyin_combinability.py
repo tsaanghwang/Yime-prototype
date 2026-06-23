@@ -1,6 +1,9 @@
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
+from typing import Any, DefaultDict, Iterable, Mapping, TypedDict, cast
+
+# cspell:ignore combinability ganyin yinjie shouyin
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -9,29 +12,56 @@ DEFAULT_SYMBOLS = ROOT / "internal_data" / "key_to_symbol.json"
 DEFAULT_OUTPUT = ROOT / "internal_data" / "shouyin_ganyin_combinability.json"
 
 
-def load_json(path: Path):
+class NoiseEntry(TypedDict):
+    syllable_count: int
+    direct_following_counts: Counter[str]
+    reachable_musicals_any_position: Counter[str]
+    ganyin_sequences: Counter[tuple[str, ...]]
+    example_syllables: list[str]
+
+
+class DirectMusicalEntry(TypedDict):
+    noise_counts: Counter[str]
+    example_syllables: list[str]
+
+
+class SequenceCount(TypedDict):
+    sequence: list[str]
+    count: int
+
+
+def load_json(path: Path) -> dict[str, str]:
     with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+        return cast(dict[str, str], json.load(handle))
 
 
-def sort_symbol_keys(values):
+def sort_symbol_keys(values: Iterable[str]) -> list[str]:
     def sort_key(item: str):
         return item[0], int(item[1:])
 
     return sorted(values, key=sort_key)
 
 
-def build_combinability(yinjie_code, char_to_key):
-    by_noise = defaultdict(
-        lambda: {
-            "syllable_count": 0,
-            "direct_following_counts": Counter(),
-            "reachable_musicals_any_position": Counter(),
-            "ganyin_sequences": Counter(),
-            "example_syllables": [],
-        }
-    )
-    by_direct_musical = defaultdict(lambda: {"noise_counts": Counter(), "example_syllables": []})
+def _make_noise_entry() -> NoiseEntry:
+    return {
+        "syllable_count": 0,
+        "direct_following_counts": Counter(),
+        "reachable_musicals_any_position": Counter(),
+        "ganyin_sequences": Counter(),
+        "example_syllables": [],
+    }
+
+
+def _make_direct_musical_entry() -> DirectMusicalEntry:
+    return {"noise_counts": Counter(), "example_syllables": []}
+
+
+def build_combinability(
+    yinjie_code: Mapping[str, str],
+    char_to_key: Mapping[str, str],
+) -> tuple[DefaultDict[str, NoiseEntry], DefaultDict[str, DirectMusicalEntry]]:
+    by_noise: DefaultDict[str, NoiseEntry] = defaultdict(_make_noise_entry)
+    by_direct_musical: DefaultDict[str, DirectMusicalEntry] = defaultdict(_make_direct_musical_entry)
 
     for syllable, code in yinjie_code.items():
         if not code:
@@ -66,13 +96,13 @@ def build_combinability(yinjie_code, char_to_key):
     return by_noise, by_direct_musical
 
 
-def serialize_counter(counter: Counter):
+def serialize_counter(counter: Counter[str]) -> dict[str, int]:
     keys = sort_symbol_keys(counter.keys())
     return {key: counter[key] for key in keys}
 
 
-def serialize_sequence_counter(counter: Counter):
-    serialized = []
+def serialize_sequence_counter(counter: Counter[tuple[str, ...]]) -> list[SequenceCount]:
+    serialized: list[SequenceCount] = []
     for sequence, count in sorted(counter.items(), key=lambda item: (-item[1], item[0])):
         serialized.append(
             {
@@ -83,14 +113,14 @@ def serialize_sequence_counter(counter: Counter):
     return serialized
 
 
-def build_output(yinjie_code, key_to_symbol):
+def build_output(yinjie_code: Mapping[str, str], key_to_symbol: Mapping[str, str]) -> dict[str, Any]:
     char_to_key = {value: key for key, value in key_to_symbol.items()}
     by_noise, by_direct_musical = build_combinability(yinjie_code, char_to_key)
 
     noise_keys = [key for key in key_to_symbol if key.startswith("N")]
     musical_keys = [key for key in key_to_symbol if key.startswith("M")]
 
-    output = {
+    output: dict[str, Any] = {
         "metadata": {
             "source_yinjie_code": "syllable/codec/yinjie_code.json",
             "source_symbol_map": "internal_data/key_to_symbol.json",
