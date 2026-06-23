@@ -77,19 +77,19 @@ function Write-Metrics(
     [string]$RuntimeJsonPath = "",
     [string]$EncodingJsonPath = $EncodingJson
 ) {
-    $args = @(
+    $metricArgs = @(
         "tools/lexicon_integration_metrics.py",
         "--source-db", $SourceDbPath,
         "--output", $ReportJson,
         "--encoding-json", $EncodingJsonPath
     )
-    if ($RuntimeDbPath) { $args += @("--runtime-db", $RuntimeDbPath) }
-    if ($BaselineRuntimeDbPath) { $args += @("--baseline-runtime-db", $BaselineRuntimeDbPath) }
-    if ($RuntimeJsonPath) { $args += @("--runtime-json", $RuntimeJsonPath) }
-    Invoke-Python $args | Out-Null
+    if ($RuntimeDbPath) { $metricArgs += @("--runtime-db", $RuntimeDbPath) }
+    if ($BaselineRuntimeDbPath) { $metricArgs += @("--baseline-runtime-db", $BaselineRuntimeDbPath) }
+    if ($RuntimeJsonPath) { $metricArgs += @("--runtime-json", $RuntimeJsonPath) }
+    Invoke-Python $metricArgs | Out-Null
 }
 
-function Print-ReportSummary {
+function Show-ReportSummary {
     if (-not (Test-Path $ReportJson)) {
         Write-Host "Report not found: $ReportJson" -ForegroundColor Yellow
         return
@@ -276,7 +276,7 @@ if (-not $DryRun -and $encodingHashBefore) {
     Write-Host "encoding guard OK: $EncodingJson unchanged" -ForegroundColor Green
 }
 
-Print-ReportSummary
+Show-ReportSummary
 
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green

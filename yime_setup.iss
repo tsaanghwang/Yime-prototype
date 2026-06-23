@@ -1,11 +1,12 @@
+; cspell:words autopf autodesktop createallsubdirs desktopicon ignoreversion lzma nowait recursesubdirs skipifsilent uninstallexe
 #define MyAppName "Yime"
-#ifndef MyAppVersion
+#if !defined(MyAppVersion)
   #define MyAppVersion "0.1.1"
 #endif
-#ifndef MyPortableDistDir
+#if !defined(MyPortableDistDir)
   #define MyPortableDistDir AddBackslash(SourcePath) + "dist\\Yime"
 #endif
-#ifndef MySetupOutputDir
+#if !defined(MySetupOutputDir)
   #define MySetupOutputDir AddBackslash(SourcePath) + "dist\\setup"
 #endif
 

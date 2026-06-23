@@ -1,3 +1,5 @@
+# cspell:ignore wheelcheck codeartsdoer
+
 # Ignore sqlite DB and backups
 yime/pinyin_hanzi.db
 yime/pinyin_hanzi.db.*
@@ -45,7 +47,7 @@ character_positions.db
 character_table.json
 yime.db
 clear
-Anaconda3Scriptsconda.exe
+Anaconda3/Scripts/conda.exe
 
 # Generated reports
 coverage/
@@ -64,7 +66,7 @@ internal_data/pinyin_source_db/source_pinyin.db
 internal_data/hanzi_pinyin/hanzi_pinyin.db
 internal_data/phrase_pinyin/phrase_pinyin.db
 yime/pinyin_hanzi.db
-# Upstream / regenerable exports (rebuild uses internal_data/*/ curated TSV)
+# Upstream / generated exports (rebuild uses internal_data/*/ curated TSV)
 external_data/hanzi_pinyin.txt
 external_data/phrase_pinyin.txt
 external_data/word_freq/*.txt

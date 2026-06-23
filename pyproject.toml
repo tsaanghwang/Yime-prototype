@@ -1,3 +1,5 @@
+# cspell:words setuptools testpaths norecursedirs
+
 [build-system]
 requires = ["setuptools>=64.0.0", "wheel"]
 build-backend = "setuptools.build_meta"

@@ -1,3 +1,4 @@
+// cSpell:ignore debugpy
 {
 	"folders": [
 		{
@@ -45,369 +46,274 @@
 		"python-envs.defaultPackageManager": "ms-python.python:conda",
 		"powershell.cwd": "Yime",
 		"python.django.project.supportEnabled": false,
-		"python.missingDependencies.doNotShow": true
+		"python.missingDependencies.doNotShow": true,
+		"cSpell.words": [
+			"debugpy"
+		]
 	},
 	"launch": {
 		"configurations": [
 			{
 				"name": "merge_char_freq",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\merge_char_freq.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "merge_word_freq",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\merge_word_freq.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "yinjie",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\codec\\yinjie.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "syllable_structure",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\yime\\syllable_structure.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\yime",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "syllable_decoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\yime\\syllable_decoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\yime",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "yinjie_decoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\codec\\yinjie_decoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "pinyin_importer",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\yime\\pinyin_importer.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\yime",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "reverse_key_value_pairs",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\yime\\reverse_key_value_pairs.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\yime",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "interactive_yinjie",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\codec\\interactive_yinjie_session.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "verify_yinjie_encoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tests\\yinjie\\verify_yinjie_encoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "yueyin_yinyuan",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\yueyin_yinyuan.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "zaoyin_yinyuan",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\zaoyin_yinyuan.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "extract_yueyin_pianyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\extract_yueyin_pianyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "verify_classification",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tests\\syllable_analysis\\test_verify_classification.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "verify_encode_shouyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tests\\syllable_analysis\\test_encode_shouyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "verify_encode_ganyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tests\\syllable_analysis\\test_encode_ganyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "yinjie_encoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\codec\\yinjie_encoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "shouyin_encoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\shouyin_encoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "shouyin_analyzer",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\shouyin_analyzer.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "ganyin_encoder",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\ganyin_encoder.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "convert_pitch_style",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\convert_pitch_style.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "comprehensive_verification",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\comprehensive_verification.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "analyze_classification",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\analyze_classification.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "reverse_key_value_pairs",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\yime\\reverse_key_value_pairs.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "ganyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\ganyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "syllable_categorizer",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\syllable_categorizer.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "ganyin_enhanced",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\ganyin_enhanced.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "generate_zaoyin_yinyuan",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\generate_zaoyin_yinyuan.py",
-				"currentFileConfiguration": false,
-				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
+				"cwd": "${workspaceFolder}"
 			},
 			{
 				"name": "pitched_pianyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\pitched_pianyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "Python: Current File",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${file}",
-				"currentFileConfiguration": true,
 				"cwd": "${fileDirname}",
-				"addSourceRootsToPythonpath": true,
 				"env": {
 					"PYTHONPATH": "${workspaceFolder};${env:PYTHONPATH}"
 				}
 			},
 			{
 				"name": "pitched_yinyuan",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\pitched_yinyuan.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "pianyin",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\syllable\\analysis\\pianyin.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}\\syllable\\analysis",
-				"addSourceRootsToPythonpath": true
 			},
 			{
 				"name": "run_analyzer",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\run_analyzer.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "ganyin_slicer",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\ganyin_slicer.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "extract_yueyin_yinyuan",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\extract_yueyin_yinyuan.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "ganyin_to_pianyin_sequence",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\ganyin_to_pianyin_sequence.py",
-				"currentFileConfiguration": false,
 				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
 			},
 			{
 				"name": "ganyin_to_yinyuan_sequence",
-				"type": "python",
+				"type": "debugpy",
 				"request": "launch",
 				"program": "${workspaceFolder}\\tools\\syllable_analysis\\ganyin_to_yinyuan_sequence.py",
-				"currentFileConfiguration": false,
-				"cwd": "${workspaceFolder}",
-				"addSourceRootsToPythonpath": true,
-				"noDebug": true
+				"cwd": "${workspaceFolder}"
 			},
 			{
 				"name": "Launch Chrome",
