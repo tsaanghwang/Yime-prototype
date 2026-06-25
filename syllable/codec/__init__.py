@@ -1,7 +1,15 @@
-"""音节编解码：模型、编码器、解码器与运行时 JSON 产物。"""
+"""音节编解码：模型全码、音值简码、输入省键与运行时 JSON 产物。"""
 
 from .paths import KEY_TO_CODE_PATH, PACKAGE_ROOT, REPO_ROOT, YINJIE_CODE_PATH
-from .yinjie import GanyinSlots, Yinjie, YunyinSlots
+from .input_shorthand import omit_middle_tone_if_same_quality_run
+from .model_full_code import GanyinSlots, Yinjie, YunyinSlots
+from .phonological_code import (
+    from_legacy_pinyin_chars,
+    merge_adjacent_duplicate_symbols,
+    simplify_ganyin_repeats,
+    simplify_loose_structure,
+    split_loose_encoded_string,
+)
 from .yinjie_decoder import DEFAULT_PHONEME_REPORT, YinjieDecoder, YinjieDecoderRunResult
 
 __all__ = [
@@ -10,6 +18,12 @@ __all__ = [
     "KEY_TO_CODE_PATH",
     "PACKAGE_ROOT",
     "REPO_ROOT",
+    "from_legacy_pinyin_chars",
+    "merge_adjacent_duplicate_symbols",
+    "omit_middle_tone_if_same_quality_run",
+    "simplify_ganyin_repeats",
+    "simplify_loose_structure",
+    "split_loose_encoded_string",
     "YINJIE_CODE_PATH",
     "Yinjie",
     "YinjieDecoder",
