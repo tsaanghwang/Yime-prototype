@@ -179,6 +179,9 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 
 | 模块 | 说明 |
 | ---- | ---- |
+| `syllable.codec.model_full_code` | 模型全码子包；承载 `Yinjie` 四音元位 canonical 结构 |
+| `syllable.codec.phonological_code` | 音值简码子包；承载变长切分与相邻同音值合并 |
+| `syllable.codec.input_shorthand` | 输入省键子包；承载省中调等不改变映射关系的别名规则 |
 | `syllable.codec.yinjie_loose_split` | 早期可变长切分；`split_loose_encoded_string` |
 | `syllable.codec.yinjie_jianpin_draft` | 简拼草稿（仅干音去重）；完整规则待实现 |
 | `yime.syllable_decoder.SyllableDecoder` | 旧 import 路径；继承 `YinjieDecoder` |
