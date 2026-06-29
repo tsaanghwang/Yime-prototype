@@ -1294,7 +1294,7 @@ def test_candidate_box_update_candidates_uses_status_text() -> None:
 
 
 def test_candidate_box_default_status_text_matches_current_ui_guidance() -> None:
-    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
+    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会按完整音节自动组织候选。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
 
 
 def test_edit_hotkey_updates_status_with_next_step_guidance(monkeypatch) -> None:

@@ -31,8 +31,8 @@ def test_real_decoding_scenarios():
         ("ab", "双字符"),
         ("abc", "三字符"),
         ("abcd", "四字符"),
-        ("abcde", "五字符（自动截取后4码）"),
-        ("abcdefgh", "八字符（自动截取后4码）"),
+        ("abcde", "五字符（静态回退会截取最近一个四码音节）"),
+        ("abcdefgh", "八字符（静态回退会截取最近一个四码音节）"),
         ("1234", "数字输入"),
         ("!@#$", "特殊字符"),
         ("测试", "中文字符"),
@@ -49,7 +49,7 @@ def test_real_decoding_scenarios():
             canonical, active_code, pinyin, candidates, status = decoder.decode_text(test_input)
 
             print(f"  规范编码: '{canonical}'")
-            print(f"  当前4码: '{active_code}'")
+            print(f"  当前码串: '{active_code}'")
             print(f"  拼音: '{pinyin}'")
             print(f"  候选词数量: {len(candidates)}")
             if candidates:
