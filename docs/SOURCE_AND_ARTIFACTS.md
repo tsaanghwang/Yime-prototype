@@ -159,7 +159,8 @@
   - 由 `rebuild_pinyin_assets.py` 从
     `lexicon_exports/pinyin_normalized.json` 同步复制，供
     IME/static decoder 读取。
-  - 当前输入法主链以 SQLite `runtime_candidates` 为主；JSON
+  - 当前输入法运行时主链以 SQLite `runtime_candidates_materialized`
+    为主，键使用音值简码；`runtime_candidates` 视图与四码映射仍承担上游展开/真源桥接。JSON
     导出与静态层为备用。`pinyin_normalized.json`
     服务码元→拼音显示。
   - 可选的 `yime/pinyin_hanzi.json` 仅作静态拼音→汉字兜底（已 gitignore；缺失时静态回退只解码拼音、不出汉字候选）。

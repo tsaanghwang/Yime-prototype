@@ -202,7 +202,7 @@ python -m yime.input_method.app --font-family "Microsoft YaHei"
 
 如果 SQLite 主路径正常，还可能看到：
 
-- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
+- `[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）`
 
 这些输出都属于当前实现允许的正常路径。
 

@@ -19,6 +19,8 @@
 
 当前项目已经不再停留在“只能做一个输入框演示”的阶段。
 
+编码链路上，当前应区分两层：四码仍是音节结构与拼音映射的 canonical 真源；IME 查词、连续输入与候选组织则已切到“音值简码运行时主链”。
+
 在 Windows + Python 3.12 + pywin32 可用的环境下，当前原型已经具备：
 
 1. 全局低层键盘钩子监听
@@ -42,7 +44,7 @@
 用户在任意外部窗口按键
 → 全局键盘钩子接收按键
 → 组合态下拦截码元按键
-→ 累积 4 码音元编码
+→ 累积 1 至 4 码音值简码，并按运行时码表识别完整音节
 → 解码候选词
 → 在光标附近显示候选框
 → 用户选字或编辑待上屏文本
@@ -113,7 +115,7 @@
 
 当前策略：
 
-1. **优先** `yime/pinyin_hanzi.db` → SQLite `runtime_candidates` 视图（默认主路径）
+1. **优先** `yime/pinyin_hanzi.db` → SQLite `runtime_candidates_materialized` 物化表（默认主路径；按音值简码查词）
 2. SQLite 不可用时，回退到 `.generated/runtime_candidates_by_code_true.json`
 3. 运行层仍无候选时，再回退静态层（`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 提供汉字）
 
@@ -121,7 +123,7 @@
 
 - 自用只要 `yime/pinyin_hanzi.db` 在且导入链跑通，即可正常查词。
 - JSON 导出主要用于人工 diff / 备用，不是日常必需。
-- 启动时会打印当前来源，如 `sqlite` 或 `json`。
+- 启动时会打印当前来源，如 `sqlite` 或 `json`；其中 SQLite 路径会优先落到 `runtime_candidates_materialized`，必要时再回退视图展开层。
 
 ### 5. 候选框 UI 层
 

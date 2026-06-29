@@ -71,15 +71,15 @@ scripts/run_tests.cmd
 
 `CompositeCandidateDecoder` 优先级：
 
-1. **`yime/pinyin_hanzi.db`** → `runtime_candidates` 视图 —
-  **默认主路径**
+1. **`yime/pinyin_hanzi.db`** → `runtime_candidates_materialized` 物化表 —
+  **默认运行时主路径（按音值简码查词）**
 2. **`.generated/runtime_candidates_by_code_true.json`** — 仅 SQLite 不可用时
 3. **静态层** — 仍无候选时：`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 汉字兜底（已 gitignore）
 
 启动成功时常见日志：
 
 ```text
-[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates
+[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）
 ```
 
 诊断面板：SQLite 为主标 **正常**；未生成 JSON 导出仅为 **提示**。
