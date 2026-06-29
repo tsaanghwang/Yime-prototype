@@ -70,9 +70,9 @@ python -m yime.input_method.app
 
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
-- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
+- `[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）`
 
-最后一行表示 SQLite 主路径已启用，属于正常情况。
+最后一行表示 SQLite 运行时主路径已启用，属于正常情况。
 
 ### Q5：为什么文档里仍然会提到 Git LFS？
 

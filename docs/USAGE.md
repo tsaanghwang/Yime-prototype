@@ -56,7 +56,7 @@ python -m yime.input_method.app --font-family "Microsoft YaHei"
 
 - `键盘监听已启动，按ESC退出`
 - `键盘监听未启用，将使用手动输入模式`
-- `[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates`
+- `[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）`
 
 以上都属于当前实现允许的正常路径。
 
