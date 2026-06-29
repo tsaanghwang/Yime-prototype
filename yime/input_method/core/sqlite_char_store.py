@@ -43,6 +43,17 @@ class SQLiteCharCandidateStore:
         self._char_candidate_cache.clear()
         self._char_prefix_cache.clear()
 
+    def _lookup_code_column(self) -> str:
+        if (
+            self.runtime_table_name == "runtime_candidates_materialized"
+            and self.runtime_source.has_column(
+                self.runtime_table_name,
+                "primary_yime_code",
+            )
+        ):
+            return "primary_yime_code"
+        return "yime_code"
+
     def load_char_sort_weight_index(self) -> Dict[str, float]:
         with self.runtime_source.connect() as conn:
             rows = conn.execute(
@@ -68,11 +79,12 @@ class SQLiteCharCandidateStore:
             return list(cached)
 
         with self.runtime_source.connect() as conn:
+            lookup_code_column = self._lookup_code_column()
             rows = conn.execute(
                 f"""
-                SELECT entry_type, entry_id, text, yime_code, pinyin_tone, sort_weight, is_common
+                SELECT entry_type, entry_id, text, yime_code, {lookup_code_column} AS lookup_code, pinyin_tone, sort_weight, is_common
                 FROM {self.runtime_table_name}
-                WHERE entry_type = 'char' AND yime_code = ?
+                WHERE entry_type = 'char' AND {lookup_code_column} = ?
                 ORDER BY sort_weight DESC, text
                 """,
                 (normalized_code,),
@@ -95,14 +107,15 @@ class SQLiteCharCandidateStore:
             return [(code, list(candidates)) for code, candidates in cached]
 
         with self.runtime_source.connect() as conn:
+            lookup_code_column = self._lookup_code_column()
             if self.runtime_table_name == "runtime_candidates_materialized":
                 if normalized_prefix:
                     query = (
-                        """
-                        SELECT DISTINCT yime_code
+                        f"""
+                        SELECT DISTINCT {lookup_code_column} AS lookup_code
                         FROM runtime_candidates_materialized
-                        WHERE entry_type = 'char' AND yime_code >= ? AND yime_code < ?
-                        ORDER BY yime_code
+                        WHERE entry_type = 'char' AND {lookup_code_column} >= ? AND {lookup_code_column} < ?
+                        ORDER BY {lookup_code_column}
                         """
                     )
                     params: tuple[object, ...] = (
@@ -111,11 +124,11 @@ class SQLiteCharCandidateStore:
                     )
                 else:
                     query = (
-                        """
-                        SELECT DISTINCT yime_code
+                        f"""
+                        SELECT DISTINCT {lookup_code_column} AS lookup_code
                         FROM runtime_candidates_materialized
-                        WHERE entry_type = 'char' AND yime_code IS NOT NULL AND yime_code <> ''
-                        ORDER BY yime_code
+                        WHERE entry_type = 'char' AND {lookup_code_column} IS NOT NULL AND {lookup_code_column} <> ''
+                        ORDER BY {lookup_code_column}
                         """
                     )
                     params = ()
@@ -163,7 +176,7 @@ class SQLiteCharCandidateStore:
     def _row_to_char_candidate(self, row: sqlite3.Row) -> CharCodeCandidate:
         return CharCodeCandidate(
             text=str(row["text"] or "").strip(),
-            code=str(row["yime_code"] or "").strip(),
+            code=str(row["lookup_code"] or row["yime_code"] or "").strip(),
             entry_id=str(row["entry_id"] or "").strip(),
             pinyin_tone=str(row["pinyin_tone"] or "").strip(),
             sort_weight=_as_float_value(row["sort_weight"]),

@@ -19,10 +19,7 @@ def build_code_display(raw_text: str, canonical_code: str, active_code: str) -> 
         return ""
 
     active_display = format_codepoints(active_code)
-    if len(active_code) > 4 and len(active_code) % 4 == 0:
-        active_label = f"当前{len(active_code) // 4}音节码"
-    else:
-        active_label = "当前4码"
+    active_label = "当前码串"
 
     if not canonical_code:
         return active_display
@@ -250,7 +247,13 @@ def build_projected_to_keycap_map(repo_root: Path) -> Dict[str, str]:
         if len(physical_key) != 1:
             continue
 
-        keycap = physical_key.lower()
+        output_layer = str(row.get("output_layer") or "").strip().lower()
+        if output_layer == "shift":
+            keycap = f"Shift+{physical_key.upper()}"
+        elif output_layer == "altgr":
+            keycap = f"AltGr+{physical_key.upper()}"
+        else:
+            keycap = physical_key.lower()
         if bmp_char:
             projected_to_keycap.setdefault(str(cast(object, bmp_char)), keycap)
         if symbol_char:

@@ -7,6 +7,10 @@ from pathlib import Path
 import unicodedata
 from typing import Dict, List, Tuple, cast
 
+from yime.canonical_yime_mapping import (
+    convert_legacy_code_to_primary,
+    load_primary_code_map,
+)
 from .runtime_lookup import (
     RuntimeLookupPlan,
     build_runtime_lookup_plan,
@@ -27,15 +31,8 @@ def canonicalize_runtime_input(text: str, bmp_to_canonical: Dict[str, str]) -> s
     return "".join(bmp_to_canonical.get(char, char) for char in text)
 
 
-def _load_numeric_yime_code_map(repo_root: Path) -> Dict[str, str]:
-    payload = json.loads(
-        (repo_root / "syllable" / "codec" / "yinjie_code.json").read_text(encoding="utf-8")
-    )
-    return {
-        str(pinyin_tone).strip(): str(yime_code)
-        for pinyin_tone, yime_code in payload.items()
-        if str(pinyin_tone).strip() and str(yime_code)
-    }
+def _normalize_legacy_runtime_code(code: str, bmp_to_canonical: Dict[str, str]) -> str:
+    return convert_legacy_code_to_primary(canonicalize_runtime_input(code, bmp_to_canonical))
 
 
 @lru_cache(maxsize=None)
@@ -66,10 +63,9 @@ def build_pinyin_to_canonical_code_map(
     repo_root: Path,
     bmp_to_canonical: Dict[str, str],
 ) -> Dict[str, str]:
-    numeric_to_runtime = _load_numeric_yime_code_map(repo_root)
     return {
         pinyin_tone: canonicalize_runtime_input(runtime_code, bmp_to_canonical)
-        for pinyin_tone, runtime_code in numeric_to_runtime.items()
+        for pinyin_tone, runtime_code in load_primary_code_map(repo_root).items()
     }
 
 
@@ -147,12 +143,19 @@ class RuntimeDecoderBase:
             self.pinyin_to_canonical,
             resolve_canonical_code_from_pinyin_tone,
         )
+        self.single_syllable_codes = frozenset(
+            code for code in self.pinyin_to_canonical.values() if str(code or "").strip()
+        )
         self._continuous_input_priority_rules = load_local_phrase_priority_rules(
             app_dir.parent / "internal_data" / "continuous_input_priority_rules.json",
             self.pinyin_to_canonical,
             resolve_canonical_code_from_pinyin_tone,
             expected_lookup_code_length=None,
             min_lookup_code_length=5,
+            normalize_lookup_code=lambda code: _normalize_legacy_runtime_code(
+                code,
+                self.bmp_to_canonical,
+            ),
         )
         self.user_lexicon = UserLexiconStore(user_db_path or app_dir / "user_lexicon.db")
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
@@ -173,10 +176,11 @@ class RuntimeDecoderBase:
     ) -> Tuple[str, str, str, List[str], str]:
         canonical = canonicalize_runtime_input(text, self.bmp_to_canonical)
         if not canonical:
-            return "", "", "", [], "请输入一个完整音节的 4 个码元。"
+            return "", "", "", [], "请输入一个完整音节的编码。"
 
-        plan = build_runtime_lookup_plan(canonical)
-        mode_hint = build_runtime_mode_hint(canonical, plan)
+        single_syllable_codes = getattr(self, "single_syllable_codes", None)
+        plan = build_runtime_lookup_plan(canonical, single_syllable_codes)
+        mode_hint = build_runtime_mode_hint(canonical, plan, single_syllable_codes)
         raw_candidates, priority_lookup_code = self._lookup_runtime_candidates_for_decode(
             canonical,
             plan,
@@ -215,21 +219,24 @@ class RuntimeDecoderBase:
                 status = f"{mode_hint} {status}"
             return canonical, plan.active_code, display_pinyin, texts, status
 
-        if len(canonical) < 4:
-            status = f"当前 {len(canonical)}/4 码，继续输入。"
+        if plan.stage == "A":
+            status = mode_hint or "当前输入尚未形成完整音节，继续输入。"
             return canonical, canonical, display_pinyin, [], status
 
         if plan.phrase_mode:
             status = f"{self.runtime_source_label}中未找到该 {plan.syllable_count} 音节词语候选。"
         else:
-            status = f"{self.runtime_source_label}中未找到该 4 码候选。"
+            status = f"{self.runtime_source_label}中未找到该音节编码候选。"
         if mode_hint:
             status = f"{mode_hint} {status}"
         return canonical, plan.active_code, display_pinyin, [], status
 
     def record_selection(self, text: str, candidate_text: str) -> int:
         canonical = canonicalize_runtime_input(text, self.bmp_to_canonical)
-        plan = build_runtime_lookup_plan(canonical)
+        plan = build_runtime_lookup_plan(
+            canonical,
+            getattr(self, "single_syllable_codes", None),
+        )
         if not plan.lookup_code or not candidate_text.strip():
             return 0
         key = (plan.lookup_code, candidate_text.strip())
