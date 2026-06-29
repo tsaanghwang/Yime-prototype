@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS pinyin_yime_code (
 CREATE INDEX IF NOT EXISTS idx_pinyin_yime_code_yime_code
 ON pinyin_yime_code(yime_code);
 
--- 四音元位分解一览：替代旧「音元拼音」宽表；由 pinyin_yime_code + Yinjie 模型物化。
+-- 四元编码分解一览：替代旧「音元拼音」宽表；由 pinyin_yime_code + Yinjie 四元模型物化。
 CREATE TABLE IF NOT EXISTS yinjie_slot_decomposition (
     pinyin_tone TEXT PRIMARY KEY,
     yime_code TEXT NOT NULL,
@@ -371,7 +371,7 @@ VALUES
     ('runtime_tuning_parameters_table', 'runtime_tuning_parameters', '运行时调参表：读音权重与先验系数的可调入口', CURRENT_TIMESTAMP),
     ('numeric_pinyin_inventory_table', 'numeric_pinyin_inventory', '当前原型数字标调拼音主表（英文隔离表）', CURRENT_TIMESTAMP),
     ('pinyin_yime_code_table', 'pinyin_yime_code', '当前原型 canonical 拼音到 yime_code 映射表；主线不再依赖 mapping_id', CURRENT_TIMESTAMP),
-    ('yinjie_slot_decomposition_table', 'yinjie_slot_decomposition', '四音元位分解一览；由 pinyin_yime_code 与 Yinjie 模型物化，替代旧音元拼音宽表', CURRENT_TIMESTAMP),
+    ('yinjie_slot_decomposition_table', 'yinjie_slot_decomposition', '四元编码分解一览；由 pinyin_yime_code 与 Yinjie 四元模型物化，替代旧音元拼音宽表', CURRENT_TIMESTAMP),
     ('char_numeric_map_table', 'char_pinyin_map', '当前原型单字到数字标调拼音映射表（英文隔离表）', CURRENT_TIMESTAMP),
     ('phrase_inventory_table', 'phrase_inventory', '当前原型词语主表（英文隔离表）', CURRENT_TIMESTAMP),
     ('runtime_candidates_materialized_table', 'runtime_candidates_materialized', '当前运行时按码查询使用的物化候选表', CURRENT_TIMESTAMP),
