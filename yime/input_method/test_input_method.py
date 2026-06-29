@@ -100,8 +100,8 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    # 测试解码不足4码
-    test_name = "StaticCandidateDecoder 解码不足4码"
+    # 测试解码未形成完整静态音节
+    test_name = "StaticCandidateDecoder 解码未形成完整静态音节"
     try:
         canonical, active, pinyin, candidates, status = decoder.decode_text("abc")
         assert len(canonical) == 3, f"期望3个字符，得到: {len(canonical)}"
@@ -110,8 +110,8 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    # 测试解码4码
-    test_name = "StaticCandidateDecoder 解码4码"
+    # 测试解码单个静态四码音节
+    test_name = "StaticCandidateDecoder 解码单个静态四码音节"
     try:
         # 使用一个测试编码
         canonical, active, pinyin, candidates, status = decoder.decode_text("abcd")
@@ -239,13 +239,13 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    test_name = "CompositeCandidateDecoder 不足4码状态不混入单字前缀"
+    test_name = "CompositeCandidateDecoder 未完成音节状态不混入单字前缀"
     try:
         canonical, active, pinyin, candidates, status = composite_decoder.decode_text("a")
         assert canonical == "a"
         assert active == "a"
         assert candidates == []
-        assert "当前 1/4 码" in status
+        assert "当前首音节未完成" in status
         assert "单字前缀" not in status
         result.add_pass(test_name)
     except Exception as e:
@@ -266,7 +266,7 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    test_name = "BaseInputMethodApp 不足4码时并入前缀单字候选"
+    test_name = "BaseInputMethodApp 未完成音节时并入前缀单字候选"
     try:
         app = BaseInputMethodApp.__new__(BaseInputMethodApp)
         app.decoder = composite_decoder
@@ -277,7 +277,7 @@ def test_decoders(result: TestResult):
         assert exact_candidates, "前缀编码应携带单字候选"
 
         merged = app._resolve_display_candidates(prefix_code[:1], [])
-        assert merged, "不足4码时应显示前缀单字候选"
+        assert merged, "未完成音节时应显示前缀单字候选"
         assert exact_candidates[0].text in merged
 
         canonical, _active, _pinyin, candidates, _status = composite_decoder.decode_text("abcd")
@@ -287,15 +287,21 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    test_name = "CompositeCandidateDecoder 大写 H 走零声母编码"
+    test_name = "CompositeCandidateDecoder 大写 H 走变长主码路径"
     try:
         physical_input_map = build_physical_input_map(project_root)
-        projected = project_physical_input("Hsss", physical_input_map)
+        projected = project_physical_input("Hs", physical_input_map)
         canonical, active, pinyin, candidates, status = composite_decoder.decode_text(projected)
-        assert canonical == composite_decoder.runtime_decoder.bmp_to_canonical.get(projected[0], projected[0]) + composite_decoder.runtime_decoder.bmp_to_canonical.get(projected[1], projected[1]) + composite_decoder.runtime_decoder.bmp_to_canonical.get(projected[2], projected[2]) + composite_decoder.runtime_decoder.bmp_to_canonical.get(projected[3], projected[3]) if composite_decoder.runtime_decoder is not None else canonical
-        assert pinyin == "a3", f"期望 a3，得到: {pinyin}"
-        assert candidates, "期望零声母 a3 能命中候选"
-        assert candidates[0] in {"啊", "阿", "呵"}, f"零声母候选异常: {candidates[:3]}"
+        if composite_decoder.runtime_decoder is not None:
+            expected = "".join(
+                composite_decoder.runtime_decoder.bmp_to_canonical.get(char, char)
+                for char in projected
+            )
+            assert canonical == expected
+        assert active, "期望大写 H 投影后能形成活动码串"
+        assert len(active) <= len(canonical)
+        assert candidates, f"期望大写 H 的当前主码路径能命中候选，状态: {status}"
+        assert "找到" in status, f"期望进入运行时命中路径，得到: {status}"
         result.add_pass(test_name)
     except Exception as e:
         result.add_fail(test_name, str(e))
@@ -2802,7 +2808,9 @@ def test_hotkey_app(result: TestResult):
         assert ("manual", False) in events
         assert "standby" in events
         assert "restore_external" in events
-        assert status_updates[-1] == "V1 已回待命：按 ctrl+shift+y 可再次唤起输入框。"
+        assert status_updates, "期望输出待命提示"
+        assert "V1 已回待命" in status_updates[-1]
+        assert "可再次唤起输入框" in status_updates[-1]
         result.add_pass(test_name)
     except Exception as e:
         result.add_fail(test_name, str(e))
@@ -3237,7 +3245,9 @@ def test_hotkey_app(result: TestResult):
         assert ("post_commit", "keep-input") in events
         assert "resume_global" not in events
         assert app._hotkey_mode == "hotkey"
-        assert status_updates[-1] == "V1 热键模式已就绪：按 ctrl+shift+y 唤起输入框；再次按下可回待命。"
+        assert status_updates, "期望输出热键模式摘要"
+        assert "当前模式：热键模式" in status_updates[-1]
+        assert "热键状态：正常。已启用 ctrl+shift+y" in status_updates[-1]
         result.add_pass(test_name)
     except Exception as e:
         result.add_fail(test_name, str(e))
@@ -3265,7 +3275,9 @@ def test_hotkey_app(result: TestResult):
         assert ("post_commit", "standby") in events
         assert "resume_global" in events
         assert app._hotkey_mode == "disabled"
-        assert status_updates[-1] == "实验性全局监听模式已就绪：直接监听外部键盘输入；不启用热键会话。"
+        assert status_updates, "期望输出全局监听模式摘要"
+        assert "当前模式：实验性全局监听模式" in status_updates[-1]
+        assert "热键状态：提示。当前模式不使用热键会话" in status_updates[-1]
         result.add_pass(test_name)
     except Exception as e:
         result.add_fail(test_name, str(e))
