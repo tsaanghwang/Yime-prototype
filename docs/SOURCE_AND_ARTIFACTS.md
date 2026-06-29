@@ -302,7 +302,7 @@
     `source_pinyin.db -> prototype tables -> runtime` rebuild 链与
     legacy-compatible 区域。
 
-- `syllable/codec/yinjie.py`（``Yinjie`` 四音元位真源）
+- `syllable/codec/yinjie.py`（``Yinjie`` 四元模型真源）
 - `syllable/codec/yinjie_loose_split.py`
   （legacy 可变长切分，非 IME 主链）
 - `syllable/codec/yinjie_jianpin_draft.py`
