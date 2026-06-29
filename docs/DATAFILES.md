@@ -10,7 +10,8 @@
 - external_data/finals_IPA_mapping.json：finals 侧外部 IPA 输入映射
 - external_data/initials_IPA_mapping.json：initials 侧外部 IPA 输入映射
 - `syllable/codec/key_to_code.json`：运行时键位槽位到字符映射（见 [syllable/README.md](../syllable/README.md)）
-- yime/reports/phoneme_dict.json：音元分类导出报告
+- yime/reports/yinyuan_dict.json：音元分类导出报告
+- yime/reports/phoneme_dict.json：旧兼容音元分类导出报告
 
 补充说明：旧 JS 原型链使用过的 `pinyinCodeTable.json` 与
 `hanziTable.json` 已随原型链一起迁出到单独的
@@ -104,18 +105,19 @@
 - 值：对应字符
 - 位置：随 `syllable.codec` 子包一起维护的运行时映射文件
 
-### yime/reports/phoneme_dict.json
+### yime/reports/yinyuan_dict.json
 
 ```json
 {
-  "noise_phonemes": ["ㄅ", "ㄆ"],
-  "musical_phonemes": ["ˉ", "ˊ"]
+  "noise_yinyuan": ["ㄅ", "ㄆ"],
+  "musical_yinyuan": ["ˉ", "ˊ"]
 }
 ```
 
 - 键：分类名称
 - 值：当前真源全量解码后得到的音元列表
 - 性质：可再生导出报告，不是运行时输入真源
+- 兼容：`phoneme_dict.json`、`noise_phonemes`、`musical_phonemes` 仍为旧导出名
 
 ## 3. 扩展方式
 

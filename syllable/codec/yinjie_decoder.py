@@ -14,8 +14,10 @@ except ImportError:
 
 
 DecodedMap = dict[str, Yinjie]
-PhonemeSets = dict[str, set[str]]
+YinyuanSets = dict[str, set[str]]
+PhonemeSets = YinyuanSets
 ROOT = PACKAGE_ROOT
+DEFAULT_YINYUAN_REPORT = REPO_ROOT / 'yime' / 'reports' / 'yinyuan_dict.json'
 DEFAULT_PHONEME_REPORT = REPO_ROOT / 'yime' / 'reports' / 'phoneme_dict.json'
 
 
@@ -26,6 +28,11 @@ class YinjieDecoderRunResult:
     decoded_count: int
     phoneme_dict_path: Path
     key_to_code_path: Path
+
+    @property
+    def yinyuan_dict_path(self) -> Path:
+        """推荐名：音元分类导出路径。"""
+        return self.phoneme_dict_path
 
 class YinjieDecoder:
     # === 初始化相关 ===
@@ -101,11 +108,15 @@ class YinjieDecoder:
         """辅助函数：直接返回字符本身而不是Unicode转义序列"""
         return char if char else ''
 
-    def _display_phonemes(self, phonemes: list[str]) -> str:
+    def _display_yinyuan_chars(self, yinyuan_chars: list[str]) -> str:
         """改进的音元列表显示方法"""
-        if not phonemes:
+        if not yinyuan_chars:
             return "[]"
-        return "[" + ", ".join(f"'{self._display_char(c)}'" for c in phonemes) + "]"
+        return "[" + ", ".join(f"'{self._display_char(c)}'" for c in yinyuan_chars) + "]"
+
+    def _display_phonemes(self, phonemes: list[str]) -> str:
+        """兼容旧名：同 ``_display_yinyuan_chars``。"""
+        return self._display_yinyuan_chars(phonemes)
 
     # === 核心解码功能 ===
     def decode(self, pinyin: str) -> Yinjie:
@@ -141,25 +152,29 @@ class YinjieDecoder:
         """解码所有拼音为Yinjie实例字典"""
         return {pinyin: self.decode(pinyin) for pinyin in self.code_map}
 
-    def _collect_phoneme_sets(self, decoded_map: DecodedMap) -> PhonemeSets:
+    def _collect_yinyuan_sets(self, decoded_map: DecodedMap) -> YinyuanSets:
         """从已解码结果中收集噪音和乐音集合。"""
-        phoneme_sets: PhonemeSets = {
+        yinyuan_sets: YinyuanSets = {
             "noise": set(),
             "musical": set(),
         }
 
         for yinjie in decoded_map.values():
-            noise, musical = yinjie.classify_phonemes()
-            phoneme_sets["noise"].update(noise)
-            phoneme_sets["musical"].update(musical)
+            noise, musical = yinjie.classify_yinyuan_chars()
+            yinyuan_sets["noise"].update(noise)
+            yinyuan_sets["musical"].update(musical)
 
-        return phoneme_sets
+        return yinyuan_sets
+
+    def _collect_phoneme_sets(self, decoded_map: DecodedMap) -> PhonemeSets:
+        """兼容旧名：同 ``_collect_yinyuan_sets``。"""
+        return self._collect_yinyuan_sets(decoded_map)
 
     # === 音元分类和映射生成 ===
-    def generate_phoneme_mapping(self, decoded_map: DecodedMap | None = None) -> dict[str, Any]:
+    def generate_yinyuan_mapping(self, decoded_map: DecodedMap | None = None) -> dict[str, Any]:
         """生成音元分类映射字典"""
         decoded_map = decoded_map or self.decode_all()
-        mapping = self._collect_phoneme_sets(decoded_map)
+        mapping = self._collect_yinyuan_sets(decoded_map)
 
         return {
             "forward": {
@@ -167,30 +182,48 @@ class YinjieDecoder:
                 "musical": sorted(mapping["musical"])
             },
             "reverse": {
-                phoneme: "noise" for phoneme in mapping["noise"]
+                yinyuan_char: "noise" for yinyuan_char in mapping["noise"]
             }
         }
 
-    def build_phoneme_dict(self, decoded_map: DecodedMap | None = None) -> dict[str, list[str]]:
+    def generate_phoneme_mapping(self, decoded_map: DecodedMap | None = None) -> dict[str, Any]:
+        """兼容旧名：同 ``generate_yinyuan_mapping``。"""
+        return self.generate_yinyuan_mapping(decoded_map=decoded_map)
+
+    def build_yinyuan_dict(self, decoded_map: DecodedMap | None = None) -> dict[str, list[str]]:
         """从已解码结果构造音元分类字典。"""
         decoded_map = decoded_map or self.decode_all()
-        phoneme_sets = self._collect_phoneme_sets(decoded_map)
+        yinyuan_sets = self._collect_yinyuan_sets(decoded_map)
         return {
-            "noise_phonemes": sorted(phoneme_sets["noise"]),
-            "musical_phonemes": sorted(phoneme_sets["musical"]),
+            "noise_yinyuan": sorted(yinyuan_sets["noise"]),
+            "musical_yinyuan": sorted(yinyuan_sets["musical"]),
+        }
+
+    def build_phoneme_dict(self, decoded_map: DecodedMap | None = None) -> dict[str, list[str]]:
+        """兼容旧名：返回历史 JSON 键名。"""
+        decoded_map = decoded_map or self.decode_all()
+        yinyuan_sets = self._collect_yinyuan_sets(decoded_map)
+        return {
+            "noise_phonemes": sorted(yinyuan_sets["noise"]),
+            "musical_phonemes": sorted(yinyuan_sets["musical"]),
         }
 
     # === 文件操作和保存 ===
-    def save_phoneme_dict(self, output_file: str | Path = DEFAULT_PHONEME_REPORT, decoded_map: DecodedMap | None = None) -> Path:
+    def save_yinyuan_dict(self, output_file: str | Path = DEFAULT_YINYUAN_REPORT, decoded_map: DecodedMap | None = None) -> Path:
         """将分类后的音元保存到JSON文件"""
+        yinyuan_dict = self.build_yinyuan_dict(decoded_map=decoded_map)
+        return self._save_json(output_file, yinyuan_dict)
+
+    def save_phoneme_dict(self, output_file: str | Path = DEFAULT_PHONEME_REPORT, decoded_map: DecodedMap | None = None) -> Path:
+        """兼容旧名：保存历史 JSON 键名。"""
         phoneme_dict = self.build_phoneme_dict(decoded_map=decoded_map)
         return self._save_json(output_file, phoneme_dict)
 
-    def _build_category_keys(self, phonemes: list[str], prefix: str) -> dict[str, str]:
+    def _build_category_keys(self, yinyuan_chars: list[str], prefix: str) -> dict[str, str]:
         """按类别前缀生成等长编码键。"""
         return {
-            f"{prefix}{index:02d}": phoneme
-            for index, phoneme in enumerate(phonemes, start=1)
+            f"{prefix}{index:02d}": yinyuan_char
+            for index, yinyuan_char in enumerate(yinyuan_chars, start=1)
         }
 
     def map_key_to_code(self, output_file: str | Path = KEY_TO_CODE_PATH, decoded_map: DecodedMap | None = None) -> dict[str, str]:
@@ -216,9 +249,9 @@ class YinjieDecoder:
                 yinjie = decoded_map[pinyin]
                 print(f"\n解码 '{pinyin}':")
                 print(f"音节线性结构: {yinjie}")
-                noise, musical = yinjie.classify_phonemes()
-                print(f"噪音音元: {self._display_phonemes(noise)}")
-                print(f"乐音音元: {self._display_phonemes(musical)}")
+                noise, musical = yinjie.classify_yinyuan_chars()
+                print(f"噪音音元: {self._display_yinyuan_chars(noise)}")
+                print(f"乐音音元: {self._display_yinyuan_chars(musical)}")
             except KeyError:
                 print(f"解码 '{pinyin}' 时出错: 未找到拼音 '{pinyin}' 的编码")
             except ValueError as e:
@@ -226,13 +259,18 @@ class YinjieDecoder:
 
     def run(
         self,
-        phoneme_output: str | Path = DEFAULT_PHONEME_REPORT,
+        yinyuan_output: str | Path = DEFAULT_YINYUAN_REPORT,
         key_output: str | Path = KEY_TO_CODE_PATH,
         examples: list[str] | None = None,
+        phoneme_output: str | Path | None = None,
     ) -> YinjieDecoderRunResult:
         """统一调用入口：一次全量解码后完成导出与示例输出。"""
         decoded_map = self.decode_all()
-        phoneme_dict_path = self.save_phoneme_dict(phoneme_output, decoded_map=decoded_map)
+        report_output = phoneme_output if phoneme_output is not None else yinyuan_output
+        if phoneme_output is not None:
+            yinyuan_dict_path = self.save_phoneme_dict(report_output, decoded_map=decoded_map)
+        else:
+            yinyuan_dict_path = self.save_yinyuan_dict(report_output, decoded_map=decoded_map)
         if examples:
             self.show_examples(examples, decoded_map=decoded_map)
 
@@ -240,7 +278,7 @@ class YinjieDecoder:
         self.map_key_to_code(key_output, decoded_map=decoded_map)
         return YinjieDecoderRunResult(
             decoded_count=len(decoded_map),
-            phoneme_dict_path=phoneme_dict_path,
+            phoneme_dict_path=yinyuan_dict_path,
             key_to_code_path=Path(key_output),
         )
 

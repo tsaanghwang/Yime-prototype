@@ -5,7 +5,12 @@ from pathlib import Path
 
 from syllable.codec.paths import YINJIE_CODE_PATH
 from syllable.codec.yinjie import Yinjie
-from syllable.codec.yinjie_decoder import DEFAULT_PHONEME_REPORT, YinjieDecoder, YinjieDecoderRunResult
+from syllable.codec.yinjie_decoder import (
+    DEFAULT_PHONEME_REPORT,
+    DEFAULT_YINYUAN_REPORT,
+    YinjieDecoder,
+    YinjieDecoderRunResult,
+)
 
 
 class TestYinjieDecoderRunContract(unittest.TestCase):
@@ -52,6 +57,7 @@ class TestYinjieDecoderRunContract(unittest.TestCase):
         self.assertIsInstance(result, YinjieDecoderRunResult)
         self.assertEqual(result.decoded_count, 2)
         self.assertEqual(result.phoneme_dict_path, Path("phoneme.json"))
+        self.assertEqual(result.yinyuan_dict_path, Path("phoneme.json"))
         self.assertEqual(result.key_to_code_path, Path("keys.json"))
 
     def test_run_skips_example_output_when_examples_not_provided(self):
@@ -68,7 +74,7 @@ class TestYinjieDecoderRunContract(unittest.TestCase):
                 self.decode_all_calls += 1
                 return decoded_map
 
-            def save_phoneme_dict(self, output_file=DEFAULT_PHONEME_REPORT, decoded_map=None):
+            def save_yinyuan_dict(self, output_file=DEFAULT_YINYUAN_REPORT, decoded_map=None):
                 return Path(output_file)
 
             def show_examples(self, examples, decoded_map=None):
