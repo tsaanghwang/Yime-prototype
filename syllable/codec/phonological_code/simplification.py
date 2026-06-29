@@ -1,4 +1,4 @@
-"""音值等价变长简码的化简辅助。"""
+"""变长音元模型的化简辅助。"""
 
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def simplify_ganyin_repeats(full_code: str | list[str] | tuple[str, ...] | None)
 
 
 def simplify_loose_structure(yinjie: Yinjie) -> Yinjie:
-    """全码化简后再按宽松规则切回 ``Yinjie``（音值简码视图，非四码 canonical）。"""
+    """全码化简后再按宽松规则切回 ``Yinjie``（变长音元视图，非四码 canonical）。"""
     simplified = simplify_ganyin_repeats(yinjie.to_code())
     return split_loose_encoded_string(simplified)
 

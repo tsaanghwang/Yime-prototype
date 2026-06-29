@@ -43,8 +43,8 @@ class TestPinyinBidirectionalValidation(unittest.TestCase):
     @staticmethod
     def _render_decoded_code(decoded) -> str:
         return "".join(
-            phoneme or ""
-            for phoneme in (
+            yinyuan_char or ""
+            for yinyuan_char in (
                 decoded.initial,
                 decoded.ascender,
                 decoded.peak,

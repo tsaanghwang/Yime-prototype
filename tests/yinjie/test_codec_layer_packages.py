@@ -7,6 +7,9 @@ from syllable.codec.phonological_code import (
     simplify_ganyin_repeats,
     split_loose_encoded_string,
 )
+from syllable.codec.variable_length_yinyuan import (
+    split_loose_encoded_string as split_variable_length_yinyuan,
+)
 from syllable.codec.yinjie import Yinjie as LegacyYinjie
 
 
@@ -24,6 +27,9 @@ class TestCodecLayerPackages(unittest.TestCase):
 
     def test_phonological_code_loose_split_returns_yinjie(self):
         self.assertIsInstance(split_loose_encoded_string("ABC"), LegacyYinjie)
+
+    def test_variable_length_yinyuan_exports_loose_split(self):
+        self.assertIsInstance(split_variable_length_yinyuan("ABC"), LegacyYinjie)
 
     def test_input_shorthand_omits_middle_tone_for_same_quality_run(self):
         metadata = {

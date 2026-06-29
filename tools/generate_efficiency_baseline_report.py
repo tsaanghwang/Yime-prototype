@@ -9,7 +9,7 @@ from statistics import median
 from typing import Any, Callable, Mapping, cast
 
 from syllable.codec.input_shorthand import omit_middle_tone_if_same_quality_run
-from syllable.codec.phonological_code import merge_adjacent_duplicate_symbols
+from syllable.codec.variable_length_yinyuan import merge_adjacent_duplicate_symbols
 
 
 ROOT = Path(__file__).resolve().parent.parent

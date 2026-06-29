@@ -153,9 +153,9 @@ class Yinjie:
             + (self.descender or "")
         )
 
-    def classify_phonemes(self) -> tuple[list[str], list[str]]:
+    def classify_yinyuan_chars(self) -> tuple[list[str], list[str]]:
         """
-        兼容旧名：按音元类别分出噪音侧与乐音侧字符。
+        按音元类别分出噪音侧与乐音侧字符。
 
         返回: (zaoyin_chars, yueyin_chars)
         """
@@ -171,9 +171,13 @@ class Yinjie:
 
         return zaoyin_chars, yueyin_chars
 
+    def classify_phonemes(self) -> tuple[list[str], list[str]]:
+        """兼容旧名：同 ``classify_yinyuan_chars``。"""
+        return self.classify_yinyuan_chars()
+
     def classify_codes(self) -> tuple[list[str], list[str]]:
-        """兼容旧名：同 ``classify_phonemes``。"""
-        return self.classify_phonemes()
+        """兼容旧名：同 ``classify_yinyuan_chars``。"""
+        return self.classify_yinyuan_chars()
 
     def get_full_code(self) -> str:
         """兼容旧名：同 ``to_code``。"""
@@ -203,9 +207,9 @@ class Yinjie:
             parts.append(f"末音: {self.descender}")
         return " | ".join(parts)
 
-    def merge_duplicate_phonemes(self) -> Yinjie:
+    def merge_duplicate_yinyuan(self) -> Yinjie:
         """
-        兼容旧名：合并连续相同的音元，返回新的 Yinjie 实例。
+        合并连续相同的音元，返回新的 Yinjie 实例。
 
         规则：连续 2 个或 3 个相同音元合并为 1 个。
         """
@@ -232,6 +236,10 @@ class Yinjie:
             peak=new_peak,
             descender=new_descender,
         )
+
+    def merge_duplicate_phonemes(self) -> Yinjie:
+        """兼容旧名：同 ``merge_duplicate_yinyuan``。"""
+        return self.merge_duplicate_yinyuan()
 
 
 __all__ = ["GanyinSlots", "Yinjie", "YunyinSlots"]
