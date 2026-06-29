@@ -19,8 +19,10 @@ except ImportError:
     from utils.backup import create_timestamped_backup
 
 from yime.canonical_yime_mapping import (
+    convert_legacy_code_to_primary,
     load_canonical_code_map,
     load_canonical_patch_map,
+    load_primary_code_map,
     sync_canonical_mapping_table,
 )
 from yime.utils.blcu_word_frequency_import import load_char_frequency_map
@@ -1676,35 +1678,65 @@ def rebuild_char_usage_profile(conn: sqlite3.Connection, tuning_parameters: dict
 
 
 def rebuild_materialized_runtime_candidates(conn: sqlite3.Connection) -> int:
-    conn.execute("DELETE FROM runtime_candidates_materialized")
+    ensure_materialized_runtime_candidates_primary_code_column(conn)
     conn.execute(
-        '''
-        INSERT INTO runtime_candidates_materialized (
-            entry_type,
-            entry_id,
-            text,
-            pinyin_tone,
-            yime_code,
-            sort_weight,
-            is_common,
-            text_length,
-            updated_at
-        )
-        SELECT
-            entry_type,
-            entry_id,
-            text,
-            pinyin_tone,
-            yime_code,
-            sort_weight,
-            is_common,
-            text_length,
-            updated_at
+        """
+        CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_primary_code
+        ON runtime_candidates_materialized(primary_yime_code, entry_type, sort_weight DESC, text)
+        """
+    )
+
+    primary_code_map = load_primary_code_map(REPO_ROOT)
+    rows = conn.execute(
+        """
+        SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
         FROM runtime_candidates
         WHERE yime_code IS NOT NULL
           AND TRIM(yime_code) <> ''
-        '''
-    )
+        """
+    ).fetchall()
+
+    conn.execute("DELETE FROM runtime_candidates_materialized")
+    insert_rows = []
+    for row in rows:
+        pinyin_tone = str(row["pinyin_tone"] or "").strip()
+        legacy_code = str(row["yime_code"] or "").strip()
+        primary_code = primary_code_map.get(pinyin_tone, "")
+        if not primary_code and legacy_code and legacy_code != pinyin_tone:
+            primary_code = convert_legacy_code_to_primary(legacy_code)
+        insert_rows.append(
+            (
+                row["entry_type"],
+                row["entry_id"],
+                row["text"],
+                row["pinyin_tone"],
+                legacy_code,
+                primary_code,
+                row["sort_weight"],
+                row["is_common"],
+                row["text_length"],
+                row["updated_at"],
+            )
+        )
+    if insert_rows:
+        conn.executemany(
+            '''
+            INSERT INTO runtime_candidates_materialized (
+                entry_type,
+                entry_id,
+                text,
+                pinyin_tone,
+                yime_code,
+                primary_yime_code,
+                sort_weight,
+                is_common,
+                text_length,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            insert_rows,
+        )
     row = conn.execute(
         "SELECT COUNT(*) FROM runtime_candidates_materialized"
     ).fetchone()
@@ -1748,6 +1780,29 @@ def print_examples(title: str, examples: list[tuple[object, ...]]) -> None:
         print(f"  {item}")
 
 
+def ensure_materialized_runtime_candidates_primary_code_column(
+    conn: sqlite3.Connection,
+) -> None:
+    table_exists = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'runtime_candidates_materialized'
+        """
+    ).fetchone()
+    if table_exists is None:
+        return
+
+    columns = {
+        str(row[1] or "")
+        for row in conn.execute("PRAGMA table_info(runtime_candidates_materialized)").fetchall()
+    }
+    if "primary_yime_code" not in columns:
+        conn.execute(
+            "ALTER TABLE runtime_candidates_materialized ADD COLUMN primary_yime_code TEXT NOT NULL DEFAULT ''"
+        )
+
+
 def main() -> int:
     args = parse_args()
     report_missing_optional_external_frequency_sources()
@@ -1762,6 +1817,7 @@ def main() -> int:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        ensure_materialized_runtime_candidates_primary_code_column(conn)
         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         if args.scan_runtime_tuning:
             scan_payload = scan_runtime_tuning_parameters(

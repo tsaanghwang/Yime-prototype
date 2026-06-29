@@ -7,6 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import SupportsFloat, SupportsIndex
 
+from yime.canonical_yime_mapping import convert_legacy_code_to_primary, load_primary_code_map
 from yime.asset_paths import generated_runtime_candidates_json_path
 
 
@@ -46,12 +47,21 @@ def normalize_sort_weight_for_export(value: SupportsFloat | SupportsIndex | str 
 
 
 def build_candidate_record(row: sqlite3.Row) -> dict[str, object]:
+    primary_yime_code = row["primary_yime_code"] if "primary_yime_code" in row.keys() else None
+    if not str(primary_yime_code or "").strip():
+        pinyin_tone = str(row["pinyin_tone"] or "").strip()
+        legacy_code = str(row["yime_code"] or "").strip()
+        primary_map = load_primary_code_map(Path(__file__).resolve().parents[2])
+        primary_yime_code = primary_map.get(pinyin_tone, "")
+        if not primary_yime_code and legacy_code and legacy_code != pinyin_tone:
+            primary_yime_code = convert_legacy_code_to_primary(legacy_code)
     return {
         "text": row["text"],
         "entry_type": row["entry_type"],
         "entry_id": row["entry_id"],
         "pinyin_tone": row["pinyin_tone"],
         "yime_code": row["yime_code"],
+        "primary_yime_code": primary_yime_code,
         "sort_weight": normalize_sort_weight_for_export(row["sort_weight"]),
         "is_common": row["is_common"],
         "text_length": row["text_length"],
@@ -62,7 +72,8 @@ def build_candidate_record(row: sqlite3.Row) -> dict[str, object]:
 def group_rows(rows: list[sqlite3.Row], limit_per_code: int) -> dict[str, list[dict[str, object]]]:
     grouped: dict[str, list[dict[str, object]]] = defaultdict(list)
     for row in rows:
-        code = row["yime_code"]
+        primary_code = row["primary_yime_code"] if "primary_yime_code" in row.keys() else None
+        code = str(primary_code or row["yime_code"] or "")
         candidates = grouped[code]
         if limit_per_code and len(candidates) >= limit_per_code:
             continue
@@ -114,6 +125,10 @@ def main() -> None:
                 text,
                 pinyin_tone,
                 yime_code,
+                CASE
+                    WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN ''
+                    ELSE COALESCE(primary_yime_code, '')
+                END AS primary_yime_code,
                 sort_weight,
                 is_common,
                 text_length,
@@ -122,7 +137,7 @@ def main() -> None:
                     WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN 1
                     ELSE 0
                 END AS is_placeholder_code
-            FROM runtime_candidates
+                        FROM runtime_candidates_materialized
             WHERE yime_code IS NOT NULL
               AND TRIM(yime_code) <> ''
             ORDER BY yime_code, {RUNTIME_SQL_PRIORITY_ORDER}

@@ -6,6 +6,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
+from syllable.codec.yinjie_jianpin_draft import simplify_ganyin_repeats
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
 from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
@@ -36,6 +37,25 @@ def canonicalize_code(code: str, bmp_to_canonical: dict[str, str]) -> str:
     return "".join(bmp_to_canonical.get(char, char) for char in code)
 
 
+def convert_legacy_code_to_primary(code: str) -> str:
+    normalized_code = str(code or "").strip()
+    if not normalized_code:
+        return ""
+
+    if len(normalized_code) <= 4:
+        return simplify_ganyin_repeats(normalized_code)
+
+    complete_length = (len(normalized_code) // 4) * 4
+    primary_parts = [
+        simplify_ganyin_repeats(normalized_code[index:index + 4])
+        for index in range(0, complete_length, 4)
+    ]
+    trailing = normalized_code[complete_length:]
+    if trailing:
+        primary_parts.append(simplify_ganyin_repeats(trailing))
+    return "".join(primary_parts)
+
+
 def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
     resolved_root = repo_root or WORKSPACE_ROOT
     code_map = load_json(resolved_root / "syllable" / "codec" / "yinjie_code.json")
@@ -50,6 +70,15 @@ def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
         canonical_code_map.setdefault(pinyin_tone, patched_code)
 
     return canonical_code_map
+
+
+def load_primary_code_map(repo_root: Path | None = None) -> dict[str, str]:
+    primary_code_map: dict[str, str] = {}
+    for pinyin_tone, code in load_canonical_code_map(repo_root).items():
+        primary_code = convert_legacy_code_to_primary(code)
+        if primary_code:
+            primary_code_map[pinyin_tone] = primary_code
+    return primary_code_map
 
 
 def load_canonical_patch_map(repo_root: Path | None = None) -> dict[str, tuple[str, int | None]]:
