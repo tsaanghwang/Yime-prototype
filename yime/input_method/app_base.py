@@ -959,7 +959,7 @@ class BaseInputMethodApp:
         if source == "json":
             return "运行时 JSON 导出文件（备用）"
         if source == "sqlite":
-            return "SQLite runtime_candidates 视图"
+            return "SQLite 运行时候选主链（优先物化表，回退视图）"
         if source == "static":
             return "静态候选表兜底"
         return "当前未识别候选来源"
@@ -1223,7 +1223,7 @@ class BaseInputMethodApp:
         warning = str(getattr(self, "runtime_decoder_warning", "") or "").strip()
         if warning:
             advice = (
-                "请检查 yime/pinyin_hanzi.db 与 runtime_candidates 视图。"
+                "请检查 yime/pinyin_hanzi.db、runtime_candidates_materialized 以及 runtime_candidates。"
                 if runtime_source == "sqlite"
                 else "请检查运行时 JSON 导出文件或重新生成候选数据。"
             )
@@ -1389,11 +1389,24 @@ class BaseInputMethodApp:
         self,
         canonical_code: str,
         decoded_candidates: list[str],
+        raw_status: str = "",
     ) -> list[str]:
         """Use prefix hits as the candidate list until a full syllable resolves."""
         if decoded_candidates:
             return list(decoded_candidates)
-        if not canonical_code or len(canonical_code) >= 4:
+
+        if not canonical_code:
+            return []
+
+        normalized_status = str(raw_status or "").strip()
+        is_incomplete = "未完成" in normalized_status or "继续输入" in normalized_status
+        if not normalized_status:
+            single_syllable_codes = getattr(getattr(self, "decoder", None), "single_syllable_codes", None)
+            if single_syllable_codes:
+                is_incomplete = canonical_code not in single_syllable_codes
+            else:
+                is_incomplete = len(canonical_code) < 4
+        if not is_incomplete:
             return []
 
         matches = self.decoder.get_char_candidates_by_prefix(canonical_code, limit=5)
@@ -1612,10 +1625,11 @@ class BaseInputMethodApp:
         if not normalized:
             return ""
         try:
-            return unproject_physical_input(
-                normalized,
-                getattr(self, "projected_to_keycap_map", {}),
-            )
+            keycap_map = getattr(self, "projected_to_keycap_map", {})
+            tokens = [str(keycap_map.get(char, char)) for char in normalized]
+            if any(len(token) > 1 for token in tokens):
+                return " ".join(tokens)
+            return "".join(tokens)
         except Exception:
             return normalized
 
@@ -1663,10 +1677,12 @@ class BaseInputMethodApp:
         canonical_code: str,
         candidates: list[str],
         display_candidates: list[str],
+        raw_status: str,
     ) -> str:
         if candidates:
             return "已找到候选。"
-        if len(canonical_code) < 4:
+        normalized_status = str(raw_status or "").strip()
+        if "未完成" in normalized_status or "继续输入" in normalized_status:
             if display_candidates:
                 return "前缀等待，可先选单字，继续输入可收窄结果。"
             return "前缀等待，继续输入。"
@@ -1828,9 +1844,9 @@ class BaseInputMethodApp:
             self.decoder.decode_text(input_text)
         )
 
-        self.last_replace_length = len(active_code) if active_code else min(4, len(input_text))
+        self.last_replace_length = len(active_code) if active_code else len(input_text)
         code_display = build_code_display(input_text, canonical_code, active_code)
-        display_candidates = self._resolve_display_candidates(canonical_code, candidates)
+        display_candidates = self._resolve_display_candidates(canonical_code, candidates, status)
         self.candidate_box.update_candidates(
             display_candidates,
             pinyin,
@@ -1840,6 +1856,7 @@ class BaseInputMethodApp:
                     canonical_code=canonical_code,
                     candidates=candidates,
                     display_candidates=display_candidates,
+                    raw_status=status,
                 ),
                 source="decode",
             ),

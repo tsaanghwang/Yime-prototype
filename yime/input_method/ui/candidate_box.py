@@ -46,7 +46,7 @@ class CandidateBox(CandidateRendererMixin):
     _CANDIDATE_TAG_PREFIX = "candidate_"
     _PAGER_PREV_TAG = "pager_prev"
     _PAGER_NEXT_TAG = "pager_next"
-    _DEFAULT_STATUS_TEXT = "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
+    _DEFAULT_STATUS_TEXT = "连续输入时会按完整音节自动组织候选。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
     _STANDBY_WINDOW_SIZE = 54
     _PASSIVE_ALPHA = 0.42
     _ACTIVE_ALPHA = 0.97
@@ -1471,12 +1471,12 @@ class CandidateBox(CandidateRendererMixin):
         self.set_status(str(status or "").strip())
         self.code_var.set("")
 
-        # 解码 4 码暂时不进入常态信息层级，需要排查时再打开调试 UI。
+        # 当前解码码串暂时不进入常态信息层级，需要排查时再打开调试 UI。
         if self._DEBUG_UI:
             if code:
-                self.code_var.set(f"当前解码 4 码: {code}")
+                self.code_var.set(f"当前解码码串: {code}")
             else:
-                self.code_var.set("当前解码 4 码: [等待输入...]")
+                self.code_var.set("当前解码码串: [等待输入...]")
 
         self._render_candidates()
         self._resize_to_content_if_visible()

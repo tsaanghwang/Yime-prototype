@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
+from yime.canonical_yime_mapping import convert_legacy_code_to_primary
 from .char_code_index import CharCodeCandidate, CharCodeIndex
 from .runtime_ranking import (
     annotate_candidate_source,
@@ -63,7 +64,7 @@ class JSONRuntimeCandidateStore:
                 if not isinstance(candidate, dict):
                     continue
                 candidate_dict = cast(Dict[str, object], candidate)
-                canonical_code = str(candidate_dict.get("yime_code", "") or "").strip()
+                canonical_code = str(candidate_dict.get("primary_yime_code", "") or "").strip()
                 if not canonical_code:
                     pinyin_tone = str(candidate_dict.get("pinyin_tone", "") or "").strip()
                     canonical_code = str(
@@ -73,6 +74,10 @@ class JSONRuntimeCandidateStore:
                         )
                         or ""
                     ).strip()
+                if not canonical_code:
+                    canonical_code = convert_legacy_code_to_primary(
+                        str(candidate_dict.get("yime_code", "") or "").strip()
+                    )
                 if not canonical_code:
                     continue
                 regrouped.setdefault(canonical_code, []).append(

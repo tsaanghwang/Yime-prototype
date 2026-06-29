@@ -87,7 +87,8 @@ class InputMethodApp(BaseInputMethodApp):
     def _format_hotkey_label(self) -> str:
         """将 pynput 风格的热键定义转换为更适合状态提示的文本。"""
         segments: list[str] = []
-        for segment in self.hotkey.split("+"):
+        hotkey = str(getattr(self, "hotkey", self._DEFAULT_HOTKEY) or self._DEFAULT_HOTKEY)
+        for segment in hotkey.split("+"):
             cleaned = segment.strip().strip("<>")
             if not cleaned:
                 continue
@@ -96,7 +97,7 @@ class InputMethodApp(BaseInputMethodApp):
             except ValueError:
                 normalized = cleaned.lower()
             segments.append(self._display_hotkey_token(normalized))
-        return "+".join(segments) or self.hotkey
+        return "+".join(segments) or hotkey
 
     @classmethod
     def _normalize_hotkey_token(cls, token: str) -> str:
@@ -350,7 +351,7 @@ class InputMethodApp(BaseInputMethodApp):
         self._configure_input_mode()
 
         if self.runtime_decoder_source == "sqlite":
-            print("[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates")
+            print("[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）")
         elif self.runtime_decoder_source == "json":
             print("[Decoder] 运行时候选来源: JSON 导出文件（SQLite 不可用时的备用）")
 
@@ -953,7 +954,7 @@ class InputMethodApp(BaseInputMethodApp):
 
     def _enter_passive_standby(self, reason: str) -> None:
         """进入待命图标并暂停全局接管，直到用户显式恢复。"""
-        manual_session_trigger = self._manual_session_trigger
+        manual_session_trigger = getattr(self, "_manual_session_trigger", None)
         if manual_session_trigger:
             self._remember_manual_session_context(
                 manual_session_trigger,

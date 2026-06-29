@@ -9,7 +9,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Mapping, cast
 
-from yime.canonical_yime_mapping import load_canonical_code_map
+from yime.canonical_yime_mapping import load_primary_code_map
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
 
 
@@ -48,7 +48,7 @@ class UserCandidateFrequencyEntry:
 
 @lru_cache(maxsize=None)
 def _load_numeric_yime_code_map(repo_root_path: str) -> dict[str, str]:
-    return load_canonical_code_map(Path(repo_root_path))
+    return load_primary_code_map(Path(repo_root_path))
 
 
 def _split_compact_numeric_pinyin_token(token: str) -> list[str]:

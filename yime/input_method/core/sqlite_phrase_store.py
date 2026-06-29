@@ -38,6 +38,22 @@ class SQLitePhraseCandidateStore:
         self._runtime_candidate_cache.clear()
         self._phrase_prefix_cache.clear()
 
+    def _lookup_code_column(self) -> str:
+        if (
+            self.runtime_table_name == "runtime_candidates_materialized"
+            and self.runtime_source.has_column(
+                self.runtime_table_name,
+                "primary_yime_code",
+            )
+        ):
+            return "primary_yime_code"
+        return "yime_code"
+
+    def _runtime_select_columns(self) -> str:
+        if self.runtime_source.has_column(self.runtime_table_name, "primary_yime_code"):
+            return "entry_type, entry_id, text, pinyin_tone, yime_code, primary_yime_code, sort_weight, is_common, text_length, updated_at"
+        return "entry_type, entry_id, text, pinyin_tone, yime_code, yime_code AS primary_yime_code, sort_weight, is_common, text_length, updated_at"
+
     def load_runtime_candidates_for_code(
         self,
         lookup_code: str,
@@ -50,11 +66,12 @@ class SQLitePhraseCandidateStore:
             cached = self._runtime_candidate_cache[normalized_code]
         except KeyError:
             with self.runtime_source.connect() as conn:
+                lookup_code_column = self._lookup_code_column()
                 rows = conn.execute(
                     f"""
-                    SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
+                    SELECT {self._runtime_select_columns()}
                     FROM {self.runtime_table_name}
-                    WHERE yime_code = ?
+                    WHERE {lookup_code_column} = ?
                     ORDER BY {_RUNTIME_SQL_PRIORITY_ORDER}
                     """,
                     (normalized_code,),
@@ -111,14 +128,15 @@ class SQLitePhraseCandidateStore:
             return list(cached)
 
         with self.runtime_source.connect() as conn:
+            lookup_code_column = self._lookup_code_column()
             rows = conn.execute(
                 f"""
-                SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
+                SELECT {self._runtime_select_columns()}
                 FROM {self.runtime_table_name}
                 WHERE entry_type = 'phrase'
-                  AND yime_code >= ?
-                  AND yime_code < ?
-                  AND LENGTH(yime_code) > ?
+                  AND {lookup_code_column} >= ?
+                  AND {lookup_code_column} < ?
+                  AND LENGTH({lookup_code_column}) > ?
                 ORDER BY sort_weight DESC, text, pinyin_tone
                 LIMIT ?
                 """,
