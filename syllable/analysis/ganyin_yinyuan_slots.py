@@ -1,4 +1,4 @@
-"""干音段编码为三槽乐音音元（呼 / 主 / 末）的结构化结果。"""
+"""干音段编码为三音元序列（呼 / 主 / 末）的结构化结果。"""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class GanyinYinyuanSlots:
-    """干音段 → 呼音 / 主音 / 末音 三槽音元字符（对应 ``Yinjie`` 的后三槽）。"""
+    """干音段 → 呼音 / 主音 / 末音 三音元字符（对应 ``Yinjie`` 的后三个编码位）。"""
 
     ganyin_label: str
     huyin: str

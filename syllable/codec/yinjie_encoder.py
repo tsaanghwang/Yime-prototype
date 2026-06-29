@@ -222,8 +222,8 @@ class SplitSyllableResult:
     """音节切分阶段的输出。
 
     ``shouyin`` / ``ganyin`` 为 **首音段 / 干音段** 的拼音侧标签（供编码器查表），
-    对应 ``SyllableEncodingPipeline`` 对 ``(声母, 带调韵母)`` 的切分；不是 ``Yinjie`` 四音元位中的音元字符。
-    音段层定义见 ``syllable.analysis.syllable``；四音元位编解码层见 ``syllable.codec.yinjie``。
+    对应 ``SyllableEncodingPipeline`` 对 ``(声母, 带调韵母)`` 的切分；不是 ``Yinjie`` 四元编码中的音元字符。
+    音段层定义见 ``syllable.analysis.syllable``；四元编解码层见 ``syllable.codec.yinjie``。
     """
 
     syllable: str
@@ -243,7 +243,7 @@ class SplitSyllableResult:
 
 @dataclass(frozen=True)
 class EncodedYinjieResult:
-    """单音节编码的结构化结果：音段切分 + 四音元位字符 + ``Yinjie`` 视图。"""
+    """单音节编码的结构化结果：音段切分 + 四元编码字符 + ``Yinjie`` 视图。"""
 
     syllable: str
     segments: SegmentSplitResult
@@ -564,7 +564,7 @@ class YinjieEncoder:
         return self.encode_yinjie_structured(syllable).code
 
     def encode_yinjie_structured(self, syllable: object) -> EncodedYinjieResult:
-        """编码单个音节并返回音段切分、干音三槽与 ``Yinjie`` 视图。"""
+        """编码单个音节并返回音段切分、干音三音元与 ``Yinjie`` 视图。"""
         if not syllable or not isinstance(syllable, str):
             raise yinjie_error_policy.invalid_input(syllable)
 

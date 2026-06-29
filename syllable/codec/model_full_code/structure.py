@@ -1,6 +1,6 @@
-"""四音元位模型全码结构。
+"""四元模型全码结构。
 
-本模块承载 ``Yinjie`` 的 canonical 四音元位结构：首音元、呼音元、主音元、末音元。
+本模块承载 ``Yinjie`` 的 canonical 等长四元结构：首音元、呼音元、主音元、末音元。
 它保留模型一致等长展开，不直接承担后续的变长化简或输入省键规则。
 """
 
@@ -60,13 +60,13 @@ class GanyinSlots:
 
 class Yinjie:
     """
-    音节类：四音元位编解码层的递归结构（编解码用）。
+    音节类：四元编解码层的递归结构（编解码用）。
 
-    四音元位顺序与 ``yinjie_code.json`` 四字符编码一致::
+    四个音元位的顺序与 ``yinjie_code.json`` 四字符编码一致::
 
         [首音元, 呼音元, 主音元, 末音元]
 
-    与 ``Syllable``（声母/韵母音段层）的对应关系见模块 docstring；勿将四位中的音元字符
+    与 ``Syllable``（声母/韵母音段层）的对应关系见模块 docstring；勿将四个编码位中的音元字符
     与 ``SplitSyllableResult`` 中的首音段 / 干音段拼音标签混为一谈。
     """
 
@@ -124,7 +124,7 @@ class Yinjie:
 
     @property
     def ganyin_code(self) -> str:
-        """干音三音元位字符拼接（字符串，非 ``GanyinSlots`` 对象）。"""
+        """干音三音元字符拼接（字符串，非 ``GanyinSlots`` 对象）。"""
         return (self.ascender or "") + (self.peak or "") + (self.descender or "")
 
     @property
@@ -180,7 +180,7 @@ class Yinjie:
         return self.to_code()
 
     def get_ganyin_code(self) -> str:
-        """干音三音元位拼接字符串。"""
+        """干音三音元拼接字符串。"""
         return self.ganyin_code
 
     def get_jianyin_code(self) -> str:
@@ -188,7 +188,7 @@ class Yinjie:
         return (self.ascender or "") + (self.peak or "")
 
     def get_yunyin_code(self) -> str:
-        """韵音两音元位拼接字符串。"""
+        """韵音两音元拼接字符串。"""
         return (self.peak or "") + (self.descender or "")
 
     def __str__(self) -> str:
