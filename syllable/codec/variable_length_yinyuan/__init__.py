@@ -1,25 +1,11 @@
-"""变长音元模型入口。
+"""变长音元模型子包：承载变长切分与相邻相同音元合并。"""
 
-本包是 ``syllable.codec.phonological_code`` 的推荐命名入口；旧包名保留
-为兼容路径。
-"""
-
-try:
-    from ..phonological_code import (
-        from_legacy_pinyin_chars,
-        merge_adjacent_duplicate_symbols,
-        simplify_ganyin_repeats,
-        simplify_loose_structure,
-        split_loose_encoded_string,
-    )
-except ImportError:
-    from phonological_code import (
-        from_legacy_pinyin_chars,
-        merge_adjacent_duplicate_symbols,
-        simplify_ganyin_repeats,
-        simplify_loose_structure,
-        split_loose_encoded_string,
-    )
+from .loose_split import from_legacy_pinyin_chars, split_loose_encoded_string
+from .simplification import (
+    merge_adjacent_duplicate_symbols,
+    simplify_ganyin_repeats,
+    simplify_loose_structure,
+)
 
 __all__ = [
     "from_legacy_pinyin_chars",
