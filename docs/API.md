@@ -107,8 +107,8 @@ from syllable.codec.yinjie import Yinjie
 
 # 生产四码（与 yinjie_code.json 一致）
 result = decoder.split_encoded_syllable("NABC")
-print(result.shouyin)     # 首音槽
-print(result.ganyin_code) # 干音三槽拼接字符串
+print(result.shouyin)     # 首音元
+print(result.ganyin_code) # 干音三音元拼接字符串
 
 # legacy 宽松切分（非四码语义，勿用于 IME 查词）
 from syllable.codec.yinjie_loose_split import split_loose_encoded_string
@@ -121,7 +121,7 @@ legacy = split_loose_encoded_string("zhong")
 
 #### 类：`syllable.codec.yinjie.Yinjie`
 
-四音元位层递归结构树；四码 canonical 编解码真源。IME 运行时查词与连续输入可使用音值简码主链，但它们仍以这里的四位结构映射为上游真源。术语见 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md)。
+四元模型递归结构树；四码 canonical 编解码真源。IME 运行时查词与连续输入可使用音值简码主链，但它们仍以这里的四个编码位结构映射为上游真源。术语见 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md)。
 
 ##### 初始化
 
@@ -138,24 +138,24 @@ yinjie = Yinjie(initial="N", ascender="A", peak="B", descender="C")
 **参数**（历史英文字段名，
 编解码 JSON 顺序不变）：
 
-- `initial`: 首音槽（噪音类音元）
-- `ascender`: 呼音槽
+- `initial`: 首音元（噪音类音元）
+- `ascender`: 呼音元
     （乐音，峰前段）
-- `peak`: 主音槽
+- `peak`: 主音元
     （乐音，峰段）
-- `descender`: 末音槽
+- `descender`: 末音元
     （乐音，峰后段）
 
 ##### 主要属性
 
 | 属性                  | 类型          | 说明                 |
 | --------------------- | ------------- | -------------------- |
-| `initial` / `shouyin` | str           | 首音槽               |
-| `ascender` / `huyin`  | str           | 呼音槽               |
-| `peak` / `zhuyin`     | str           | 主音槽               |
-| `descender` / `moyin` | str           | 末音槽               |
+| `initial` / `shouyin` | str           | 首音元               |
+| `ascender` / `huyin`  | str           | 呼音元               |
+| `peak` / `zhuyin`     | str           | 主音元               |
+| `descender` / `moyin` | str           | 末音元               |
 | `ganyin`              | `GanyinSlots` | 干音递归结构（对象） |
-| `ganyin_code`         | str           | 干音三槽字符拼接     |
+| `ganyin_code`         | str           | 干音三音元字符拼接   |
 | `rime`                | dict          | 韵音兼容 dict        |
 
 ##### 主要方法（Yinjie）
@@ -179,7 +179,7 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 
 | 模块 | 说明 |
 | ---- | ---- |
-| `syllable.codec.model_full_code` | 模型全码子包；承载 `Yinjie` 四音元位 canonical 结构 |
+| `syllable.codec.model_full_code` | 模型全码子包；承载 `Yinjie` 四元 canonical 结构 |
 | `syllable.codec.phonological_code` | 音值简码子包；承载运行时主链使用的变长切分与相邻同音值合并 |
 | `syllable.codec.input_shorthand` | 输入省键子包；承载省中调等不改变映射关系的别名规则 |
 | `syllable.codec.yinjie_loose_split` | 早期可变长切分；`split_loose_encoded_string` |

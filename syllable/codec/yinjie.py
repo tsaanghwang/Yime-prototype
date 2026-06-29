@@ -1,4 +1,4 @@
-"""四音元位模型的兼容入口。
+"""四元模型的兼容入口。
 
 canonical 实现已迁入 ``syllable.codec.model_full_code``；本模块保留旧导入路径。
 """

@@ -1,7 +1,7 @@
 """音值简码侧的宽松切分辅助。
 
-这里处理的是非固定四音元位的变长切分：它保留音值上的连续结构，
-但不要求保留模型全码里的四位展开粒度。
+这里处理的是不同于固定四元全码的变长切分：它保留音值上的连续结构，
+但不要求保留模型全码里的四个编码位展开粒度。
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ from syllable.codec.model_full_code import Yinjie
 def split_loose_encoded_string(encoded_syllable: str) -> Yinjie:
     """将任意非空编码串按首音 + 干音 + 韵音层次切分为 ``Yinjie``。
 
-    ``descender`` 字段可能包含多个字符（``yunyin[1:]`` 剩余段），与固定四音元位不同。
+    ``descender`` 字段可能包含多个字符（``yunyin[1:]`` 剩余段），与固定四元全码不同。
     """
     if not encoded_syllable:
         raise ValueError("编码音节不能为空")

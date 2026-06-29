@@ -1,7 +1,7 @@
-"""Materialize four-slot yinjie decomposition rows from ``pinyin_yime_code``.
+"""Materialize four-position yinjie decomposition rows from ``pinyin_yime_code``.
 
 Replaces the legacy Chinese ``音元拼音`` overview table: one row per syllable with
-full four-code string and per-slot columns (首音 / 干音 / 呼音 / 主音 / 末音 / 韵音 / 间音).
+full four-code string and per-position columns (首音 / 干音 / 呼音 / 主音 / 末音 / 韵音 / 间音).
 
 Population uses ``syllable.codec.yinjie.Yinjie`` — the same structure model as the
 encode/decode main chain. ``yime_code_jianpin_draft`` uses draft simplify rules only.
@@ -73,7 +73,7 @@ def build_decomposition_row(
     yime_code: str,
     code_source: str,
 ) -> YinjieSlotDecompositionRow:
-    """Derive slot columns from a canonical four-character yime code."""
+    """Derive position columns from a canonical four-character yime code."""
     normalized_code = str(yime_code or "").strip()
     if len(normalized_code) != 4:
         raise ValueError(f"yime_code 长度应为 4，实际为 {len(normalized_code)}: {normalized_code!r}")
