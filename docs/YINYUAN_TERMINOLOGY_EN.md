@@ -289,9 +289,13 @@ that sense:
 
 ## Syllable-Structure Terms (Implementation)
 
-These terms belong to the **Yinjie syllable model** used in `syllable/`
+These terms belong to the **Yinjie four-yinyuan model** used in `syllable/`
 encoding. They are related to, but not identical with, pianyin/yinyuan
 layering: here **structural portions** vs **phonic/yinyuan categories**.
+
+The canonical equal-length four-character structure should be called the
+**four-yinyuan model**. Use **code positions** only when discussing the fixed
+first-through-fourth positions inside the code.
 
 When referring to the four-character `yinjie` code, keep a third layer distinct:
 **code positions** versus the **yinyuan characters** occupying them. The first
@@ -299,8 +303,8 @@ through fourth positions are fixed **positions** in the encoding order; what
 they hold, respectively, are the **shouyin yinyuan**, **huyin yinyuan**,
 **zhuyin yinyuan**, and **moyin yinyuan**. Therefore:
 
-1. it is fine to say **four yinyuan positions** or **the first through fourth
-   code positions**;
+1. it is fine to say **four-yinyuan model**, **four-yinyuan code**, or, when
+   emphasizing position, **the first through fourth code positions**;
 2. it is fine to say **shouyin yinyuan / huyin yinyuan / zhuyin yinyuan /
    moyin yinyuan**;
 3. do **not** shorten these positions to `phoneme`, and do **not** translate
@@ -321,7 +325,7 @@ they hold, respectively, are the **shouyin yinyuan**, **huyin yinyuan**,
 
 Canonical tree: [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md) §音节结构.
 **Do not** equate huyin with medial or descender with coda. Each
-peak-relative slot is filled by a **segment** = quality portion + linked tone
+peak-relative position is filled by a **segment** = quality portion + linked tone
 (e.g. triplex/post-long huyin: medial + linked tone; front-long huyin:
 pre-peak portion of nucleus + linked tone; monophthong ganyin: pre-final
 portion + linked tone). See `sound_variable_analysis.md`.
