@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Iterable
 
 from syllable.codec.model_full_code import Yinjie
-from syllable.codec.phonological_code.loose_split import split_loose_encoded_string
+from syllable.codec.variable_length_yinyuan.loose_split import split_loose_encoded_string
 
 
 def merge_adjacent_duplicate_symbols(symbols: Iterable[str]) -> tuple[list[str], int]:

@@ -182,7 +182,6 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 | ---- | ---- |
 | `syllable.codec.model_full_code` | 模型全码子包；承载 `Yinjie` 四元 canonical 结构 |
 | `syllable.codec.variable_length_yinyuan` | 变长音元模型子包；承载运行时主链使用的变长切分与相邻相同音元合并 |
-| `syllable.codec.phonological_code` | 旧兼容路径；新代码优先使用 `variable_length_yinyuan` |
 | `syllable.codec.input_shorthand` | 输入省键子包；承载省中调等不改变映射关系的别名规则 |
 | `syllable.codec.yinjie_loose_split` | 早期可变长切分；`split_loose_encoded_string` |
 | `syllable.codec.yinjie_jianpin_draft` | 简拼草稿（仅干音去重）；完整规则待实现 |

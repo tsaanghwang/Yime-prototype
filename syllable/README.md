@@ -23,7 +23,7 @@ syllable/
 
 | 子目录          | 做什么                                                                                                     | 典型入口                                                                   |
 | --------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **`codec/`**    | 音节 `Yinjie` 模型；批量/交互编码；从 `yinjie_code.json` 解码；输出 `yinjie_code.json`、`key_to_code.json` | `model_full_code/`、`variable_length_yinyuan/`、`phonological_code/`（兼容路径）、`input_shorthand/`、`yinjie_encoder.py`、`yinjie_decoder.py` |
+| **`codec/`**    | 音节 `Yinjie` 模型；批量/交互编码；从 `yinjie_code.json` 解码；输出 `yinjie_code.json`、`key_to_code.json` | `model_full_code/`、`variable_length_yinyuan/`、`input_shorthand/`、`yinjie_encoder.py`、`yinjie_decoder.py` |
 | **`analysis/`** | 拼音切分、首音/干音编码器、片音/乐音/噪音分析组件；被 `codec/yinjie_encoder.py` 调用                       | `syllable_encoding_pipeline.py`、`shouyin_encoder.py`、`ganyin_encoder.py` |
 | **`yinyuan/`**  | 存首音码点、干音定长序列、增强映射等 JSON；由 `ShouyinEncoder` / `GanyinEncoder` 读写                      | 见下文「数据文件」                                                         |
 | **`pianyin/`**  | 片音（Pianyin）抽象类与调值统计脚本；`yueyin_yinyuan` 等试验会 import 此处                                 | `pianyin/pianyin.py`                                                       |
