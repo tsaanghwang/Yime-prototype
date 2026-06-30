@@ -273,6 +273,17 @@
 1. `coverage/` 与 `htmlcov/` 应视为测试生成物，允许删除并重新生成。
 2. 工作流可以校验这些目录中的文件是否被生成，但主仓库不应继续跟踪报告内容本身。
 
+#### 6AB. Rime 分发导出物（2026-06）
+
+- `.generated/rime/yime_*.schema.yaml`
+- `.generated/rime/yime_*.dict.yaml`
+- `.generated/rime/yime_*.metadata.json`
+  - 分类：Rime / librime 适配测试数据（**本地可再生导出物，gitignore**）。
+  - 生成入口：`python yime/export_rime_yime.py --mode variable --code-form layout-key`
+  - 原因：它们从 `yime/pinyin_hanzi.db` 的
+    `runtime_candidates_materialized` 三模式列导出，用于验证 Yime 数据能否被
+    Rime/Pime-Rime 前端消费；当前不作为仓库真源提交。
+
 #### 6AA. 根目录覆盖率与缓存残留（2026-05）
 
 以下对象应视为本地临时文件，已在 `.gitignore` 中忽略；
