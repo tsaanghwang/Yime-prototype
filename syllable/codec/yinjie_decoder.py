@@ -6,11 +6,9 @@ from typing import Any, cast
 try:
     from .paths import KEY_TO_CODE_PATH, PACKAGE_ROOT, REPO_ROOT, YINJIE_CODE_PATH
     from .yinjie import Yinjie
-    from .yinjie_loose_split import split_loose_encoded_string
 except ImportError:
     from paths import KEY_TO_CODE_PATH, PACKAGE_ROOT, REPO_ROOT, YINJIE_CODE_PATH
     from yinjie import Yinjie
-    from yinjie_loose_split import split_loose_encoded_string
 
 
 DecodedMap = dict[str, Yinjie]
@@ -141,12 +139,12 @@ class YinjieDecoder:
 
     @staticmethod
     def split_encoded_string(encoded: str) -> Yinjie:
-        """切分编码串为 ``Yinjie``：固定四码走 ``from_code``，否则 legacy 宽松切分。"""
+        """切分四字符音元编码串为 ``Yinjie``。"""
         if not encoded:
             raise ValueError("encoded syllable required")
-        if len(encoded) == 4:
-            return Yinjie.from_code(encoded)
-        return split_loose_encoded_string(encoded)
+        if len(encoded) != 4:
+            raise ValueError("encoded syllable length must be 4")
+        return Yinjie.from_code(encoded)
 
     def decode_all(self) -> DecodedMap:
         """解码所有拼音为Yinjie实例字典"""

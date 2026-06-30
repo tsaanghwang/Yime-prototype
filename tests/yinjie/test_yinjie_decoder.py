@@ -164,10 +164,9 @@ class TestYinjieDecoderResolveAndSplit(unittest.TestCase):
         yinjie = YinjieDecoder.split_encoded_string("ABCD")
         self.assertEqual(yinjie.to_code(), "ABCD")
 
-    def test_split_encoded_string_loose_legacy(self):
-        yinjie = YinjieDecoder.split_encoded_string("abcde")
-        self.assertEqual(yinjie.initial, "a")
-        self.assertEqual(yinjie.descender, "de")
+    def test_split_encoded_string_rejects_non_four_code(self):
+        with self.assertRaises(ValueError):
+            YinjieDecoder.split_encoded_string("abcde")
 
 
 if __name__ == "__main__":
