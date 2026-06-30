@@ -6,6 +6,8 @@ from syllable.codec.variable_length_yinyuan import (
     merge_adjacent_duplicate_symbols,
     simplify_ganyin_repeats,
     split_loose_encoded_string,
+    to_variable_length_yinyuan_code,
+    transform_full_code,
 )
 from syllable.codec.yinjie import Yinjie as LegacyYinjie
 
@@ -21,6 +23,30 @@ class TestCodecLayerPackages(unittest.TestCase):
 
     def test_variable_length_yinyuan_keeps_simplify_behavior(self):
         self.assertEqual(simplify_ganyin_repeats("ABBC"), "ABC")
+
+    def test_variable_length_yinyuan_transforms_four_code(self):
+        result = transform_full_code("ABBC")
+        self.assertEqual(result.full_code, "ABBC")
+        self.assertEqual(result.merged_code, "ABC")
+        self.assertEqual(result.variable_code, "ABC")
+        self.assertEqual(result.merged_adjacent_count, 1)
+        self.assertFalse(result.omitted_virtual_initial)
+
+    def test_variable_length_yinyuan_merges_before_omitting_virtual_initial(self):
+        result = transform_full_code("XAAB", virtual_initial="X")
+        self.assertEqual(result.merged_code, "XAB")
+        self.assertEqual(result.variable_code, "AB")
+        self.assertEqual(result.merged_adjacent_count, 1)
+        self.assertTrue(result.omitted_virtual_initial)
+
+    def test_variable_length_yinyuan_rejects_non_four_code(self):
+        for code in ("", "ABC", "ABCDE"):
+            with self.subTest(code=code):
+                with self.assertRaises(ValueError):
+                    transform_full_code(code)
+
+    def test_variable_length_yinyuan_code_helper(self):
+        self.assertEqual(to_variable_length_yinyuan_code("XAAA", virtual_initial="X"), "A")
 
     def test_variable_length_yinyuan_loose_split_returns_yinjie(self):
         self.assertIsInstance(split_loose_encoded_string("ABC"), LegacyYinjie)
