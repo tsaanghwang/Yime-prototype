@@ -304,14 +304,12 @@
     legacy-compatible 区域。
 
 - `syllable/codec/yinjie.py`（``Yinjie`` 四元模型真源）
-- `syllable/codec/yinjie_loose_split.py`
-  （legacy 可变长切分，非 IME 主链）
-- `syllable/codec/yinjie_jianpin_draft.py`
-  （简拼草稿，非 IME 输入链）
+- `syllable/codec/variable_length_yinyuan/transform.py`
+  （四元模型到变长音元模型的转换）
 - `yime/syllable_decoder.py`
   （``SyllableDecoder`` 旧 import 路径，直接继承 ``YinjieDecoder``）
 
-- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`
+- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
   （2026-06 后合并入主链，恢复请查 git 历史）
 
 - 已清退本地 DB 旧中文拼音表：`数字标调拼音`、`多式拼音映射关系`、`音元拼音`

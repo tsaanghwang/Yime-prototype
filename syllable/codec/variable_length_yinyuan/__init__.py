@@ -1,12 +1,7 @@
-"""变长音元模型子包：承载变长切分与相邻相同音元合并。"""
+"""变长音元模型子包：承载四元模型到变长音元模型的转换。"""
 
-from .loose_split import from_legacy_pinyin_chars, split_loose_encoded_string
-from .simplification import (
-    merge_adjacent_duplicate_symbols,
-    simplify_ganyin_repeats,
-    simplify_loose_structure,
-)
 from .transform import (
+    FOUR_YINYUAN_CODE_LENGTH,
     VariableLengthYinyuanResult,
     merge_adjacent_equal_yinyuan,
     to_variable_length_yinyuan_code,
@@ -15,13 +10,9 @@ from .transform import (
 )
 
 __all__ = [
+    "FOUR_YINYUAN_CODE_LENGTH",
     "VariableLengthYinyuanResult",
-    "from_legacy_pinyin_chars",
     "merge_adjacent_equal_yinyuan",
-    "merge_adjacent_duplicate_symbols",
-    "simplify_ganyin_repeats",
-    "simplify_loose_structure",
-    "split_loose_encoded_string",
     "to_variable_length_yinyuan_code",
     "transform_full_code",
     "transform_yinjie",

@@ -138,6 +138,6 @@ def test_materialized_runtime_candidates_store_primary_yime_code_and_match_expor
     assert rebuilt_rows == 1
     assert len(materialized) == 1
     assert materialized[0]["yime_code"] == "􀀋􀀩􀀩􀀩"
-    assert materialized[0]["primary_yime_code"] == "􀀋􀀩"
-    assert list(grouped) == ["􀀋􀀩"]
+    assert materialized[0]["primary_yime_code"] == "􀀩"
+    assert list(grouped) == ["􀀩"]
     conn.close()

@@ -80,10 +80,10 @@ class TestSyllableDecoder(unittest.TestCase):
         self.assertEqual(code, "中")
 
     def test_split_encoded_syllable_basic(self):
-        """测试基本音节分割"""
-        # 测试简单编码
-        result = self.decoder.split_encoded_syllable("zhong")
+        """测试四字符音元码分割"""
+        result = self.decoder.split_encoded_syllable("ABCD")
         self.assertIsInstance(result, Yinjie)
+        self.assertEqual(result.to_code(), "ABCD")
 
     def test_split_encoded_syllable_empty(self):
         """测试空字符串分割"""
@@ -169,8 +169,8 @@ class TestSyllableDecoderIntegration(unittest.TestCase):
         if len(self.decoder.code_map) == 0:
             self.skipTest("编码映射为空")
 
-        # 尝试解码一些常见音节
-        test_cases = ["zhong", "guo", "ren", "min"]
+        # split_encoded_syllable 是四字符音元码切分入口；拼音到编码由 decode/resolve_code 负责。
+        test_cases = ["ABCD", "EFGH", "IJKL", "MNOP"]
         for case in test_cases:
             try:
                 result = self.decoder.split_encoded_syllable(case)

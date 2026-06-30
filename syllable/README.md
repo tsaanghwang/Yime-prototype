@@ -154,12 +154,7 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 **旧 import 路径：** `yime/syllable_decoder.py`（``SyllableDecoder``，继承 ``YinjieDecoder``）。
 
-**非主链辅助：**
-
-- `syllable/codec/yinjie_loose_split.py` — legacy 可变长切分
-- `syllable/codec/yinjie_jianpin_draft.py` — 简拼草稿（完整规则待实现）
-
-已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`。
+已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
 
 ---
 

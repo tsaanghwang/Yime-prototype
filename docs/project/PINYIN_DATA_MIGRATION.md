@@ -102,9 +102,8 @@ scripts/run_tests.cmd
 
 **仍保留的旧 import 路径：** `yime/syllable_decoder.py`
 （``SyllableDecoder`` 直接继承 ``syllable.codec.YinjieDecoder``）。
-音节结构真源为 ``syllable.codec.yinjie.Yinjie``；legacy 宽松切分见
-``syllable.codec.yinjie_loose_split``；简拼草稿见
-``syllable.codec.yinjie_jianpin_draft``（非 IME 输入链）。
+音节结构真源为 ``syllable.codec.yinjie.Yinjie``；四元模型到变长音元模型的转换见
+``syllable.codec.variable_length_yinyuan``。
 
 当前主线如果需要真正刷新可消费数据，仍应回到本文第 1 节的
 `source_pinyin.db -> prototype tables -> runtime` 链。

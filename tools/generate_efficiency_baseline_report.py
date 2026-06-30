@@ -9,7 +9,7 @@ from statistics import median
 from typing import Any, Callable, Mapping, cast
 
 from syllable.codec.input_shorthand import omit_middle_tone_if_same_quality_run
-from syllable.codec.variable_length_yinyuan import merge_adjacent_duplicate_symbols
+from syllable.codec.variable_length_yinyuan import merge_adjacent_equal_yinyuan
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -379,7 +379,7 @@ def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: 
         shouyin_length = 0
 
     ganyin_symbols = symbols[1:]
-    compressed, _ = merge_adjacent_duplicate_symbols(ganyin_symbols)
+    compressed, _ = merge_adjacent_equal_yinyuan(ganyin_symbols)
     compressed, _ = omit_middle_tone_if_same_quality_run(compressed, ganyin_metadata)
 
     return shouyin_length + len(compressed)
@@ -409,7 +409,7 @@ def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dic
 
     omitted_virtual_initial = bool(symbols and virtual_initial_symbol and symbols[0] == virtual_initial_symbol)
     original_ganyin = symbols[1:]
-    deduped_ganyin, merged_repeat_count = merge_adjacent_duplicate_symbols(original_ganyin)
+    deduped_ganyin, merged_repeat_count = merge_adjacent_equal_yinyuan(original_ganyin)
 
     deduped_ganyin, omitted_middle_tone = omit_middle_tone_if_same_quality_run(
         deduped_ganyin,
