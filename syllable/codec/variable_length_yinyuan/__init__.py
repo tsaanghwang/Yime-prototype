@@ -6,11 +6,23 @@ from .simplification import (
     simplify_ganyin_repeats,
     simplify_loose_structure,
 )
+from .transform import (
+    VariableLengthYinyuanResult,
+    merge_adjacent_equal_yinyuan,
+    to_variable_length_yinyuan_code,
+    transform_full_code,
+    transform_yinjie,
+)
 
 __all__ = [
+    "VariableLengthYinyuanResult",
     "from_legacy_pinyin_chars",
+    "merge_adjacent_equal_yinyuan",
     "merge_adjacent_duplicate_symbols",
     "simplify_ganyin_repeats",
     "simplify_loose_structure",
     "split_loose_encoded_string",
+    "to_variable_length_yinyuan_code",
+    "transform_full_code",
+    "transform_yinjie",
 ]
