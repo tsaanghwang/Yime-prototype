@@ -13,7 +13,7 @@ import sqlite3
 from dataclasses import dataclass
 
 from syllable.codec.yinjie import Yinjie
-from syllable.codec.yinjie_jianpin_draft import simplify_ganyin_repeats
+from syllable.codec.variable_length_yinyuan import to_variable_length_yinyuan_code
 
 CREATE_YINJIE_SLOT_DECOMPOSITION_SQL = """
 CREATE TABLE IF NOT EXISTS yinjie_slot_decomposition (
@@ -74,15 +74,21 @@ def build_decomposition_row(
     code_source: str,
 ) -> YinjieSlotDecompositionRow:
     """Derive position columns from a canonical four-character yime code."""
+    from yime.canonical_yime_mapping import load_virtual_initial_symbol
+
     normalized_code = str(yime_code or "").strip()
     if len(normalized_code) != 4:
         raise ValueError(f"yime_code 长度应为 4，实际为 {len(normalized_code)}: {normalized_code!r}")
 
     yinjie = Yinjie.from_code(normalized_code)
+    variable_length_code = to_variable_length_yinyuan_code(
+        normalized_code,
+        virtual_initial=load_virtual_initial_symbol() or None,
+    )
     return YinjieSlotDecompositionRow(
         pinyin_tone=str(pinyin_tone or "").strip(),
         yime_code=normalized_code,
-        yime_code_jianpin_draft=simplify_ganyin_repeats(normalized_code),
+        yime_code_jianpin_draft=variable_length_code,
         slot_shouyin=yinjie.initial or "",
         slot_ganyin=yinjie.ganyin_code,
         slot_huyin=yinjie.ascender or "",
