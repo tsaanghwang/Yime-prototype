@@ -136,6 +136,7 @@ class TestLooseEncodedSplit(unittest.TestCase):
 class TestJianpinDraft(unittest.TestCase):
     def test_simplify_ganyin_repeats(self):
         self.assertEqual(simplify_ganyin_repeats("ABBC"), "ABC")
+        self.assertEqual(simplify_ganyin_repeats("XAAB", virtual_initial="X"), "AB")
 
     def test_simplify_loose_structure(self):
         yinjie = Yinjie(initial="A", ascender="B", peak="B", descender="C")
