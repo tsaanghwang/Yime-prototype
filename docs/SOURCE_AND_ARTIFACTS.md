@@ -281,6 +281,23 @@
 
 #### 6B. 数据库备份副产物（2026-05）
 
+- `C:/dev/Yime-variable-length/` 本地完整测试资产（2026-06）
+  - 分类：被 `.gitignore` 排除的本地数据资产集合。
+  - 当前完整测试需要以下本地产物存在，否则相关测试会按条件跳过：
+    `.generated/source_pinyin.db`、`.generated/source_pinyin.verify.db`、
+    `internal_data/pinyin_source_db/source_pinyin.db`、
+    `internal_data/hanzi_pinyin/hanzi_pinyin.db`、
+    `internal_data/phrase_pinyin/phrase_pinyin.db`、
+    `external_data/hanzi_pinyin.txt`、`external_data/phrase_pinyin.txt`、
+    `external_data/unihan_readings/Unihan_Readings.txt`、
+    `external_data/unihan_readings/unihan_readings.db`、
+    `external_data/char_freq/*.txt`、`external_data/word_freq/*.txt`。
+  - 当前输入法运行库以 `yime/pinyin_hanzi.db` 为准；三模式运行时要求
+    `runtime_candidates_materialized` 含 `full_yime_code`、
+    `variable_yinyuan_code`、`input_shorthand_code` 三列及对应索引。
+  - 这些文件可由 rebuild 链重新生成；从旧工作区补齐时，不应覆盖已经刷新过的
+    `yime/pinyin_hanzi.db` 与 `.generated/runtime_candidates_by_code_true.json`。
+
 - `yime/backup/`
   - 分类：本地数据库备份目录。
   - 原因：词库/频度导入脚本（如

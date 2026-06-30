@@ -1,5 +1,11 @@
 """Compatibility shim for the runtime-candidate JSON exporter."""
 
+if __name__ == "__main__" and __package__ is None:
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from yime.utils.runtime_candidates_export import (
     DB_PATH,
     DEFAULT_OUTPUT_PATH,
