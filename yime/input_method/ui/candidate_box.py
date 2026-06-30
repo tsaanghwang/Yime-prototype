@@ -98,6 +98,7 @@ class CandidateBox(CandidateRendererMixin):
         on_background_color_change: Optional[ColorSettingChangeCallback] = None,
         on_active_topmost_change: Optional[BoolSettingChangeCallback] = None,
         on_reverse_lookup_display_mode_change: Optional[StringSettingChangeCallback] = None,
+        on_code_mode_change: Optional[StringSettingChangeCallback] = None,
         on_reload_user_lexicon: Optional[VoidCallback] = None,
         on_edit_user_lexicon: Optional[VoidCallback] = None,
         on_import_user_lexicon: Optional[VoidCallback] = None,
@@ -175,6 +176,7 @@ class CandidateBox(CandidateRendererMixin):
         self._on_background_color_change = on_background_color_change
         self._on_active_topmost_change = on_active_topmost_change
         self._on_reverse_lookup_display_mode_change = on_reverse_lookup_display_mode_change
+        self._on_code_mode_change = on_code_mode_change
         self._on_reload_user_lexicon = on_reload_user_lexicon
         self._on_edit_user_lexicon = on_edit_user_lexicon
         self._on_import_user_lexicon = on_import_user_lexicon
@@ -235,6 +237,7 @@ class CandidateBox(CandidateRendererMixin):
         self.background_color_var = tk.StringVar(self.root, value=self._DEFAULT_BACKGROUND_COLOR)
         self.active_topmost_var = tk.BooleanVar(self.root, value=True)
         self.reverse_lookup_display_mode_var = tk.StringVar(self.root, value="default")
+        self.code_mode_var = tk.StringVar(self.root, value="variable")
         self.page_size_spinbox = None
         self.page_info_var = tk.StringVar(self.root, value="第 1/1 页")
         self.shortcut_hint_var = tk.StringVar(value="首选: Space / Enter")
@@ -363,6 +366,12 @@ class CandidateBox(CandidateRendererMixin):
     def reverse_lookup_display_mode_change_callback(self, mode: str) -> bool:
         if self._on_reverse_lookup_display_mode_change:
             self._on_reverse_lookup_display_mode_change(mode)
+            return True
+        return False
+
+    def code_mode_change_callback(self, mode: str) -> bool:
+        if self._on_code_mode_change:
+            self._on_code_mode_change(mode)
             return True
         return False
 
@@ -1061,6 +1070,9 @@ class CandidateBox(CandidateRendererMixin):
 
     def set_reverse_lookup_display_mode(self, mode: str) -> None:
         self.reverse_lookup_display_mode_var.set(str(mode or "default"))
+
+    def set_code_mode(self, mode: str) -> None:
+        self.code_mode_var.set(str(mode or "variable"))
 
     def _set_auxiliary_info_text(self, text: str) -> None:
         normalized = str(text or "").strip()

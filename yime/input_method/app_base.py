@@ -14,6 +14,7 @@ from tkinter import messagebox, simpledialog
 from typing import Callable, Mapping, Optional, cast
 
 from ..asset_paths import resolve_runtime_candidates_json_path
+from ..utils.code_modes import YimeCodeMode, code_mode_label, normalize_code_mode
 from ..utils.marked_pinyin import marked_pinyin_to_numeric
 from .core.decoders import CompositeCandidateDecoder
 from .core.input_visualization import (
@@ -110,6 +111,7 @@ class BaseInputMethodApp:
     _DEFAULT_FOREGROUND_COLOR = "#111827"
     _DEFAULT_BACKGROUND_COLOR = "#f0f0f0"
     _DEFAULT_REVERSE_LOOKUP_DISPLAY_MODE = "default"
+    _DEFAULT_CODE_MODE = YimeCodeMode.VARIABLE
 
     def __init__(
         self,
@@ -167,6 +169,9 @@ class BaseInputMethodApp:
         self.reverse_lookup_display_mode = self._normalize_reverse_lookup_display_mode(
             self.ui_settings.get("reverse_lookup_display_mode")
         )
+        self.code_mode = self._normalize_code_mode_setting(
+            self.ui_settings.get("code_mode")
+        )
         self.active_topmost_enabled = self._normalize_bool_setting(
             self.ui_settings.get("active_topmost_enabled"),
             True,
@@ -177,6 +182,7 @@ class BaseInputMethodApp:
         self.user_lexicon_store = UserLexiconStore(user_db_path)
         self.seed_import_result = self._maybe_import_seed_user_lexicon()
         self.decoder = CompositeCandidateDecoder(app_dir, user_db_path=user_db_path)
+        self.decoder.set_code_mode(self.code_mode)
         self.input_visual_map = build_input_visual_map(app_dir.parent)
         self.manual_key_output_map = build_manual_key_output_map(app_dir.parent)
         self.literal_passthrough_chars = build_non_base_literal_output_chars(app_dir.parent)
@@ -272,6 +278,7 @@ class BaseInputMethodApp:
             on_foreground_color_change=self._on_foreground_color_change,
             on_background_color_change=self._on_background_color_change,
             on_active_topmost_change=self._on_active_topmost_change,
+            on_code_mode_change=self._on_code_mode_change,
             on_reload_user_lexicon=self._reload_user_lexicon_from_menu,
             on_import_user_lexicon=self._import_user_lexicon_from_menu,
             on_export_user_lexicon=self._export_user_lexicon_from_menu,
@@ -360,6 +367,9 @@ class BaseInputMethodApp:
         if normalized in {"default", "all", "none", "marked", "yime", "keys"}:
             return normalized
         return self._DEFAULT_REVERSE_LOOKUP_DISPLAY_MODE
+
+    def _normalize_code_mode_setting(self, value: object) -> YimeCodeMode:
+        return normalize_code_mode(value or self._DEFAULT_CODE_MODE)
 
     def _is_valid_bool_setting_value(self, value: object) -> bool:
         if isinstance(value, bool):
@@ -463,6 +473,12 @@ class BaseInputMethodApp:
                 return None
             return "反查显示模式必须是 default、all、none、marked、yime 或 keys"
 
+        if key == "code_mode":
+            normalized = str(value or "").strip().lower()
+            if normalized in {"full", "variable", "shorthand"}:
+                return None
+            return "输入编码模式必须是 full、variable 或 shorthand"
+
         hotkey_normalizer = getattr(self, "_normalize_hotkey_setting", None)
         if key == "hotkey":
             if callable(hotkey_normalizer):
@@ -548,6 +564,7 @@ class BaseInputMethodApp:
             "background_color",
             "active_topmost_enabled",
             "reverse_lookup_display_mode",
+            "code_mode",
             "hotkey",
             "wake_trigger_mode",
             "standby_trigger_mode",
@@ -658,6 +675,12 @@ class BaseInputMethodApp:
                     "reverse_lookup_display_mode",
                     self._DEFAULT_REVERSE_LOOKUP_DISPLAY_MODE,
                 )
+            )
+
+        apply_code_mode = getattr(self.candidate_box, "set_code_mode", None)
+        if callable(apply_code_mode):
+            apply_code_mode(
+                normalize_code_mode(getattr(self, "code_mode", self._DEFAULT_CODE_MODE)).value
             )
 
     def _on_candidate_page_size_change(self, page_size: int) -> None:
@@ -775,6 +798,19 @@ class BaseInputMethodApp:
         self.reverse_lookup_display_mode = normalized
         self.ui_settings["reverse_lookup_display_mode"] = normalized
         self._save_ui_settings()
+        self._on_input_change()
+
+    def _on_code_mode_change(self, mode: str) -> None:
+        normalized = self._normalize_code_mode_setting(mode)
+        apply = getattr(self.candidate_box, "set_code_mode", None)
+        if callable(apply):
+            apply(normalized.value)
+        self.code_mode = normalized
+        self.ui_settings["code_mode"] = normalized.value
+        if hasattr(self.decoder, "set_code_mode"):
+            self.decoder.set_code_mode(normalized)
+        self._save_ui_settings()
+        self._emit_feedback("输入编码模式", f"已切换为{code_mode_label(normalized)}。")
         self._on_input_change()
 
     def _reload_user_lexicon_from_menu(self) -> None:

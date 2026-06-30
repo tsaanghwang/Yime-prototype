@@ -180,6 +180,7 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 | `syllable.codec.model_full_code` | 模型全码子包；承载 `Yinjie` 四元 canonical 结构 |
 | `syllable.codec.variable_length_yinyuan` | 变长音元模型子包；承载 `transform_full_code()` / `to_variable_length_yinyuan_code()`，把四元模型转换为变长音元码 |
 | `syllable.codec.input_shorthand` | 输入省键子包；承载省中调等不改变映射关系的别名规则 |
+| `yime.utils.code_modes` | 输入编码模式工具；统一生成等长、变长、省键三套查询码 |
 | `yime.syllable_decoder.SyllableDecoder` | 旧 import 路径；继承 `YinjieDecoder` |
 
 ---

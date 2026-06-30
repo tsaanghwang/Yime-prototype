@@ -72,7 +72,7 @@ scripts/run_tests.cmd
 `CompositeCandidateDecoder` 优先级：
 
 1. **`yime/pinyin_hanzi.db`** → `runtime_candidates_materialized` 物化表 —
-  **默认运行时主路径（按变长音元码查词）**
+  **默认运行时主路径（按 UI 当前编码模式查词；默认变长模式）**
 2. **`.generated/runtime_candidates_by_code_true.json`** — 仅 SQLite 不可用时
 3. **静态层** — 仍无候选时：`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 汉字兜底（已 gitignore）
 

@@ -185,7 +185,10 @@ def test_sqlite_stores_query_materialized_primary_yime_code(tmp_path) -> None:
                 text TEXT NOT NULL,
                 pinyin_tone TEXT NOT NULL,
                 yime_code TEXT NOT NULL,
+                full_yime_code TEXT NOT NULL,
                 primary_yime_code TEXT NOT NULL,
+                variable_yinyuan_code TEXT NOT NULL,
+                input_shorthand_code TEXT NOT NULL,
                 sort_weight REAL NOT NULL,
                 is_common INTEGER NOT NULL,
                 text_length INTEGER NOT NULL,
@@ -203,13 +206,13 @@ def test_sqlite_stores_query_materialized_primary_yime_code(tmp_path) -> None:
         conn.execute(
             """
             INSERT INTO runtime_candidates_materialized
-            VALUES ('phrase', 'p1', '发展', 'fa1 zhan3', 'FULLPHRASE', 'ab', 1000.0, 1, 2, 'now')
+            VALUES ('phrase', 'p1', '发展', 'fa1 zhan3', 'FULLPHRASE', 'FULLPHRASE', 'ab', 'ab', 'a', 1000.0, 1, 2, 'now')
             """
         )
         conn.execute(
             """
             INSERT INTO runtime_candidates_materialized
-            VALUES ('char', 'c1', '发', 'fa1', 'FULLCHAR', 'xy', 900.0, 1, 1, 'now')
+            VALUES ('char', 'c1', '发', 'fa1', 'FULLCHAR', 'FULLCHAR', 'xy', 'xy', 'x', 900.0, 1, 1, 'now')
             """
         )
         conn.execute(
@@ -240,6 +243,16 @@ def test_sqlite_stores_query_materialized_primary_yime_code(tmp_path) -> None:
     assert [(code, [candidate.text for candidate in candidates]) for code, candidates in prefix_chars] == [
         ("xy", ["发"])
     ]
+
+    phrase_store.set_code_mode("full")
+    char_store.set_code_mode("full")
+    assert [candidate["text"] for candidate in phrase_store.load_runtime_candidates_for_code("FULLPHRASE", {})] == ["发展"]
+    assert [candidate.text for candidate in char_store.get_char_candidates("FULLCHAR")] == ["发"]
+
+    phrase_store.set_code_mode("shorthand")
+    char_store.set_code_mode("shorthand")
+    assert [candidate["text"] for candidate in phrase_store.load_runtime_candidates_for_code("a", {})] == ["发展"]
+    assert [candidate.text for candidate in char_store.get_char_candidates("x")] == ["发"]
 
 
 def test_sqlite_stores_fall_back_when_materialized_primary_yime_code_is_missing(tmp_path) -> None:
