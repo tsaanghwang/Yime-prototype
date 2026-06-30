@@ -9,8 +9,10 @@ from typing import Dict, List, Tuple, cast
 
 from yime.canonical_yime_mapping import (
     convert_legacy_code_to_primary,
+    load_code_mode_map,
     load_primary_code_map,
 )
+from yime.utils.code_modes import YimeCodeMode, code_mode_label, normalize_code_mode
 from .runtime_lookup import (
     RuntimeLookupPlan,
     build_runtime_lookup_plan,
@@ -67,6 +69,31 @@ def build_pinyin_to_canonical_code_map(
         pinyin_tone: canonicalize_runtime_input(runtime_code, bmp_to_canonical)
         for pinyin_tone, runtime_code in load_primary_code_map(repo_root).items()
     }
+
+
+def build_pinyin_to_code_mode_maps(
+    repo_root: Path,
+    bmp_to_canonical: Dict[str, str],
+) -> Dict[YimeCodeMode, Dict[str, str]]:
+    grouped: Dict[YimeCodeMode, Dict[str, str]] = {
+        YimeCodeMode.FULL: {},
+        YimeCodeMode.VARIABLE: {},
+        YimeCodeMode.SHORTHAND: {},
+    }
+    for pinyin_tone, record in load_code_mode_map(repo_root).items():
+        grouped[YimeCodeMode.FULL][pinyin_tone] = canonicalize_runtime_input(
+            record.full_code,
+            bmp_to_canonical,
+        )
+        grouped[YimeCodeMode.VARIABLE][pinyin_tone] = canonicalize_runtime_input(
+            record.variable_code,
+            bmp_to_canonical,
+        )
+        grouped[YimeCodeMode.SHORTHAND][pinyin_tone] = canonicalize_runtime_input(
+            record.shorthand_code,
+            bmp_to_canonical,
+        )
+    return grouped
 
 
 def resolve_canonical_code_from_pinyin_tone(
@@ -131,10 +158,12 @@ class RuntimeDecoderBase:
             app_dir.parent / "internal_data" / "bmp_pua_trial_projection.json",
             app_dir.parent / "internal_data" / "key_to_symbol.json",
         )
-        self.pinyin_to_canonical = build_pinyin_to_canonical_code_map(
+        self.code_mode = YimeCodeMode.VARIABLE
+        self.pinyin_to_code_by_mode = build_pinyin_to_code_mode_maps(
             app_dir.parent,
             self.bmp_to_canonical,
         )
+        self.pinyin_to_canonical = self.pinyin_to_code_by_mode[YimeCodeMode.VARIABLE]
         self.numeric_to_marked_pinyin = load_numeric_to_marked_pinyin_map(
             str(app_dir / "pinyin_normalized.json")
         )
@@ -163,6 +192,17 @@ class RuntimeDecoderBase:
             "YIME_DEBUG_RUNTIME_RANKING",
             "",
         ).strip().lower() in {"1", "true", "yes", "on"}
+
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        self.code_mode = normalize_code_mode(mode)
+        mode_map = getattr(self, "pinyin_to_code_by_mode", {})
+        self.pinyin_to_canonical = mode_map.get(self.code_mode, getattr(self, "pinyin_to_canonical", {}))
+        self.single_syllable_codes = frozenset(
+            code for code in self.pinyin_to_canonical.values() if str(code or "").strip()
+        )
+
+    def get_code_mode(self) -> YimeCodeMode:
+        return normalize_code_mode(getattr(self, "code_mode", YimeCodeMode.VARIABLE))
 
     def _lookup_runtime_candidates_for_decode(
         self,
@@ -208,7 +248,7 @@ class RuntimeDecoderBase:
 
         display_pinyin = " / ".join(pinyin_values[:3])
         if texts:
-            status = f"从{self.runtime_source_label}找到 {len(texts)} 个候选。"
+            status = f"{code_mode_label(self.get_code_mode())}：从{self.runtime_source_label}找到 {len(texts)} 个候选。"
             debug_summary = format_runtime_debug_summary(records)
             if getattr(self, "debug_runtime_ranking", False) and debug_summary:
                 pool_hint = ""
@@ -227,6 +267,7 @@ class RuntimeDecoderBase:
             status = f"{self.runtime_source_label}中未找到该 {plan.syllable_count} 音节词语候选。"
         else:
             status = f"{self.runtime_source_label}中未找到该音节编码候选。"
+        status = f"{code_mode_label(self.get_code_mode())}：{status}"
         if mode_hint:
             status = f"{mode_hint} {status}"
         return canonical, plan.active_code, display_pinyin, [], status

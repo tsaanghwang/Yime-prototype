@@ -15,6 +15,7 @@ import unicodedata
 from typing import Dict, List, Tuple, Optional, cast
 
 from yime.canonical_yime_mapping import convert_legacy_code_to_primary
+from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
 from ...asset_paths import resolve_runtime_candidates_json_path
 from .char_code_index import CharCodeCandidate
 from .runtime_decoder_base import (
@@ -205,6 +206,7 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
             self.pinyin_to_canonical,
             _resolve_canonical_code_from_pinyin_tone,
         )
+        self._json_store.set_code_mode(self.get_code_mode())
         self._json_store.refresh(
             self.user_lexicon.load_phrase_candidates(self.pinyin_to_canonical),
         )
@@ -244,7 +246,12 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
                 if not isinstance(candidate, dict):
                     continue
                 candidate_dict = cast(dict[str, object], candidate)
-                canonical_code = str(candidate_dict.get("primary_yime_code", "") or "").strip()
+                lookup_column = lookup_code_column(self.get_code_mode())
+                canonical_code = str(candidate_dict.get(lookup_column, "") or "").strip()
+                if not canonical_code and self.get_code_mode() == YimeCodeMode.FULL:
+                    canonical_code = str(candidate_dict.get("yime_code", "") or "").strip()
+                if not canonical_code:
+                    canonical_code = str(candidate_dict.get("primary_yime_code", "") or "").strip()
                 if not canonical_code:
                     pinyin_tone = str(candidate_dict.get("pinyin_tone", "") or "").strip()
                     canonical_code = _resolve_canonical_code_from_pinyin_tone(
@@ -261,6 +268,13 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
                     _annotate_candidate_source(candidate_dict, "exact")
                 )
         return regrouped
+
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        super().set_code_mode(mode)
+        json_store = getattr(self, "_json_store", None)
+        if json_store is not None:
+            json_store.set_code_mode(self.get_code_mode())
+            self.reload_user_lexicon()
 
     def reload_user_lexicon(self) -> None:
         self._json_store.refresh(
@@ -348,8 +362,16 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         self._init_runtime_decoder_common(app_dir, user_db_path)
         self._sqlite_runtime_source = SQLiteRuntimeSource(self.db_path)
         self.runtime_table_name = self._sqlite_runtime_source.detect_runtime_candidate_table()
-        self._char_store = SQLiteCharCandidateStore(self._sqlite_runtime_source, self.runtime_table_name)
-        self._phrase_store = SQLitePhraseCandidateStore(self._sqlite_runtime_source, self.runtime_table_name)
+        self._char_store = SQLiteCharCandidateStore(
+            self._sqlite_runtime_source,
+            self.runtime_table_name,
+            self.get_code_mode(),
+        )
+        self._phrase_store = SQLitePhraseCandidateStore(
+            self._sqlite_runtime_source,
+            self.runtime_table_name,
+            self.get_code_mode(),
+        )
         self._phrase_candidate_overlays = self.user_lexicon.load_phrase_candidates(
             self.pinyin_to_canonical,
         )
@@ -461,6 +483,18 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
             )
         return grouped
 
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        super().set_code_mode(mode)
+        if hasattr(self, "_char_store"):
+            self._char_store.set_code_mode(self.get_code_mode())
+        if hasattr(self, "_phrase_store"):
+            self._phrase_store.set_code_mode(self.get_code_mode())
+        if hasattr(self, "user_lexicon"):
+            self._phrase_candidate_overlays = self.user_lexicon.load_phrase_candidates(
+                self.pinyin_to_canonical,
+            )
+            self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+
     def reload_user_lexicon(self) -> None:
         self._phrase_candidate_overlays = self.user_lexicon.load_phrase_candidates(
             self.pinyin_to_canonical,
@@ -500,6 +534,15 @@ class CompositeCandidateDecoder:
                     f"SQLite 直查不可用: {exc}; JSON 导出不可用: {json_exc}"
                 )
         self.static_decoder = StaticCandidateDecoder(app_dir)
+        self.code_mode = YimeCodeMode.VARIABLE
+
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        self.code_mode = normalize_code_mode(mode)
+        if self.runtime_decoder is not None and hasattr(self.runtime_decoder, "set_code_mode"):
+            self.runtime_decoder.set_code_mode(self.code_mode)
+
+    def get_code_mode(self) -> YimeCodeMode:
+        return normalize_code_mode(getattr(self, "code_mode", YimeCodeMode.VARIABLE))
 
     def get_runtime_warning(self) -> str:
         """返回运行时编码表告警，供上层决定是否展示。"""

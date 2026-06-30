@@ -8,6 +8,11 @@ from pathlib import Path
 from typing import Any, TypedDict, cast
 
 from syllable.codec.variable_length_yinyuan import to_variable_length_yinyuan_code
+from yime.utils.code_modes import (
+    CodeModeRecord,
+    build_code_mode_map,
+    load_ganyin_symbol_metadata,
+)
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
 from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
@@ -122,6 +127,15 @@ def load_primary_code_map(repo_root: Path | None = None) -> dict[str, str]:
         if primary_code:
             primary_code_map[pinyin_tone] = primary_code
     return primary_code_map
+
+
+def load_code_mode_map(repo_root: Path | None = None) -> dict[str, CodeModeRecord]:
+    resolved_root = repo_root or WORKSPACE_ROOT
+    return build_code_mode_map(
+        load_canonical_code_map(resolved_root),
+        virtual_initial=load_virtual_initial_symbol(resolved_root),
+        ganyin_symbol_metadata=load_ganyin_symbol_metadata(resolved_root),
+    )
 
 
 def load_canonical_patch_map(repo_root: Path | None = None) -> dict[str, tuple[str, int | None]]:

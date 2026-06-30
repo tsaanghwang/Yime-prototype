@@ -3,6 +3,8 @@ from __future__ import annotations
 import sqlite3
 from typing import Dict, List, SupportsFloat, Tuple, cast
 
+from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
+
 from .char_code_index import CharCodeCandidate
 from .sqlite_runtime_source import SQLiteRuntimeSource
 
@@ -33,9 +35,15 @@ def _as_bool_value(value: object) -> bool:
 class SQLiteCharCandidateStore:
     """Character-candidate DAO with local caches for SQLite runtime decoders."""
 
-    def __init__(self, runtime_source: SQLiteRuntimeSource, runtime_table_name: str) -> None:
+    def __init__(
+        self,
+        runtime_source: SQLiteRuntimeSource,
+        runtime_table_name: str,
+        code_mode: YimeCodeMode | str = YimeCodeMode.VARIABLE,
+    ) -> None:
         self.runtime_source = runtime_source
         self.runtime_table_name = runtime_table_name
+        self.code_mode = normalize_code_mode(code_mode)
         self._char_candidate_cache: Dict[str, List[CharCodeCandidate]] = {}
         self._char_prefix_cache: Dict[tuple[str, int], List[Tuple[str, List[CharCodeCandidate]]]] = {}
 
@@ -43,7 +51,17 @@ class SQLiteCharCandidateStore:
         self._char_candidate_cache.clear()
         self._char_prefix_cache.clear()
 
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        self.code_mode = normalize_code_mode(mode)
+        self.clear_caches()
+
     def _lookup_code_column(self) -> str:
+        preferred_column = lookup_code_column(self.code_mode)
+        if (
+            self.runtime_table_name == "runtime_candidates_materialized"
+            and self.runtime_source.has_column(self.runtime_table_name, preferred_column)
+        ):
+            return preferred_column
         if (
             self.runtime_table_name == "runtime_candidates_materialized"
             and self.runtime_source.has_column(

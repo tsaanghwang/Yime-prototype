@@ -92,7 +92,7 @@
 
 ### 表（运行时候选层）
 
-- `runtime_candidates_materialized`：运行时候选物化表，供运行时快速按码查候选。
+- `runtime_candidates_materialized`：运行时候选物化表，供运行时快速按码查候选；并行保存等长、变长、省键三种查询码。
 - `runtime_tuning_parameters`：运行时排序/刷新参数。
 
 ### 视图（运行时候选层）

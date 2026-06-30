@@ -347,7 +347,10 @@ CREATE TABLE IF NOT EXISTS runtime_candidates_materialized (
     text TEXT NOT NULL,
     pinyin_tone TEXT NOT NULL,
     yime_code TEXT NOT NULL,
+    full_yime_code TEXT NOT NULL,
     primary_yime_code TEXT NOT NULL,
+    variable_yinyuan_code TEXT NOT NULL,
+    input_shorthand_code TEXT NOT NULL,
     sort_weight REAL NOT NULL,
     is_common INTEGER NOT NULL,
     text_length INTEGER NOT NULL,
@@ -360,6 +363,15 @@ ON runtime_candidates_materialized(yime_code, entry_type, sort_weight DESC, text
 
 CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_primary_code
 ON runtime_candidates_materialized(primary_yime_code, entry_type, sort_weight DESC, text);
+
+CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_full_code
+ON runtime_candidates_materialized(full_yime_code, entry_type, sort_weight DESC, text);
+
+CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_variable_code
+ON runtime_candidates_materialized(variable_yinyuan_code, entry_type, sort_weight DESC, text);
+
+CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_shorthand_code
+ON runtime_candidates_materialized(input_shorthand_code, entry_type, sort_weight DESC, text);
 
 CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_char_prefix
 ON runtime_candidates_materialized(entry_type, yime_code, sort_weight DESC, text);

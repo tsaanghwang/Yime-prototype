@@ -26,7 +26,10 @@ def test_build_candidate_record_keeps_primary_yime_code() -> None:
             '1' AS entry_id,
             'a1' AS pinyin_tone,
             'ABCD' AS yime_code,
+            'ABCD' AS full_yime_code,
             'AB' AS primary_yime_code,
+            'AB' AS variable_yinyuan_code,
+            'A' AS input_shorthand_code,
             1.0 AS sort_weight,
             1 AS is_common,
             1 AS text_length,
@@ -37,7 +40,10 @@ def test_build_candidate_record_keeps_primary_yime_code() -> None:
     record = build_candidate_record(row)
 
     assert record["yime_code"] == "ABCD"
+    assert record["full_yime_code"] == "ABCD"
     assert record["primary_yime_code"] == "AB"
+    assert record["variable_yinyuan_code"] == "AB"
+    assert record["input_shorthand_code"] == "A"
     conn.close()
 
 
@@ -52,7 +58,10 @@ def test_group_rows_prefers_primary_yime_code() -> None:
             '1' AS entry_id,
             'a1' AS pinyin_tone,
             'ABCD' AS yime_code,
+            'ABCD' AS full_yime_code,
             'AB' AS primary_yime_code,
+            'AB' AS variable_yinyuan_code,
+            'A' AS input_shorthand_code,
             1.0 AS sort_weight,
             1 AS is_common,
             1 AS text_length,
@@ -125,7 +134,10 @@ def test_materialized_runtime_candidates_store_primary_yime_code_and_match_expor
             text,
             pinyin_tone,
             yime_code,
+            full_yime_code,
             primary_yime_code,
+            variable_yinyuan_code,
+            input_shorthand_code,
             sort_weight,
             is_common,
             text_length,
@@ -138,6 +150,9 @@ def test_materialized_runtime_candidates_store_primary_yime_code_and_match_expor
     assert rebuilt_rows == 1
     assert len(materialized) == 1
     assert materialized[0]["yime_code"] == "􀀋􀀩􀀩􀀩"
+    assert materialized[0]["full_yime_code"] == "􀀋􀀩􀀩􀀩"
     assert materialized[0]["primary_yime_code"] == "􀀩"
+    assert materialized[0]["variable_yinyuan_code"] == "􀀩"
+    assert materialized[0]["input_shorthand_code"] == "􀀩"
     assert list(grouped) == ["􀀩"]
     conn.close()

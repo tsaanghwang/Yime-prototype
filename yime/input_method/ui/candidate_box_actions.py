@@ -15,6 +15,17 @@ if TYPE_CHECKING:
 _MenuItemState = Literal["normal", "disabled"]
 
 
+class _FallbackStringVar:
+    def __init__(self, value: str = "") -> None:
+        self._value = value
+
+    def get(self) -> str:
+        return self._value
+
+    def set(self, value: str) -> None:
+        self._value = value
+
+
 class CandidateBoxActions:
     """Event and command handlers for CandidateBox."""
 
@@ -44,6 +55,16 @@ class CandidateBoxActions:
         ("仅音元拼音", "yime"),
         ("仅键位序列", "keys"),
     )
+    _CODE_MODE_OPTIONS = (
+        ("等长模式（四元模型）", "full"),
+        ("变长模式（推荐）", "variable"),
+        ("省键模式", "shorthand"),
+    )
+    _CODE_MODE_STATUS = {
+        "full": "等长模式",
+        "variable": "变长模式",
+        "shorthand": "省键模式",
+    }
     _REVERSE_LOOKUP_DISPLAY_STATUS = {
         "default": "默认：显示标准拼音和音元拼音，适合日常查看，例如“rì | 甲甲”。",
         "all": "完整：同时显示标准拼音、数字标调、音元拼音和键位序列，例如“rì | ri4 | 甲甲 | qj”。",
@@ -74,6 +95,7 @@ class CandidateBoxActions:
         self._help_menu: Optional[tk.Menu] = None
         self._settings_menu: Optional[tk.Menu] = None
         self._candidate_list_menu: Optional[tk.Menu] = None
+        self._code_mode_menu: Optional[tk.Menu] = None
         self._reverse_lookup_display_menu: Optional[tk.Menu] = None
         self._interaction_menu: Optional[tk.Menu] = None
         self._wake_mode_menu: Optional[tk.Menu] = None
@@ -390,12 +412,33 @@ class CandidateBoxActions:
     def _get_settings_menu(self) -> tk.Menu:
         if self._settings_menu is None:
             menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_cascade(label="输入编码模式", menu=self._get_code_mode_menu())
             menu.add_cascade(label="候选列表", menu=self._get_candidate_list_menu())
             menu.add_cascade(label="反查信息", menu=self._get_reverse_lookup_display_menu())
             menu.add_cascade(label="交互", menu=self._get_interaction_menu())
             menu.add_cascade(label="外观", menu=self._get_appearance_menu())
             self._settings_menu = menu
         return self._settings_menu
+
+    def _get_code_mode_menu(self) -> tk.Menu:
+        if self._code_mode_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            code_mode_var = getattr(self.box, "code_mode_var", None)
+            if code_mode_var is None:
+                if hasattr(self.box.root, "_root"):
+                    code_mode_var = tk.StringVar(self.box.root, value="variable")
+                else:
+                    code_mode_var = _FallbackStringVar("variable")
+                setattr(self.box, "code_mode_var", code_mode_var)
+            for label, mode in self._CODE_MODE_OPTIONS:
+                menu.add_radiobutton(
+                    label=label,
+                    value=mode,
+                    variable=code_mode_var,
+                    command=lambda value=mode: self.set_code_mode(value),
+                )
+            self._code_mode_menu = menu
+        return self._code_mode_menu
 
     def _get_reverse_lookup_display_menu(self) -> tk.Menu:
         if self._reverse_lookup_display_menu is None:
@@ -486,6 +529,7 @@ class CandidateBoxActions:
     def _invalidate_toolbar_menus(self) -> None:
         self._interaction_menu = None
         self._settings_menu = None
+        self._code_mode_menu = None
         self._reverse_lookup_display_menu = None
         self._toolbar_menu = None
 
@@ -728,6 +772,19 @@ class CandidateBoxActions:
             f"当前模式：{normalized}",
         )
         self._set_local_status(f"反查显示已设为{status_text}")
+
+    def set_code_mode(self, mode: str) -> None:
+        callback = getattr(self.box, "code_mode_change_callback", None)
+        if callable(callback) and callback(mode):
+            code_mode_var = getattr(self.box, "code_mode_var", None)
+            normalized = str(code_mode_var.get()) if code_mode_var is not None else str(mode or "variable")
+        else:
+            normalized = str(mode or "variable")
+            code_mode_var = getattr(self.box, "code_mode_var", None)
+            if code_mode_var is not None:
+                code_mode_var.set(normalized)
+        status_text = self._CODE_MODE_STATUS.get(normalized, normalized)
+        self._set_local_status(f"输入编码模式已切换为{status_text}。")
 
     def set_wake_trigger_mode(self, mode: str) -> None:
         callback = getattr(self.box, "wake_trigger_mode_change_callback", None)

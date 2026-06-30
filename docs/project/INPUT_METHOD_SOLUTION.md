@@ -115,13 +115,14 @@
 
 当前策略：
 
-1. **优先** `yime/pinyin_hanzi.db` → SQLite `runtime_candidates_materialized` 物化表（默认主路径；按变长音元码查词）
+1. **优先** `yime/pinyin_hanzi.db` → SQLite `runtime_candidates_materialized` 物化表（默认主路径；按 UI 当前编码模式查词，默认变长模式）
 2. SQLite 不可用时，回退到 `.generated/runtime_candidates_by_code_true.json`
 3. 运行层仍无候选时，再回退静态层（`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 提供汉字）
 
 当前真实情况：
 
 - 自用只要 `yime/pinyin_hanzi.db` 在且导入链跑通，即可正常查词。
+- 运行时支持等长模式、变长模式、省键模式三路切换；物化表并行保存 `full_yime_code`、`variable_yinyuan_code`、`input_shorthand_code`，兼容旧字段 `yime_code` / `primary_yime_code`。
 - JSON 导出主要用于人工 diff / 备用，不是日常必需。
 - 启动时会打印当前来源，如 `sqlite` 或 `json`；其中 SQLite 路径会优先落到 `runtime_candidates_materialized`，必要时再回退视图展开层。
 
