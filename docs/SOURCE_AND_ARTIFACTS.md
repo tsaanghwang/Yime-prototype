@@ -278,6 +278,8 @@
 - `.generated/rime/yime_*.schema.yaml`
 - `.generated/rime/yime_*.dict.yaml`
 - `.generated/rime/yime_*.metadata.json`
+  - `%AppData%/Rime/yime_*.schema.yaml`、`%AppData%/Rime/yime_*.dict.yaml`
+    和 `%AppData%/Rime/build/*.bin` 是本机部署/编译结果，不作为仓库源码提交。
   - 分类：Rime / librime 适配测试数据（**本地可再生导出物，gitignore**）。
   - 生成入口：`python yime/export_rime_yime.py --mode variable --code-form layout-key`
   - 原因：它们从 `yime/pinyin_hanzi.db` 的
