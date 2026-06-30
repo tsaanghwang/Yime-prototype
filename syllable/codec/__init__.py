@@ -4,11 +4,16 @@ from .paths import KEY_TO_CODE_PATH, PACKAGE_ROOT, REPO_ROOT, YINJIE_CODE_PATH
 from .input_shorthand import omit_middle_tone_if_same_quality_run
 from .model_full_code import GanyinSlots, Yinjie, YunyinSlots
 from .variable_length_yinyuan import (
+    VariableLengthYinyuanResult,
     from_legacy_pinyin_chars,
+    merge_adjacent_equal_yinyuan,
     merge_adjacent_duplicate_symbols,
     simplify_ganyin_repeats,
     simplify_loose_structure,
     split_loose_encoded_string,
+    to_variable_length_yinyuan_code,
+    transform_full_code,
+    transform_yinjie,
 )
 from .yinjie_decoder import (
     DEFAULT_PHONEME_REPORT,
@@ -24,12 +29,17 @@ __all__ = [
     "KEY_TO_CODE_PATH",
     "PACKAGE_ROOT",
     "REPO_ROOT",
+    "VariableLengthYinyuanResult",
     "from_legacy_pinyin_chars",
+    "merge_adjacent_equal_yinyuan",
     "merge_adjacent_duplicate_symbols",
     "omit_middle_tone_if_same_quality_run",
     "simplify_ganyin_repeats",
     "simplify_loose_structure",
     "split_loose_encoded_string",
+    "to_variable_length_yinyuan_code",
+    "transform_full_code",
+    "transform_yinjie",
     "YINJIE_CODE_PATH",
     "Yinjie",
     "YinjieDecoder",
