@@ -71,6 +71,7 @@ Mozhi
 multisyllable
 nonstopmode
 Pianyin
+PIME
 Pinlu
 pinyins
 Putonghua
