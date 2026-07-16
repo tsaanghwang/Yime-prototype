@@ -12,7 +12,7 @@
 
 ```text
 syllable/
-├── codec/          生产编解码：模型、编码器、解码器、CLI、运行时 JSON
+├── codec/          生产编解码：模型全码、变长音元模型、输入省键、CLI、运行时 JSON
 ├── analysis/       音节切分、首音/干音组件、编码流水线依赖模块
 ├── yinyuan/        首音/干音/音元映射 JSON（编码链消费的数据面）
 ├── pianyin/        片音模型与调值/statistics 试验（偏理论，非 IME 主链）
@@ -23,7 +23,7 @@ syllable/
 
 | 子目录          | 做什么                                                                                                     | 典型入口                                                                   |
 | --------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| **`codec/`**    | 音节 `Yinjie` 模型；批量/交互编码；从 `yinjie_code.json` 解码；输出 `yinjie_code.json`、`key_to_code.json` | `yinjie_encoder.py`、`yinjie_decoder.py`、`interactive_yinjie_session.py`  |
+| **`codec/`**    | 音节 `Yinjie` 模型；批量/交互编码；从 `yinjie_code.json` 解码；输出 `yinjie_code.json`、`key_to_code.json` | `model_full_code/`、`variable_length_yinyuan/`、`input_shorthand/`、`yinjie_encoder.py`、`yinjie_decoder.py` |
 | **`analysis/`** | 拼音切分、首音/干音编码器、片音/乐音/噪音分析组件；被 `codec/yinjie_encoder.py` 调用                       | `syllable_encoding_pipeline.py`、`shouyin_encoder.py`、`ganyin_encoder.py` |
 | **`yinyuan/`**  | 存首音码点、干音定长序列、增强映射等 JSON；由 `ShouyinEncoder` / `GanyinEncoder` 读写                      | 见下文「数据文件」                                                         |
 | **`pianyin/`**  | 片音（Pianyin）抽象类与调值统计脚本；`yueyin_yinyuan` 等试验会 import 此处                                 | `pianyin/pianyin.py`                                                       |
@@ -53,7 +53,7 @@ syllable/codec/yinjie_code.json    （numeric_syllable → 4 码音元串）
     ▼
 codec: YinjieDecoder
     ├── 还原 Yinjie 结构（首音 + 呼/主/末乐音）
-    └── 可选导出 phoneme_dict、key_to_code 映射
+    └── 可选导出 yinyuan_dict、key_to_code 映射
 ```
 
 运行时输入法默认 **读取** 已生成的 `yinjie_code.json`；`python run_input_method.py` **不会**自动重建码表。
@@ -154,12 +154,7 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 **旧 import 路径：** `yime/syllable_decoder.py`（``SyllableDecoder``，继承 ``YinjieDecoder``）。
 
-**非主链辅助：**
-
-- `syllable/codec/yinjie_loose_split.py` — legacy 可变长切分
-- `syllable/codec/yinjie_jianpin_draft.py` — 简拼草稿（完整规则待实现）
-
-已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`。
+已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
 
 ---
 

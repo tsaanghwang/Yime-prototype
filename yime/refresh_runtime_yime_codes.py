@@ -5,6 +5,12 @@ The real implementation now lives in yime.utils.runtime_codes_refresh.
 
 from typing import Any
 
+if __name__ == "__main__" and __package__ is None:
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from yime.utils import runtime_codes_refresh as _impl
 
 main = _impl.main

@@ -8,6 +8,9 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Callable, Mapping, cast
 
+from syllable.codec.input_shorthand import omit_middle_tone_if_same_quality_run
+from syllable.codec.variable_length_yinyuan import merge_adjacent_equal_yinyuan
+
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_INPUT = ROOT / "yime" / "reports" / "runtime_candidates_by_code_true.json"
@@ -376,18 +379,8 @@ def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: 
         shouyin_length = 0
 
     ganyin_symbols = symbols[1:]
-    compressed: list[str] = []
-    for symbol in ganyin_symbols:
-        if not compressed or compressed[-1] != symbol:
-            compressed.append(symbol)
-
-    if len(compressed) == 3:
-        meta = [ganyin_metadata.get(symbol) for symbol in compressed]
-        if all(item is not None for item in meta):
-            quality_groups = {int(item["quality_group"]) for item in meta}
-            tone_pattern = [str(item["tone_level"]) for item in meta]
-            if len(quality_groups) == 1 and tone_pattern in (["high", "mid", "low"], ["low", "mid", "high"]):
-                compressed = [compressed[0], compressed[2]]
+    compressed, _ = merge_adjacent_equal_yinyuan(ganyin_symbols)
+    compressed, _ = omit_middle_tone_if_same_quality_run(compressed, ganyin_metadata)
 
     return shouyin_length + len(compressed)
 
@@ -416,23 +409,12 @@ def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dic
 
     omitted_virtual_initial = bool(symbols and virtual_initial_symbol and symbols[0] == virtual_initial_symbol)
     original_ganyin = symbols[1:]
-    deduped_ganyin: list[str] = []
-    merged_repeat_count = 0
-    for symbol in original_ganyin:
-        if not deduped_ganyin or deduped_ganyin[-1] != symbol:
-            deduped_ganyin.append(symbol)
-        else:
-            merged_repeat_count += 1
+    deduped_ganyin, merged_repeat_count = merge_adjacent_equal_yinyuan(original_ganyin)
 
-    omitted_middle_tone = False
-    if len(deduped_ganyin) == 3:
-        meta = [ganyin_metadata.get(symbol) for symbol in deduped_ganyin]
-        if all(item is not None for item in meta):
-            quality_groups = {int(item["quality_group"]) for item in meta}
-            tone_pattern = [str(item["tone_level"]) for item in meta]
-            if len(quality_groups) == 1 and tone_pattern in (["high", "mid", "low"], ["low", "mid", "high"]):
-                deduped_ganyin = [deduped_ganyin[0], deduped_ganyin[2]]
-                omitted_middle_tone = True
+    deduped_ganyin, omitted_middle_tone = omit_middle_tone_if_same_quality_run(
+        deduped_ganyin,
+        ganyin_metadata,
+    )
 
     simplified_length = (0 if omitted_virtual_initial else 1) + len(deduped_ganyin)
     return {

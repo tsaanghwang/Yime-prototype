@@ -4,7 +4,13 @@ from typing import Any, cast
 
 from yime.input_method.core.char_code_index import CharCodeIndex
 from yime.input_method.core.decoders import RuntimeCandidateDecoder
-from yime.input_method.core.runtime_lookup import build_runtime_lookup_plan
+from yime.input_method.core.runtime_lookup import (
+    build_phrase_tree_lookup,
+    build_runtime_lookup_plan,
+)
+from yime.input_method.core.sqlite_char_store import SQLiteCharCandidateStore
+from yime.input_method.core.sqlite_phrase_store import SQLitePhraseCandidateStore
+from yime.input_method.core.sqlite_runtime_source import SQLiteRuntimeSource
 
 
 def _build_runtime_decoder() -> RuntimeCandidateDecoder:
@@ -61,6 +67,35 @@ def test_build_runtime_lookup_plan_marks_continuous_input_states() -> None:
     assert plan_d.phrase_prefix_limit == 0
 
 
+def test_build_runtime_lookup_plan_supports_variable_length_primary_syllables() -> None:
+    inventory = frozenset({"ab", "cde", "fg"})
+
+    plan_a = build_runtime_lookup_plan("a", inventory)
+    assert plan_a.stage == "A"
+    assert plan_a.trailing_code_count == 1
+
+    plan_c = build_runtime_lookup_plan("abx", inventory)
+    assert plan_c.stage == "C"
+    assert plan_c.lookup_code == "ab"
+    assert plan_c.context_code == "abx"
+    assert plan_c.trailing_code_count == 1
+
+    plan_d = build_runtime_lookup_plan("abcde", inventory)
+    assert plan_d.stage == "D"
+    assert plan_d.lookup_code == "abcde"
+    assert plan_d.syllable_count == 2
+
+
+def test_phrase_tree_lookup_uses_variable_length_inventory_boundaries() -> None:
+    inventory = frozenset({"ab", "cde", "fg"})
+
+    plan_c = build_runtime_lookup_plan("abx", inventory)
+    assert build_phrase_tree_lookup("abx", plan_c, inventory) == "abx"
+
+    plan_d = build_runtime_lookup_plan("abcde", inventory)
+    assert build_phrase_tree_lookup("abcde", plan_d, inventory) == ""
+
+
 def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket() -> None:
     runtime_decoder = _build_runtime_decoder()
     by_code: dict[str, list[dict[str, Any]]] = {
@@ -95,6 +130,190 @@ def test_continuous_input_prefers_context_prefix_before_single_syllable_bucket()
     _canonical, _active, _pinyin, candidates, _status = runtime_decoder.decode_text("abcdxy")
 
     assert candidates == ["你好啊"]
+
+
+def test_runtime_decoder_uses_variable_length_context_prefix_lookup() -> None:
+    runtime_decoder = _build_runtime_decoder()
+    runtime_decoder.single_syllable_codes = frozenset({"ab", "cde", "fg"})
+    runtime_decoder.by_code = {
+        "ab": [
+            {
+                "text": "甲",
+                "entry_type": "char",
+                "pinyin_tone": "jia3",
+                "yime_code": "ab",
+                "sort_weight": 900.0,
+                "text_length": 1,
+                "is_common": 1,
+            }
+        ]
+    }
+    cast(Any, runtime_decoder)._phrase_prefix_index = {
+        "abx": [
+            {
+                "text": "甲乙",
+                "entry_type": "phrase",
+                "pinyin_tone": "jia3 yi3",
+                "yime_code": "abxy",
+                "sort_weight": 1000.0,
+                "text_length": 2,
+                "is_common": 1,
+            }
+        ]
+    }
+    runtime_decoder.char_code_index = CharCodeIndex.from_runtime_candidates(
+        runtime_decoder.by_code
+    )
+
+    _canonical, active, _pinyin, candidates, status = runtime_decoder.decode_text("abx")
+
+    assert active == "ab"
+    assert candidates == ["甲乙"]
+    assert "当前第 2 个音节未完成" in status
+
+
+def test_sqlite_stores_query_materialized_primary_yime_code(tmp_path) -> None:
+    db_path = tmp_path / "runtime.db"
+    import sqlite3
+
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(
+            """
+            CREATE TABLE runtime_candidates_materialized (
+                entry_type TEXT NOT NULL,
+                entry_id TEXT NOT NULL,
+                text TEXT NOT NULL,
+                pinyin_tone TEXT NOT NULL,
+                yime_code TEXT NOT NULL,
+                full_yime_code TEXT NOT NULL,
+                primary_yime_code TEXT NOT NULL,
+                variable_yinyuan_code TEXT NOT NULL,
+                input_shorthand_code TEXT NOT NULL,
+                sort_weight REAL NOT NULL,
+                is_common INTEGER NOT NULL,
+                text_length INTEGER NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (entry_type, entry_id)
+            );
+            CREATE TABLE char_lexicon (
+                hanzi TEXT NOT NULL,
+                pinyin_tone TEXT NOT NULL,
+                yime_code TEXT NOT NULL,
+                usage_tier TEXT NOT NULL
+            );
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO runtime_candidates_materialized
+            VALUES ('phrase', 'p1', '发展', 'fa1 zhan3', 'FULLPHRASE', 'FULLPHRASE', 'ab', 'ab', 'a', 1000.0, 1, 2, 'now')
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO runtime_candidates_materialized
+            VALUES ('char', 'c1', '发', 'fa1', 'FULLCHAR', 'FULLCHAR', 'xy', 'xy', 'x', 900.0, 1, 1, 'now')
+            """
+        )
+        conn.execute(
+            "INSERT INTO char_lexicon VALUES ('发', 'fa1', 'FULLCHAR', 'common_high')"
+        )
+
+    runtime_source = SQLiteRuntimeSource(db_path)
+    phrase_store = SQLitePhraseCandidateStore(
+        runtime_source,
+        "runtime_candidates_materialized",
+    )
+    char_store = SQLiteCharCandidateStore(
+        runtime_source,
+        "runtime_candidates_materialized",
+    )
+
+    exact_phrases = phrase_store.load_runtime_candidates_for_code("ab", {})
+    assert [candidate["text"] for candidate in exact_phrases] == ["发展"]
+
+    prefix_phrases = phrase_store.load_phrase_prefix_candidates("a", {}, limit=10)
+    assert [candidate["text"] for candidate in prefix_phrases] == ["发展"]
+
+    exact_chars = char_store.get_char_candidates("xy")
+    assert [candidate.text for candidate in exact_chars] == ["发"]
+    assert exact_chars[0].code == "xy"
+
+    prefix_chars = char_store.get_char_candidates_by_prefix("x", limit=10)
+    assert [(code, [candidate.text for candidate in candidates]) for code, candidates in prefix_chars] == [
+        ("xy", ["发"])
+    ]
+
+    phrase_store.set_code_mode("full")
+    char_store.set_code_mode("full")
+    assert [candidate["text"] for candidate in phrase_store.load_runtime_candidates_for_code("FULLPHRASE", {})] == ["发展"]
+    assert [candidate.text for candidate in char_store.get_char_candidates("FULLCHAR")] == ["发"]
+
+    phrase_store.set_code_mode("shorthand")
+    char_store.set_code_mode("shorthand")
+    assert [candidate["text"] for candidate in phrase_store.load_runtime_candidates_for_code("a", {})] == ["发展"]
+    assert [candidate.text for candidate in char_store.get_char_candidates("x")] == ["发"]
+
+
+def test_sqlite_stores_fall_back_when_materialized_primary_yime_code_is_missing(tmp_path) -> None:
+    db_path = tmp_path / "runtime_old.db"
+    import sqlite3
+
+    with sqlite3.connect(db_path) as conn:
+        conn.executescript(
+            """
+            CREATE TABLE runtime_candidates_materialized (
+                entry_type TEXT NOT NULL,
+                entry_id TEXT NOT NULL,
+                text TEXT NOT NULL,
+                pinyin_tone TEXT NOT NULL,
+                yime_code TEXT NOT NULL,
+                sort_weight REAL NOT NULL,
+                is_common INTEGER NOT NULL,
+                text_length INTEGER NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (entry_type, entry_id)
+            );
+            CREATE TABLE char_lexicon (
+                hanzi TEXT NOT NULL,
+                pinyin_tone TEXT NOT NULL,
+                yime_code TEXT NOT NULL,
+                usage_tier TEXT NOT NULL
+            );
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO runtime_candidates_materialized
+            VALUES ('phrase', 'p1', '发展', 'fa1 zhan3', 'FULLPHRASE', 1000.0, 1, 2, 'now')
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO runtime_candidates_materialized
+            VALUES ('char', 'c1', '发', 'fa1', 'FULLCHAR', 900.0, 1, 1, 'now')
+            """
+        )
+        conn.execute(
+            "INSERT INTO char_lexicon VALUES ('发', 'fa1', 'FULLCHAR', 'common_high')"
+        )
+
+    runtime_source = SQLiteRuntimeSource(db_path)
+    phrase_store = SQLitePhraseCandidateStore(
+        runtime_source,
+        "runtime_candidates_materialized",
+    )
+    char_store = SQLiteCharCandidateStore(
+        runtime_source,
+        "runtime_candidates_materialized",
+    )
+
+    exact_phrases = phrase_store.load_runtime_candidates_for_code("FULLPHRASE", {})
+    assert [candidate["text"] for candidate in exact_phrases] == ["发展"]
+
+    exact_chars = char_store.get_char_candidates("FULLCHAR")
+    assert [candidate.text for candidate in exact_chars] == ["发"]
+    assert exact_chars[0].code == "FULLCHAR"
 
 
 def test_phrase_prefix_pool_limits_differ_between_recent_and_long_context() -> None:

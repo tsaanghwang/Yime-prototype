@@ -3,9 +3,16 @@ from __future__ import annotations
 import csv
 import json
 import sqlite3
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
+from syllable.codec.variable_length_yinyuan import to_variable_length_yinyuan_code
+from yime.utils.code_modes import (
+    CodeModeRecord,
+    build_code_mode_map,
+    load_ganyin_symbol_metadata,
+)
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
 from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
@@ -32,8 +39,68 @@ def build_bmp_to_canonical_map(repo_root: Path | None = None) -> dict[str, str]:
     return bmp_to_canonical
 
 
+@lru_cache(maxsize=None)
+def _load_virtual_initial_symbol_cached(repo_root_key: str) -> str:
+    resolved_root = Path(repo_root_key)
+    mapping = load_json(resolved_root / "internal_data" / "yinjie_runtime_key_symbol_mapping.json")
+    runtime_symbol = ""
+    for entry in mapping.get("entries", []):
+        if entry.get("source_type") == "shouyin" and entry.get("source_name") == "'":
+            runtime_symbol = str(entry.get("symbol", ""))
+            break
+    if not runtime_symbol:
+        return ""
+    bmp_to_canonical = build_bmp_to_canonical_map(resolved_root)
+    return bmp_to_canonical.get(runtime_symbol, runtime_symbol)
+
+
+def load_virtual_initial_symbol(repo_root: Path | None = None) -> str:
+    resolved_root = repo_root or WORKSPACE_ROOT
+    return _load_virtual_initial_symbol_cached(str(resolved_root.resolve()))
+
+
 def canonicalize_code(code: str, bmp_to_canonical: dict[str, str]) -> str:
     return "".join(bmp_to_canonical.get(char, char) for char in code)
+
+
+def convert_legacy_code_to_primary(code: str, *, virtual_initial: str | None = None) -> str:
+    normalized_code = str(code or "").strip()
+    if not normalized_code:
+        return ""
+    resolved_virtual_initial = (
+        virtual_initial if virtual_initial is not None else load_virtual_initial_symbol()
+    )
+
+    if len(normalized_code) < 4:
+        merged: list[str] = []
+        for symbol in normalized_code:
+            if not merged or merged[-1] != symbol:
+                merged.append(symbol)
+        if resolved_virtual_initial and merged and merged[0] == resolved_virtual_initial:
+            merged = merged[1:]
+        return "".join(merged)
+
+    if len(normalized_code) == 4:
+        return to_variable_length_yinyuan_code(
+            normalized_code,
+            virtual_initial=resolved_virtual_initial or None,
+        )
+
+    complete_length = (len(normalized_code) // 4) * 4
+    primary_parts = [
+        to_variable_length_yinyuan_code(
+            normalized_code[index:index + 4],
+            virtual_initial=resolved_virtual_initial or None,
+        )
+        for index in range(0, complete_length, 4)
+    ]
+    trailing = normalized_code[complete_length:]
+    if trailing:
+        primary_parts.append(convert_legacy_code_to_primary(
+            trailing,
+            virtual_initial=resolved_virtual_initial,
+        ))
+    return "".join(primary_parts)
 
 
 def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
@@ -50,6 +117,25 @@ def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
         canonical_code_map.setdefault(pinyin_tone, patched_code)
 
     return canonical_code_map
+
+
+def load_primary_code_map(repo_root: Path | None = None) -> dict[str, str]:
+    primary_code_map: dict[str, str] = {}
+    virtual_initial = load_virtual_initial_symbol(repo_root)
+    for pinyin_tone, code in load_canonical_code_map(repo_root).items():
+        primary_code = convert_legacy_code_to_primary(code, virtual_initial=virtual_initial)
+        if primary_code:
+            primary_code_map[pinyin_tone] = primary_code
+    return primary_code_map
+
+
+def load_code_mode_map(repo_root: Path | None = None) -> dict[str, CodeModeRecord]:
+    resolved_root = repo_root or WORKSPACE_ROOT
+    return build_code_mode_map(
+        load_canonical_code_map(resolved_root),
+        virtual_initial=load_virtual_initial_symbol(resolved_root),
+        ganyin_symbol_metadata=load_ganyin_symbol_metadata(resolved_root),
+    )
 
 
 def load_canonical_patch_map(repo_root: Path | None = None) -> dict[str, tuple[str, int | None]]:

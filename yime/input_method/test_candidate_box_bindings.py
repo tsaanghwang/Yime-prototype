@@ -428,9 +428,12 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     command_labels = [label for label, _, _ in commands]
     assert command_labels == ["设置反查时显示哪些内容", "当前唤起热键：Ctrl+Alt+Insert", "修改热键", "添加当前词条", "删除当前词条", "编辑用户词库", "应用用户词库", "导入用户词库", "导出用户词库", "查看帮助", "查看试用反馈说明", "复制试用反馈模板", "查看诊断", "重新检查诊断", "复制诊断信息", "查看试用反馈说明", "复制试用反馈模板", "打开故障排查", "打开运行时数据目录", "打开设置文件", "打开帮助", "关于"]
     assert commands[2][2] == "disabled"
-    assert [label for label, _, _ in cascades] == ["候选列表", "反查信息", "唤起方式", "休眠方式", "交互", "前景颜色", "背景颜色", "字体大小", "主界面透明度", "外观", "设置", "编辑与重载", "导入与导出", "用户词库", "工具", "帮助", "诊断"]
+    assert [label for label, _, _ in cascades] == ["输入编码模式", "候选列表", "反查信息", "唤起方式", "休眠方式", "交互", "前景颜色", "背景颜色", "字体大小", "主界面透明度", "外观", "设置", "编辑与重载", "导入与导出", "用户词库", "工具", "帮助", "诊断"]
     assert all(state == "normal" for _, _, state in cascades)
     assert [label for label, _, _, _ in radio_buttons] == [
+        "等长模式（四元模型）",
+        "变长模式（推荐）",
+        "省键模式",
         "每页 5 个",
         "每页 6 个",
         "每页 7 个",
@@ -478,15 +481,15 @@ def test_toolbar_menu_uses_expected_labels_and_popup_position(monkeypatch) -> No
     assert popup_calls == [(320, 264)]
     assert grab_release_calls == [True]
 
-    radio_buttons[2][3]()
-    radio_buttons[6][3]()
-    radio_buttons[10][3]()
-    radio_buttons[14][3]()
-    radio_buttons[18][3]()
-    radio_buttons[22][3]()
+    radio_buttons[5][3]()
+    radio_buttons[9][3]()
+    radio_buttons[13][3]()
+    radio_buttons[17][3]()
+    radio_buttons[21][3]()
     radio_buttons[25][3]()
-    radio_buttons[34][3]()
-    radio_buttons[35][3]()
+    radio_buttons[28][3]()
+    radio_buttons[37][3]()
+    radio_buttons[38][3]()
     commands[1][1]()
     box.hover_tip_var.set(False)
     box.active_topmost_var.set(False)
@@ -1294,7 +1297,7 @@ def test_candidate_box_update_candidates_uses_status_text() -> None:
 
 
 def test_candidate_box_default_status_text_matches_current_ui_guidance() -> None:
-    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
+    assert CandidateBox._DEFAULT_STATUS_TEXT == "连续输入时会按完整音节自动组织候选。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
 
 
 def test_edit_hotkey_updates_status_with_next_step_guidance(monkeypatch) -> None:

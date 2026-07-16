@@ -19,7 +19,9 @@ except ImportError:
     from utils.backup import create_timestamped_backup
 
 from yime.canonical_yime_mapping import (
+    convert_legacy_code_to_primary,
     load_canonical_code_map,
+    load_code_mode_map,
     load_canonical_patch_map,
     sync_canonical_mapping_table,
 )
@@ -1676,35 +1678,94 @@ def rebuild_char_usage_profile(conn: sqlite3.Connection, tuning_parameters: dict
 
 
 def rebuild_materialized_runtime_candidates(conn: sqlite3.Connection) -> int:
-    conn.execute("DELETE FROM runtime_candidates_materialized")
+    ensure_materialized_runtime_candidates_mode_columns(conn)
     conn.execute(
-        '''
-        INSERT INTO runtime_candidates_materialized (
-            entry_type,
-            entry_id,
-            text,
-            pinyin_tone,
-            yime_code,
-            sort_weight,
-            is_common,
-            text_length,
-            updated_at
-        )
-        SELECT
-            entry_type,
-            entry_id,
-            text,
-            pinyin_tone,
-            yime_code,
-            sort_weight,
-            is_common,
-            text_length,
-            updated_at
+        """
+        CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_primary_code
+        ON runtime_candidates_materialized(primary_yime_code, entry_type, sort_weight DESC, text)
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_full_code
+        ON runtime_candidates_materialized(full_yime_code, entry_type, sort_weight DESC, text)
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_variable_code
+        ON runtime_candidates_materialized(variable_yinyuan_code, entry_type, sort_weight DESC, text)
+        """
+    )
+    conn.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_shorthand_code
+        ON runtime_candidates_materialized(input_shorthand_code, entry_type, sort_weight DESC, text)
+        """
+    )
+
+    code_mode_map = load_code_mode_map(REPO_ROOT)
+    rows = conn.execute(
+        """
+        SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
         FROM runtime_candidates
         WHERE yime_code IS NOT NULL
           AND TRIM(yime_code) <> ''
-        '''
-    )
+        """
+    ).fetchall()
+
+    conn.execute("DELETE FROM runtime_candidates_materialized")
+    insert_rows = []
+    for row in rows:
+        pinyin_tone = str(row["pinyin_tone"] or "").strip()
+        legacy_code = str(row["yime_code"] or "").strip()
+        code_modes = code_mode_map.get(pinyin_tone)
+        full_code = code_modes.full_code if code_modes is not None else legacy_code
+        primary_code = code_modes.variable_code if code_modes is not None else ""
+        shorthand_code = code_modes.shorthand_code if code_modes is not None else ""
+        if not primary_code and legacy_code and legacy_code != pinyin_tone:
+            primary_code = convert_legacy_code_to_primary(legacy_code)
+        if not shorthand_code:
+            shorthand_code = primary_code
+        insert_rows.append(
+            (
+                row["entry_type"],
+                row["entry_id"],
+                row["text"],
+                row["pinyin_tone"],
+                legacy_code,
+                full_code,
+                primary_code,
+                primary_code,
+                shorthand_code,
+                row["sort_weight"],
+                row["is_common"],
+                row["text_length"],
+                row["updated_at"],
+            )
+        )
+    if insert_rows:
+        conn.executemany(
+            '''
+            INSERT INTO runtime_candidates_materialized (
+                entry_type,
+                entry_id,
+                text,
+                pinyin_tone,
+                yime_code,
+                full_yime_code,
+                primary_yime_code,
+                variable_yinyuan_code,
+                input_shorthand_code,
+                sort_weight,
+                is_common,
+                text_length,
+                updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            insert_rows,
+        )
     row = conn.execute(
         "SELECT COUNT(*) FROM runtime_candidates_materialized"
     ).fetchone()
@@ -1748,6 +1809,42 @@ def print_examples(title: str, examples: list[tuple[object, ...]]) -> None:
         print(f"  {item}")
 
 
+def ensure_materialized_runtime_candidates_mode_columns(
+    conn: sqlite3.Connection,
+) -> None:
+    table_exists = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'runtime_candidates_materialized'
+        """
+    ).fetchone()
+    if table_exists is None:
+        return
+
+    columns = {
+        str(row[1] or "")
+        for row in conn.execute("PRAGMA table_info(runtime_candidates_materialized)").fetchall()
+    }
+    required_columns = {
+        "primary_yime_code": "TEXT NOT NULL DEFAULT ''",
+        "full_yime_code": "TEXT NOT NULL DEFAULT ''",
+        "variable_yinyuan_code": "TEXT NOT NULL DEFAULT ''",
+        "input_shorthand_code": "TEXT NOT NULL DEFAULT ''",
+    }
+    for column_name, column_spec in required_columns.items():
+        if column_name not in columns:
+            conn.execute(
+                f"ALTER TABLE runtime_candidates_materialized ADD COLUMN {column_name} {column_spec}"
+            )
+
+
+def ensure_materialized_runtime_candidates_primary_code_column(
+    conn: sqlite3.Connection,
+) -> None:
+    ensure_materialized_runtime_candidates_mode_columns(conn)
+
+
 def main() -> int:
     args = parse_args()
     report_missing_optional_external_frequency_sources()
@@ -1762,6 +1859,7 @@ def main() -> int:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        ensure_materialized_runtime_candidates_mode_columns(conn)
         conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         if args.scan_runtime_tuning:
             scan_payload = scan_runtime_tuning_parameters(

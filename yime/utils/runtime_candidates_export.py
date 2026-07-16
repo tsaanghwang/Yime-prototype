@@ -7,7 +7,9 @@ from collections import defaultdict
 from pathlib import Path
 from typing import SupportsFloat, SupportsIndex
 
+from yime.canonical_yime_mapping import convert_legacy_code_to_primary, load_primary_code_map
 from yime.asset_paths import generated_runtime_candidates_json_path
+from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
 
 
 DB_PATH = Path(__file__).resolve().parents[1] / "pinyin_hanzi.db"
@@ -46,12 +48,31 @@ def normalize_sort_weight_for_export(value: SupportsFloat | SupportsIndex | str 
 
 
 def build_candidate_record(row: sqlite3.Row) -> dict[str, object]:
+    primary_yime_code = row["primary_yime_code"] if "primary_yime_code" in row.keys() else None
+    if not str(primary_yime_code or "").strip():
+        pinyin_tone = str(row["pinyin_tone"] or "").strip()
+        legacy_code = str(row["yime_code"] or "").strip()
+        primary_map = load_primary_code_map(Path(__file__).resolve().parents[2])
+        primary_yime_code = primary_map.get(pinyin_tone, "")
+        if not primary_yime_code and legacy_code and legacy_code != pinyin_tone:
+            primary_yime_code = convert_legacy_code_to_primary(legacy_code)
+    full_yime_code = row["full_yime_code"] if "full_yime_code" in row.keys() else row["yime_code"]
+    variable_yinyuan_code = (
+        row["variable_yinyuan_code"] if "variable_yinyuan_code" in row.keys() else primary_yime_code
+    )
+    input_shorthand_code = (
+        row["input_shorthand_code"] if "input_shorthand_code" in row.keys() else variable_yinyuan_code
+    )
     return {
         "text": row["text"],
         "entry_type": row["entry_type"],
         "entry_id": row["entry_id"],
         "pinyin_tone": row["pinyin_tone"],
         "yime_code": row["yime_code"],
+        "full_yime_code": full_yime_code,
+        "primary_yime_code": primary_yime_code,
+        "variable_yinyuan_code": variable_yinyuan_code,
+        "input_shorthand_code": input_shorthand_code,
         "sort_weight": normalize_sort_weight_for_export(row["sort_weight"]),
         "is_common": row["is_common"],
         "text_length": row["text_length"],
@@ -59,15 +80,40 @@ def build_candidate_record(row: sqlite3.Row) -> dict[str, object]:
     }
 
 
-def group_rows(rows: list[sqlite3.Row], limit_per_code: int) -> dict[str, list[dict[str, object]]]:
+def _row_lookup_code(row: sqlite3.Row, mode: YimeCodeMode | str = YimeCodeMode.VARIABLE) -> str:
+    normalized_mode = normalize_code_mode(mode)
+    column = lookup_code_column(normalized_mode)
+    if column in row.keys():
+        return str(row[column] or "")
+    if normalized_mode == YimeCodeMode.FULL:
+        return str(row["yime_code"] or "")
+    primary_code = row["primary_yime_code"] if "primary_yime_code" in row.keys() else None
+    return str(primary_code or row["yime_code"] or "")
+
+
+def group_rows(
+    rows: list[sqlite3.Row],
+    limit_per_code: int,
+    mode: YimeCodeMode | str = YimeCodeMode.VARIABLE,
+) -> dict[str, list[dict[str, object]]]:
     grouped: dict[str, list[dict[str, object]]] = defaultdict(list)
     for row in rows:
-        code = row["yime_code"]
+        code = _row_lookup_code(row, mode)
         candidates = grouped[code]
         if limit_per_code and len(candidates) >= limit_per_code:
             continue
         candidates.append(build_candidate_record(row))
     return dict(grouped)
+
+
+def group_rows_by_mode(
+    rows: list[sqlite3.Row],
+    limit_per_code: int,
+) -> dict[str, dict[str, list[dict[str, object]]]]:
+    return {
+        mode.value: group_rows(rows, limit_per_code, mode)
+        for mode in YimeCodeMode
+    }
 
 
 def build_payload(
@@ -106,6 +152,30 @@ def main() -> None:
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        materialized_columns = {
+            str(row[1] or "")
+            for row in conn.execute("PRAGMA table_info(runtime_candidates_materialized)").fetchall()
+        }
+        full_code_expr = (
+            "COALESCE(full_yime_code, yime_code)"
+            if "full_yime_code" in materialized_columns
+            else "yime_code"
+        )
+        primary_code_expr = (
+            "COALESCE(primary_yime_code, '')"
+            if "primary_yime_code" in materialized_columns
+            else "yime_code"
+        )
+        variable_code_expr = (
+            "COALESCE(variable_yinyuan_code, primary_yime_code, '')"
+            if "variable_yinyuan_code" in materialized_columns
+            else primary_code_expr
+        )
+        shorthand_code_expr = (
+            "COALESCE(input_shorthand_code, variable_yinyuan_code, primary_yime_code, '')"
+            if "input_shorthand_code" in materialized_columns
+            else variable_code_expr
+        )
         rows = conn.execute(
             f'''
             SELECT
@@ -114,6 +184,19 @@ def main() -> None:
                 text,
                 pinyin_tone,
                 yime_code,
+                {full_code_expr} AS full_yime_code,
+                CASE
+                    WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN ''
+                    ELSE {primary_code_expr}
+                END AS primary_yime_code,
+                CASE
+                    WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN ''
+                    ELSE {variable_code_expr}
+                END AS variable_yinyuan_code,
+                CASE
+                    WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN ''
+                    ELSE {shorthand_code_expr}
+                END AS input_shorthand_code,
                 sort_weight,
                 is_common,
                 text_length,
@@ -122,7 +205,7 @@ def main() -> None:
                     WHEN entry_type = 'phrase' AND yime_code = pinyin_tone THEN 1
                     ELSE 0
                 END AS is_placeholder_code
-            FROM runtime_candidates
+                        FROM runtime_candidates_materialized
             WHERE yime_code IS NOT NULL
               AND TRIM(yime_code) <> ''
             ORDER BY yime_code, {RUNTIME_SQL_PRIORITY_ORDER}
@@ -137,6 +220,7 @@ def main() -> None:
     grouped_all = group_rows(rows, args.limit_per_code)
     grouped_real = group_rows(real_rows, args.limit_per_code)
     grouped_placeholder = group_rows(placeholder_rows, args.limit_per_code)
+    grouped_real_by_mode = group_rows_by_mode(real_rows, args.limit_per_code)
 
     all_payload = build_payload(
         db_path=db_path,
@@ -155,7 +239,15 @@ def main() -> None:
         grouped=grouped_real,
         description="仅包含真实音元编码键的候选数据，适合直接供候选框或输入系统加载。",
         limit_per_code=args.limit_per_code,
+        extra_metadata={
+            "default_code_mode": YimeCodeMode.VARIABLE.value,
+            "mode_code_counts": {
+                mode: len(grouped)
+                for mode, grouped in grouped_real_by_mode.items()
+            },
+        },
     )
+    true_payload["by_mode"] = grouped_real_by_mode
     placeholder_payload = build_payload(
         db_path=db_path,
         grouped=grouped_placeholder,

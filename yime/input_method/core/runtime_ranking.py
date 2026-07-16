@@ -69,6 +69,7 @@ def load_local_phrase_priority_rules(
     *,
     expected_lookup_code_length: Optional[int] = 4,
     min_lookup_code_length: int = 1,
+    normalize_lookup_code: Optional[Callable[[str], str]] = None,
 ) -> Dict[str, Dict[str, float]]:
     if not path.exists():
         return {}
@@ -85,6 +86,8 @@ def load_local_phrase_priority_rules(
             continue
         rule = cast(Mapping[str, object], raw_rule)
         lookup_code = str(rule.get("lookup_code", "") or "").strip()
+        if lookup_code and normalize_lookup_code is not None:
+            lookup_code = str(normalize_lookup_code(lookup_code) or "").strip()
         if not lookup_code:
             lookup_code = str(resolve_canonical_code_from_pinyin_tone(
                 str(rule.get("lookup_pinyin_tone", "") or "").strip(),
@@ -198,6 +201,13 @@ def resolve_candidate_source_tag(candidate: Dict[str, object]) -> str:
     return "prefix" if matched_code_length > 0 else "exact"
 
 
+def _candidate_runtime_code(candidate: Mapping[str, object], fallback: str = "") -> str:
+    primary_code = str(candidate.get("primary_yime_code", "") or "").strip()
+    if primary_code:
+        return primary_code
+    return str(candidate.get("yime_code", "") or fallback).strip()
+
+
 def resolve_local_phrase_priority_boost(
     lookup_code: str,
     candidate: Dict[str, object],
@@ -216,7 +226,7 @@ def resolve_local_phrase_priority_boost(
         return 0.0
 
     matched_code_length = _as_int_value(candidate.get("_matched_code_length"))
-    full_code = str(candidate.get("yime_code", "") or lookup_code).strip()
+    full_code = _candidate_runtime_code(candidate, lookup_code)
     full_code_length_value = candidate.get("_full_code_length")
     full_code_length = (
         int(full_code_length_value)
@@ -325,7 +335,7 @@ def annotate_phrase_prefix_candidate(
     matched_code_length: int,
 ) -> Dict[str, object]:
     annotated = dict(candidate)
-    full_code = str(candidate.get("yime_code", "") or "").strip()
+    full_code = _candidate_runtime_code(candidate)
     annotated["_matched_code_length"] = matched_code_length
     annotated["_full_code_length"] = len(full_code) if full_code else matched_code_length
     current_source = str(candidate.get("_candidate_source", "") or "").strip()
@@ -408,7 +418,7 @@ def build_runtime_candidate_records(
                 matched_code_length=_as_int_value(candidate.get("_matched_code_length") or 0),
                 full_code_length=_as_int_value(
                     candidate.get("_full_code_length")
-                    or len(str(candidate.get("yime_code", "") or lookup_code).strip())
+                    or len(_candidate_runtime_code(candidate, lookup_code))
                 ),
                 first_char_sort_weight=float(first_char_weight_map.get(text[:1], 0.0)),
                 short_prefix_template_bonus=compute_short_prefix_template_bonus(text),

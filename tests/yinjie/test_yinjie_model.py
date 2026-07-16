@@ -45,14 +45,17 @@ class TestYinjieTerminologySlots(unittest.TestCase):
     def test_ganyin_code_string_concat(self):
         self.assertEqual(self.yinjie.ganyin_code, "ABC")
 
-    def test_classify_phonemes(self):
-        noise, musical = self.yinjie.classify_phonemes()
+    def test_classify_yinyuan_chars(self):
+        noise, musical = self.yinjie.classify_yinyuan_chars()
         self.assertEqual(noise, ["N"])
         self.assertEqual(musical, ["A", "B", "C"])
+        self.assertEqual(self.yinjie.classify_phonemes(), (noise, musical))
 
-    def test_merge_duplicate_phonemes(self):
-        merged = Yinjie(initial="N", ascender="A", peak="A", descender="C").merge_duplicate_phonemes()
+    def test_merge_duplicate_yinyuan(self):
+        source = Yinjie(initial="N", ascender="A", peak="A", descender="C")
+        merged = source.merge_duplicate_yinyuan()
         self.assertEqual(merged.to_code(), "NAC")
+        self.assertEqual(source.merge_duplicate_phonemes().to_code(), "NAC")
 
 
 if __name__ == "__main__":

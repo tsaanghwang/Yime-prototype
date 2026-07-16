@@ -46,7 +46,7 @@ class CandidateBox(CandidateRendererMixin):
     _CANDIDATE_TAG_PREFIX = "candidate_"
     _PAGER_PREV_TAG = "pager_prev"
     _PAGER_NEXT_TAG = "pager_next"
-    _DEFAULT_STATUS_TEXT = "连续输入时会自动取最近 4 码。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
+    _DEFAULT_STATUS_TEXT = "连续输入时会按完整音节自动组织候选。首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。"
     _STANDBY_WINDOW_SIZE = 54
     _PASSIVE_ALPHA = 0.42
     _ACTIVE_ALPHA = 0.97
@@ -98,6 +98,7 @@ class CandidateBox(CandidateRendererMixin):
         on_background_color_change: Optional[ColorSettingChangeCallback] = None,
         on_active_topmost_change: Optional[BoolSettingChangeCallback] = None,
         on_reverse_lookup_display_mode_change: Optional[StringSettingChangeCallback] = None,
+        on_code_mode_change: Optional[StringSettingChangeCallback] = None,
         on_reload_user_lexicon: Optional[VoidCallback] = None,
         on_edit_user_lexicon: Optional[VoidCallback] = None,
         on_import_user_lexicon: Optional[VoidCallback] = None,
@@ -175,6 +176,7 @@ class CandidateBox(CandidateRendererMixin):
         self._on_background_color_change = on_background_color_change
         self._on_active_topmost_change = on_active_topmost_change
         self._on_reverse_lookup_display_mode_change = on_reverse_lookup_display_mode_change
+        self._on_code_mode_change = on_code_mode_change
         self._on_reload_user_lexicon = on_reload_user_lexicon
         self._on_edit_user_lexicon = on_edit_user_lexicon
         self._on_import_user_lexicon = on_import_user_lexicon
@@ -235,6 +237,7 @@ class CandidateBox(CandidateRendererMixin):
         self.background_color_var = tk.StringVar(self.root, value=self._DEFAULT_BACKGROUND_COLOR)
         self.active_topmost_var = tk.BooleanVar(self.root, value=True)
         self.reverse_lookup_display_mode_var = tk.StringVar(self.root, value="default")
+        self.code_mode_var = tk.StringVar(self.root, value="variable")
         self.page_size_spinbox = None
         self.page_info_var = tk.StringVar(self.root, value="第 1/1 页")
         self.shortcut_hint_var = tk.StringVar(value="首选: Space / Enter")
@@ -363,6 +366,12 @@ class CandidateBox(CandidateRendererMixin):
     def reverse_lookup_display_mode_change_callback(self, mode: str) -> bool:
         if self._on_reverse_lookup_display_mode_change:
             self._on_reverse_lookup_display_mode_change(mode)
+            return True
+        return False
+
+    def code_mode_change_callback(self, mode: str) -> bool:
+        if self._on_code_mode_change:
+            self._on_code_mode_change(mode)
             return True
         return False
 
@@ -1062,6 +1071,9 @@ class CandidateBox(CandidateRendererMixin):
     def set_reverse_lookup_display_mode(self, mode: str) -> None:
         self.reverse_lookup_display_mode_var.set(str(mode or "default"))
 
+    def set_code_mode(self, mode: str) -> None:
+        self.code_mode_var.set(str(mode or "variable"))
+
     def _set_auxiliary_info_text(self, text: str) -> None:
         normalized = str(text or "").strip()
         self.manual_key_layout_label.configure(text=normalized)
@@ -1471,12 +1483,12 @@ class CandidateBox(CandidateRendererMixin):
         self.set_status(str(status or "").strip())
         self.code_var.set("")
 
-        # 解码 4 码暂时不进入常态信息层级，需要排查时再打开调试 UI。
+        # 当前解码码串暂时不进入常态信息层级，需要排查时再打开调试 UI。
         if self._DEBUG_UI:
             if code:
-                self.code_var.set(f"当前解码 4 码: {code}")
+                self.code_var.set(f"当前解码码串: {code}")
             else:
-                self.code_var.set("当前解码 4 码: [等待输入...]")
+                self.code_var.set("当前解码码串: [等待输入...]")
 
         self._render_candidates()
         self._resize_to_content_if_visible()
