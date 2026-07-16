@@ -1,7 +1,9 @@
 from collections.abc import Sequence
+from pathlib import Path
 from typing import Any, NoReturn, TypeAlias, cast
 
 from yime.input_method.app_base import BaseInputMethodApp
+from yime.input_method.core.input_visualization import build_projected_to_keycap_map
 from yime.input_method.ui.candidate_box import CandidateBox
 
 
@@ -33,11 +35,19 @@ def _default_status_text() -> str:
     return cast(str, getattr(CandidateBox, "_DEFAULT_STATUS_TEXT"))
 
 
-def _resolved_candidates(_canonical_code: str, decoded_candidates: list[str]) -> list[str]:
+def _resolved_candidates(
+    _canonical_code: str,
+    decoded_candidates: list[str],
+    _raw_status: str = "",
+) -> list[str]:
     return list(decoded_candidates)
 
 
-def _no_resolved_candidates(_canonical_code: str, _decoded_candidates: list[str]) -> list[str]:
+def _no_resolved_candidates(
+    _canonical_code: str,
+    _decoded_candidates: list[str],
+    _raw_status: str = "",
+) -> list[str]:
     return []
 
 
@@ -98,6 +108,27 @@ class _FakeDecoder:
         return []
 
 
+class _FakeCharCandidate:
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+
+class _PrefixDecoder(_FakeDecoder):
+    def __init__(self, response: _DecodeResponse, prefix_texts: list[str]) -> None:
+        super().__init__(response)
+        self.prefix_texts = prefix_texts
+
+    def get_char_candidates_by_prefix(
+        self,
+        _prefix: str,
+        _limit: int = 5,
+        *,
+        limit: int | None = None,
+    ) -> list[tuple[str, list[_FakeCharCandidate]]]:
+        _ = limit
+        return [("prefix", [_FakeCharCandidate(text) for text in self.prefix_texts])]
+
+
 def test_on_input_change_prefers_runtime_reverse_lookup_for_hanzi() -> None:
     app = _new_app()
     candidate_box = _FakeCandidateBox("日")
@@ -146,6 +177,29 @@ def test_derive_reverse_lookup_key_sequence_supports_bmp_trial_projection_chars(
     assert result == "qjkl"
 
 
+def test_projected_to_keycap_map_preserves_modifier_layers() -> None:
+    keycap_map = build_projected_to_keycap_map(Path("."))
+
+    assert keycap_map["\U00100017"] == "AltGr+U"
+    assert keycap_map["\U0010003c"] == "Shift+N"
+
+
+def test_derive_reverse_lookup_key_sequence_separates_modifier_keys() -> None:
+    app = _new_app()
+    app.projected_to_keycap_map = {
+        "\U00100017": "AltGr+U",
+        "\U00100025": "x",
+        "\U0010003c": "Shift+N",
+    }
+
+    result = _derive_reverse_lookup_key_sequence(
+        app,
+        "\U00100017\U00100025\U0010003c",
+    )
+
+    assert result == "AltGr+U x Shift+N"
+
+
 def test_on_input_change_prefixes_decode_status() -> None:
     app = _new_app()
     candidate_box = _FakeCandidateBox("abcd")
@@ -163,7 +217,28 @@ def test_on_input_change_prefixes_decode_status() -> None:
     candidates, pinyin, code, status = candidate_box.updated
     assert candidates == ["日"]
     assert pinyin == "rì"
-    assert code.startswith("当前4码 U+0041 U+0042 U+0043 U+0044")
+    assert code.startswith("当前码串 U+0041 U+0042 U+0043 U+0044")
+    assert status == "解码: 已找到候选。"
+
+
+def test_on_input_change_keeps_short_active_code_length_for_variable_length_runtime() -> None:
+    app = _new_app()
+    candidate_box = _FakeCandidateBox("ab")
+    app.candidate_box = candidate_box
+    app.physical_input_map = {}
+    app.runtime_reverse_lookup = _FakeReverseLookup(None)
+    app.decoder = _FakeDecoder(("AB", "AB", "ā", ["安"], "从运行时编码表找到 1 个候选。"))
+    app.last_replace_length = 0
+    app._resolve_display_candidates = _resolved_candidates
+
+    _on_input_change(app)
+
+    assert app.last_replace_length == 2
+    assert candidate_box.updated is not None
+    candidates, pinyin, code, status = candidate_box.updated
+    assert candidates == ["安"]
+    assert pinyin == "ā"
+    assert code.startswith("当前码串 U+0041 U+0042")
     assert status == "解码: 已找到候选。"
 
 
@@ -173,7 +248,7 @@ def test_on_input_change_summarizes_prefix_waiting_status() -> None:
     app.candidate_box = candidate_box
     app.physical_input_map = {}
     app.runtime_reverse_lookup = _FakeReverseLookup(None)
-    app.decoder = _FakeDecoder(("A", "A", "", [], "当前 1/4 码，继续输入。"))
+    app.decoder = _FakeDecoder(("A", "A", "", [], "当前首音节未完成，已输入 1 码。"))
     app.last_replace_length = 0
     app._resolve_display_candidates = _no_resolved_candidates
 
@@ -190,7 +265,7 @@ def test_on_input_change_summarizes_not_found_status() -> None:
     app.candidate_box = candidate_box
     app.physical_input_map = {}
     app.runtime_reverse_lookup = _FakeReverseLookup(None)
-    app.decoder = _FakeDecoder(("ABCD", "ABCD", "", [], "运行时编码表中未找到该 4 码候选。"))
+    app.decoder = _FakeDecoder(("ABCD", "ABCD", "", [], "运行时编码表中未找到该音节编码候选。"))
     app.last_replace_length = 0
     app._resolve_display_candidates = _no_resolved_candidates
 
@@ -230,7 +305,7 @@ def test_on_input_change_keeps_shift_digit_literal_visible() -> None:
     app.projected_to_keycap_map = {}
     app.reverse_lookup_display_mode = "default"
     app.runtime_reverse_lookup = _FakeReverseLookup(None)
-    app.decoder = _FakeDecoder(("1", "1", "", [], "当前 1/4 码，继续输入。"))
+    app.decoder = _FakeDecoder(("1", "1", "", [], "当前首音节未完成，已输入 1 码。"))
     app.last_replace_length = 0
     app._resolve_display_candidates = _no_resolved_candidates
 
@@ -238,3 +313,23 @@ def test_on_input_change_keeps_shift_digit_literal_visible() -> None:
 
     assert candidate_box.get_input() == "1"
     assert candidate_box.get_projected_input() == "1"
+
+
+def test_on_input_change_keeps_prefix_candidates_when_runtime_marks_code_incomplete() -> None:
+    app = _new_app()
+    candidate_box = _FakeCandidateBox("aaaa")
+    app.candidate_box = candidate_box
+    app.physical_input_map = {}
+    app.runtime_reverse_lookup = _FakeReverseLookup(None)
+    app.decoder = _PrefixDecoder(
+        ("AAAA", "AAAA", "", [], "当前首音节未完成，已输入 4 码。"),
+        ["安", "按"],
+    )
+    app.last_replace_length = 0
+
+    _on_input_change(app)
+
+    assert candidate_box.updated is not None
+    candidates, _pinyin, _code, status = candidate_box.updated
+    assert candidates == ["安", "按"]
+    assert status == "解码: 前缀等待，可先选单字，继续输入可收窄结果。"

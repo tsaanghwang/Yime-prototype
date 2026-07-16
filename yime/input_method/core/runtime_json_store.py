@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple, cast
 
+from yime.canonical_yime_mapping import convert_legacy_code_to_primary
+from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
 from .char_code_index import CharCodeCandidate, CharCodeIndex
 from .runtime_ranking import (
     annotate_candidate_source,
@@ -27,6 +29,7 @@ class JSONRuntimeCandidateStore:
         self.runtime_path = runtime_path
         self.pinyin_to_canonical = pinyin_to_canonical
         self._resolve_canonical_code_from_pinyin_tone = resolve_canonical_code_from_pinyin_tone
+        self.code_mode = YimeCodeMode.VARIABLE
         self.by_code: Dict[str, List[Dict[str, object]]] = {}
         self.char_sort_weight_by_text: Dict[str, float] = {}
         self.phrase_prefix_index: Dict[str, List[Dict[str, object]]] = {}
@@ -42,6 +45,30 @@ class JSONRuntimeCandidateStore:
             raise ValueError(f"运行时候选文件格式无效: {path}")
         return cast(Dict[str, object], payload)
 
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        self.code_mode = normalize_code_mode(mode)
+
+    def _candidate_lookup_code(self, candidate: Dict[str, object]) -> str:
+        column = lookup_code_column(self.code_mode)
+        code = str(candidate.get(column, "") or "").strip()
+        if code:
+            return code
+        if self.code_mode == YimeCodeMode.FULL:
+            return str(candidate.get("yime_code", "") or "").strip()
+        if self.code_mode == YimeCodeMode.SHORTHAND:
+            code = str(candidate.get("input_shorthand_code", "") or "").strip()
+            if code:
+                return code
+        code = str(candidate.get("variable_yinyuan_code", "") or "").strip()
+        if code:
+            return code
+        code = str(candidate.get("primary_yime_code", "") or "").strip()
+        if code:
+            return code
+        return convert_legacy_code_to_primary(
+            str(candidate.get("yime_code", "") or "").strip()
+        )
+
     def load_runtime_candidates(
         self,
         path: Optional[Path] = None,
@@ -50,6 +77,20 @@ class JSONRuntimeCandidateStore:
         if not target_path.exists():
             raise FileNotFoundError(f"未找到运行时候选文件: {target_path}")
         payload = self._load_json(target_path)
+        raw_by_mode = payload.get("by_mode")
+        if isinstance(raw_by_mode, dict):
+            mode_payload = raw_by_mode.get(self.code_mode.value)
+            if isinstance(mode_payload, dict):
+                return {
+                    str(code): [
+                        annotate_candidate_source(cast(Dict[str, object], candidate), "exact")
+                        for candidate in cast(List[object], candidates)
+                        if isinstance(candidate, dict)
+                    ]
+                    for code, candidates in cast(Dict[str, object], mode_payload).items()
+                    if str(code).strip() and isinstance(candidates, list)
+                }
+
         raw_by_code = payload.get("by_code")
         if not isinstance(raw_by_code, dict):
             raise ValueError(f"运行时候选文件格式无效: {target_path}")
@@ -63,7 +104,7 @@ class JSONRuntimeCandidateStore:
                 if not isinstance(candidate, dict):
                     continue
                 candidate_dict = cast(Dict[str, object], candidate)
-                canonical_code = str(candidate_dict.get("yime_code", "") or "").strip()
+                canonical_code = self._candidate_lookup_code(candidate_dict)
                 if not canonical_code:
                     pinyin_tone = str(candidate_dict.get("pinyin_tone", "") or "").strip()
                     canonical_code = str(
@@ -73,6 +114,10 @@ class JSONRuntimeCandidateStore:
                         )
                         or ""
                     ).strip()
+                if not canonical_code:
+                    canonical_code = convert_legacy_code_to_primary(
+                        str(candidate_dict.get("yime_code", "") or "").strip()
+                    )
                 if not canonical_code:
                     continue
                 regrouped.setdefault(canonical_code, []).append(

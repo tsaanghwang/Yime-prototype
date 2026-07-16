@@ -35,7 +35,7 @@
 | 干音结构编码            | `analysis.ganyin_encoder.GanyinEncoder`            | 输入如 `i1`；内部可用 `YueyinYinyuan` 作乐音材料                       |
 | 首音结构编码            | `analysis.shouyin_encoder.ShouyinEncoder`          | 输入为声母键；零声母等见码表                                           |
 | 首音段切分              | `analysis.segment_split.SegmentSplitResult`        | 首音段 / 干音段标签 + ``Syllable`` / ``Ganyin``                        |
-| 干音三槽编码            | `analysis.ganyin_yinyuan_slots.GanyinYinyuanSlots` | 呼 / 主 / 末音元字符                                                   |
+| 干音三音元编码          | `analysis.ganyin_yinyuan_slots.GanyinYinyuanSlots` | 呼 / 主 / 末音元字符；类名中的 `Slots` 为历史代码名                    |
 | 结构化编码结果          | `codec.yinjie_encoder.EncodedYinjieResult`         | ``encode_yinjie_structured``                                           |
 | 批量音节编码            | `syllable.codec.yinjie_encoder.YinjieEncoder`      | ``encode_single_yinjie`` → `codec/yinjie_code.json`                    |
 

@@ -23,7 +23,7 @@ flowchart TD
     D --> D1[ganyin_to_pianyin_sequence.json\n干音片音序列]
     D1 --> D2[YueyinMapper\n片音归并到乐音音元]
     D2 --> D3[yueyin_yinyuan_enhanced.json\n乐音运行时字符映射]
-    D3 --> D4[呼音 / 主音 / 末音 三槽字符]
+    D3 --> D4[呼音 / 主音 / 末音 三音元字符]
 
     E[syllable.pianyin.*\n片音对象] --> F[YinyuanCategory\n共享类别轴]
     G[syllable.analysis.yinyuan.*\n音元对象] --> F

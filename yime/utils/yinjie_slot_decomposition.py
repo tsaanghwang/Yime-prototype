@@ -1,7 +1,7 @@
-"""Materialize four-slot yinjie decomposition rows from ``pinyin_yime_code``.
+"""Materialize four-position yinjie decomposition rows from ``pinyin_yime_code``.
 
 Replaces the legacy Chinese ``音元拼音`` overview table: one row per syllable with
-full four-code string and per-slot columns (首音 / 干音 / 呼音 / 主音 / 末音 / 韵音 / 间音).
+full four-code string and per-position columns (首音 / 干音 / 呼音 / 主音 / 末音 / 韵音 / 间音).
 
 Population uses ``syllable.codec.yinjie.Yinjie`` — the same structure model as the
 encode/decode main chain. ``yime_code_jianpin_draft`` uses draft simplify rules only.
@@ -13,7 +13,7 @@ import sqlite3
 from dataclasses import dataclass
 
 from syllable.codec.yinjie import Yinjie
-from syllable.codec.yinjie_jianpin_draft import simplify_ganyin_repeats
+from syllable.codec.variable_length_yinyuan import to_variable_length_yinyuan_code
 
 CREATE_YINJIE_SLOT_DECOMPOSITION_SQL = """
 CREATE TABLE IF NOT EXISTS yinjie_slot_decomposition (
@@ -73,16 +73,22 @@ def build_decomposition_row(
     yime_code: str,
     code_source: str,
 ) -> YinjieSlotDecompositionRow:
-    """Derive slot columns from a canonical four-character yime code."""
+    """Derive position columns from a canonical four-character yime code."""
+    from yime.canonical_yime_mapping import load_virtual_initial_symbol
+
     normalized_code = str(yime_code or "").strip()
     if len(normalized_code) != 4:
         raise ValueError(f"yime_code 长度应为 4，实际为 {len(normalized_code)}: {normalized_code!r}")
 
     yinjie = Yinjie.from_code(normalized_code)
+    variable_length_code = to_variable_length_yinyuan_code(
+        normalized_code,
+        virtual_initial=load_virtual_initial_symbol() or None,
+    )
     return YinjieSlotDecompositionRow(
         pinyin_tone=str(pinyin_tone or "").strip(),
         yime_code=normalized_code,
-        yime_code_jianpin_draft=simplify_ganyin_repeats(normalized_code),
+        yime_code_jianpin_draft=variable_length_code,
         slot_shouyin=yinjie.initial or "",
         slot_ganyin=yinjie.ganyin_code,
         slot_huyin=yinjie.ascender or "",

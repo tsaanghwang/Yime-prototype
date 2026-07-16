@@ -30,7 +30,7 @@
 
 1. `syllable/analysis/syllable.py` — 声韵母 **音段层**
 2. `syllable/analysis/segment_split.py` — 首音段 / 干音段切分
-3. `syllable/codec/yinjie.py` — 四槽 **音元层**
+3. `syllable/codec/yinjie.py` — 四元 **音元层**
 4. `syllable/codec/yinjie_encoder.py` — `encode_yinjie_structured`
 
 **清理重复 `.py` 文件不在重构关键路径上**；须单独开 issue，按上表逐文件审查。

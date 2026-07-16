@@ -71,15 +71,15 @@ scripts/run_tests.cmd
 
 `CompositeCandidateDecoder` 优先级：
 
-1. **`yime/pinyin_hanzi.db`** → `runtime_candidates` 视图 —
-  **默认主路径**
+1. **`yime/pinyin_hanzi.db`** → `runtime_candidates_materialized` 物化表 —
+  **默认运行时主路径（按 UI 当前编码模式查词；默认变长模式）**
 2. **`.generated/runtime_candidates_by_code_true.json`** — 仅 SQLite 不可用时
 3. **静态层** — 仍无候选时：`pinyin_normalized.json` 解码拼音；可选 `pinyin_hanzi.json` 汉字兜底（已 gitignore）
 
 启动成功时常见日志：
 
 ```text
-[Decoder] 运行时候选来源: SQLite 数据库视图 runtime_candidates
+[Decoder] 运行时候选来源: SQLite 运行时候选主链（优先 runtime_candidates_materialized，回退 runtime_candidates）
 ```
 
 诊断面板：SQLite 为主标 **正常**；未生成 JSON 导出仅为 **提示**。
@@ -102,9 +102,8 @@ scripts/run_tests.cmd
 
 **仍保留的旧 import 路径：** `yime/syllable_decoder.py`
 （``SyllableDecoder`` 直接继承 ``syllable.codec.YinjieDecoder``）。
-音节结构真源为 ``syllable.codec.yinjie.Yinjie``；legacy 宽松切分见
-``syllable.codec.yinjie_loose_split``；简拼草稿见
-``syllable.codec.yinjie_jianpin_draft``（非 IME 输入链）。
+音节结构真源为 ``syllable.codec.yinjie.Yinjie``；四元模型到变长音元模型的转换见
+``syllable.codec.variable_length_yinyuan``。
 
 当前主线如果需要真正刷新可消费数据，仍应回到本文第 1 节的
 `source_pinyin.db -> prototype tables -> runtime` 链。

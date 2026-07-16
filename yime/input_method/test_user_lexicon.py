@@ -2,6 +2,7 @@ from pathlib import Path
 import json
 from typing import Any, cast
 
+from yime.canonical_yime_mapping import load_canonical_code_map
 from yime.input_method.core.decoders import SQLiteRuntimeCandidateDecoder
 from yime.input_method.utils.runtime_reverse_lookup import RuntimeReverseLookup
 from yime.input_method.utils.user_lexicon import (
@@ -241,6 +242,17 @@ def test_resolve_yime_code_from_v_series_matches_standard_u_umlaut_input() -> No
     assert resolve_yime_code_from_numeric_pinyin(repo_root, "nve4") == resolve_yime_code_from_numeric_pinyin(repo_root, "nüe4")
     assert resolve_yime_code_from_numeric_pinyin(repo_root, "lv2") == resolve_yime_code_from_numeric_pinyin(repo_root, "lü2")
     assert resolve_yime_code_from_numeric_pinyin(repo_root, "lvan2 nve4") == resolve_yime_code_from_numeric_pinyin(repo_root, "lüan2 nüe4")
+
+
+def test_resolve_yime_code_from_numeric_pinyin_returns_primary_code() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+
+    canonical_code = load_canonical_code_map(repo_root)["a1"]
+    primary_code = resolve_yime_code_from_numeric_pinyin(repo_root, "a1")
+
+    assert len(canonical_code) == 4
+    assert len(primary_code) < len(canonical_code)
+    assert primary_code != canonical_code
 
 
 def test_sqlite_runtime_decoder_merges_user_phrase_candidates(tmp_path: Path) -> None:

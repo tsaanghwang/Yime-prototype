@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 import sqlite3
 from pathlib import Path
 
@@ -40,3 +41,16 @@ class SQLiteRuntimeSource:
             if materialized_sample is not None:
                 return "runtime_candidates_materialized"
         return "runtime_candidates"
+
+    @lru_cache(maxsize=None)
+    def table_columns(self, table_name: str) -> frozenset[str]:
+        normalized_table = str(table_name or "").strip()
+        if not normalized_table:
+            return frozenset()
+        with self.connect() as conn:
+            rows = conn.execute(f"PRAGMA table_info({normalized_table})").fetchall()
+        return frozenset(str(row["name"] or "") for row in rows)
+
+    def has_column(self, table_name: str, column_name: str) -> bool:
+        normalized_column = str(column_name or "").strip()
+        return bool(normalized_column) and normalized_column in self.table_columns(table_name)

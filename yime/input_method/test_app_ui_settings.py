@@ -58,6 +58,7 @@ def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
     background_calls: list[str] = []
     topmost_calls: list[bool] = []
     reverse_lookup_display_mode_calls: list[str] = []
+    code_mode_calls: list[str] = []
 
     class _FakeCandidateBox:
         def set_page_size(self, page_size: int) -> None:
@@ -93,6 +94,9 @@ def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
         def set_reverse_lookup_display_mode(self, mode: str) -> None:
             reverse_lookup_display_mode_calls.append(mode)
 
+        def set_code_mode(self, mode: str) -> None:
+            code_mode_calls.append(mode)
+
     app = BaseInputMethodApp.__new__(BaseInputMethodApp)
     app.user_data_dir = tmp_path
     app.ui_settings_path = tmp_path / "ui_settings.json"
@@ -109,6 +113,7 @@ def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
     app.background_color = "#f0f0f0"
     app.active_topmost_enabled = True
     app.reverse_lookup_display_mode = "default"
+    app.code_mode = "variable"
     app._on_input_change = lambda _event=None: None
 
     app._on_candidate_page_size_change(8)
@@ -134,6 +139,7 @@ def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
     assert background_calls == ["#f7f3e8"]
     assert topmost_calls == [False]
     assert reverse_lookup_display_mode_calls == ["all"]
+    assert code_mode_calls == []
     assert app.candidate_page_size == 8
     assert app.ui_settings["candidate_page_size"] == 8
     assert app.ui_settings["candidate_layout"] == "vertical"
@@ -159,6 +165,52 @@ def test_on_candidate_page_size_change_persists_setting(tmp_path: Path) -> None:
         "active_topmost_enabled": False,
         "reverse_lookup_display_mode": "all",
     }
+
+
+def test_on_code_mode_change_persists_and_updates_decoder(tmp_path: Path) -> None:
+    candidate_box_modes: list[str] = []
+    decoder_modes: list[str] = []
+    input_change_calls: list[str] = []
+    feedback_calls: list[tuple[str, str]] = []
+
+    class _FakeCandidateBox:
+        def set_code_mode(self, mode: str) -> None:
+            candidate_box_modes.append(mode)
+
+    class _FakeDecoder:
+        def set_code_mode(self, mode: object) -> None:
+            decoder_modes.append(str(mode))
+
+    app = BaseInputMethodApp.__new__(BaseInputMethodApp)
+    app.user_data_dir = tmp_path
+    app.ui_settings_path = tmp_path / "ui_settings.json"
+    app.ui_settings = {}
+    app.candidate_box = _FakeCandidateBox()
+    app.decoder = _FakeDecoder()
+    app.candidate_page_size = 5
+    app.candidate_layout = "horizontal"
+    app.hover_tip_enabled = True
+    app._mouse_wake_enabled_setting = True
+    app._mouse_standby_enabled_setting = True
+    app.ui_scale_percent = 100
+    app.active_alpha_percent = 97
+    app.foreground_color = "#111827"
+    app.background_color = "#f0f0f0"
+    app.active_topmost_enabled = True
+    app.reverse_lookup_display_mode = "default"
+    app._on_input_change = lambda _event=None: input_change_calls.append("refresh")
+    app._emit_feedback = lambda title, message, **_kwargs: feedback_calls.append((title, message))
+
+    app._on_code_mode_change("shorthand")
+
+    assert candidate_box_modes == ["shorthand"]
+    assert decoder_modes == ["shorthand"]
+    assert app.code_mode == "shorthand"
+    assert app.ui_settings["code_mode"] == "shorthand"
+    assert input_change_calls == ["refresh"]
+    assert feedback_calls == [("输入编码模式", "已切换为省键模式。")]
+    saved_payload = json.loads(app.ui_settings_path.read_text(encoding="utf-8"))
+    assert saved_payload["code_mode"] == "shorthand"
 
 
 def test_load_candidate_page_size_is_clamped(tmp_path: Path) -> None:

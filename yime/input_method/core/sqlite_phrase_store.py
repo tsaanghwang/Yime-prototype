@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Dict, List, Mapping
 
+from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
+
 from .runtime_ranking import (
     annotate_candidate_source,
     annotate_phrase_prefix_candidate,
@@ -28,15 +30,62 @@ class SQLitePhraseCandidateStore:
         self,
         runtime_source: SQLiteRuntimeSource,
         runtime_table_name: str,
+        code_mode: YimeCodeMode | str = YimeCodeMode.VARIABLE,
     ) -> None:
         self.runtime_source = runtime_source
         self.runtime_table_name = runtime_table_name
+        self.code_mode = normalize_code_mode(code_mode)
         self._runtime_candidate_cache: Dict[str, List[Dict[str, object]]] = {}
         self._phrase_prefix_cache: Dict[str, List[Dict[str, object]]] = {}
 
     def clear_caches(self) -> None:
         self._runtime_candidate_cache.clear()
         self._phrase_prefix_cache.clear()
+
+    def set_code_mode(self, mode: YimeCodeMode | str | object) -> None:
+        self.code_mode = normalize_code_mode(mode)
+        self.clear_caches()
+
+    def _lookup_code_column(self) -> str:
+        preferred_column = lookup_code_column(self.code_mode)
+        if (
+            self.runtime_table_name == "runtime_candidates_materialized"
+            and self.runtime_source.has_column(self.runtime_table_name, preferred_column)
+        ):
+            return preferred_column
+        if (
+            self.runtime_table_name == "runtime_candidates_materialized"
+            and self.runtime_source.has_column(
+                self.runtime_table_name,
+                "primary_yime_code",
+            )
+        ):
+            return "primary_yime_code"
+        return "yime_code"
+
+    def _runtime_select_columns(self) -> str:
+        if self.runtime_source.has_column(self.runtime_table_name, "primary_yime_code"):
+            full_column = (
+                "full_yime_code"
+                if self.runtime_source.has_column(self.runtime_table_name, "full_yime_code")
+                else "yime_code AS full_yime_code"
+            )
+            variable_column = (
+                "variable_yinyuan_code"
+                if self.runtime_source.has_column(self.runtime_table_name, "variable_yinyuan_code")
+                else "primary_yime_code AS variable_yinyuan_code"
+            )
+            shorthand_column = (
+                "input_shorthand_code"
+                if self.runtime_source.has_column(self.runtime_table_name, "input_shorthand_code")
+                else "primary_yime_code AS input_shorthand_code"
+            )
+            return (
+                "entry_type, entry_id, text, pinyin_tone, yime_code, "
+                f"{full_column}, primary_yime_code, {variable_column}, {shorthand_column}, "
+                "sort_weight, is_common, text_length, updated_at"
+            )
+        return "entry_type, entry_id, text, pinyin_tone, yime_code, yime_code AS primary_yime_code, sort_weight, is_common, text_length, updated_at"
 
     def load_runtime_candidates_for_code(
         self,
@@ -50,11 +99,12 @@ class SQLitePhraseCandidateStore:
             cached = self._runtime_candidate_cache[normalized_code]
         except KeyError:
             with self.runtime_source.connect() as conn:
+                lookup_code_column = self._lookup_code_column()
                 rows = conn.execute(
                     f"""
-                    SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
+                    SELECT {self._runtime_select_columns()}
                     FROM {self.runtime_table_name}
-                    WHERE yime_code = ?
+                    WHERE {lookup_code_column} = ?
                     ORDER BY {_RUNTIME_SQL_PRIORITY_ORDER}
                     """,
                     (normalized_code,),
@@ -111,14 +161,15 @@ class SQLitePhraseCandidateStore:
             return list(cached)
 
         with self.runtime_source.connect() as conn:
+            lookup_code_column = self._lookup_code_column()
             rows = conn.execute(
                 f"""
-                SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
+                SELECT {self._runtime_select_columns()}
                 FROM {self.runtime_table_name}
                 WHERE entry_type = 'phrase'
-                  AND yime_code >= ?
-                  AND yime_code < ?
-                  AND LENGTH(yime_code) > ?
+                  AND {lookup_code_column} >= ?
+                  AND {lookup_code_column} < ?
+                  AND LENGTH({lookup_code_column}) > ?
                 ORDER BY sort_weight DESC, text, pinyin_tone
                 LIMIT ?
                 """,

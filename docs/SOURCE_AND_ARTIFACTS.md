@@ -159,7 +159,8 @@
   - 由 `rebuild_pinyin_assets.py` 从
     `lexicon_exports/pinyin_normalized.json` 同步复制，供
     IME/static decoder 读取。
-  - 当前输入法主链以 SQLite `runtime_candidates` 为主；JSON
+  - 当前输入法运行时主链以 SQLite `runtime_candidates_materialized`
+    为主，键使用变长音元码；`runtime_candidates` 视图与四码映射仍承担上游展开/真源桥接。JSON
     导出与静态层为备用。`pinyin_normalized.json`
     服务码元→拼音显示。
   - 可选的 `yime/pinyin_hanzi.json` 仅作静态拼音→汉字兜底（已 gitignore；缺失时静态回退只解码拼音、不出汉字候选）。
@@ -272,6 +273,19 @@
 1. `coverage/` 与 `htmlcov/` 应视为测试生成物，允许删除并重新生成。
 2. 工作流可以校验这些目录中的文件是否被生成，但主仓库不应继续跟踪报告内容本身。
 
+#### 6AB. Rime 分发导出物（2026-06）
+
+- `.generated/rime/yime_*.schema.yaml`
+- `.generated/rime/yime_*.dict.yaml`
+- `.generated/rime/yime_*.metadata.json`
+  - `%AppData%/Rime/yime_*.schema.yaml`、`%AppData%/Rime/yime_*.dict.yaml`
+    和 `%AppData%/Rime/build/*.bin` 是本机部署/编译结果，不作为仓库源码提交。
+  - 分类：Rime / librime 适配测试数据（**本地可再生导出物，gitignore**）。
+  - 生成入口：`python yime/export_rime_yime.py --mode variable --code-form layout-key`
+  - 原因：它们从 `yime/pinyin_hanzi.db` 的
+    `runtime_candidates_materialized` 三模式列导出，用于验证 Yime 数据能否被
+    Rime/Pime-Rime 前端消费；当前不作为仓库真源提交。
+
 #### 6AA. 根目录覆盖率与缓存残留（2026-05）
 
 以下对象应视为本地临时文件，已在 `.gitignore` 中忽略；
@@ -279,6 +293,23 @@
 `.debug_scripts/`、无引用的 `Assets/` 与根级 `__init__.py`。
 
 #### 6B. 数据库备份副产物（2026-05）
+
+- `C:/dev/Yime-variable-length/` 本地完整测试资产（2026-06）
+  - 分类：被 `.gitignore` 排除的本地数据资产集合。
+  - 当前完整测试需要以下本地产物存在，否则相关测试会按条件跳过：
+    `.generated/source_pinyin.db`、`.generated/source_pinyin.verify.db`、
+    `internal_data/pinyin_source_db/source_pinyin.db`、
+    `internal_data/hanzi_pinyin/hanzi_pinyin.db`、
+    `internal_data/phrase_pinyin/phrase_pinyin.db`、
+    `external_data/hanzi_pinyin.txt`、`external_data/phrase_pinyin.txt`、
+    `external_data/unihan_readings/Unihan_Readings.txt`、
+    `external_data/unihan_readings/unihan_readings.db`、
+    `external_data/char_freq/*.txt`、`external_data/word_freq/*.txt`。
+  - 当前输入法运行库以 `yime/pinyin_hanzi.db` 为准；三模式运行时要求
+    `runtime_candidates_materialized` 含 `full_yime_code`、
+    `variable_yinyuan_code`、`input_shorthand_code` 三列及对应索引。
+  - 这些文件可由 rebuild 链重新生成；从旧工作区补齐时，不应覆盖已经刷新过的
+    `yime/pinyin_hanzi.db` 与 `.generated/runtime_candidates_by_code_true.json`。
 
 - `yime/backup/`
   - 分类：本地数据库备份目录。
@@ -302,15 +333,13 @@
     `source_pinyin.db -> prototype tables -> runtime` rebuild 链与
     legacy-compatible 区域。
 
-- `syllable/codec/yinjie.py`（``Yinjie`` 四音元位真源）
-- `syllable/codec/yinjie_loose_split.py`
-  （legacy 可变长切分，非 IME 主链）
-- `syllable/codec/yinjie_jianpin_draft.py`
-  （简拼草稿，非 IME 输入链）
+- `syllable/codec/yinjie.py`（``Yinjie`` 四元模型真源）
+- `syllable/codec/variable_length_yinyuan/transform.py`
+  （四元模型到变长音元模型的转换）
 - `yime/syllable_decoder.py`
   （``SyllableDecoder`` 旧 import 路径，直接继承 ``YinjieDecoder``）
 
-- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`
+- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
   （2026-06 后合并入主链，恢复请查 git 历史）
 
 - 已清退本地 DB 旧中文拼音表：`数字标调拼音`、`多式拼音映射关系`、`音元拼音`
