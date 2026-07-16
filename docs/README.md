@@ -117,6 +117,8 @@ KLC 文档分工：
   当前主线的结构边界、生成链分层与关键资产归属
 - **[数据文件结构说明](DATAFILES.md)** -
   数据文件、导入产物与目录层次说明
+- **[系统词库质检与清洗（占位）](LEXICON_LINT.md)** -
+  `lexicon_lint` / `lexicon_clean` 只读报告与发版前审阅流程；当前不自动清理词库
 - **[syllable 包说明](../syllable/README.md)** -
   音节分析、编解码目录、CLI 与 Phase 1/2 rebuild 边界
 
