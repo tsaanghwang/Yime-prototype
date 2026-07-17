@@ -60,6 +60,14 @@ python tools/run_layout_pipeline.py --open-msklc never --export-visual-table
 - `Shift+4/5 -> N23/N24`
 - `AltGr+P/[ /]` 留空
 
+早期原型预计 Windows 版 Yime 短期内难以完成，因此曾尝试通过键位重定位补足数字和标点输入。
+现在 Windows Yime 已能通过候选输入提供标点等非音元内容，这个问题不再由
+Yinyuan ID 键码映射解决。因此：
+
+- 不把 Base 层的 `1–0` 搬到 `Shift+Q–P`。
+- 不把 Base 层的标点搬到其他 Shift 键位。
+- 不把 Shift 层标点搬到其他 Shift 键位或 AltGr。
+
 1. 检查 AltGr 是否不再承载 Yinyuan ID。
 
 要求：音元只使用 Base 和 Shift 两层；保留的 AltGr 槽位应留空，
