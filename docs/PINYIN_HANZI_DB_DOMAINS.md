@@ -44,7 +44,7 @@
 |`runtime_tuning_parameters`|table|运行时候选层|否|
 |`schema_comment`|table|元数据与说明层|否|
 |`single_char_readings`|table|原始导入层|否|
-|`slot_xw`|table|键位与符号布局层|否|
+|`yinyuan_id_xw`|table|Yinyuan ID 与符号布局层|否|
 |`source_files`|table|原始导入层|否|
 |`symbol`|table|键位与符号布局层|否|
 |`vw_key_symbol_layout`|view|键位与符号布局层|否|
@@ -150,7 +150,7 @@
 - `symbol`：音元符号与私用区字符定义。
 - `key_symbol_map`：键位到符号的映射。
 - `klc_layout_source`：KLC 布局原始导入表。
-- `slot_xw`：槽位相关映射表。
+- `yinyuan_id_xw`：Yinyuan ID、码点表示与物理键位的跨层映射表。
 
 ### 视图（键位与符号布局层）
 

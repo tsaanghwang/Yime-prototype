@@ -93,12 +93,12 @@ class StaticCandidateDecoder:
             return bmp_to_canonical
         typed_used_mapping = cast(JSONDict, used_mapping)
 
-        for symbol_key, slot_info in typed_used_mapping.items():
-            if not isinstance(slot_info, dict):
+        for yinyuan_id, projection_info in typed_used_mapping.items():
+            if not isinstance(projection_info, dict):
                 continue
-            typed_slot_info = cast(JSONDict, slot_info)
-            bmp_char = str(typed_slot_info.get("char", "") or "")
-            canonical_char = str(key_to_symbol.get(str(symbol_key), "") or "")
+            typed_projection_info = cast(JSONDict, projection_info)
+            bmp_char = str(typed_projection_info.get("char", "") or "")
+            canonical_char = str(key_to_symbol.get(str(yinyuan_id), "") or "")
             if canonical_char:
                 bmp_to_canonical[bmp_char] = canonical_char
 

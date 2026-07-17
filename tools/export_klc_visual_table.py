@@ -32,8 +32,8 @@ def build_lookup(layout: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]
 def format_cell(entry: dict[str, Any] | None) -> str:
     if not entry:
         return ""
-    if entry.get("symbol_key"):
-        return f"{entry['symbol_key']} {entry['symbol_codepoint']}"
+    if entry.get("yinyuan_id"):
+        return f"{entry['yinyuan_id']} {entry['symbol_codepoint']}"
     if entry.get("literal_char"):
         return f"{entry['literal_char']} {entry['literal_codepoint']}"
     return ""
@@ -58,7 +58,7 @@ def render_category_table(layout: dict[str, Any], category: str) -> list[str]:
         if entry.get("resolved_category") != category:
             continue
         lines.append(
-            f"| {entry['physical_key']} | {entry['output_layer']} | {entry.get('symbol_key') or entry.get('literal_char')} | {entry['resolved_codepoint']} |"
+            f"| {entry['physical_key']} | {entry['output_layer']} | {entry.get('yinyuan_id') or entry.get('literal_char')} | {entry['resolved_codepoint']} |"
         )
     lines.append("")
     return lines
@@ -85,7 +85,7 @@ def main() -> None:
         "",
         "来源：`internal_data/manual_key_layout.resolved.json`",
         "",
-        "说明：默认按标准 48 键观察，不包含 `DECIMAL`。单元格显示 `symbol_key + codepoint`。",
+        "说明：默认按标准 48 键观察，不包含 `DECIMAL`。单元格显示 `yinyuan_id + codepoint`。",
         "",
         "## Summary",
         f"- Assigned slots: {layout['stats']['assigned_slots']}",

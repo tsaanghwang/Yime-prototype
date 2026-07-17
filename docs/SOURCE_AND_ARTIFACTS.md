@@ -46,23 +46,23 @@
 
 - `internal_data/manual_key_layout.json`
   - 文件名里的 `manual` 是历史命名，当前语义应理解为“布局真源”，不是“manual install”或“手工编译流程”。
-  - 定义物理键位与 `Nxx/Mxx` 槽位的关系。
+  - 定义物理键位与 `Nxx/Mxx` Yinyuan ID 的关系。
   - 这是布局层真源，不应通过改 `yinyuan.klc` 反向修复。
   - 外部 `Yime-keyboard-layout` 仓库可以消费它的快照副本来生成
     KLC 和打包产物，但那边的
     `source_snapshots/manual_key_layout.json` 不是 canonical。
 
-#### 2. 槽位到规范字符映射真源
+#### 2. Yinyuan ID 到规范字符映射真源
 
 - `internal_data/key_to_symbol.json`
   - 当前表达 `N01-N24` 与 `M01-M33` 到规范字符的映射。
-  - 按策略文档，应将其理解为“语义槽位到 canonical 字符”的稳定层。
+  - 按策略文档，应将其理解为“Yinyuan ID 到 canonical 字符”的稳定层。
   - 外部 `Yime-keyboard-layout` 仓库中如果存在对应快照，也只能视为同步副本，不得反向覆盖这里。
 
 #### 3. 理论与流程约束真源
 
 - `docs/CODEPOINT_POLICY.md`
-  - 规范语义槽位层、canonical 层和 projection 层之间的职责。
+  - 规范 Yinyuan ID 层、canonical 层和 projection 层之间的职责。
 - `docs/KEYBOARD_LAYOUT_PIPELINE.md`
   - 规范键盘布局生成链应如何组织。
 
@@ -72,13 +72,13 @@
 
 #### 1. 首音语义映射真源
 
-- 建议新增：`internal_data/shouyin_to_symbol_key.json`
+- 建议新增：`internal_data/shouyin_to_yinyuan_id.json`
   - 用来表达：`b -> N01`、`zh -> N15` 这类语义关系。
   - 这样首音语义就不再依赖具体字符文件。
 
 #### 2. 干音语义序列真源
 
-- 建议新增：`internal_data/ganyin_to_symbol_key_sequence.json`
+- 建议新增：`internal_data/ganyin_to_yinyuan_id_sequence.json`
   - 用来表达：`i1 -> M01 M01 M01`、`an4 -> M10 M11 M30` 这类三乐音序列。
   - 这样干音编码不会再直接绑定某个 Unicode 码点区。
 
@@ -91,7 +91,7 @@
 #### 1. BMP PUA 投影
 
 - `internal_data/bmp_pua_trial_projection.json`
-  - 当前用于把 canonical 槽位投影到 BMP PUA。
+  - 当前用于把 canonical Yinyuan ID 投影到 BMP PUA。
   - 应继续保留，但应明确其职责是 projection，不是 canonical。
   - 独立出来的键盘布局辅助仓库可以复制它做 Windows 打包试验，但复制件仍只是快照。
 
@@ -116,7 +116,7 @@
 
 - `syllable/yinyuan/yueyin_yinyuan_enhanced.json`
   - 干音唯一真源。
-  - 每条记录显式保存 `semantic_code`、`layout_slot`、`aliases`、`runtime_char`。
+  - 每条记录显式保存 `semantic_code`、`yinyuan_id`、`aliases`、`runtime_char`。
 
 - `internal_data/yinyuan_derived/yueyin_yinyuan.json`
   - 兼容产物，只保留 `canonical yueyin -> aliases` 的旧结构。
@@ -482,7 +482,7 @@ git show <commit> --stat
 这些文件很有价值，但它们的职责是“帮助审计现状”，不是“定义未来结构”。
 
 - `internal_data/yinjie_runtime_key_symbol_mapping.json`
-  - 用来审计当前 runtime 字符与槽位关系。
+  - 用来审计当前 runtime 字符与 Yinyuan ID 的关系。
   - 非真源。
 
 - `internal_data/layout_runtime_consistency_report.json`
@@ -525,13 +525,13 @@ git show <commit> --stat
     `internal_data/yinjie_runtime_key_symbol_mapping.json`。
 
 - `internal_data/key_to_symbol.json`
-  - 分类：当前 canonical 槽位到字符映射。
+  - 分类：当前 canonical Yinyuan ID 到字符映射。
   - 原因：它与 `internal_data/key_symbol_mapping.json`、
     `internal_data/yinjie_runtime_key_symbol_mapping.json` 职责不同，
     不应再按“同名映射”继续合并；前者面向布局 canonical 字符表，
     后两者分别面向旧手工参考和 runtime 审计。
 
-- `internal_data/slot_symbol_crosswalk.json`
+- `internal_data/yinyuan_id_crosswalk.json`
   - 分类：跨层对照审计产物。
   - 原因：它不是新的真源映射，而是把
     `internal_data/key_to_symbol.json`、
@@ -543,9 +543,9 @@ git show <commit> --stat
 - `internal_data/yinjie_runtime_key_symbol_mapping.json`
   - 分类：runtime 审计产物。
   - 原因：它也不是 canonical 真源；它回答的是
-    “当前 `yinjie_encoder` 实际产出的 runtime 字符槽位关系是什么”，
+    “当前 `yinjie_encoder` 实际产出的 runtime 字符与 Yinyuan ID 的关系是什么”，
     而不是“布局侧应以什么字符为准”。因此它和
-    `slot_symbol_crosswalk.json` 一样属于审计面，但关注点更偏
+    `yinyuan_id_crosswalk.json` 一样属于审计面，但关注点更偏
     runtime 结果而非多层交叉对照。
 
 - `external_data/finals_IPA_mapping.json`
@@ -633,7 +633,7 @@ git show <commit> --stat
 
 ### 1. 语义层缺失独立文件
 
-当前首音和干音的语义关系仍然大量隐含在“字符结果文件”里，而不是明确落在 `N/M` 槽位映射文件中。
+当前首音和干音的语义关系仍然大量隐含在“字符结果文件”里，而不是明确落在 `N/M` Yinyuan ID 映射文件中。
 
 这导致：
 
@@ -662,8 +662,8 @@ git show <commit> --stat
 
 新增：
 
-1. `internal_data/shouyin_to_symbol_key.json`
-2. `internal_data/ganyin_to_symbol_key_sequence.json`
+1. `internal_data/shouyin_to_yinyuan_id.json`
+2. `internal_data/ganyin_to_yinyuan_id_sequence.json`
 
 目标：先把“首音/干音语义”与“Unicode 字符”彻底拆开。
 
@@ -697,8 +697,8 @@ git show <commit> --stat
 
 1. 语义层
    - `manual_key_layout.json`
-   - `shouyin_to_symbol_key.json`
-   - `ganyin_to_symbol_key_sequence.json`
+   - `shouyin_to_yinyuan_id.json`
+   - `ganyin_to_yinyuan_id_sequence.json`
 
 2. 规范码点层
    - `key_to_symbol.json`

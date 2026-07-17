@@ -8,13 +8,13 @@
 
 - 整段：U+E4E9-U+E548，共 96 个码点
 - 首音已用：U+E4E9-U+E500，对应 N01-N24
-- 首音预留：U+E501-U+E508，对应槽位 25-32
+- 首音预留：U+E501-U+E508，对应分配位 25-32
 - 乐音已用：U+E509-U+E529，对应 M01-M33
 - 余量：U+E52A-U+E548，共 31 个码点
 
 ## 首音
 
-| Key | BMP Trial Codepoint | Canonical Codepoint | Slot |
+| Yinyuan ID | BMP Trial Codepoint | Canonical Codepoint | Allocation Slot |
 | --- | ------------------- | ------------------- | ---- |
 | N01 | U+E4E9              | U+100000            | 1    |
 | N02 | U+E4EA              | U+100001            | 2    |
@@ -43,7 +43,7 @@
 
 ## 首音预留槽
 
-| Label        | BMP Trial Codepoint | Canonical Codepoint | Slot |
+| Label        | BMP Trial Codepoint | Canonical Codepoint | Allocation Slot |
 | ------------ | ------------------- | ------------------- | ---- |
 | N25_reserved | U+E501              | -                   | 25   |
 | N26_reserved | U+E502              | -                   | 26   |
@@ -56,7 +56,7 @@
 
 ## 乐音
 
-| Key | BMP Trial Codepoint | Canonical Codepoint | Slot |
+| Yinyuan ID | BMP Trial Codepoint | Canonical Codepoint | Allocation Slot |
 | --- | ------------------- | ------------------- | ---- |
 | M01 | U+E509              | U+100020            | 33   |
 | M02 | U+E50A              | U+100021            | 34   |

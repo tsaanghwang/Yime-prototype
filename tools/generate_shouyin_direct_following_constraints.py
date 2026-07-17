@@ -21,7 +21,7 @@ def load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], data) if isinstance(data, dict) else {}
 
 
-def sort_symbol_keys(values: list[str]) -> list[str]:
+def sort_yinyuan_ids(values: list[str]) -> list[str]:
     def sort_key(item: str) -> tuple[str, int]:
         return item[0], int(item[1:])
 
@@ -64,7 +64,7 @@ def build_constraints(combinability_data: Mapping[str, Any]) -> dict[str, Any]:
     }
 
     edge_count = 0
-    for noise_key in sort_symbol_keys(list(by_noise.keys())):
+    for noise_key in sort_yinyuan_ids(list(by_noise.keys())):
         entry_raw = by_noise.get(noise_key, {})
         entry: dict[str, Any] = cast(dict[str, Any], entry_raw) if isinstance(entry_raw, dict) else {}
 

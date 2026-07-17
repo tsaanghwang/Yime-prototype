@@ -20,34 +20,34 @@
           "name": "唇音组",
           "runtime_semantic_label": "唇音与相关唇部首音",
           "notes": "含齿唇音 [f]。当前布局下本组跨 top/home 两行。",
-          "physical_reading_order_symbol_keys": ["N02", "N03", "N04", "N01"],
+          "physical_reading_order_yinyuan_ids": ["N02", "N03", "N04", "N01"],
           "physical_reading_order_source_names": ["p", "f", "m", "b"],
           "physical_reading_order_positions": ["base:y", "base:p", "base:[", "base:h"],
-          "unplaced_symbol_keys": [],
+          "unplaced_yinyuan_ids": [],
           "members": [
             {
-              "symbol_key": "N01",
+              "yinyuan_id": "N01",
               "source_name": "b",
               "runtime_symbol_char": "􀀀",
               "ipa_examples": ["p"],
               "current_layout_position": "base:h"
             },
             {
-              "symbol_key": "N02",
+              "yinyuan_id": "N02",
               "source_name": "p",
               "runtime_symbol_char": "􀀁",
               "ipa_examples": ["pʰ"],
               "current_layout_position": "base:y"
             },
             {
-              "symbol_key": "N03",
+              "yinyuan_id": "N03",
               "source_name": "f",
               "runtime_symbol_char": "􀀂",
               "ipa_examples": ["f", "ɸ"],
               "current_layout_position": "base:p"
             },
             {
-              "symbol_key": "N04",
+              "yinyuan_id": "N04",
               "source_name": "m",
               "runtime_symbol_char": "􀀃",
               "ipa_examples": ["m"],
@@ -60,34 +60,34 @@
           "name": "龈音组",
           "runtime_semantic_label": "舌尖龈音组",
           "notes": "当前布局下本组分布在 home/bottom 两行。",
-          "physical_reading_order_symbol_keys": ["N07", "N05", "N08", "N06"],
+          "physical_reading_order_yinyuan_ids": ["N07", "N05", "N08", "N06"],
           "physical_reading_order_source_names": ["l", "d", "n", "t"],
           "physical_reading_order_positions": ["base:a", "base:g", "base:z", "base:b"],
-          "unplaced_symbol_keys": [],
+          "unplaced_yinyuan_ids": [],
           "members": [
             {
-              "symbol_key": "N05",
+              "yinyuan_id": "N05",
               "source_name": "d",
               "runtime_symbol_char": "􀀄",
               "ipa_examples": ["t"],
               "current_layout_position": "base:g"
             },
             {
-              "symbol_key": "N06",
+              "yinyuan_id": "N06",
               "source_name": "t",
               "runtime_symbol_char": "􀀅",
               "ipa_examples": ["tʰ"],
               "current_layout_position": "base:b"
             },
             {
-              "symbol_key": "N07",
+              "yinyuan_id": "N07",
               "source_name": "l",
               "runtime_symbol_char": "􀀆",
               "ipa_examples": ["l", "ɾ"],
               "current_layout_position": "base:a"
             },
             {
-              "symbol_key": "N08",
+              "yinyuan_id": "N08",
               "source_name": "n",
               "runtime_symbol_char": "􀀇",
               "ipa_examples": ["n", "n̠"],
@@ -100,34 +100,34 @@
           "name": "软腭组",
           "runtime_semantic_label": "软腭与零首音占位组",
           "notes": "用于容纳 g/k/h 与零首音占位符。当前只有前三个成员进入布局。",
-          "physical_reading_order_symbol_keys": ["N09", "N10", "N11"],
+          "physical_reading_order_yinyuan_ids": ["N09", "N10", "N11"],
           "physical_reading_order_source_names": ["g", "k", "h"],
           "physical_reading_order_positions": ["base:8", "base:9", "base:0"],
-          "unplaced_symbol_keys": ["N22"],
+          "unplaced_yinyuan_ids": ["N22"],
           "members": [
             {
-              "symbol_key": "N09",
+              "yinyuan_id": "N09",
               "source_name": "g",
               "runtime_symbol_char": "􀀈",
               "ipa_examples": ["k"],
               "current_layout_position": "base:8"
             },
             {
-              "symbol_key": "N10",
+              "yinyuan_id": "N10",
               "source_name": "k",
               "runtime_symbol_char": "􀀉",
               "ipa_examples": ["kʰ"],
               "current_layout_position": "base:9"
             },
             {
-              "symbol_key": "N11",
+              "yinyuan_id": "N11",
               "source_name": "h",
               "runtime_symbol_char": "􀀊",
               "ipa_examples": ["x", "χ", "h"],
               "current_layout_position": "base:0"
             },
             {
-              "symbol_key": "N22",
+              "yinyuan_id": "N22",
               "source_name": "'",
               "runtime_symbol_char": "􀀕",
               "ipa_examples": ["ʔ", "", "ɣ", "ŋ"],
@@ -147,34 +147,34 @@
           "name": "齿音组（平舌音组）",
           "runtime_semantic_label": "平舌塞擦与擦音组",
           "notes": "模板仍保留 w 作为本组第 4 成员，但当前布局未放入物理键位。",
-          "physical_reading_order_symbol_keys": ["N12", "N13", "N14"],
+          "physical_reading_order_yinyuan_ids": ["N12", "N13", "N14"],
           "physical_reading_order_source_names": ["z", "c", "s"],
           "physical_reading_order_positions": ["base:5", "base:6", "base:7"],
-          "unplaced_symbol_keys": ["N23"],
+          "unplaced_yinyuan_ids": ["N23"],
           "members": [
             {
-              "symbol_key": "N12",
+              "yinyuan_id": "N12",
               "source_name": "z",
               "runtime_symbol_char": "􀀋",
               "ipa_examples": ["ʦ"],
               "current_layout_position": "base:5"
             },
             {
-              "symbol_key": "N13",
+              "yinyuan_id": "N13",
               "source_name": "c",
               "runtime_symbol_char": "􀀌",
               "ipa_examples": ["ʦʰ"],
               "current_layout_position": "base:6"
             },
             {
-              "symbol_key": "N14",
+              "yinyuan_id": "N14",
               "source_name": "s",
               "runtime_symbol_char": "􀀍",
               "ipa_examples": ["s"],
               "current_layout_position": "base:7"
             },
             {
-              "symbol_key": "N23",
+              "yinyuan_id": "N23",
               "source_name": "w",
               "runtime_symbol_char": "􀀖",
               "ipa_examples": ["w", "ʋ"],
@@ -187,34 +187,34 @@
           "name": "龈-腭间音组（齿龈硬腭间音组、翘舌音组）",
           "runtime_semantic_label": "翘舌组",
           "notes": "当前布局完全落在 number row，实际阅读顺序与模板成员顺序相反。",
-          "physical_reading_order_symbol_keys": ["N18", "N17", "N16", "N15"],
+          "physical_reading_order_yinyuan_ids": ["N18", "N17", "N16", "N15"],
           "physical_reading_order_source_names": ["r", "sh", "ch", "zh"],
           "physical_reading_order_positions": ["base:1", "base:2", "base:3", "base:4"],
-          "unplaced_symbol_keys": [],
+          "unplaced_yinyuan_ids": [],
           "members": [
             {
-              "symbol_key": "N15",
+              "yinyuan_id": "N15",
               "source_name": "zh",
               "runtime_symbol_char": "􀀎",
               "ipa_examples": ["ʈʂ", "ꭧ"],
               "current_layout_position": "base:4"
             },
             {
-              "symbol_key": "N16",
+              "yinyuan_id": "N16",
               "source_name": "ch",
               "runtime_symbol_char": "􀀏",
               "ipa_examples": ["ʈʂʰ", "ꭧʰ"],
               "current_layout_position": "base:3"
             },
             {
-              "symbol_key": "N17",
+              "yinyuan_id": "N17",
               "source_name": "sh",
               "runtime_symbol_char": "􀀐",
               "ipa_examples": ["ʂ"],
               "current_layout_position": "base:2"
             },
             {
-              "symbol_key": "N18",
+              "yinyuan_id": "N18",
               "source_name": "r",
               "runtime_symbol_char": "􀀑",
               "ipa_examples": ["ɻ", "ʐ", "ɹ", "z"],
@@ -227,34 +227,34 @@
           "name": "硬腭前部组",
           "runtime_semantic_label": "硬腭前部组",
           "notes": "模板仍保留 y 作为本组第 4 成员，但当前布局未放入物理键位。",
-          "physical_reading_order_symbol_keys": ["N20", "N19", "N21"],
+          "physical_reading_order_yinyuan_ids": ["N20", "N19", "N21"],
           "physical_reading_order_source_names": ["q", "j", "x"],
           "physical_reading_order_positions": ["base:q", "base:w", "base:]"],
-          "unplaced_symbol_keys": ["N24"],
+          "unplaced_yinyuan_ids": ["N24"],
           "members": [
             {
-              "symbol_key": "N19",
+              "yinyuan_id": "N19",
               "source_name": "j",
               "runtime_symbol_char": "􀀒",
               "ipa_examples": ["ʨ"],
               "current_layout_position": "base:w"
             },
             {
-              "symbol_key": "N20",
+              "yinyuan_id": "N20",
               "source_name": "q",
               "runtime_symbol_char": "􀀓",
               "ipa_examples": ["ʨʰ"],
               "current_layout_position": "base:q"
             },
             {
-              "symbol_key": "N21",
+              "yinyuan_id": "N21",
               "source_name": "x",
               "runtime_symbol_char": "􀀔",
               "ipa_examples": ["ɕ"],
               "current_layout_position": "base:]"
             },
             {
-              "symbol_key": "N24",
+              "yinyuan_id": "N24",
               "source_name": "y",
               "runtime_symbol_char": "􀀗",
               "ipa_examples": ["j", "ɥ"],

@@ -11,10 +11,10 @@
 
 当前流程依赖四个前提：
 
-1. `N01-N24` 与 `M01-M33` 是语义槽位层，不是可以删除的临时中间结果。
+1. `N01-N24` 与 `M01-M33` 是 Yinyuan ID 层，不是可以删除的临时中间结果。
 2. `internal_data/manual_key_layout.json` 是历史文件名，
   当前语义应理解为布局真源，不表示 manual install 或手工编译。
-3. 布局真源只负责“物理键位 -> 语义槽位”的关系，不负责决定长期 canonical 码点。
+3. 布局真源只负责“物理键位 -> Yinyuan ID”的关系，不负责决定长期 canonical 码点。
 4. Windows 当前发布链统一走
   `BMP PUA projection -> yinyuan.klc -> MSKLC GUI -> MSI`，
   不要再绕回旧的 DLL 直装路径。
@@ -22,7 +22,7 @@
 ## 当前有效的生成链
 
 ```text
-拼音/音元语义 -> 槽位与字符映射 -> 布局真源 manual_key_layout.json
+拼音/音元语义 -> Yinyuan ID 与字符映射 -> 布局真源 manual_key_layout.json
 -> yinyuan.klc -> MSKLC 打包输出 -> MSI 安装
 ```
 
@@ -30,8 +30,8 @@
 
 ### 1. 语义与映射层
 
-- `N01-N24` / `M01-M33`：语义槽位层
-- `internal_data/key_to_symbol.json`：槽位到规范字符的映射
+- `N01-N24` / `M01-M33`：Yinyuan ID 层
+- `internal_data/key_to_symbol.json`：Yinyuan ID 到规范字符的映射
 - `internal_data/bmp_pua_trial_projection.json`：Windows 当前使用的 BMP PUA 投影
 
 这几层决定字符系统，不应该通过手改安装产物来反向修复。

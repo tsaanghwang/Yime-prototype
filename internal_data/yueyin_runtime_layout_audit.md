@@ -5,7 +5,7 @@
 目的：
 
 - 追踪 `syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json` 中构成干音的乐音码元的来源链。
-- 对比运行时 `yueyin` 码元与当前布局侧 `M01-M33` 乐音槽位的对应关系。
+- 对比运行时 `yueyin` 码元与当前布局侧 `M01-M33` Yinyuan ID 的对应关系。
 
 ## 一、来源链总表
 
@@ -15,7 +15,7 @@
 | 2    | `syllable/yinyuan/variables_of_attributes.json`                  | 定义音质归并和音高归并规则                                                       | 哪些 IPA 片音会并到同一个乐音码元                  |
 | 3    | `syllable/analysis/yueyin_yinyuan.py`                            | 用归并规则把片音转成乐音码元名                                                   | `i˥ -> ɪ˥`、`ɤ˨ -> o˩` 这类归并逻辑                |
 | 4    | `tools/syllable_analysis/convert_pitch_style.py`                 | 把 `˥/˦/˩` 转成 `́/̄/̀` 风格                                                        | `ɪ˥ -> ɪ́`、`o˩ -> ò` 这类自定义组合字符替换        |
-| 5    | `syllable/yinyuan/yueyin_yinyuan_enhanced.json`                  | 干音唯一真源，显式保存 `semantic_code`、`layout_slot`、`aliases`、`runtime_char` | 乐音语义码、布局槽位与运行时字符的一一对应         |
+| 5    | `syllable/yinyuan/yueyin_yinyuan_enhanced.json`                  | 干音唯一真源，显式保存 `semantic_code`、`yinyuan_id`、`aliases`、`runtime_char` | 乐音语义码、Yinyuan ID 与运行时字符的一一对应      |
 | 6    | `internal_data/yinyuan_derived/ganyin_to_pianyin_sequence.json`  | 干音到三段片音序列的输入表                                                       | 每个干音由哪些“呼音/主音/末音”组成                 |
 | 7    | `syllable/analysis/ganyin_encoder.py`                            | 读取增强版真源中的显式 `runtime_char`，并替换三段乐音码元为运行时字符            | `M01-M33` 对应的运行时字符，以及 fixed-length 结果 |
 | 8    | `syllable/yinyuan/yinyuan_codepoint.json` 中的 `yueyin` 段       | 运行时乐音码元到私用区字符的最终映射                                             | 例如 `ɪ́ -> 􀀠`、`ḿ -> 􀀸`                            |
@@ -70,7 +70,7 @@
 - 输出端是项目内部通用的自定义组合字符名。
 - 私用区字符分配发生在这一步之后，而不是这一步之内。
 
-## 四、运行时 `yueyin` 到当前布局槽位对照
+## 四、运行时 `yueyin` 到当前 Yinyuan ID 对照
 
 在读取 `internal_data/musical_group_template.json` 里新增的布局字段时，可以按下面理解：
 
@@ -78,7 +78,7 @@
 | ------------------------------------ | ---------------------------------------------- | ------------------------------------------ |
 | `current_layout_position`            | 单个 `Mxx` 当前落在哪个层和物理键              | `base:j`、`shift:n`、`altgr:l`             |
 | `physical_reading_order_pattern`     | 该组成员按当前键盘上实际阅读顺序得到的调位模式 | `高-中-低`、`低-中-高`、`高-低-中`         |
-| `physical_reading_order_symbol_keys` | 按当前实际阅读顺序排列的 `Mxx` 列表            | `["M06", "M05", "M04"]`                    |
+| `physical_reading_order_yinyuan_ids` | 按当前实际阅读顺序排列的 `Mxx` 列表            | `["M06", "M05", "M04"]`                    |
 | `physical_reading_order_tone_roles`  | 上一字段对应的调位顺序                         | `["low_level", "mid_level", "high_level"]` |
 | `physical_reading_order_positions`   | 上一字段对应的物理键位顺序                     | `["base:x", "base:c", "base:v"]`           |
 
@@ -88,7 +88,7 @@
 2. `physical_reading_order_*` 反映的是当前键盘上从左到右、从上到下的实际阅读顺序。
 3. 如果两者不同，不表示编码错了，只表示当前布局为了手感或分层做了重排。
 
-| 乐音组        | 槽位 | 运行时 `yueyin` 名 | 运行时字符 | 当前布局位置 |
+| 乐音组        | Yinyuan ID | 运行时 `yueyin` 名 | 运行时字符 | 当前布局位置 |
 | ------------- | ---- | ------------------ | ---------- | ------------ |
 | /i/           | M01  | `ɪ́`                | `􀀠`        | `base:u`     |
 | /i/           | M02  | `ɪ̄`                | `􀀡`        | `base:i`     |
