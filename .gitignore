@@ -20,6 +20,7 @@ venv312/
 venv_broken_python314/
 
 # Editor / OS files
+*.code-workspace
 .coverage
 *.pyc
 __pycache__/
