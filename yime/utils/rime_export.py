@@ -27,9 +27,6 @@ text,
 pinyin_tone
 """
 
-ALTGR_FALLBACK_KEYS = ["!", "@", "#", "$", "%", "^", "&", "*"]
-
-
 @dataclass(frozen=True)
 class RimeExportPaths:
     schema_path: Path
@@ -78,9 +75,6 @@ def load_runtime_symbol_to_layout_key(repo_root: Path = REPO_ROOT) -> dict[str, 
     layout = _json_load(repo_root / "internal_data" / "manual_key_layout.json")
 
     yinyuan_id_to_key: dict[str, str] = {}
-    used: set[str] = set()
-    deferred_altgr: list[str] = []
-
     for raw_entry in layout.get("layers", []):
         if not isinstance(raw_entry, dict):
             continue
@@ -90,18 +84,12 @@ def load_runtime_symbol_to_layout_key(repo_root: Path = REPO_ROOT) -> dict[str, 
         display_label = str(raw_entry.get("display_label") or "").strip()
         output_layer = str(raw_entry.get("output_layer") or "").strip()
         if output_layer == "altgr":
-            deferred_altgr.append(yinyuan_id)
-            continue
+            raise ValueError(
+                "Yinyuan IDs must use the base or shift layer; "
+                f"AltGr assignment found for {yinyuan_id}."
+            )
         if len(display_label) == 1:
             yinyuan_id_to_key[yinyuan_id] = display_label
-            used.add(display_label)
-
-    fallback_iter = (char for char in ALTGR_FALLBACK_KEYS if char not in used)
-    for yinyuan_id in deferred_altgr:
-        try:
-            yinyuan_id_to_key[yinyuan_id] = next(fallback_iter)
-        except StopIteration as exc:
-            raise ValueError("Not enough fallback keys for AltGr-only Yime symbols.") from exc
 
     symbol_to_key: dict[str, str] = {}
     for yinyuan_id, raw_symbol in key_to_symbol.items():
