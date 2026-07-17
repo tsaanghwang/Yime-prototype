@@ -18,28 +18,28 @@
       "normalized_yueyin_base": "ɪ",
       "ipa_examples": ["i", "ɪ"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M01", "M02", "M03"],
+      "physical_reading_order_yinyuan_ids": ["M01", "M02", "M03"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["base:u", "base:i", "base:o"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M01",
+          "yinyuan_id": "M01",
           "runtime_yueyin_name": "ɪ́",
           "current_layout_position": "base:u"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M02",
+          "yinyuan_id": "M02",
           "runtime_yueyin_name": "ɪ̄",
           "current_layout_position": "base:i"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M03",
+          "yinyuan_id": "M03",
           "runtime_yueyin_name": "ɪ̀",
           "current_layout_position": "base:o"
         }
@@ -53,28 +53,28 @@
       "normalized_yueyin_base": "ᴜ",
       "ipa_examples": ["u", "ᴜ"],
       "physical_reading_order_pattern": "低-中-高",
-      "physical_reading_order_symbol_keys": ["M06", "M05", "M04"],
+      "physical_reading_order_yinyuan_ids": ["M06", "M05", "M04"],
       "physical_reading_order_tone_roles": ["low_level", "mid_level", "high_level"],
       "physical_reading_order_positions": ["base:x", "base:c", "base:v"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M04",
+          "yinyuan_id": "M04",
           "runtime_yueyin_name": "ᴜ́",
           "current_layout_position": "base:v"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M05",
+          "yinyuan_id": "M05",
           "runtime_yueyin_name": "ᴜ̄",
           "current_layout_position": "base:c"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M06",
+          "yinyuan_id": "M06",
           "runtime_yueyin_name": "ᴜ̀",
           "current_layout_position": "base:x"
         }
@@ -88,28 +88,28 @@
       "normalized_yueyin_base": "ʏ",
       "ipa_examples": ["ʏ", "y"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M07", "M08", "M09"],
+      "physical_reading_order_yinyuan_ids": ["M07", "M08", "M09"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["base:n", "base:m", "base:,"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M07",
+          "yinyuan_id": "M07",
           "runtime_yueyin_name": "ʏ́",
           "current_layout_position": "base:n"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M08",
+          "yinyuan_id": "M08",
           "runtime_yueyin_name": "ʏ̄",
           "current_layout_position": "base:m"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M09",
+          "yinyuan_id": "M09",
           "runtime_yueyin_name": "ʏ̀",
           "current_layout_position": "base:,"
         }
@@ -123,28 +123,28 @@
       "normalized_yueyin_base": "ᴀ",
       "ipa_examples": ["ᴀ", "a", "æ", "ɑ"],
       "physical_reading_order_pattern": "低-中-高",
-      "physical_reading_order_symbol_keys": ["M12", "M11", "M10"],
+      "physical_reading_order_yinyuan_ids": ["M12", "M11", "M10"],
       "physical_reading_order_tone_roles": ["low_level", "mid_level", "high_level"],
       "physical_reading_order_positions": ["base:s", "base:d", "base:f"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M10",
+          "yinyuan_id": "M10",
           "runtime_yueyin_name": "ᴀ́",
           "current_layout_position": "base:f"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M11",
+          "yinyuan_id": "M11",
           "runtime_yueyin_name": "ᴀ̄",
           "current_layout_position": "base:d"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M12",
+          "yinyuan_id": "M12",
           "runtime_yueyin_name": "ᴀ̀",
           "current_layout_position": "base:s"
         }
@@ -158,28 +158,28 @@
       "normalized_yueyin_base": "o",
       "ipa_examples": ["o", "ɤ", "𐞑"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M13", "M14", "M15"],
+      "physical_reading_order_yinyuan_ids": ["M13", "M14", "M15"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["base:j", "base:k", "base:l"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M13",
+          "yinyuan_id": "M13",
           "runtime_yueyin_name": "ó",
           "current_layout_position": "base:j"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M14",
+          "yinyuan_id": "M14",
           "runtime_yueyin_name": "ō",
           "current_layout_position": "base:k"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M15",
+          "yinyuan_id": "M15",
           "runtime_yueyin_name": "ò",
           "current_layout_position": "base:l"
         }
@@ -193,28 +193,28 @@
       "normalized_yueyin_base": "ᴇ",
       "ipa_examples": ["ᴇ", "e", "ə", "ᵊ"],
       "physical_reading_order_pattern": "低-中-高",
-      "physical_reading_order_symbol_keys": ["M18", "M17", "M16"],
+      "physical_reading_order_yinyuan_ids": ["M18", "M17", "M16"],
       "physical_reading_order_tone_roles": ["low_level", "mid_level", "high_level"],
       "physical_reading_order_positions": ["base:e", "base:r", "base:t"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M16",
+          "yinyuan_id": "M16",
           "runtime_yueyin_name": "ᴇ́",
           "current_layout_position": "base:t"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M17",
+          "yinyuan_id": "M17",
           "runtime_yueyin_name": "ᴇ̄",
           "current_layout_position": "base:r"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M18",
+          "yinyuan_id": "M18",
           "runtime_yueyin_name": "ᴇ̀",
           "current_layout_position": "base:e"
         }
@@ -228,28 +228,28 @@
       "normalized_yueyin_base": "󰉺",
       "ipa_examples": ["ʅ", "ɿ"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M19", "M20", "M21"],
+      "physical_reading_order_yinyuan_ids": ["M19", "M20", "M21"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["shift:j", "shift:k", "shift:l"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M19",
+          "yinyuan_id": "M19",
           "runtime_yueyin_name": "󰉺́",
           "current_layout_position": "shift:j"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M20",
+          "yinyuan_id": "M20",
           "runtime_yueyin_name": "󰉺̄",
           "current_layout_position": "shift:k"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M21",
+          "yinyuan_id": "M21",
           "runtime_yueyin_name": "󰉺̀",
           "current_layout_position": "shift:l"
         }
@@ -263,28 +263,28 @@
       "normalized_yueyin_base": "󰊈",
       "ipa_examples": ["ɚ"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M22", "M23", "M24"],
+      "physical_reading_order_yinyuan_ids": ["M22", "M23", "M24"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["altgr:p", "altgr:[", "altgr:]"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M22",
+          "yinyuan_id": "M22",
           "runtime_yueyin_name": "󰊈́",
           "current_layout_position": "altgr:p"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M23",
+          "yinyuan_id": "M23",
           "runtime_yueyin_name": "󰊈̄",
           "current_layout_position": "altgr:["
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M24",
+          "yinyuan_id": "M24",
           "runtime_yueyin_name": "󰊈̀",
           "current_layout_position": "altgr:]"
         }
@@ -298,28 +298,28 @@
       "normalized_yueyin_base": "m",
       "ipa_examples": ["m"],
       "physical_reading_order_pattern": "高-中-低",
-      "physical_reading_order_symbol_keys": ["M25", "M26", "M27"],
+      "physical_reading_order_yinyuan_ids": ["M25", "M26", "M27"],
       "physical_reading_order_tone_roles": ["high_level", "mid_level", "low_level"],
       "physical_reading_order_positions": ["altgr:j", "altgr:k", "altgr:l"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M25",
+          "yinyuan_id": "M25",
           "runtime_yueyin_name": "ḿ",
           "current_layout_position": "altgr:j"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M26",
+          "yinyuan_id": "M26",
           "runtime_yueyin_name": "m̄",
           "current_layout_position": "altgr:k"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M27",
+          "yinyuan_id": "M27",
           "runtime_yueyin_name": "m̀",
           "current_layout_position": "altgr:l"
         }
@@ -333,28 +333,28 @@
       "normalized_yueyin_base": "n",
       "ipa_examples": ["n"],
       "physical_reading_order_pattern": "高-低-中",
-      "physical_reading_order_symbol_keys": ["M28", "M30", "M29"],
+      "physical_reading_order_yinyuan_ids": ["M28", "M30", "M29"],
       "physical_reading_order_tone_roles": ["high_level", "low_level", "mid_level"],
       "physical_reading_order_positions": ["base:;", "base:'", "shift:n"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M28",
+          "yinyuan_id": "M28",
           "runtime_yueyin_name": "ń",
           "current_layout_position": "base:;"
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M29",
+          "yinyuan_id": "M29",
           "runtime_yueyin_name": "n̄",
           "current_layout_position": "shift:n"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M30",
+          "yinyuan_id": "M30",
           "runtime_yueyin_name": "ǹ",
           "current_layout_position": "base:'"
         }
@@ -368,28 +368,28 @@
       "normalized_yueyin_base": "ŋ",
       "ipa_examples": ["ŋ"],
       "physical_reading_order_pattern": "高-低-中",
-      "physical_reading_order_symbol_keys": ["M31", "M33", "M32"],
+      "physical_reading_order_yinyuan_ids": ["M31", "M33", "M32"],
       "physical_reading_order_tone_roles": ["high_level", "low_level", "mid_level"],
       "physical_reading_order_positions": ["base:.", "base:/", "shift:m"],
       "members": [
         {
           "tone_role": "high_level",
           "tone_label": "高调（高平）",
-          "symbol_key": "M31",
+          "yinyuan_id": "M31",
           "runtime_yueyin_name": "ŋ́",
           "current_layout_position": "base:."
         },
         {
           "tone_role": "mid_level",
           "tone_label": "中调（半高平）",
-          "symbol_key": "M32",
+          "yinyuan_id": "M32",
           "runtime_yueyin_name": "ŋ̄",
           "current_layout_position": "shift:m"
         },
         {
           "tone_role": "low_level",
           "tone_label": "低调（低平）",
-          "symbol_key": "M33",
+          "yinyuan_id": "M33",
           "runtime_yueyin_name": "ŋ̀",
           "current_layout_position": "base:/"
         }

@@ -35,7 +35,7 @@ def load_json(path: Path) -> dict[str, str]:
         return cast(dict[str, str], json.load(handle))
 
 
-def sort_symbol_keys(values: Iterable[str]) -> list[str]:
+def sort_yinyuan_ids(values: Iterable[str]) -> list[str]:
     def sort_key(item: str):
         return item[0], int(item[1:])
 
@@ -97,7 +97,7 @@ def build_combinability(
 
 
 def serialize_counter(counter: Counter[str]) -> dict[str, int]:
-    keys = sort_symbol_keys(counter.keys())
+    keys = sort_yinyuan_ids(counter.keys())
     return {key: counter[key] for key in keys}
 
 
@@ -137,22 +137,22 @@ def build_output(yinjie_code: Mapping[str, str], key_to_symbol: Mapping[str, str
         "by_direct_following_musical": {},
     }
 
-    for noise_key in sort_symbol_keys(by_noise.keys()):
+    for noise_key in sort_yinyuan_ids(by_noise.keys()):
         entry = by_noise[noise_key]
         output["by_noise"][noise_key] = {
             "syllable_count": entry["syllable_count"],
-            "direct_following_musicals": sort_symbol_keys(entry["direct_following_counts"].keys()),
+            "direct_following_musicals": sort_yinyuan_ids(entry["direct_following_counts"].keys()),
             "direct_following_counts": serialize_counter(entry["direct_following_counts"]),
-            "reachable_musicals_any_position": sort_symbol_keys(entry["reachable_musicals_any_position"].keys()),
+            "reachable_musicals_any_position": sort_yinyuan_ids(entry["reachable_musicals_any_position"].keys()),
             "reachable_musicals_any_position_counts": serialize_counter(entry["reachable_musicals_any_position"]),
             "ganyin_sequences": serialize_sequence_counter(entry["ganyin_sequences"]),
             "example_syllables": entry["example_syllables"],
         }
 
-    for musical_key in sort_symbol_keys(by_direct_musical.keys()):
+    for musical_key in sort_yinyuan_ids(by_direct_musical.keys()):
         entry = by_direct_musical[musical_key]
         output["by_direct_following_musical"][musical_key] = {
-            "noise_symbols": sort_symbol_keys(entry["noise_counts"].keys()),
+            "noise_symbols": sort_yinyuan_ids(entry["noise_counts"].keys()),
             "noise_counts": serialize_counter(entry["noise_counts"]),
             "example_syllables": entry["example_syllables"],
         }

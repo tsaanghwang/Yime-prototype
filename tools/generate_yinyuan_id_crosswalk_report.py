@@ -14,9 +14,9 @@ LAYOUT_PATH = ROOT / "internal_data" / "manual_key_layout.json"
 DB_PATH = ROOT / "yime" / "pinyin_hanzi.db"
 SHOUYIN_PATH = ROOT / "syllable" / "yinyuan" / "shouyin_codepoint.json"
 YINYUAN_PATH = ROOT / "syllable" / "yinyuan" / "yinyuan_codepoint.json"
-OUTPUT_JSON_PATH = ROOT / "internal_data" / "slot_symbol_crosswalk.json"
-OUTPUT_MD_PATH = ROOT / "internal_data" / "slot_symbol_crosswalk.md"
-OUTPUT_TABLE = "slot_xw"
+OUTPUT_JSON_PATH = ROOT / "internal_data" / "yinyuan_id_crosswalk.json"
+OUTPUT_MD_PATH = ROOT / "internal_data" / "yinyuan_id_crosswalk.md"
+OUTPUT_TABLE = "yinyuan_id_xw"
 
 
 def load_json(path: Path) -> Any:
@@ -80,15 +80,15 @@ def build_physical_key_index() -> dict[str, list[str]]:
     physical: dict[str, list[str]] = {}
 
     for entry in layers:
-        slot_key_value = entry.get("symbol_key")
-        if not isinstance(slot_key_value, str) or not slot_key_value:
+        yinyuan_id_value = entry.get("yinyuan_id")
+        if not isinstance(yinyuan_id_value, str) or not yinyuan_id_value:
             continue
-        slot_key = slot_key_value
+        yinyuan_id = yinyuan_id_value
         physical_key = str(entry.get("physical_key", "")).strip()
         output_layer = str(entry.get("output_layer", "")).strip()
         display_label = str(entry.get("display_label", "")).strip()
         binding = f"{physical_key}:{output_layer}:{display_label}"
-        physical.setdefault(slot_key, []).append(binding)
+        physical.setdefault(yinyuan_id, []).append(binding)
 
     for bindings in physical.values():
         bindings.sort()
@@ -102,14 +102,14 @@ def build_display_label_index() -> dict[str, list[str]]:
     labels: dict[str, list[str]] = {}
 
     for entry in layers:
-        slot_key_value = entry.get("symbol_key")
-        if not isinstance(slot_key_value, str) or not slot_key_value:
+        yinyuan_id_value = entry.get("yinyuan_id")
+        if not isinstance(yinyuan_id_value, str) or not yinyuan_id_value:
             continue
-        slot_key = slot_key_value
+        yinyuan_id = yinyuan_id_value
         display_label = str(entry.get("display_label", "")).strip()
         if not display_label:
             continue
-        labels.setdefault(slot_key, []).append(display_label)
+        labels.setdefault(yinyuan_id, []).append(display_label)
 
     for items in labels.values():
         items.sort()
@@ -117,9 +117,9 @@ def build_display_label_index() -> dict[str, list[str]]:
     return labels
 
 
-def slot_sort_key(slot_key: str) -> tuple[int, int]:
-    prefix = 0 if slot_key.startswith("N") else 1
-    return (prefix, int(slot_key[1:]))
+def yinyuan_id_sort_key(yinyuan_id: str) -> tuple[int, int]:
+    prefix = 0 if yinyuan_id.startswith("N") else 1
+    return (prefix, int(yinyuan_id[1:]))
 
 
 def build_rows() -> list[dict[str, Any]]:
@@ -132,20 +132,20 @@ def build_rows() -> list[dict[str, Any]]:
     physical_index = build_physical_key_index()
     display_label_index = build_display_label_index()
 
-    slot_keys = sorted(projection_map.keys(), key=slot_sort_key)
+    yinyuan_ids = sorted(projection_map.keys(), key=yinyuan_id_sort_key)
     rows: list[dict[str, Any]] = []
 
-    for slot_key in slot_keys:
-        projection_entry = ensure_dict(projection_map.get(slot_key, {}))
-        runtime_char = runtime_map.get(slot_key)
+    for yinyuan_id in yinyuan_ids:
+        projection_entry = ensure_dict(projection_map.get(yinyuan_id, {}))
+        runtime_char = runtime_map.get(yinyuan_id)
         projection_char = projection_entry.get("char")
-        canonical_char = canonical_map.get(slot_key)
-        slot_number = projection_entry.get("slot")
+        canonical_char = canonical_map.get(yinyuan_id)
+        allocation_slot = projection_entry.get("allocation_slot")
 
-        category = "initial" if slot_key.startswith("N") else "musical"
+        category = "initial" if yinyuan_id.startswith("N") else "musical"
         label = label_index.get(runtime_char or "") or label_index.get(projection_char or "") or ""
-        physical_keys = physical_index.get(slot_key, [])
-        display_labels = display_label_index.get(slot_key, [])
+        physical_keys = physical_index.get(yinyuan_id, [])
+        display_labels = display_label_index.get(yinyuan_id, [])
 
         issues: list[str] = []
         if runtime_char != projection_char:
@@ -164,8 +164,8 @@ def build_rows() -> list[dict[str, Any]]:
 
         rows.append(
             {
-                "slot_key": slot_key,
-                "slot_number": slot_number,
+                "yinyuan_id": yinyuan_id,
+                "allocation_slot": allocation_slot,
                 "category": category,
                 "label": label,
                 "display_labels": display_labels,
@@ -194,7 +194,7 @@ def build_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     rows_with_issues = sum(1 for row in rows if row["issue_count"])
     return {
         "metadata": {
-            "description": "Slot/BMP/SPUA-B/physical-key crosswalk generated from current source JSON files.",
+            "description": "Yinyuan ID/BMP/SPUA-B/physical-key crosswalk generated from current source JSON files.",
             "runtime_source": str(RUNTIME_PATH.relative_to(ROOT)),
             "canonical_source": str(CANONICAL_PATH.relative_to(ROOT)),
             "projection_source": str(PROJECTION_PATH.relative_to(ROOT)),
@@ -211,14 +211,14 @@ def build_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
 def build_markdown(rows: list[dict[str, Any]], payload: dict[str, Any]) -> str:
     metadata = payload["metadata"]
     lines = [
-        "# Slot Symbol Crosswalk",
+        "# Yinyuan ID Crosswalk",
         "",
         f"- Rows: {metadata['rows']}",
         f"- Runtime vs projection mismatches: {metadata['runtime_projection_mismatches']}",
         f"- Runtime BMP vs canonical SPUA-B differences: {metadata['bmp_canonical_differences']}",
         f"- Rows with issues: {metadata['rows_with_issues']}",
         "",
-        "|Slot|Label|Physical Key|Runtime BMP|Projection BMP|Canonical SPUA-B|Layer Relation|Issues|",
+        "|Yinyuan ID|Label|Physical Key|Runtime BMP|Projection BMP|Canonical SPUA-B|Layer Relation|Issues|",
         "|---|---|---|---|---|---|---|---|",
     ]
 
@@ -239,7 +239,7 @@ def build_markdown(rows: list[dict[str, Any]], payload: dict[str, Any]) -> str:
         relation = str(row["layer_relation"] or "")
         issues = ", ".join(row["issues"]) if row["issues"] else ""
         lines.append(
-            f"|{row['slot_key']}|{row['label']}|{physical}|{runtime_text}|{projection_text}|{canonical_text}|{relation}|{issues}|"
+            f"|{row['yinyuan_id']}|{row['label']}|{physical}|{runtime_text}|{projection_text}|{canonical_text}|{relation}|{issues}|"
         )
 
     return "\n".join(lines) + "\n"
@@ -249,11 +249,12 @@ def write_sqlite(rows: list[dict[str, Any]]) -> None:
     conn = sqlite3.connect(DB_PATH)
     try:
         cur = conn.cursor()
+        cur.execute("DROP TABLE IF EXISTS slot_xw")
         cur.execute(
             f'''
             CREATE TABLE IF NOT EXISTS {OUTPUT_TABLE} (
-                s TEXT PRIMARY KEY,
-                i INTEGER,
+                yinyuan_id TEXT PRIMARY KEY,
+                allocation_slot INTEGER,
                 c TEXT,
                 l TEXT,
                 pk TEXT,
@@ -268,13 +269,13 @@ def write_sqlite(rows: list[dict[str, Any]]) -> None:
         cur.execute(f'DELETE FROM {OUTPUT_TABLE}')
         cur.executemany(
             f'''
-            INSERT INTO {OUTPUT_TABLE} (s, i, c, l, pk, dl, r, p, a, nt)
+            INSERT INTO {OUTPUT_TABLE} (yinyuan_id, allocation_slot, c, l, pk, dl, r, p, a, nt)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''',
             [
                 (
-                    row["slot_key"],
-                    row["slot_number"],
+                    row["yinyuan_id"],
+                    row["allocation_slot"],
                     row["category"],
                     row["label"],
                     " | ".join(row["physical_keys"]),

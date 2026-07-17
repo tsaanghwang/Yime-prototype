@@ -41,33 +41,33 @@ class GanyinEncoder:
         runtime_map: Dict[str, str] = {}
         aliases_map: Dict[str, list[str]] = {}
         semantic_codes: Dict[str, str] = {}
-        layout_slots: Dict[str, str] = {}
+        yinyuan_ids: Dict[str, str] = {}
 
         for canonical_symbol, entry in entries.items():
             runtime_char = entry.get("runtime_char", "")
             semantic_code = entry.get("semantic_code", "")
-            layout_slot = entry.get("layout_slot", "")
+            yinyuan_id = entry.get("yinyuan_id", "")
             aliases = entry.get("aliases", [])
 
             if not runtime_char:
                 raise ValueError(f"乐音 `{canonical_symbol}` 缺少 runtime_char")
             if not semantic_code:
                 raise ValueError(f"乐音 `{canonical_symbol}` 缺少 semantic_code")
-            if not layout_slot:
-                raise ValueError(f"乐音 `{canonical_symbol}` 缺少 layout_slot")
+            if not yinyuan_id:
+                raise ValueError(f"乐音 `{canonical_symbol}` 缺少 yinyuan_id")
             if not isinstance(aliases, list):
                 raise ValueError(f"乐音 `{canonical_symbol}` 的 aliases 必须是数组")
 
             runtime_map[canonical_symbol] = runtime_char
             aliases_map[canonical_symbol] = aliases
             semantic_codes[canonical_symbol] = semantic_code
-            layout_slots[canonical_symbol] = layout_slot
+            yinyuan_ids[canonical_symbol] = yinyuan_id
 
         return {
             "yueyin": runtime_map,
             "aliases": aliases_map,
             "semantic_codes": semantic_codes,
-            "layout_slots": layout_slots,
+            "yinyuan_ids": yinyuan_ids,
         }
 
     def _load_yueyin_codepoints(self) -> Dict[str, str]:

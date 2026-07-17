@@ -22,13 +22,13 @@
 
 ---
 
-## 四元模型 / 段 / 位 / 时段 / 语义槽位 — **勿混「槽」**
+## 四元模型 / 段 / 位 / 时段 / Yinyuan ID — **勿混「槽」**
 
 本仓库把 `Yinjie` 的 canonical 等长四字符结构称为 **四元模型**，需要强调结构特征时可写 **等长四元模型** 或 **四元音节模型**。早期文档中出现的「四音元位模型」「四槽模型」不再作为主术语使用。
 
 「音元位 / 编码位」仍然保留，但只用于说明四字符编码中的固定顺序位置：第 1 至第 4 位依次存放首音元、呼音元、主音元、末音元。也就是说，模型名用 **四元**，具体编码位置用 **音元位 / 编码位**。
 
-本仓库里 **「slot / 槽」** 出现在多处，**中文不宜一律写「槽」**。早期文档与 AI 辅助写作曾默认把英文 slot 译成「首音槽、呼音槽、四槽」，易与下面已定义的 **语义槽位（N/M）** 混淆，也与 wiki / 音元分析法惯用的 **「段」** 不对齐。**本节为定稿提醒，忙时请先回到这里。**
+本仓库里 **「slot / 槽」** 出现在多处，**中文不宜一律写「槽」**。早期文档与 AI 辅助写作曾把 `N01/M01` 这类稳定音元编号称为“语义槽位”，也曾把 slot 泛化成「首音槽、呼音槽、四槽」。现在统一规定：`Nxx/Mxx` 专称 **Yinyuan ID**；slot 只表示确实可被占据或分配的位置。**本节为定稿提醒，忙时请先回到这里。**
 
 ### 四套说法，各管一层
 
@@ -38,16 +38,16 @@
 | **时段** | temporal slot | [YINYUAN_TERMINOLOGY.md](YINYUAN_TERMINOLOGY.md) §1 | 语流中可被语音单位占据的**时间位置** | 音元 **占时段**；中文 **不用「槽」** 译 temporal slot |
 | **段**（结构段） | segment (project sense) | 本文「音节结构」、`yinjie.py` 文件头 | 首音 / 干音 / 呼 / 主 / 末等 **音系切分** | 首音**段**、干音**段**；段由 **音元类别** 填充（噪音 / 乐音） |
 | **位**（音元位 / 编码位） | code position | `codec/yinjie.py`、四码 `yinjie_code.json` | 固定顺序上的 **第 1–4 个音元字符** | **音元位**只在强调编码位置时使用；第 1–4 位依次存放 **首音元 / 呼音元 / 主音元 / 末音元**；≠ 段本身，存的是 **已编码音元** |
-| **语义槽位** | semantic slot (N/M) | [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md)、[FAQ.md](FAQ.md) Q16 | `N01–N24`、`M01–M33`：**哪一个音元身份** | **仅在此层** 用「槽位」；键盘 / 真源 / 投影都围绕 N/M |
+| **Yinyuan ID** | Yinyuan ID | [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md)、[FAQ.md](FAQ.md) Q16 | `N01–N24`、`M01–M33`：**哪一种音元的稳定唯一编号** | 独立于码点、键位、标签和四元编码位置；不再称 slot |
 
-**关系（一句话）：** **段** 是结构怎么切；各段由 **音元** 填充；四码串里四个 **位** 各放一个 runtime 字符；每个字符背后对应 **语义槽位 N/M**（再投影到 PUA 等）。
+**关系（一句话）：** **段** 是结构怎么切；各段由 **音元** 填充；四码串里四个 **位** 各放一个 runtime 字符；每个字符背后对应 **Yinyuan ID N/M**（再投影到 PUA 等）。
 
 ```text
 时段（抽象时间）
   └── 音元（占时段的单位）
         └── 填充 → 结构「段」（首音 / 呼 / 主 / 末 …）
               └── 编解码 → 四元编码（yinjie 四字符；含四个音元位）
-                    └── 身份 → 语义「槽位」Nxx / Mxx
+                    └── 身份 → Yinyuan ID Nxx / Mxx
 ```
 
 ### 推荐 / 避免
@@ -56,13 +56,13 @@
 | ------ | ------ |
 
 | 首音**段**、干音**段**、呼音**段** | 首音**槽**、呼音**槽**（像键盘插孔，且易与 Mxx 混淆） |
-| **四元模型**、四元编码、**编码位**、四段**所填音元** | 四**槽**、音元**槽位层**（与 N/M **语义槽位** 撞名）、把模型名长期写作「四音元位模型」 |
-| **语义槽位** N/M（身份层） | 把 `ascender` / 呼音 **段** 叫作某个 **M 槽** |
+| **四元模型**、四元编码、**编码位**、四段**所填音元** | 四**槽**、音元**槽位层**、把模型名长期写作「四音元位模型」 |
+| **Yinyuan ID** N/M（身份层） | 把 `ascender` / 呼音 **段** 叫作某个 **M 槽** |
 | 英文代码注释写 **segment / position** 并链到本文 | 一律写 slot 并反写中文「槽」 |
 
 ### 和切分标签的关系
 
-`SyllableEncodingPipeline` 产出的是 **首音段 / 干音段** 的拼音侧**标签**（如 `zh`、`ong1`），供编码器查表——**不是** `Yinjie` 四元编码各**音元位**里的字符，也 **不是** N/M **语义槽位** 编号。三层勿混：见 [syllable/analysis/segment_split.py](../syllable/analysis/segment_split.py) 与 [syllable/codec/yinjie.py](../syllable/codec/yinjie.py) 模块说明。
+`SyllableEncodingPipeline` 产出的是 **首音段 / 干音段** 的拼音侧**标签**（如 `zh`、`ong1`），供编码器查表——**不是** `Yinjie` 四元编码各**音元位**里的字符，也 **不是** N/M **Yinyuan ID** 编号。三层勿混：见 [syllable/analysis/segment_split.py](../syllable/analysis/segment_split.py) 与 [syllable/codec/yinjie.py](../syllable/codec/yinjie.py) 模块说明。
 
 ### 常见误解
 
@@ -91,7 +91,7 @@
 | 末音 | — | 韵音内结构段 | **峰后段**（`descender`）；≠ 韵尾 / coda；由 **乐音类** 音元充当 |
 | 四元模型 | four-yinyuan model | 编解码模型 | `Yinjie` canonical 等长四字符模型；第 1–4 位依次存放首音元、呼音元、主音元、末音元 |
 | 音元位 / 编码位 | yinyuan position / code position | 编解码位置 | `yinjie` 四字符中的具体顺序位；仅在强调位置时使用，避免把模型整体叫成“音元位层” |
-| 语义槽位 | N/M | 身份层 | `N01–N24` 噪音、`M01–M33` 乐音；**仅此层称「槽位」** |
+| Yinyuan ID | Yinyuan ID (`N/M`) | 身份层 | 为每一种音元编定的稳定唯一标识；独立于字符、键位、标签和编码位置 |
 
 ### 音节结构 — **权威定义，禁止改层级**
 
@@ -248,7 +248,7 @@ Do **not** rename project concepts to generic English (`MusicalSegment`, `RimeTo
 6. 运行时码表键使用 **带调 numeric 拼音**（如 `zhong1`），不要用英文单词键替代。
 7. 不确定时 **扩写 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md) 音节结构节**，
    不要在外部博客式表述里重新定义术语（易形成错误传播，且曾被 AI 二次放大）。
-8. **禁止** 在中文文档里用 **「槽」** 指结构段或四码位；结构用 **段**，四码用 **位**，N/M 用 **语义槽位**（见本文「段/位/时段/语义槽位」节）。
+8. **禁止** 在中文文档里用 **「槽」** 指结构段、四码位或 N/M 身份；结构用 **段**，四码用 **位**，N/M 用 **Yinyuan ID**（见本文「段/位/时段/Yinyuan ID」节）。
 
 贡献流程亦见 [CONTRIBUTING.md](../CONTRIBUTING.md)。
 
@@ -258,7 +258,7 @@ Do **not** rename project concepts to generic English (`MusicalSegment`, `RimeTo
 
 术语正确后，仍须遵守：
 
-- [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md) — **语义槽位** N/M 与 projection（「槽位」仅指此层）
+- [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md) — **Yinyuan ID** N/M 与 projection
 - [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md) — 真源 vs 生成物
 
 ---

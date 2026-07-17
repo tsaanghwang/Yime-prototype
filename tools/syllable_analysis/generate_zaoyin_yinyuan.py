@@ -28,7 +28,7 @@ class SourceEntry(TypedDict):
     type: str
     semantic_code: str
     runtime_char: str
-    layout_slot: str
+    yinyuan_id: str
 
 
 class SourceDocument(TypedDict):
@@ -53,7 +53,7 @@ def load_existing_runtime_chars(output_path: Path) -> dict[str, str]:
     }
 
 
-def load_existing_layout_slots(output_path: Path) -> dict[str, str]:
+def load_existing_yinyuan_ids(output_path: Path) -> dict[str, str]:
     if not output_path.exists():
         return {}
 
@@ -62,9 +62,9 @@ def load_existing_layout_slots(output_path: Path) -> dict[str, str]:
 
     entries = existing_data.get('entries', {})
     return {
-        initial: entry.get('layout_slot', '')
+        initial: entry.get('yinyuan_id', '')
         for initial, entry in entries.items()
-        if entry.get('layout_slot')
+        if entry.get('yinyuan_id')
     }
 
 
@@ -99,7 +99,7 @@ def generate_zaoyin_yinyuan():
     simplified_output_path = DERIVED_OUTPUT_DIR / 'zaoyin_yinyuan.json'
     runtime_path = YINYUAN_DIR / 'shouyin_codepoint.json'
     existing_runtime_chars = load_existing_runtime_chars(output_path)
-    existing_layout_slots = load_existing_layout_slots(output_path)
+    existing_yinyuan_ids = load_existing_yinyuan_ids(output_path)
     runtime_fallback = load_runtime_fallback(runtime_path)
 
     if not input_path.exists():
@@ -174,7 +174,7 @@ def generate_zaoyin_yinyuan():
             "type": normalized_type,
             "semantic_code": entry["code"],
             "runtime_char": existing_runtime_chars.get(initial, runtime_fallback.get(initial, "")),
-            "layout_slot": existing_layout_slots.get(initial, f"N{len(entries) + 1:02d}")
+            "yinyuan_id": existing_yinyuan_ids.get(initial, f"N{len(entries) + 1:02d}")
         }
 
         # 添加到简化版数据结构

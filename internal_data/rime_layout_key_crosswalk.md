@@ -7,7 +7,7 @@ This table is for manual checking of the current Yime-to-Rime export path.
 - Rime export mapping: `yime.utils.rime_export.load_runtime_symbol_to_layout_key()`
 - Current Rime code form: `layout-key`
 
-| symbol_key | Yime 正式键位 | Rime 输入键位 | 码元字符 | 码位 |
+| yinyuan_id | Yime 正式键位 | Rime 输入键位 | 码元字符 | 码位 |
 | --- | --- | --- | --- | --- |
 | N01 | `q` | `q` | 􀀀 | `U+100000` |
 | N02 | `p` | `p` | 􀀁 | `U+100001` |

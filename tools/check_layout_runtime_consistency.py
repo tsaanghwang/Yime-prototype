@@ -31,7 +31,7 @@ def load_json(path: Path):
         return json.load(handle)
 
 
-def sort_symbol_keys(values: Iterable[str]) -> list[str]:
+def sort_yinyuan_ids(values: Iterable[str]) -> list[str]:
     def sort_key(item: str):
         return item[0], int(item[1:])
 
@@ -59,13 +59,13 @@ def load_bmp_projection_symbols(path: Path) -> dict[str, str]:
     used_mapping = cast(dict[str, object], used_mapping_obj)
 
     symbols: dict[str, str] = {}
-    for symbol_key, entry in used_mapping.items():
+    for yinyuan_id, entry in used_mapping.items():
         if not isinstance(entry, dict):
             continue
         entry_dict = cast(dict[str, object], entry)
         char_obj = entry_dict.get("char")
         if isinstance(char_obj, str) and char_obj:
-            symbols[symbol_key] = char_obj
+            symbols[yinyuan_id] = char_obj
 
     return symbols
 
@@ -76,24 +76,24 @@ def compare_key_maps(left_name: str, left_map: dict[str, str], right_name: str, 
     left_keys = set(left_map)
     right_keys = set(right_map)
 
-    missing_on_right = sort_symbol_keys(left_keys - right_keys)
+    missing_on_right = sort_yinyuan_ids(left_keys - right_keys)
     if missing_on_right:
         issues.append(
             f"{right_name} 缺少这些键位：{', '.join(missing_on_right)}。建议检查是否漏同步。"
         )
 
-    missing_on_left = sort_symbol_keys(right_keys - left_keys)
+    missing_on_left = sort_yinyuan_ids(right_keys - left_keys)
     if missing_on_left:
         issues.append(
             f"{left_name} 缺少这些键位：{', '.join(missing_on_left)}。建议检查是否引用了额外或过期的符号。"
         )
 
-    common_keys = sort_symbol_keys(left_keys & right_keys)
-    for symbol_key in common_keys:
-        if left_map[symbol_key] != right_map[symbol_key]:
+    common_keys = sort_yinyuan_ids(left_keys & right_keys)
+    for yinyuan_id in common_keys:
+        if left_map[yinyuan_id] != right_map[yinyuan_id]:
             issues.append(
-                f"键位 {symbol_key} 在 {left_name} 与 {right_name} 中对应的私用区字符不同："
-                f"{repr(left_map[symbol_key])} != {repr(right_map[symbol_key])}。"
+                f"Yinyuan ID {yinyuan_id} 在 {left_name} 与 {right_name} 中对应的私用区字符不同："
+                f"{repr(left_map[yinyuan_id])} != {repr(right_map[yinyuan_id])}。"
             )
 
     return issues
@@ -131,19 +131,19 @@ def collect_layout_assignments(resolved_layout: dict[str, object]) -> tuple[dict
             continue
 
         item = cast(dict[str, object], raw_item)
-        symbol_key_obj = item.get("symbol_key")
-        if not isinstance(symbol_key_obj, str):
+        yinyuan_id_obj = item.get("yinyuan_id")
+        if not isinstance(yinyuan_id_obj, str):
             continue
-        symbol_key = symbol_key_obj
+        yinyuan_id = yinyuan_id_obj
 
-        if symbol_key in assignments:
-            previous = assignments[symbol_key]
+        if yinyuan_id in assignments:
+            previous = assignments[yinyuan_id]
             issues.append(
-                f"键位 {symbol_key} 在布局中重复分配："
+                f"Yinyuan ID {yinyuan_id} 在布局中重复分配："
                 f"{previous['output_layer']}:{previous['physical_key']} 和 {item['output_layer']}:{item['physical_key']}。"
             )
             continue
-        assignments[symbol_key] = item
+        assignments[yinyuan_id] = item
 
     return assignments, issues
 
@@ -156,29 +156,29 @@ def compare_layout_assignments(
     issues: list[str] = []
     notes: list[str] = []
 
-    for symbol_key in sort_symbol_keys(assignments):
-        item = assignments[symbol_key]
-        if symbol_key not in runtime_key_to_symbol:
+    for yinyuan_id in sort_yinyuan_ids(assignments):
+        item = assignments[yinyuan_id]
+        if yinyuan_id not in runtime_key_to_symbol:
             issues.append(
-                f"布局中使用了 {symbol_key}，但运行时生成侧没有这个键位。建议检查是否写入了不存在的符号。"
+                f"布局中使用了 Yinyuan ID {yinyuan_id}，但运行时生成侧没有这个 ID。建议检查是否写入了不存在的音元。"
             )
             continue
 
-        if symbol_key not in bmp_projection_symbols:
+        if yinyuan_id not in bmp_projection_symbols:
             issues.append(
-                f"布局中使用了 {symbol_key}，但 BMP projection 中没有这个键位。建议先更新 bmp_pua_trial_projection.json。"
+                f"布局中使用了 Yinyuan ID {yinyuan_id}，但 BMP projection 中没有这个 ID。建议先更新 bmp_pua_trial_projection.json。"
             )
             continue
 
-        runtime_symbol = runtime_key_to_symbol[symbol_key]
-        projected_layout_symbol = bmp_projection_symbols[symbol_key]
+        runtime_symbol = runtime_key_to_symbol[yinyuan_id]
+        projected_layout_symbol = bmp_projection_symbols[yinyuan_id]
         if projected_layout_symbol != runtime_symbol:
             issues.append(
-                f"布局槽位 {symbol_key} 当前落在 {item['output_layer']}:{item['physical_key']}，"
-                f"但该槽位的 BMP 投影字符 {repr(projected_layout_symbol)} 与运行时字符 {repr(runtime_symbol)} 不一致。"
+                f"Yinyuan ID {yinyuan_id} 当前落在 {item['output_layer']}:{item['physical_key']}，"
+                f"但该 ID 的 BMP 投影字符 {repr(projected_layout_symbol)} 与运行时字符 {repr(runtime_symbol)} 不一致。"
             )
 
-    unplaced = sort_symbol_keys(set(runtime_key_to_symbol) - set(assignments))
+    unplaced = sort_yinyuan_ids(set(runtime_key_to_symbol) - set(assignments))
     if unplaced:
         notes.append(
             "以下运行时码元当前还没有进入物理布局："
@@ -197,9 +197,9 @@ def compare_artifact(name: str, expected_map: dict[str, str], artifact_path: Pat
         artifact_map = artifact_data.get("key_to_symbol", {})
     else:
         artifact_map = {
-            item["symbol_key"]: item.get("symbol_char")
+            item["yinyuan_id"]: item.get("symbol_char")
             for item in artifact_data.get("layers", [])
-            if item.get("symbol_key") is not None
+            if item.get("yinyuan_id") is not None
         }
 
     if artifact_map != expected_map:
@@ -356,8 +356,8 @@ def main() -> None:
 
 def assignments_to_map(assignments: dict[str, dict[str, object]]) -> dict[str, str]:
     return {
-        symbol_key: symbol_char if isinstance(symbol_char := item.get("symbol_char"), str) else ""
-        for symbol_key, item in assignments.items()
+        yinyuan_id: symbol_char if isinstance(symbol_char := item.get("symbol_char"), str) else ""
+        for yinyuan_id, item in assignments.items()
     }
 
 

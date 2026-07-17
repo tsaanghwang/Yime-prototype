@@ -9,7 +9,7 @@
 - internal_data/ipa_pinyin_mapping.json：带调 IPA / 音标串到数字调拼音映射
 - external_data/finals_IPA_mapping.json：finals 侧外部 IPA 输入映射
 - external_data/initials_IPA_mapping.json：initials 侧外部 IPA 输入映射
-- `syllable/codec/key_to_code.json`：运行时键位槽位到字符映射（见 [syllable/README.md](../syllable/README.md)）
+- `syllable/codec/key_to_code.json`：运行时 Yinyuan ID 到字符映射（见 [syllable/README.md](../syllable/README.md)）
 - yime/reports/yinyuan_dict.json：音元分类导出报告
 - yime/reports/phoneme_dict.json：旧兼容音元分类导出报告
 
@@ -101,7 +101,7 @@
 }
 ```
 
-- 键：运行时槽位编码
+- 键：运行时 Yinyuan ID
 - 值：对应字符
 - 位置：随 `syllable.codec` 子包一起维护的运行时映射文件
 

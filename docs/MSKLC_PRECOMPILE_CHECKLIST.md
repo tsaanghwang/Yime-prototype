@@ -23,7 +23,7 @@ python tools/check_layout_runtime_consistency.py `
 ```
 
 要求：状态不是 `error`，并且没有
-`Duplicate symbol_key assignment`、`Duplicate physical slot`。
+`Duplicate yinyuan_id assignment`、`Duplicate physical slot`。
 
 1. 用官方流水线重生产物，不要手改最终 `yinyuan.klc`。
 
@@ -87,4 +87,4 @@ python tools/run_layout_pipeline.py --open-msklc never --export-visual-table
 
 - 是否手改过 `yinyuan.klc` 的空行或编码
 - 是否把候选 `.klc` 直接复制成官方产物而没走流水线
-- 是否在源布局里留下了重复 `symbol_key`
+- 是否在源布局里留下了重复 `yinyuan_id`
