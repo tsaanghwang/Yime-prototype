@@ -29,7 +29,7 @@ from yime.utils.layout_sources_import import (
     rebuild_default_key_mappings,
     resolve_key_code,
     resolve_klc_path,
-    slot_sort_key,
+    yinyuan_id_sort_key,
 )
 
 __all__ = [
@@ -61,7 +61,7 @@ __all__ = [
     "rebuild_default_key_mappings",
     "resolve_key_code",
     "resolve_klc_path",
-    "slot_sort_key",
+    "yinyuan_id_sort_key",
 ]
 
 

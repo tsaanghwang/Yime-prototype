@@ -11,7 +11,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_B",
       "runtime_char": "",
-      "layout_slot": "N01"
+      "yinyuan_id": "N01"
     },
     "p": {
       "ipa": [
@@ -20,7 +20,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_P",
       "runtime_char": "",
-      "layout_slot": "N02"
+      "yinyuan_id": "N02"
     },
     "f": {
       "ipa": [
@@ -30,7 +30,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_F",
       "runtime_char": "",
-      "layout_slot": "N03"
+      "yinyuan_id": "N03"
     },
     "m": {
       "ipa": [
@@ -39,7 +39,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_M",
       "runtime_char": "",
-      "layout_slot": "N04"
+      "yinyuan_id": "N04"
     },
     "d": {
       "ipa": [
@@ -48,7 +48,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_D",
       "runtime_char": "",
-      "layout_slot": "N05"
+      "yinyuan_id": "N05"
     },
     "t": {
       "ipa": [
@@ -57,7 +57,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_T",
       "runtime_char": "",
-      "layout_slot": "N06"
+      "yinyuan_id": "N06"
     },
     "l": {
       "ipa": [
@@ -67,7 +67,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_L",
       "runtime_char": "",
-      "layout_slot": "N07"
+      "yinyuan_id": "N07"
     },
     "n": {
       "ipa": [
@@ -77,7 +77,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_N",
       "runtime_char": "",
-      "layout_slot": "N08"
+      "yinyuan_id": "N08"
     },
     "g": {
       "ipa": [
@@ -86,7 +86,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_G",
       "runtime_char": "",
-      "layout_slot": "N09"
+      "yinyuan_id": "N09"
     },
     "k": {
       "ipa": [
@@ -95,7 +95,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_K",
       "runtime_char": "",
-      "layout_slot": "N10"
+      "yinyuan_id": "N10"
     },
     "h": {
       "ipa": [
@@ -106,7 +106,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_H",
       "runtime_char": "",
-      "layout_slot": "N11"
+      "yinyuan_id": "N11"
     },
     "'": {
       "ipa": [
@@ -118,7 +118,7 @@
       "type": "mixed_yinyuan",
       "semantic_code": "UPY_'",
       "runtime_char": "",
-      "layout_slot": "N12"
+      "yinyuan_id": "N12"
     },
     "z": {
       "ipa": [
@@ -127,7 +127,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_Z",
       "runtime_char": "",
-      "layout_slot": "N13"
+      "yinyuan_id": "N13"
     },
     "c": {
       "ipa": [
@@ -136,7 +136,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_C",
       "runtime_char": "",
-      "layout_slot": "N14"
+      "yinyuan_id": "N14"
     },
     "s": {
       "ipa": [
@@ -145,7 +145,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_S",
       "runtime_char": "",
-      "layout_slot": "N15"
+      "yinyuan_id": "N15"
     },
     "zh": {
       "ipa": [
@@ -155,7 +155,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_ZH",
       "runtime_char": "",
-      "layout_slot": "N16"
+      "yinyuan_id": "N16"
     },
     "ch": {
       "ipa": [
@@ -165,7 +165,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_CH",
       "runtime_char": "",
-      "layout_slot": "N17"
+      "yinyuan_id": "N17"
     },
     "sh": {
       "ipa": [
@@ -174,7 +174,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_SH",
       "runtime_char": "",
-      "layout_slot": "N18"
+      "yinyuan_id": "N18"
     },
     "r": {
       "ipa": [
@@ -186,7 +186,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_R",
       "runtime_char": "",
-      "layout_slot": "N19"
+      "yinyuan_id": "N19"
     },
     "j": {
       "ipa": [
@@ -195,7 +195,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_J",
       "runtime_char": "",
-      "layout_slot": "N20"
+      "yinyuan_id": "N20"
     },
     "q": {
       "ipa": [
@@ -204,7 +204,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_Q",
       "runtime_char": "",
-      "layout_slot": "N21"
+      "yinyuan_id": "N21"
     },
     "x": {
       "ipa": [
@@ -213,7 +213,7 @@
       "type": "unpitched_yinyuan",
       "semantic_code": "UPY_X",
       "runtime_char": "",
-      "layout_slot": "N22"
+      "yinyuan_id": "N22"
     },
     "y": {
       "ipa": [
@@ -223,7 +223,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_Y",
       "runtime_char": "",
-      "layout_slot": "N23"
+      "yinyuan_id": "N23"
     },
     "w": {
       "ipa": [
@@ -233,7 +233,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_W",
       "runtime_char": "",
-      "layout_slot": "N24"
+      "yinyuan_id": "N24"
     }
   }
 }

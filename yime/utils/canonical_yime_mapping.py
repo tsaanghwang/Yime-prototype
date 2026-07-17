@@ -31,9 +31,9 @@ def build_bmp_to_canonical_map(repo_root: Path | None = None) -> dict[str, str]:
     key_to_symbol = load_json(resolved_root / "internal_data" / "key_to_symbol.json")
 
     bmp_to_canonical: dict[str, str] = {}
-    for slot_key, slot_info in projection.get("used_mapping", {}).items():
-        bmp_char = str(slot_info.get("char", ""))
-        canonical_char = str(key_to_symbol.get(slot_key, ""))
+    for yinyuan_id, projection_info in projection.get("used_mapping", {}).items():
+        bmp_char = str(projection_info.get("char", ""))
+        canonical_char = str(key_to_symbol.get(yinyuan_id, ""))
         if bmp_char and canonical_char:
             bmp_to_canonical[bmp_char] = canonical_char
     return bmp_to_canonical

@@ -17,7 +17,7 @@ def load_json(path: Path) -> Any:
 
 def validate_layers(layers: list[dict[str, Any]], key_to_symbol: dict[str, str]) -> list[dict[str, Any]]:
     seen_slots: dict[tuple[Any, Any], Any] = {}
-    seen_symbol_keys: dict[str, dict[str, Any]] = {}
+    seen_yinyuan_ids: dict[str, dict[str, Any]] = {}
     resolved_layers: list[dict[str, Any]] = []
 
     for item in layers:
@@ -30,39 +30,39 @@ def validate_layers(layers: list[dict[str, Any]], key_to_symbol: dict[str, str])
             )
         seen_slots[slot_key] = item["order"]
 
-        symbol_key = item.get("symbol_key")
+        yinyuan_id = item.get("yinyuan_id")
         literal_char = item.get("literal_char")
         resolved_item = dict(item)
 
-        if symbol_key is None:
+        if yinyuan_id is None:
             resolved_item["symbol_char"] = None
             resolved_item["symbol_codepoint"] = None
             resolved_item["symbol_category"] = None
         else:
-            if symbol_key not in key_to_symbol:
-                raise ValueError(f"Unknown symbol_key: {symbol_key}")
-            if symbol_key in seen_symbol_keys:
-                previous_slot = seen_symbol_keys[symbol_key]
+            if yinyuan_id not in key_to_symbol:
+                raise ValueError(f"Unknown yinyuan_id: {yinyuan_id}")
+            if yinyuan_id in seen_yinyuan_ids:
+                previous_slot = seen_yinyuan_ids[yinyuan_id]
                 raise ValueError(
-                    "Duplicate symbol_key assignment: "
-                    f"symbol_key={symbol_key} is already assigned to "
+                    "Duplicate yinyuan_id assignment: "
+                    f"yinyuan_id={yinyuan_id} is already assigned to "
                     f"physical_key={previous_slot['physical_key']}, output_layer={previous_slot['output_layer']}"
                 )
-            seen_symbol_keys[symbol_key] = {
+            seen_yinyuan_ids[yinyuan_id] = {
                 "physical_key": physical_key,
                 "output_layer": output_layer,
             }
-            symbol_char = key_to_symbol[symbol_key]
+            symbol_char = key_to_symbol[yinyuan_id]
             resolved_item["symbol_char"] = symbol_char
             resolved_item["symbol_codepoint"] = f"U+{ord(symbol_char):06X}"
-            resolved_item["symbol_category"] = "noise" if symbol_key.startswith("N") else "musical"
+            resolved_item["symbol_category"] = "noise" if yinyuan_id.startswith("N") else "musical"
 
         if literal_char is None:
             resolved_item["literal_codepoint"] = None
         else:
             resolved_item["literal_codepoint"] = f"U+{ord(literal_char):04X}"
 
-        resolved_char = resolved_item["symbol_char"] if symbol_key is not None else literal_char
+        resolved_char = resolved_item["symbol_char"] if yinyuan_id is not None else literal_char
         if resolved_char is None:
             resolved_item["resolved_char"] = None
             resolved_item["resolved_codepoint"] = None
@@ -70,7 +70,7 @@ def validate_layers(layers: list[dict[str, Any]], key_to_symbol: dict[str, str])
         else:
             resolved_item["resolved_char"] = resolved_char
             resolved_item["resolved_codepoint"] = f"U+{ord(resolved_char):06X}" if ord(resolved_char) > 0xFFFF else f"U+{ord(resolved_char):04X}"
-            resolved_item["resolved_category"] = resolved_item["symbol_category"] if symbol_key is not None else "literal"
+            resolved_item["resolved_category"] = resolved_item["symbol_category"] if yinyuan_id is not None else "literal"
 
         resolved_layers.append(resolved_item)
 
@@ -92,12 +92,12 @@ def build_resolved_layout(layout_data: dict[str, Any], key_to_symbol: dict[str, 
             "assigned_slots": sum(
                 1
                 for item in resolved_layers
-                if item["symbol_key"] is not None or item.get("literal_char") is not None
+                if item["yinyuan_id"] is not None or item.get("literal_char") is not None
             ),
             "unassigned_slots": sum(
                 1
                 for item in resolved_layers
-                if item["symbol_key"] is None and item.get("literal_char") is None
+                if item["yinyuan_id"] is None and item.get("literal_char") is None
             ),
         },
         "layers": resolved_layers,

@@ -98,9 +98,9 @@ def build_label_index() -> dict[str, str]:
     return labels
 
 
-def slot_sort_key(slot_key: str) -> tuple[int, int]:
-    prefix = 0 if slot_key.startswith("N") else 1
-    return (prefix, int(slot_key[1:]))
+def yinyuan_id_sort_key(yinyuan_id: str) -> tuple[int, int]:
+    prefix = 0 if yinyuan_id.startswith("N") else 1
+    return (prefix, int(yinyuan_id[1:]))
 
 
 def load_symbol_catalog() -> list[dict[str, object]]:
@@ -123,32 +123,32 @@ def load_symbol_catalog() -> list[dict[str, object]]:
     label_index = build_label_index()
 
     rows: list[dict[str, object]] = []
-    slot_keys = sorted(projection_map.keys(), key=slot_sort_key)
-    for ordinal, slot_key in enumerate(slot_keys, start=1):
-        projection_entry_raw = projection_map.get(slot_key, {})
+    yinyuan_ids = sorted(projection_map.keys(), key=yinyuan_id_sort_key)
+    for ordinal, yinyuan_id in enumerate(yinyuan_ids, start=1):
+        projection_entry_raw = projection_map.get(yinyuan_id, {})
         projection_entry: dict[str, Any] = (
             cast(dict[str, Any], projection_entry_raw) if isinstance(projection_entry_raw, dict) else {}
         )
-        bmp_char = runtime_map.get(slot_key) or projection_entry.get("char")
-        canonical_char = canonical_map.get(slot_key)
-        category = "initial" if slot_key.startswith("N") else "musical"
+        bmp_char = runtime_map.get(yinyuan_id) or projection_entry.get("char")
+        canonical_char = canonical_map.get(yinyuan_id)
+        category = "initial" if yinyuan_id.startswith("N") else "musical"
         label = label_index.get(str(bmp_char or ""), "")
 
         rows.append(
             {
                 "symbol_id": f"sym_{ordinal:03d}",
-                "source_symbol_key": slot_key,
-                "slot_key": slot_key,
-                "slot_number": projection_entry.get("slot"),
+                "source_key": yinyuan_id,
+                "yinyuan_id": yinyuan_id,
+                "allocation_slot": projection_entry.get("allocation_slot"),
                 "symbol_category": category,
                 "yinyuan_label": label,
                 "pua_char": bmp_char,
                 "codepoint_hex": projection_entry.get("codepoint") or format_codepoint(bmp_char),
                 "canonical_char": canonical_char,
                 "canonical_codepoint_hex": format_codepoint(canonical_char),
-                "sort_order": projection_entry.get("slot") or ordinal,
-                "symbol_name_zh": label or slot_key,
-                "notes_zh": f"Imported from slot crosswalk sources; slot={slot_key}",
+                "sort_order": projection_entry.get("allocation_slot") or ordinal,
+                "symbol_name_zh": label or yinyuan_id,
+                "notes_zh": f"Imported from Yinyuan ID crosswalk sources; yinyuan_id={yinyuan_id}",
             }
         )
 
@@ -236,18 +236,18 @@ def import_symbols(conn: sqlite3.Connection, symbols: list[dict[str, object]]) -
     conn.executemany(
         """
         INSERT INTO symbol (
-            symbol_id, source_symbol_key, slot_key, slot_number, symbol_category,
+            symbol_id, source_key, yinyuan_id, allocation_slot, symbol_category,
             yinyuan_label, pua_char, codepoint_hex, canonical_char,
             canonical_codepoint_hex, sort_order, symbol_name_zh, notes_zh
         ) VALUES (
-            :symbol_id, :source_symbol_key, :slot_key, :slot_number, :symbol_category,
+            :symbol_id, :source_key, :yinyuan_id, :allocation_slot, :symbol_category,
             :yinyuan_label, :pua_char, :codepoint_hex, :canonical_char,
             :canonical_codepoint_hex, :sort_order, :symbol_name_zh, :notes_zh
         )
         ON CONFLICT(symbol_id) DO UPDATE SET
-            source_symbol_key = excluded.source_symbol_key,
-            slot_key = excluded.slot_key,
-            slot_number = excluded.slot_number,
+            source_key = excluded.source_key,
+            yinyuan_id = excluded.yinyuan_id,
+            allocation_slot = excluded.allocation_slot,
             symbol_category = excluded.symbol_category,
             yinyuan_label = excluded.yinyuan_label,
             pua_char = excluded.pua_char,
@@ -266,7 +266,7 @@ def import_symbols(conn: sqlite3.Connection, symbols: list[dict[str, object]]) -
         VALUES ('symbol_source_json', ?)
         ON CONFLICT(meta_key) DO UPDATE SET meta_value = excluded.meta_value, updated_at = CURRENT_TIMESTAMP
         """,
-        ("slot_crosswalk:key_to_code.json+key_to_symbol.json+bmp_pua_trial_projection.json",),
+        ("yinyuan_id_crosswalk:key_to_code.json+key_to_symbol.json+bmp_pua_trial_projection.json",),
     )
 
 
@@ -281,7 +281,7 @@ def rebuild_default_key_mappings(conn: sqlite3.Connection) -> None:
             'default'
         FROM physical_key AS pk
         JOIN symbol AS s
-            ON s.source_symbol_key = pk.key_code
+            ON s.source_key = pk.key_code
         WHERE LENGTH(pk.key_code) = 1
           AND ((pk.key_code BETWEEN 'a' AND 'z') OR (pk.key_code BETWEEN 'A' AND 'Z'))
         """
@@ -388,7 +388,7 @@ def main() -> None:
         mapping_count = import_derived_key_mappings(conn, klc_rows)
         conn.commit()
 
-        print(f"Imported {len(symbols)} symbols from slot crosswalk sources")
+        print(f"Imported {len(symbols)} symbols from Yinyuan ID crosswalk sources")
         print(f"Imported {len(klc_rows)} layout rows from {klc_path}")
         print(f"Imported {mapping_count} derived key-symbol mappings from KLC states")
 

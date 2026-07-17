@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "description": "Slot/BMP/SPUA-B/physical-key crosswalk generated from current source JSON files.",
-    "runtime_source": "syllable_codec\\key_to_code.json",
+    "description": "Yinyuan ID/BMP/SPUA-B/physical-key crosswalk generated from current source JSON files.",
+    "runtime_source": "syllable\\codec\\key_to_code.json",
     "canonical_source": "internal_data\\key_to_symbol.json",
     "projection_source": "internal_data\\bmp_pua_trial_projection.json",
     "layout_source": "internal_data\\manual_key_layout.json",
@@ -12,8 +12,8 @@
   },
   "rows": [
     {
-      "slot_key": "N01",
-      "slot_number": 1,
+      "yinyuan_id": "N01",
+      "allocation_slot": 1,
       "category": "initial",
       "label": "b",
       "display_labels": [
@@ -34,8 +34,8 @@
       "issues": []
     },
     {
-      "slot_key": "N02",
-      "slot_number": 2,
+      "yinyuan_id": "N02",
+      "allocation_slot": 2,
       "category": "initial",
       "label": "p",
       "display_labels": [
@@ -56,8 +56,8 @@
       "issues": []
     },
     {
-      "slot_key": "N03",
-      "slot_number": 3,
+      "yinyuan_id": "N03",
+      "allocation_slot": 3,
       "category": "initial",
       "label": "f",
       "display_labels": [
@@ -78,8 +78,8 @@
       "issues": []
     },
     {
-      "slot_key": "N04",
-      "slot_number": 4,
+      "yinyuan_id": "N04",
+      "allocation_slot": 4,
       "category": "initial",
       "label": "m",
       "display_labels": [
@@ -100,8 +100,8 @@
       "issues": []
     },
     {
-      "slot_key": "N05",
-      "slot_number": 5,
+      "yinyuan_id": "N05",
+      "allocation_slot": 5,
       "category": "initial",
       "label": "d",
       "display_labels": [
@@ -122,8 +122,8 @@
       "issues": []
     },
     {
-      "slot_key": "N06",
-      "slot_number": 6,
+      "yinyuan_id": "N06",
+      "allocation_slot": 6,
       "category": "initial",
       "label": "t",
       "display_labels": [
@@ -144,8 +144,8 @@
       "issues": []
     },
     {
-      "slot_key": "N07",
-      "slot_number": 7,
+      "yinyuan_id": "N07",
+      "allocation_slot": 7,
       "category": "initial",
       "label": "l",
       "display_labels": [
@@ -166,8 +166,8 @@
       "issues": []
     },
     {
-      "slot_key": "N08",
-      "slot_number": 8,
+      "yinyuan_id": "N08",
+      "allocation_slot": 8,
       "category": "initial",
       "label": "n",
       "display_labels": [
@@ -188,8 +188,8 @@
       "issues": []
     },
     {
-      "slot_key": "N09",
-      "slot_number": 9,
+      "yinyuan_id": "N09",
+      "allocation_slot": 9,
       "category": "initial",
       "label": "g",
       "display_labels": [
@@ -210,8 +210,8 @@
       "issues": []
     },
     {
-      "slot_key": "N10",
-      "slot_number": 10,
+      "yinyuan_id": "N10",
+      "allocation_slot": 10,
       "category": "initial",
       "label": "k",
       "display_labels": [
@@ -232,8 +232,8 @@
       "issues": []
     },
     {
-      "slot_key": "N11",
-      "slot_number": 11,
+      "yinyuan_id": "N11",
+      "allocation_slot": 11,
       "category": "initial",
       "label": "h",
       "display_labels": [
@@ -254,8 +254,8 @@
       "issues": []
     },
     {
-      "slot_key": "N12",
-      "slot_number": 12,
+      "yinyuan_id": "N12",
+      "allocation_slot": 12,
       "category": "initial",
       "label": "'",
       "display_labels": [
@@ -276,8 +276,8 @@
       "issues": []
     },
     {
-      "slot_key": "N13",
-      "slot_number": 13,
+      "yinyuan_id": "N13",
+      "allocation_slot": 13,
       "category": "initial",
       "label": "z",
       "display_labels": [
@@ -298,8 +298,8 @@
       "issues": []
     },
     {
-      "slot_key": "N14",
-      "slot_number": 14,
+      "yinyuan_id": "N14",
+      "allocation_slot": 14,
       "category": "initial",
       "label": "c",
       "display_labels": [
@@ -320,8 +320,8 @@
       "issues": []
     },
     {
-      "slot_key": "N15",
-      "slot_number": 15,
+      "yinyuan_id": "N15",
+      "allocation_slot": 15,
       "category": "initial",
       "label": "s",
       "display_labels": [
@@ -342,8 +342,8 @@
       "issues": []
     },
     {
-      "slot_key": "N16",
-      "slot_number": 16,
+      "yinyuan_id": "N16",
+      "allocation_slot": 16,
       "category": "initial",
       "label": "zh",
       "display_labels": [
@@ -364,8 +364,8 @@
       "issues": []
     },
     {
-      "slot_key": "N17",
-      "slot_number": 17,
+      "yinyuan_id": "N17",
+      "allocation_slot": 17,
       "category": "initial",
       "label": "ch",
       "display_labels": [
@@ -386,8 +386,8 @@
       "issues": []
     },
     {
-      "slot_key": "N18",
-      "slot_number": 18,
+      "yinyuan_id": "N18",
+      "allocation_slot": 18,
       "category": "initial",
       "label": "sh",
       "display_labels": [
@@ -408,8 +408,8 @@
       "issues": []
     },
     {
-      "slot_key": "N19",
-      "slot_number": 19,
+      "yinyuan_id": "N19",
+      "allocation_slot": 19,
       "category": "initial",
       "label": "r",
       "display_labels": [
@@ -430,8 +430,8 @@
       "issues": []
     },
     {
-      "slot_key": "N20",
-      "slot_number": 20,
+      "yinyuan_id": "N20",
+      "allocation_slot": 20,
       "category": "initial",
       "label": "j",
       "display_labels": [
@@ -452,8 +452,8 @@
       "issues": []
     },
     {
-      "slot_key": "N21",
-      "slot_number": 21,
+      "yinyuan_id": "N21",
+      "allocation_slot": 21,
       "category": "initial",
       "label": "q",
       "display_labels": [
@@ -474,8 +474,8 @@
       "issues": []
     },
     {
-      "slot_key": "N22",
-      "slot_number": 22,
+      "yinyuan_id": "N22",
+      "allocation_slot": 22,
       "category": "initial",
       "label": "x",
       "display_labels": [
@@ -496,8 +496,8 @@
       "issues": []
     },
     {
-      "slot_key": "N23",
-      "slot_number": 23,
+      "yinyuan_id": "N23",
+      "allocation_slot": 23,
       "category": "initial",
       "label": "y",
       "display_labels": [
@@ -518,8 +518,8 @@
       "issues": []
     },
     {
-      "slot_key": "N24",
-      "slot_number": 24,
+      "yinyuan_id": "N24",
+      "allocation_slot": 24,
       "category": "initial",
       "label": "w",
       "display_labels": [
@@ -540,8 +540,8 @@
       "issues": []
     },
     {
-      "slot_key": "M01",
-      "slot_number": 33,
+      "yinyuan_id": "M01",
+      "allocation_slot": 33,
       "category": "musical",
       "label": "ɪ́",
       "display_labels": [
@@ -562,8 +562,8 @@
       "issues": []
     },
     {
-      "slot_key": "M02",
-      "slot_number": 34,
+      "yinyuan_id": "M02",
+      "allocation_slot": 34,
       "category": "musical",
       "label": "ɪ̄",
       "display_labels": [
@@ -584,8 +584,8 @@
       "issues": []
     },
     {
-      "slot_key": "M03",
-      "slot_number": 35,
+      "yinyuan_id": "M03",
+      "allocation_slot": 35,
       "category": "musical",
       "label": "ɪ̀",
       "display_labels": [
@@ -606,8 +606,8 @@
       "issues": []
     },
     {
-      "slot_key": "M04",
-      "slot_number": 36,
+      "yinyuan_id": "M04",
+      "allocation_slot": 36,
       "category": "musical",
       "label": "ᴜ́",
       "display_labels": [
@@ -628,8 +628,8 @@
       "issues": []
     },
     {
-      "slot_key": "M05",
-      "slot_number": 37,
+      "yinyuan_id": "M05",
+      "allocation_slot": 37,
       "category": "musical",
       "label": "ᴜ̄",
       "display_labels": [
@@ -650,8 +650,8 @@
       "issues": []
     },
     {
-      "slot_key": "M06",
-      "slot_number": 38,
+      "yinyuan_id": "M06",
+      "allocation_slot": 38,
       "category": "musical",
       "label": "ᴜ̀",
       "display_labels": [
@@ -672,8 +672,8 @@
       "issues": []
     },
     {
-      "slot_key": "M07",
-      "slot_number": 39,
+      "yinyuan_id": "M07",
+      "allocation_slot": 39,
       "category": "musical",
       "label": "ʏ́",
       "display_labels": [
@@ -694,8 +694,8 @@
       "issues": []
     },
     {
-      "slot_key": "M08",
-      "slot_number": 40,
+      "yinyuan_id": "M08",
+      "allocation_slot": 40,
       "category": "musical",
       "label": "ʏ̄",
       "display_labels": [
@@ -716,8 +716,8 @@
       "issues": []
     },
     {
-      "slot_key": "M09",
-      "slot_number": 41,
+      "yinyuan_id": "M09",
+      "allocation_slot": 41,
       "category": "musical",
       "label": "ʏ̀",
       "display_labels": [
@@ -738,8 +738,8 @@
       "issues": []
     },
     {
-      "slot_key": "M10",
-      "slot_number": 42,
+      "yinyuan_id": "M10",
+      "allocation_slot": 42,
       "category": "musical",
       "label": "ᴀ́",
       "display_labels": [
@@ -760,8 +760,8 @@
       "issues": []
     },
     {
-      "slot_key": "M11",
-      "slot_number": 43,
+      "yinyuan_id": "M11",
+      "allocation_slot": 43,
       "category": "musical",
       "label": "ᴀ̄",
       "display_labels": [
@@ -782,8 +782,8 @@
       "issues": []
     },
     {
-      "slot_key": "M12",
-      "slot_number": 44,
+      "yinyuan_id": "M12",
+      "allocation_slot": 44,
       "category": "musical",
       "label": "ᴀ̀",
       "display_labels": [
@@ -804,8 +804,8 @@
       "issues": []
     },
     {
-      "slot_key": "M13",
-      "slot_number": 45,
+      "yinyuan_id": "M13",
+      "allocation_slot": 45,
       "category": "musical",
       "label": "ó",
       "display_labels": [
@@ -826,8 +826,8 @@
       "issues": []
     },
     {
-      "slot_key": "M14",
-      "slot_number": 46,
+      "yinyuan_id": "M14",
+      "allocation_slot": 46,
       "category": "musical",
       "label": "ō",
       "display_labels": [
@@ -848,8 +848,8 @@
       "issues": []
     },
     {
-      "slot_key": "M15",
-      "slot_number": 47,
+      "yinyuan_id": "M15",
+      "allocation_slot": 47,
       "category": "musical",
       "label": "ò",
       "display_labels": [
@@ -870,8 +870,8 @@
       "issues": []
     },
     {
-      "slot_key": "M16",
-      "slot_number": 48,
+      "yinyuan_id": "M16",
+      "allocation_slot": 48,
       "category": "musical",
       "label": "ᴇ́",
       "display_labels": [
@@ -892,8 +892,8 @@
       "issues": []
     },
     {
-      "slot_key": "M17",
-      "slot_number": 49,
+      "yinyuan_id": "M17",
+      "allocation_slot": 49,
       "category": "musical",
       "label": "ᴇ̄",
       "display_labels": [
@@ -914,8 +914,8 @@
       "issues": []
     },
     {
-      "slot_key": "M18",
-      "slot_number": 50,
+      "yinyuan_id": "M18",
+      "allocation_slot": 50,
       "category": "musical",
       "label": "ᴇ̀",
       "display_labels": [
@@ -936,8 +936,8 @@
       "issues": []
     },
     {
-      "slot_key": "M19",
-      "slot_number": 51,
+      "yinyuan_id": "M19",
+      "allocation_slot": 51,
       "category": "musical",
       "label": "󰉺́",
       "display_labels": [
@@ -958,8 +958,8 @@
       "issues": []
     },
     {
-      "slot_key": "M20",
-      "slot_number": 52,
+      "yinyuan_id": "M20",
+      "allocation_slot": 52,
       "category": "musical",
       "label": "󰉺̄",
       "display_labels": [
@@ -980,8 +980,8 @@
       "issues": []
     },
     {
-      "slot_key": "M21",
-      "slot_number": 53,
+      "yinyuan_id": "M21",
+      "allocation_slot": 53,
       "category": "musical",
       "label": "󰉺̀",
       "display_labels": [
@@ -1002,8 +1002,8 @@
       "issues": []
     },
     {
-      "slot_key": "M22",
-      "slot_number": 54,
+      "yinyuan_id": "M22",
+      "allocation_slot": 54,
       "category": "musical",
       "label": "󰊈́",
       "display_labels": [
@@ -1024,8 +1024,8 @@
       "issues": []
     },
     {
-      "slot_key": "M23",
-      "slot_number": 55,
+      "yinyuan_id": "M23",
+      "allocation_slot": 55,
       "category": "musical",
       "label": "󰊈̄",
       "display_labels": [
@@ -1046,8 +1046,8 @@
       "issues": []
     },
     {
-      "slot_key": "M24",
-      "slot_number": 56,
+      "yinyuan_id": "M24",
+      "allocation_slot": 56,
       "category": "musical",
       "label": "󰊈̀",
       "display_labels": [
@@ -1068,8 +1068,8 @@
       "issues": []
     },
     {
-      "slot_key": "M25",
-      "slot_number": 57,
+      "yinyuan_id": "M25",
+      "allocation_slot": 57,
       "category": "musical",
       "label": "ḿ",
       "display_labels": [
@@ -1090,8 +1090,8 @@
       "issues": []
     },
     {
-      "slot_key": "M26",
-      "slot_number": 58,
+      "yinyuan_id": "M26",
+      "allocation_slot": 58,
       "category": "musical",
       "label": "m̄",
       "display_labels": [
@@ -1112,8 +1112,8 @@
       "issues": []
     },
     {
-      "slot_key": "M27",
-      "slot_number": 59,
+      "yinyuan_id": "M27",
+      "allocation_slot": 59,
       "category": "musical",
       "label": "m̀",
       "display_labels": [
@@ -1134,8 +1134,8 @@
       "issues": []
     },
     {
-      "slot_key": "M28",
-      "slot_number": 60,
+      "yinyuan_id": "M28",
+      "allocation_slot": 60,
       "category": "musical",
       "label": "ń",
       "display_labels": [
@@ -1156,8 +1156,8 @@
       "issues": []
     },
     {
-      "slot_key": "M29",
-      "slot_number": 61,
+      "yinyuan_id": "M29",
+      "allocation_slot": 61,
       "category": "musical",
       "label": "n̄",
       "display_labels": [
@@ -1178,8 +1178,8 @@
       "issues": []
     },
     {
-      "slot_key": "M30",
-      "slot_number": 62,
+      "yinyuan_id": "M30",
+      "allocation_slot": 62,
       "category": "musical",
       "label": "ǹ",
       "display_labels": [
@@ -1200,8 +1200,8 @@
       "issues": []
     },
     {
-      "slot_key": "M31",
-      "slot_number": 63,
+      "yinyuan_id": "M31",
+      "allocation_slot": 63,
       "category": "musical",
       "label": "ŋ́",
       "display_labels": [
@@ -1222,8 +1222,8 @@
       "issues": []
     },
     {
-      "slot_key": "M32",
-      "slot_number": 64,
+      "yinyuan_id": "M32",
+      "allocation_slot": 64,
       "category": "musical",
       "label": "ŋ̄",
       "display_labels": [
@@ -1244,8 +1244,8 @@
       "issues": []
     },
     {
-      "slot_key": "M33",
-      "slot_number": 65,
+      "yinyuan_id": "M33",
+      "allocation_slot": 65,
       "category": "musical",
       "label": "ŋ̀",
       "display_labels": [

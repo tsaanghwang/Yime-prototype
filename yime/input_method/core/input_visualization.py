@@ -71,12 +71,12 @@ def build_input_visual_map(repo_root: Path) -> Dict[str, str]:
     )
 
     visual_map: Dict[str, str] = {}
-    for raw_slot_key, slot_info in used_mapping.items():
-        slot_key = str(raw_slot_key)
-        bmp_char = str(slot_info.get("char", ""))
-        canonical_char = str(key_to_symbol.get(slot_key, ""))
-        label = label_by_bmp.get(bmp_char) or slot_key
-        token = f"[{slot_key} {label}]"
+    for raw_yinyuan_id, projection_info in used_mapping.items():
+        yinyuan_id = str(raw_yinyuan_id)
+        bmp_char = str(projection_info.get("char", ""))
+        canonical_char = str(key_to_symbol.get(yinyuan_id, ""))
+        label = label_by_bmp.get(bmp_char) or yinyuan_id
+        token = f"[{yinyuan_id} {label}]"
         if bmp_char:
             visual_map[bmp_char] = token
         if canonical_char:
@@ -85,9 +85,9 @@ def build_input_visual_map(repo_root: Path) -> Dict[str, str]:
     for reserved in cast(List[Dict[str, object]], typed_projection.get("reserved_slots", [])):
         bmp_char = str(reserved.get("char", ""))
         label = reserved.get("label")
-        slot_key = str(label if label is not None else "reserved").split("_", 1)[0]
+        allocation_label = str(label if label is not None else "reserved").split("_", 1)[0]
         if bmp_char:
-            visual_map[bmp_char] = f"[{slot_key}]"
+            visual_map[bmp_char] = f"[{allocation_label}]"
 
     return visual_map
 
@@ -110,17 +110,17 @@ def build_input_outline(text: str, visual_map: Dict[str, str]) -> str:
     return " ".join(tokens)
 
 
-def _strip_slot_from_visual_token(token: str) -> str:
+def _strip_yinyuan_id_from_visual_token(token: str) -> str:
     body = token.strip()
     if body.startswith("[") and body.endswith("]"):
         body = body[1:-1].strip()
 
-    slot, separator, label = body.partition(" ")
+    yinyuan_id, separator, label = body.partition(" ")
     if (
         separator
-        and len(slot) == 3
-        and slot[0] in {"N", "M"}
-        and slot[1:].isdigit()
+        and len(yinyuan_id) == 3
+        and yinyuan_id[0] in {"N", "M"}
+        and yinyuan_id[1:].isdigit()
     ):
         return label.strip()
     if len(body) == 3 and body[0] in {"N", "M"} and body[1:].isdigit():
@@ -136,7 +136,7 @@ def build_input_sound_notes(text: str, visual_map: Dict[str, str]) -> str:
     for char in text:
         token = visual_map.get(char)
         if token:
-            notes.append(_strip_slot_from_visual_token(token))
+            notes.append(_strip_yinyuan_id_from_visual_token(token))
             continue
 
         codepoint = ord(char)
@@ -149,24 +149,24 @@ def build_physical_input_map(repo_root: Path) -> Dict[str, str]:
     manual_layout = _load_visual_json(
         repo_root / "internal_data" / "manual_key_layout.json"
     )
-    slot_to_bmp = cast(
+    yinyuan_id_to_bmp = cast(
         Dict[str, str],
         _load_visual_json(repo_root / "syllable" / "codec" / "key_to_code.json"),
     )
-    slot_to_symbol = cast(
+    yinyuan_id_to_symbol = cast(
         Dict[str, str],
         _load_visual_json(repo_root / "internal_data" / "key_to_symbol.json"),
     )
 
     physical_map: Dict[str, str] = {}
     for row in cast(List[Dict[str, object]], manual_layout.get("layers", [])):
-        symbol_key = row.get("symbol_key")
-        if not symbol_key:
+        yinyuan_id = row.get("yinyuan_id")
+        if not yinyuan_id:
             continue
 
         input_token = str(row.get("display_label") or row.get("physical_key") or "")
-        bmp_char = slot_to_bmp.get(str(symbol_key))
-        symbol_char = slot_to_symbol.get(str(symbol_key))
+        bmp_char = yinyuan_id_to_bmp.get(str(yinyuan_id))
+        symbol_char = yinyuan_id_to_symbol.get(str(yinyuan_id))
         if bmp_char and input_token and len(input_token) == 1:
             physical_map[input_token] = str(bmp_char)
         if bmp_char and symbol_char:
@@ -227,23 +227,23 @@ def build_projected_to_physical_map(
 
 def build_projected_to_keycap_map(repo_root: Path) -> Dict[str, str]:
     manual_layout = _load_visual_json(repo_root / "internal_data" / "manual_key_layout.json")
-    slot_to_bmp = cast(
+    yinyuan_id_to_bmp = cast(
         Dict[str, str],
         _load_visual_json(repo_root / "syllable" / "codec" / "key_to_code.json"),
     )
-    slot_to_symbol = cast(
+    yinyuan_id_to_symbol = cast(
         Dict[str, str],
         _load_visual_json(repo_root / "internal_data" / "key_to_symbol.json"),
     )
 
     projected_to_keycap: Dict[str, str] = {}
     for row in cast(List[Dict[str, object]], manual_layout.get("layers", [])):
-        symbol_key = row.get("symbol_key")
-        symbol_key_text = str(symbol_key) if symbol_key else ""
+        yinyuan_id = row.get("yinyuan_id")
+        yinyuan_id_text = str(yinyuan_id) if yinyuan_id else ""
         physical_key_value = row.get("physical_key")
         physical_key = str(physical_key_value) if physical_key_value else ""
-        bmp_char = slot_to_bmp.get(symbol_key_text) if symbol_key_text else None
-        symbol_char = slot_to_symbol.get(symbol_key_text) if symbol_key_text else None
+        bmp_char = yinyuan_id_to_bmp.get(yinyuan_id_text) if yinyuan_id_text else None
+        symbol_char = yinyuan_id_to_symbol.get(yinyuan_id_text) if yinyuan_id_text else None
         if len(physical_key) != 1:
             continue
 
