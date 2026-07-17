@@ -6,8 +6,8 @@
 
 ## Summary
 
-- Assigned slots: 96
-- Unassigned slots: 8
+- Assigned slots: 79
+- Unassigned slots: 25
 
 ## Base Layer
 
@@ -102,16 +102,16 @@
 
 | Key | Value |
 | --- | --- |
-| q | 1 U+0031 |
-| w | 2 U+0032 |
-| e | 3 U+0033 |
-| r | 4 U+0034 |
-| t | 5 U+0035 |
-| y | 6 U+0036 |
-| u | 7 U+0037 |
-| i | 8 U+0038 |
-| o | 9 U+0039 |
-| p | 0 U+0030 |
+| q |  |
+| w |  |
+| e |  |
+| r |  |
+| t |  |
+| y |  |
+| u |  |
+| i |  |
+| o |  |
+| p |  |
 | [ | { U+007B |
 | ] | } U+007D |
 | \ | \| U+007C |
@@ -123,8 +123,8 @@
 | a | M22 U+100035 |
 | s | M23 U+100036 |
 | d | M24 U+100037 |
-| f | [ U+005B |
-| g | ] U+005D |
+| f |  |
+| g |  |
 | h | N12 U+10000B |
 | j | M19 U+100032 |
 | k | M20 U+100033 |
@@ -136,11 +136,11 @@
 
 | Key | Value |
 | --- | --- |
-| z | ; U+003B |
-| x | ' U+0027 |
-| c | , U+002C |
-| v | . U+002E |
-| b | / U+002F |
+| z |  |
+| x |  |
+| c |  |
+| v |  |
+| b |  |
 | n | M29 U+10003C |
 | m | M32 U+10003F |
 | , | < U+003C |
@@ -231,29 +231,12 @@
 | - | shift | _ | U+005F |
 | = | base | = | U+003D |
 | = | shift | + | U+002B |
-| q | shift | 1 | U+0031 |
-| w | shift | 2 | U+0032 |
-| e | shift | 3 | U+0033 |
-| r | shift | 4 | U+0034 |
-| t | shift | 5 | U+0035 |
-| y | shift | 6 | U+0036 |
-| u | shift | 7 | U+0037 |
-| i | shift | 8 | U+0038 |
-| o | shift | 9 | U+0039 |
-| p | shift | 0 | U+0030 |
 | [ | shift | { | U+007B |
 | ] | shift | } | U+007D |
 | \ | base | \ | U+005C |
 | \ | shift | \| | U+007C |
-| f | shift | [ | U+005B |
-| g | shift | ] | U+005D |
 | ; | shift | : | U+003A |
 | ' | shift | " | U+0022 |
-| z | shift | ; | U+003B |
-| x | shift | ' | U+0027 |
-| c | shift | , | U+002C |
-| v | shift | . | U+002E |
-| b | shift | / | U+002F |
 | , | shift | < | U+003C |
 | . | shift | > | U+003E |
 | / | shift | ? | U+003F |

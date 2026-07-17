@@ -34,6 +34,15 @@ def validate_layers(layers: list[dict[str, Any]], key_to_symbol: dict[str, str])
         literal_char = item.get("literal_char")
         resolved_item = dict(item)
 
+        if literal_char is not None:
+            native_literal = " " if physical_key == "space" else item.get("display_label")
+            if literal_char != native_literal:
+                raise ValueError(
+                    "Relocated literal_char is not allowed: "
+                    f"physical_key={physical_key}, output_layer={output_layer}, "
+                    f"display_label={item.get('display_label')!r}, literal_char={literal_char!r}"
+                )
+
         if yinyuan_id is None:
             resolved_item["symbol_char"] = None
             resolved_item["symbol_codepoint"] = None
