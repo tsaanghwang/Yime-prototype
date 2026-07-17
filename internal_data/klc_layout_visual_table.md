@@ -5,12 +5,14 @@
 说明：默认按标准 48 键观察，不包含 `DECIMAL`。单元格显示 `yinyuan_id + codepoint`。
 
 ## Summary
+
 - Assigned slots: 101
 - Unassigned slots: 3
 
 ## Base Layer
 
 ### Number Row Base
+
 | Key | Value |
 | --- | --- |
 | ` | ` U+0060 |
@@ -28,6 +30,7 @@
 | = | = U+003D |
 
 ### Top Row Base
+
 | Key | Value |
 | --- | --- |
 | q | N01 U+100000 |
@@ -45,6 +48,7 @@
 | \ | \ U+005C |
 
 ### Home Row Base
+
 | Key | Value |
 | --- | --- |
 | a | M28 U+10003B |
@@ -60,6 +64,7 @@
 | ' | N10 U+100009 |
 
 ### Bottom Row Base
+
 | Key | Value |
 | --- | --- |
 | z | M08 U+100027 |
@@ -76,6 +81,7 @@
 ## Shift Layer
 
 ### Number Row Shift
+
 | Key | Value |
 | --- | --- |
 | ` | ~ U+007E |
@@ -93,6 +99,7 @@
 | = | + U+002B |
 
 ### Top Row Shift
+
 | Key | Value |
 | --- | --- |
 | q | 1 U+0031 |
@@ -107,9 +114,10 @@
 | p | 0 U+0030 |
 | [ | { U+007B |
 | ] | } U+007D |
-| \ | | U+007C |
+| \ | \| U+007C |
 
 ### Home Row Shift
+
 | Key | Value |
 | --- | --- |
 | a | M22 U+100035 |
@@ -125,6 +133,7 @@
 | ' | " U+0022 |
 
 ### Bottom Row Shift
+
 | Key | Value |
 | --- | --- |
 | z | ; U+003B |
@@ -141,6 +150,7 @@
 ## AltGr Layer
 
 ### Number Row Altgr
+
 | Key | Value |
 | --- | --- |
 | ` |  |
@@ -158,6 +168,7 @@
 | = |  |
 
 ### Top Row Altgr
+
 | Key | Value |
 | --- | --- |
 | q |  |
@@ -175,6 +186,7 @@
 | \ |  |
 
 ### Home Row Altgr
+
 | Key | Value |
 | --- | --- |
 | a |  |
@@ -190,6 +202,7 @@
 | ' |  |
 
 ### Bottom Row Altgr
+
 | Key | Value |
 | --- | --- |
 | z |  |
@@ -204,6 +217,7 @@
 | / |  |
 
 ## Literal Only
+
 | Key | Layer | Value | Codepoint |
 | --- | --- | --- | --- |
 | ` | base | ` | U+0060 |
@@ -235,7 +249,7 @@
 | [ | shift | { | U+007B |
 | ] | shift | } | U+007D |
 | \ | base | \ | U+005C |
-| \ | shift | | | U+007C |
+| \ | shift | \| | U+007C |
 | f | shift | [ | U+005B |
 | g | shift | ] | U+005D |
 | ; | shift | : | U+003A |
@@ -252,6 +266,7 @@
 | space | shift |   | U+0020 |
 
 ## Noise Only
+
 | Key | Layer | Symbol | Codepoint |
 | --- | --- | --- | --- |
 | 1 | base | N22 | U+100015 |
@@ -280,6 +295,7 @@
 | u | altgr | N24 | U+100017 |
 
 ## Musical Only
+
 | Key | Layer | Symbol | Codepoint |
 | --- | --- | --- | --- |
 | e | base | M18 | U+100031 |

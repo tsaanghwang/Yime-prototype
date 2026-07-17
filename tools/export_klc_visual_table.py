@@ -29,13 +29,17 @@ def build_lookup(layout: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]
     }
 
 
+def escape_table_cell(value: object) -> str:
+    return str(value).replace("|", "\\|")
+
+
 def format_cell(entry: dict[str, Any] | None) -> str:
     if not entry:
         return ""
     if entry.get("yinyuan_id"):
         return f"{entry['yinyuan_id']} {entry['symbol_codepoint']}"
     if entry.get("literal_char"):
-        return f"{entry['literal_char']} {entry['literal_codepoint']}"
+        return escape_table_cell(f"{entry['literal_char']} {entry['literal_codepoint']}")
     return ""
 
 
@@ -44,6 +48,7 @@ def render_grid(lookup: dict[tuple[str, str], dict[str, Any]], layer: str) -> li
     for row_name in ROW_ORDER:
         keys = ROW_KEYS[row_name]
         lines.append(f"### {row_name.capitalize()} Row {layer.capitalize()}")
+        lines.append("")
         lines.append("| Key | Value |")
         lines.append("| --- | --- |")
         for key in keys:
@@ -53,7 +58,7 @@ def render_grid(lookup: dict[tuple[str, str], dict[str, Any]], layer: str) -> li
 
 
 def render_category_table(layout: dict[str, Any], category: str) -> list[str]:
-    lines = [f"## {category.capitalize()} Only", "| Key | Layer | Symbol | Codepoint |", "| --- | --- | --- | --- |"]
+    lines = [f"## {category.capitalize()} Only", "", "| Key | Layer | Symbol | Codepoint |", "| --- | --- | --- | --- |"]
     for entry in layout["layers"]:
         if entry.get("resolved_category") != category:
             continue
@@ -65,12 +70,13 @@ def render_category_table(layout: dict[str, Any], category: str) -> list[str]:
 
 
 def render_literal_table(layout: dict[str, Any]) -> list[str]:
-    lines = ["## Literal Only", "| Key | Layer | Value | Codepoint |", "| --- | --- | --- | --- |"]
+    lines = ["## Literal Only", "", "| Key | Layer | Value | Codepoint |", "| --- | --- | --- | --- |"]
     for entry in layout["layers"]:
         if entry.get("resolved_category") != "literal":
             continue
         lines.append(
-            f"| {entry['physical_key']} | {entry['output_layer']} | {entry['literal_char']} | {entry['literal_codepoint']} |"
+            f"| {escape_table_cell(entry['physical_key'])} | {escape_table_cell(entry['output_layer'])} | "
+            f"{escape_table_cell(entry['literal_char'])} | {escape_table_cell(entry['literal_codepoint'])} |"
         )
     lines.append("")
     return lines
@@ -88,6 +94,7 @@ def main() -> None:
         "说明：默认按标准 48 键观察，不包含 `DECIMAL`。单元格显示 `yinyuan_id + codepoint`。",
         "",
         "## Summary",
+        "",
         f"- Assigned slots: {layout['stats']['assigned_slots']}",
         f"- Unassigned slots: {layout['stats']['unassigned_slots']}",
         "",
