@@ -5,12 +5,12 @@
     "layout_status": "yime_two_layer_alignment_v1",
     "symbol_source": "internal_data/key_to_symbol.json",
     "ergonomic_strategy": "High-frequency musical groups center on f/j and expand outward; initials use g/h as anchors; low-frequency Yinyuan IDs use the shifted number row so all Yinyuan IDs remain on base and shift layers.",
-    "design_warning": "Temporarily aligned with the Windows Yime two-layer layout-key mapping; no Yinyuan ID is assigned to AltGr.",
+    "design_warning": "Temporarily aligned with the Windows Yime two-layer layout-key mapping. Windows Yime now handles punctuation and other non-Yinyuan input through candidates, so this mapping does not relocate displaced ASCII digits or punctuation. No Yinyuan ID is assigned to AltGr.",
     "yinyuan_id_format": {
       "noise": "N01-N24",
       "musical": "M01-M33"
     },
-    "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char stores direct output characters for punctuation, ASCII relocation, and digits. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
+    "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char is allowed only for a key's native ASCII output. The early relocation fallback for digits and punctuation was retired after Windows Yime candidate input took responsibility for punctuation and other non-Yinyuan content. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
     "template_scope": "94 printable ASCII key slots in keyboard order plus optional space and selected AltGr slots",
     "total_slots": 103
   },
@@ -292,7 +292,7 @@
       "output_layer": "shift",
       "display_label": "Q",
       "yinyuan_id": null,
-      "literal_char": "1",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -312,7 +312,7 @@
       "output_layer": "shift",
       "display_label": "W",
       "yinyuan_id": null,
-      "literal_char": "2",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -332,7 +332,7 @@
       "output_layer": "shift",
       "display_label": "E",
       "yinyuan_id": null,
-      "literal_char": "3",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -352,7 +352,7 @@
       "output_layer": "shift",
       "display_label": "R",
       "yinyuan_id": null,
-      "literal_char": "4",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -372,7 +372,7 @@
       "output_layer": "shift",
       "display_label": "T",
       "yinyuan_id": null,
-      "literal_char": "5",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -392,7 +392,7 @@
       "output_layer": "shift",
       "display_label": "Y",
       "yinyuan_id": null,
-      "literal_char": "6",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -412,7 +412,7 @@
       "output_layer": "shift",
       "display_label": "U",
       "yinyuan_id": null,
-      "literal_char": "7",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -432,7 +432,7 @@
       "output_layer": "shift",
       "display_label": "I",
       "yinyuan_id": null,
-      "literal_char": "8",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -452,7 +452,7 @@
       "output_layer": "shift",
       "display_label": "O",
       "yinyuan_id": null,
-      "literal_char": "9",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -472,7 +472,7 @@
       "output_layer": "shift",
       "display_label": "P",
       "yinyuan_id": null,
-      "literal_char": "0",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -612,7 +612,7 @@
       "output_layer": "shift",
       "display_label": "F",
       "yinyuan_id": null,
-      "literal_char": "[",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -632,7 +632,7 @@
       "output_layer": "shift",
       "display_label": "G",
       "yinyuan_id": null,
-      "literal_char": "]",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -802,7 +802,7 @@
       "output_layer": "shift",
       "display_label": "Z",
       "yinyuan_id": null,
-      "literal_char": ";",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -822,7 +822,7 @@
       "output_layer": "shift",
       "display_label": "X",
       "yinyuan_id": null,
-      "literal_char": "'",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -842,7 +842,7 @@
       "output_layer": "shift",
       "display_label": "C",
       "yinyuan_id": null,
-      "literal_char": ",",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -862,7 +862,7 @@
       "output_layer": "shift",
       "display_label": "V",
       "yinyuan_id": null,
-      "literal_char": ".",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -882,7 +882,7 @@
       "output_layer": "shift",
       "display_label": "B",
       "yinyuan_id": null,
-      "literal_char": "/",
+      "literal_char": null,
       "notes": ""
     },
     {
