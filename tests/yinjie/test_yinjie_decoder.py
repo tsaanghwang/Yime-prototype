@@ -93,7 +93,7 @@ class TestYinjieDecoderRunContract(unittest.TestCase):
 
 
 class TestYinjieDecoderKeyToCodeGeneration(unittest.TestCase):
-    def test_map_key_to_code_uses_layout_slots_from_sources(self):
+    def test_map_key_to_code_uses_yinyuan_ids_from_sources(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_root = Path(temp_dir)
             code_file = temp_root / "yinjie_code.json"
@@ -104,8 +104,8 @@ class TestYinjieDecoderKeyToCodeGeneration(unittest.TestCase):
                 json.dumps(
                     {
                         "entries": {
-                            "y": {"layout_slot": "N23", "runtime_char": "Y"},
-                            "w": {"layout_slot": "N24", "runtime_char": "W"},
+                            "y": {"yinyuan_id": "N23", "runtime_char": "Y"},
+                            "w": {"yinyuan_id": "N24", "runtime_char": "W"},
                         }
                     },
                     ensure_ascii=False,
@@ -118,8 +118,8 @@ class TestYinjieDecoderKeyToCodeGeneration(unittest.TestCase):
                 json.dumps(
                     {
                         "entries": {
-                            "tone_a": {"layout_slot": "M01", "runtime_char": "A"},
-                            "tone_b": {"layout_slot": "M02", "runtime_char": "B"},
+                            "tone_a": {"yinyuan_id": "M01", "runtime_char": "A"},
+                            "tone_b": {"yinyuan_id": "M02", "runtime_char": "B"},
                         }
                     },
                     ensure_ascii=False,

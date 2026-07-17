@@ -49,7 +49,7 @@ def validate_source_entries(
 
     semantic_codes: dict[str, str] = {}
     runtime_chars: dict[str, str] = {}
-    layout_slots: dict[str, str] = {}
+    yinyuan_ids: dict[str, str] = {}
 
     for entry_name, entry in entries_dict.items():
         if not isinstance(entry, dict):
@@ -59,11 +59,11 @@ def validate_source_entries(
 
         semantic_code_raw = entry_dict.get("semantic_code", "")
         runtime_char_raw = entry_dict.get("runtime_char", "")
-        layout_slot_raw = entry_dict.get("layout_slot", "")
+        yinyuan_id_raw = entry_dict.get("yinyuan_id", "")
 
         semantic_code = semantic_code_raw if isinstance(semantic_code_raw, str) else ""
         runtime_char = runtime_char_raw if isinstance(runtime_char_raw, str) else ""
-        layout_slot = layout_slot_raw if isinstance(layout_slot_raw, str) else ""
+        yinyuan_id = yinyuan_id_raw if isinstance(yinyuan_id_raw, str) else ""
 
         if not semantic_code:
             issues.append(f"{source_name}: missing semantic_code: {entry_name}")
@@ -75,21 +75,21 @@ def validate_source_entries(
         else:
             runtime_chars[entry_name] = runtime_char
 
-        if not layout_slot:
-            issues.append(f"{source_name}: missing layout_slot: {entry_name}")
+        if not yinyuan_id:
+            issues.append(f"{source_name}: missing yinyuan_id: {entry_name}")
         else:
-            layout_slots[entry_name] = layout_slot
-            mapped_char = layout_map.get(layout_slot)
+            yinyuan_ids[entry_name] = yinyuan_id
+            mapped_char = layout_map.get(yinyuan_id)
             if mapped_char is None:
-                issues.append(f"{source_name}: unknown layout_slot {layout_slot} for {entry_name}")
+                issues.append(f"{source_name}: unknown yinyuan_id {yinyuan_id} for {entry_name}")
             elif runtime_char and mapped_char != runtime_char:
                 issues.append(
-                    f"{source_name}: layout_slot/runtime_char mismatch for {entry_name}: {layout_slot} -> {mapped_char!r}, source={runtime_char!r}"
+                    f"{source_name}: yinyuan_id/runtime_char mismatch for {entry_name}: {yinyuan_id} -> {mapped_char!r}, source={runtime_char!r}"
                 )
 
     issues.extend(collect_duplicates(semantic_codes, "semantic_code", source_name))
     issues.extend(collect_duplicates(runtime_chars, "runtime_char", source_name))
-    issues.extend(collect_duplicates(layout_slots, "layout_slot", source_name))
+    issues.extend(collect_duplicates(yinyuan_ids, "yinyuan_id", source_name))
 
     source_keys = set(runtime_chars)
     for runtime_name, runtime_map in runtime_maps.items():
@@ -131,7 +131,7 @@ def validate_ganyin_sequences(sequence_path: Path, valid_runtime_chars: set[str]
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Validate shouyin and ganyin sources against runtime characters and N/M layout slots. "
+            "Validate shouyin and ganyin sources against runtime characters and Yinyuan IDs. "
             "Physical VK positions are intentionally checked later, after the keyboard layout discussion settles."
         )
     )

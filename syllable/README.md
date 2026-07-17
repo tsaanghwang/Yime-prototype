@@ -115,7 +115,7 @@ python tools/rebuild_encoding_assets.py --skip-code-pinyin
 | 文件               | 说明                                             |
 | ------------------ | ------------------------------------------------ |
 | `yinjie_code.json` | 带调 numeric 音节 → 4 码音元串；IME 与解码器主读 |
-| `key_to_code.json` | 键位槽位 → 字符映射；解码器写键位映射时用        |
+| `key_to_code.json` | Yinyuan ID → 字符映射；解码器写键位映射时用        |
 
 ### `yinyuan/`（编码链中间/映射层）
 

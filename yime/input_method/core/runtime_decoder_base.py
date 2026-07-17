@@ -141,9 +141,9 @@ class RuntimeDecoderBase:
 
         used_mapping = cast(Dict[str, Dict[str, object]], projection["used_mapping"])
 
-        for symbol_key, slot_info in used_mapping.items():
-            bmp_char = cast(str, slot_info["char"])
-            canonical_char = key_to_symbol.get(symbol_key)
+        for yinyuan_id, projection_info in used_mapping.items():
+            bmp_char = cast(str, projection_info["char"])
+            canonical_char = key_to_symbol.get(yinyuan_id)
             if canonical_char:
                 bmp_to_canonical[bmp_char] = canonical_char
 

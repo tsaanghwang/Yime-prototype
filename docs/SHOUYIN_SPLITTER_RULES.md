@@ -31,7 +31,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_Y",
       "runtime_char": "",
-      "layout_slot": "N24",
+      "yinyuan_id": "N24",
       "splitter_aliases": ["y_j", "y_rounded"]
     },
     "'": {
@@ -40,7 +40,7 @@
       "type": "mixed_yinyuan",
       "semantic_code": "UPY_'",
       "runtime_char": "",
-      "layout_slot": "N12",
+      "yinyuan_id": "N12",
       "splitter_aliases": ["zero_plain", "zero_ng"]
     },
     "r_ɹ": {
@@ -49,7 +49,7 @@
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_R_ɹ",
       "runtime_char": "",
-      "layout_slot": "N16",
+      "yinyuan_id": "N16",
       "splitter_aliases": ["R_ɹ_flat_variant"]
     }
   }
@@ -65,7 +65,7 @@
 2. `splitter_aliases`
    - splitter 输出的细分首音标签列表。
    - 这些标签在运行时可先映射回当前 canonical 条目。
-   - 未来若扩槽，可以再从 alias 升格为独立 entry。
+   - 未来若扩充 Yinyuan ID 清单，可以再从 alias 升格为独立 entry。
 
 ## splitter 判别规则表
 
@@ -104,7 +104,7 @@
    - 输入模式：由显式 override 规则表命中。
    - splitter 输出：`r_ɹ`
    - 当前运行时 canonical 映射：`r_ɹ`
-   - 说明：单列 `ɹ/z` 类实际起首，避免后续槽位字符错位。
+   - 说明：单列 `ɹ/z` 类实际起首，避免后续 Yinyuan ID 与字符错配。
 
 ## 自动规则与 override 规则
 
@@ -122,7 +122,7 @@
 原因如下：
 
 1. 《汉语拼音方案》不会稳定标出这种变体。
-2. 单靠拼音字面无法可靠判断某个音节是否应落入该变体槽。
+2. 单靠拼音字面无法可靠判断某个音节是否应落入该变体音元。
 3. 这类事实更适合由词表、方音说明或工程例外表显式指定。
 
 建议 override 表使用如下形态：
@@ -147,11 +147,11 @@
 这样做的好处是：
 
 1. 细分规则可以先在切分层生效。
-2. 当前 `shouyin_codepoint.json` 和 `yinyuan_codepoint.json` 中，`r_ɹ` 已是显式槽位，不再回落到 `r`。
-3. 后续若决定扩为 27 槽，可直接把 alias 升格为独立 entry。
+2. 当前 `shouyin_codepoint.json` 和 `yinyuan_codepoint.json` 中，`r_ɹ` 已有独立 Yinyuan ID，不再回落到 `r`。
+3. 后续若决定扩为 27 个 Yinyuan ID，可直接把 alias 升格为独立 entry。
 
 ## 后续演进建议
 
-1. 若决定为 `y_j / y_rounded / zero_plain / zero_ng` 再继续分配独立槽位，应先把 alias 升格为独立真源条目。
-2. 升格后再更新 `layout_slot`、`runtime_char`、`syllable/codec/key_to_code.json` 和统一校验器。
+1. 若决定为 `y_j / y_rounded / zero_plain / zero_ng` 再继续分配独立 Yinyuan ID，应先把 alias 升格为独立真源条目。
+2. 升格后再更新 `yinyuan_id`、`runtime_char`、`syllable/codec/key_to_code.json` 和统一校验器。
 3. 在此之前，保持“splitter 细分、runtime 回落”的兼容模式最稳。

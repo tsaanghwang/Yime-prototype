@@ -144,13 +144,13 @@ def load_bmp_projection_symbols() -> dict[str, str]:
         raise ValueError("bmp_pua_trial_projection.json missing used_mapping object")
     used_mapping = cast(dict[str, Any], used_mapping_raw)
     symbols: dict[str, str] = {}
-    for symbol_key, entry in used_mapping.items():
+    for yinyuan_id, entry in used_mapping.items():
         if not isinstance(entry, dict) or "char" not in entry:
             continue
         char_value = cast(object, entry["char"])
         if not isinstance(char_value, str) or not char_value:
             continue
-        symbols[symbol_key] = char_value
+        symbols[yinyuan_id] = char_value
     return symbols
 
 
@@ -219,8 +219,8 @@ def resolve_key_code(vk_name: str) -> str | None:
 def describe_entry(entry: dict[str, str | None] | None) -> str:
     if not entry:
         return "<none>"
-    if entry.get("symbol_key"):
-        return str(entry["symbol_key"])
+    if entry.get("yinyuan_id"):
+        return str(entry["yinyuan_id"])
     if entry.get("literal_char"):
         return str(entry["literal_char"])
     return "<none>"
@@ -229,9 +229,9 @@ def describe_entry(entry: dict[str, str | None] | None) -> str:
 def resolve_entry_char(entry: dict[str, str | None] | None, symbols: dict[str, str]) -> str | None:
     if not entry:
         return None
-    symbol_key = entry.get("symbol_key")
-    if symbol_key:
-        return symbols.get(symbol_key)
+    yinyuan_id = entry.get("yinyuan_id")
+    if yinyuan_id:
+        return symbols.get(yinyuan_id)
     literal_char = entry.get("literal_char")
     if literal_char:
         return literal_char

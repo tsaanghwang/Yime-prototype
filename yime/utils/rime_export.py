@@ -77,35 +77,35 @@ def load_runtime_symbol_to_layout_key(repo_root: Path = REPO_ROOT) -> dict[str, 
     key_to_symbol = _json_load(repo_root / "internal_data" / "key_to_symbol.json")
     layout = _json_load(repo_root / "internal_data" / "manual_key_layout.json")
 
-    symbol_key_to_key: dict[str, str] = {}
+    yinyuan_id_to_key: dict[str, str] = {}
     used: set[str] = set()
     deferred_altgr: list[str] = []
 
     for raw_entry in layout.get("layers", []):
         if not isinstance(raw_entry, dict):
             continue
-        symbol_key = str(raw_entry.get("symbol_key") or "").strip()
-        if not symbol_key:
+        yinyuan_id = str(raw_entry.get("yinyuan_id") or "").strip()
+        if not yinyuan_id:
             continue
         display_label = str(raw_entry.get("display_label") or "").strip()
         output_layer = str(raw_entry.get("output_layer") or "").strip()
         if output_layer == "altgr":
-            deferred_altgr.append(symbol_key)
+            deferred_altgr.append(yinyuan_id)
             continue
         if len(display_label) == 1:
-            symbol_key_to_key[symbol_key] = display_label
+            yinyuan_id_to_key[yinyuan_id] = display_label
             used.add(display_label)
 
     fallback_iter = (char for char in ALTGR_FALLBACK_KEYS if char not in used)
-    for symbol_key in deferred_altgr:
+    for yinyuan_id in deferred_altgr:
         try:
-            symbol_key_to_key[symbol_key] = next(fallback_iter)
+            yinyuan_id_to_key[yinyuan_id] = next(fallback_iter)
         except StopIteration as exc:
             raise ValueError("Not enough fallback keys for AltGr-only Yime symbols.") from exc
 
     symbol_to_key: dict[str, str] = {}
-    for symbol_key, raw_symbol in key_to_symbol.items():
-        key = symbol_key_to_key.get(str(symbol_key))
+    for yinyuan_id, raw_symbol in key_to_symbol.items():
+        key = yinyuan_id_to_key.get(str(yinyuan_id))
         symbol = str(raw_symbol or "")
         if key and symbol:
             symbol_to_key[symbol] = key

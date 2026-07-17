@@ -46,11 +46,11 @@
 
 ## 最小键位对照
 
-下面这张表只列当前最常用的 base layer 对照，方便你知道“按哪个物理键，会走到哪个码元槽位”。
+下面这张表只列当前最常用的 base layer 对照，方便你知道“按哪个物理键，会得到哪个 Yinyuan ID”。
 
 ### 数字行 Base
 
-| Key | Slot  |
+| Key | Yinyuan ID |
 | --- | ----- |
 | `1` | `N22` |
 | `2` | `N21` |
@@ -65,7 +65,7 @@
 
 ### 上排 Base
 
-| Key | Slot  | Key | Slot  | Key | Slot  |
+| Key | Yinyuan ID | Key | Yinyuan ID | Key | Yinyuan ID |
 | --- | ----- | --- | ----- | --- | ----- |
 | `q` | `N01` | `w` | `N05` | `e` | `M18` |
 | `r` | `M17` | `t` | `M16` | `y` | `N08` |
@@ -74,7 +74,7 @@
 
 ### 中排 Base
 
-| Key | Slot  | Key | Slot  | Key | Slot  |
+| Key | Yinyuan ID | Key | Yinyuan ID | Key | Yinyuan ID |
 | --- | ----- | --- | ----- | --- | ----- |
 | `a` | `M28` | `s` | `M12` | `d` | `M11` |
 | `f` | `M10` | `g` | `M05` | `h` | `N04` |
@@ -83,7 +83,7 @@
 
 ### 下排 Base
 
-| Key | Slot  | Key | Slot  | Key | Slot  |
+| Key | Yinyuan ID | Key | Yinyuan ID | Key | Yinyuan ID |
 | --- | ----- | --- | ----- | --- | ----- |
 | `z` | `M08` | `x` | `M06` | `c` | `M33` |
 | `v` | `M04` | `b` | `N07` | `n` | `N11` |
