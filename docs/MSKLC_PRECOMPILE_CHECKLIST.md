@@ -56,16 +56,14 @@ python tools/run_layout_pipeline.py --open-msklc never --export-visual-table
 - `N10 -> OEM_7`
 - `N11 -> N`
 - `M07 -> OEM_2`
-- `AltGr+Y -> N23`
-- `AltGr+U -> N24`
+- `Shift+1/2/3 -> M25/M26/M27`
+- `Shift+4/5 -> N23/N24`
 - `AltGr+P/[ /]` 留空
 
-1. 检查稀疏 AltGr 是否仍然稀疏。
+1. 检查 AltGr 是否不再承载 Yinyuan ID。
 
-要求：只保留明确选中的低频位；
-不要让中文标点或调试残留重新混回 `AltGr`。
-要求：只保留明确选中的低频位；
-不要让中文标点或调试残留重新混回 `AltGr`。
+要求：音元只使用 Base 和 Shift 两层；保留的 AltGr 槽位应留空，
+不要让标点或调试残留重新混回 `AltGr`。
 
 1. 再做一次 Problems 面板检查。
 
