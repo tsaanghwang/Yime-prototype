@@ -9,7 +9,7 @@ name = "yime"
 version = "0.1.1"
 description = "Windows IME prototype and supporting pinyin rebuild pipeline for Yime."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12,<3.13"
 dependencies = [
 	"colorama>=0.4.6",
 	"pynput>=1.7.6",

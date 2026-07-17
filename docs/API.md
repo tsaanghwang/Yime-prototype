@@ -268,7 +268,7 @@ def cached_convert(yunmu):
 
 ## 版本兼容性
 
-- Python: 3.10+
+- Python: 仅支持 3.12.x
 - SQLite: 3.35+
 - Node.js: 16+ (前端)
 
