@@ -1,16 +1,16 @@
 {
   "metadata": {
     "name": "Yime manual key layout",
-    "version": "2026-04-25",
-    "layout_status": "final_candidate_right_pinky_relief_v1",
+    "version": "2026-07-17",
+    "layout_status": "yime_two_layer_alignment_v1",
     "symbol_source": "internal_data/key_to_symbol.json",
-    "ergonomic_strategy": "High-frequency musical groups center on f/j and expand outward; initials use g/h as anchors; low-frequency musical groups move to shift and AltGr.",
-    "design_warning": "Selected compilable candidate with right-pinky relief, sparse AltGr, and only the accepted ergonomic swaps promoted to source.",
+    "ergonomic_strategy": "High-frequency musical groups center on f/j and expand outward; initials use g/h as anchors; low-frequency Yinyuan IDs use the shifted number row so all Yinyuan IDs remain on base and shift layers.",
+    "design_warning": "Temporarily aligned with the Windows Yime two-layer layout-key mapping; no Yinyuan ID is assigned to AltGr.",
     "yinyuan_id_format": {
       "noise": "N01-N24",
       "musical": "M01-M33"
     },
-    "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char stores direct output characters for punctuation, ASCII relocation, and digits. AltGr remains sparse and unlisted keys are intentionally left empty.",
+    "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char stores direct output characters for punctuation, ASCII relocation, and digits. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
     "template_scope": "94 printable ASCII key slots in keyboard order plus optional space and selected AltGr slots",
     "total_slots": 103
   },
@@ -51,8 +51,8 @@
       "physical_key": "1",
       "output_layer": "shift",
       "display_label": "!",
-      "yinyuan_id": null,
-      "literal_char": "!",
+      "yinyuan_id": "M25",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -71,8 +71,8 @@
       "physical_key": "2",
       "output_layer": "shift",
       "display_label": "@",
-      "yinyuan_id": null,
-      "literal_char": "@",
+      "yinyuan_id": "M26",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -91,8 +91,8 @@
       "physical_key": "3",
       "output_layer": "shift",
       "display_label": "#",
-      "yinyuan_id": null,
-      "literal_char": "#",
+      "yinyuan_id": "M27",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -111,8 +111,8 @@
       "physical_key": "4",
       "output_layer": "shift",
       "display_label": "$",
-      "yinyuan_id": null,
-      "literal_char": "$",
+      "yinyuan_id": "N23",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -131,8 +131,8 @@
       "physical_key": "5",
       "output_layer": "shift",
       "display_label": "%",
-      "yinyuan_id": null,
-      "literal_char": "%",
+      "yinyuan_id": "N24",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -681,7 +681,7 @@
       "physical_key": "j",
       "output_layer": "altgr",
       "display_label": "AltGr+J",
-      "yinyuan_id": "M25",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -711,7 +711,7 @@
       "physical_key": "k",
       "output_layer": "altgr",
       "display_label": "AltGr+K",
-      "yinyuan_id": "M26",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -741,7 +741,7 @@
       "physical_key": "l",
       "output_layer": "altgr",
       "display_label": "AltGr+L",
-      "yinyuan_id": "M27",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -1041,7 +1041,7 @@
       "physical_key": "y",
       "output_layer": "altgr",
       "display_label": "AltGr+Y",
-      "yinyuan_id": "N23",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -1051,7 +1051,7 @@
       "physical_key": "u",
       "output_layer": "altgr",
       "display_label": "AltGr+U",
-      "yinyuan_id": "N24",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     }
