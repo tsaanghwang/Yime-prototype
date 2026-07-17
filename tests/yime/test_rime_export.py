@@ -40,9 +40,9 @@ def _write_minimal_mapping_files(repo_root: Path) -> None:
                         "yinyuan_id": "M01",
                     },
                     {
-                        "physical_key": "j",
-                        "output_layer": "altgr",
-                        "display_label": "AltGr+J",
+                        "physical_key": "1",
+                        "output_layer": "shift",
+                        "display_label": "!",
                         "yinyuan_id": "M25",
                     },
                 ],
@@ -88,7 +88,7 @@ def _create_runtime_db(path: Path) -> None:
         conn.close()
 
 
-def test_load_runtime_symbol_to_layout_key_uses_manual_layout_and_altgr_fallback(tmp_path: Path) -> None:
+def test_load_runtime_symbol_to_layout_key_uses_two_layer_manual_layout(tmp_path: Path) -> None:
     _write_minimal_mapping_files(tmp_path)
 
     symbol_to_key = load_runtime_symbol_to_layout_key(tmp_path)
@@ -97,6 +97,64 @@ def test_load_runtime_symbol_to_layout_key_uses_manual_layout_and_altgr_fallback
     assert symbol_to_key["Y"] == "u"
     assert symbol_to_key["Z"] == "!"
     assert convert_runtime_code_to_layout_keys("XYZ", symbol_to_key) == "qu!"
+
+
+def test_load_runtime_symbol_to_layout_key_rejects_altgr_yinyuan_id(tmp_path: Path) -> None:
+    _write_minimal_mapping_files(tmp_path)
+    layout_path = tmp_path / "internal_data" / "manual_key_layout.json"
+    layout = json.loads(layout_path.read_text(encoding="utf-8"))
+    layout["layers"][-1].update(
+        physical_key="j",
+        output_layer="altgr",
+        display_label="AltGr+J",
+    )
+    layout_path.write_text(json.dumps(layout, ensure_ascii=False), encoding="utf-8")
+
+    try:
+        load_runtime_symbol_to_layout_key(tmp_path)
+    except ValueError as exc:
+        assert "AltGr assignment found for M25" in str(exc)
+    else:
+        raise AssertionError("AltGr Yinyuan ID assignment should be rejected")
+
+
+def test_repo_layout_matches_windows_yime_two_layer_keys() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    layout = json.loads(
+        (repo_root / "internal_data" / "manual_key_layout.json").read_text(encoding="utf-8")
+    )
+    key_to_symbol = json.loads(
+        (repo_root / "internal_data" / "key_to_symbol.json").read_text(encoding="utf-8")
+    )
+    assigned = {
+        entry["yinyuan_id"]: entry
+        for entry in layout["layers"]
+        if entry.get("yinyuan_id")
+    }
+
+    expected = {
+        "M25": ("1", "!"),
+        "M26": ("2", "@"),
+        "M27": ("3", "#"),
+        "N23": ("4", "$"),
+        "N24": ("5", "%"),
+    }
+    for yinyuan_id, (physical_key, display_label) in expected.items():
+        entry = assigned[yinyuan_id]
+        assert entry["physical_key"] == physical_key
+        assert entry["output_layer"] == "shift"
+        assert entry["display_label"] == display_label
+
+    assert not any(
+        entry.get("yinyuan_id") and entry["output_layer"] == "altgr"
+        for entry in layout["layers"]
+    )
+
+    symbol_to_key = load_runtime_symbol_to_layout_key(repo_root)
+    assert {
+        yinyuan_id: symbol_to_key[key_to_symbol[yinyuan_id]]
+        for yinyuan_id in expected
+    } == {yinyuan_id: display_label for yinyuan_id, (_, display_label) in expected.items()}
 
 
 def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> None:

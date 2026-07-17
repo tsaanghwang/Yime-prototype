@@ -31,8 +31,8 @@ This table is for manual checking of the current Yime-to-Rime export path.
 | N20 | `3` | `3` | 􀀓 | `U+100013` |
 | N21 | `2` | `2` | 􀀔 | `U+100014` |
 | N22 | `1` | `1` | 􀀕 | `U+100015` |
-| N23 | `AltGr+Y` | `$` | 􀀖 | `U+100016` |
-| N24 | `AltGr+U` | `%` | 􀀗 | `U+100017` |
+| N23 | `$` | `$` | 􀀖 | `U+100016` |
+| N24 | `%` | `%` | 􀀗 | `U+100017` |
 | M01 | `u` | `u` | 􀀠 | `U+100020` |
 | M02 | `;` | `;` | 􀀡 | `U+100021` |
 | M03 | `o` | `o` | 􀀢 | `U+100022` |
@@ -57,9 +57,9 @@ This table is for manual checking of the current Yime-to-Rime export path.
 | M22 | `A` | `A` | 􀀵 | `U+100035` |
 | M23 | `S` | `S` | 􀀶 | `U+100036` |
 | M24 | `D` | `D` | 􀀷 | `U+100037` |
-| M25 | `AltGr+J` | `!` | 􀀸 | `U+100038` |
-| M26 | `AltGr+K` | `@` | 􀀹 | `U+100039` |
-| M27 | `AltGr+L` | `#` | 􀀺 | `U+10003A` |
+| M25 | `!` | `!` | 􀀸 | `U+100038` |
+| M26 | `@` | `@` | 􀀹 | `U+100039` |
+| M27 | `#` | `#` | 􀀺 | `U+10003A` |
 | M28 | `a` | `a` | 􀀻 | `U+10003B` |
 | M29 | `N` | `N` | 􀀼 | `U+10003C` |
 | M30 | `m` | `m` | 􀀽 | `U+10003D` |
@@ -67,6 +67,6 @@ This table is for manual checking of the current Yime-to-Rime export path.
 | M32 | `M` | `M` | 􀀿 | `U+10003F` |
 | M33 | `c` | `c` | 􀁀 | `U+100040` |
 
-The five rows where the formal Yime key uses `AltGr` are exported to Rime
-with fallback layout keys. In the current PIME/Rime build, test these by
-typing the `Rime 输入键位`, not the formal `AltGr` key chord.
+All Yinyuan IDs now use the base or shift layer. The five formerly AltGr-only
+rows directly use the same `!`, `@`, `#`, `$`, and `%` layout keys as the
+Windows Yime build.

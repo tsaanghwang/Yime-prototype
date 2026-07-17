@@ -6,8 +6,8 @@
 
 ## Summary
 
-- Assigned slots: 101
-- Unassigned slots: 3
+- Assigned slots: 96
+- Unassigned slots: 8
 
 ## Base Layer
 
@@ -85,11 +85,11 @@
 | Key | Value |
 | --- | --- |
 | ` | ~ U+007E |
-| 1 | ! U+0021 |
-| 2 | @ U+0040 |
-| 3 | # U+0023 |
-| 4 | $ U+0024 |
-| 5 | % U+0025 |
+| 1 | M25 U+100038 |
+| 2 | M26 U+100039 |
+| 3 | M27 U+10003A |
+| 4 | N23 U+100016 |
+| 5 | N24 U+100017 |
 | 6 | ^ U+005E |
 | 7 | & U+0026 |
 | 8 | * U+002A |
@@ -176,8 +176,8 @@
 | e |  |
 | r |  |
 | t |  |
-| y | N23 U+100016 |
-| u | N24 U+100017 |
+| y |  |
+| u |  |
 | i |  |
 | o |  |
 | p |  |
@@ -195,9 +195,9 @@
 | f |  |
 | g |  |
 | h |  |
-| j | M25 U+100038 |
-| k | M26 U+100039 |
-| l | M27 U+10003A |
+| j |  |
+| k |  |
+| l |  |
 | ; |  |
 | ' |  |
 
@@ -222,11 +222,6 @@
 | --- | --- | --- | --- |
 | ` | base | ` | U+0060 |
 | ` | shift | ~ | U+007E |
-| 1 | shift | ! | U+0021 |
-| 2 | shift | @ | U+0040 |
-| 3 | shift | # | U+0023 |
-| 4 | shift | $ | U+0024 |
-| 5 | shift | % | U+0025 |
 | 6 | shift | ^ | U+005E |
 | 7 | shift | & | U+0026 |
 | 8 | shift | * | U+002A |
@@ -273,7 +268,9 @@
 | 2 | base | N21 | U+100014 |
 | 3 | base | N20 | U+100013 |
 | 4 | base | N15 | U+10000E |
+| 4 | shift | N23 | U+100016 |
 | 5 | base | N14 | U+10000D |
+| 5 | shift | N24 | U+100017 |
 | 6 | base | N13 | U+10000C |
 | 7 | base | N16 | U+10000F |
 | 8 | base | N17 | U+100010 |
@@ -291,13 +288,14 @@
 | b | base | N07 | U+100006 |
 | n | base | N11 | U+10000A |
 | . | base | N06 | U+100005 |
-| y | altgr | N23 | U+100016 |
-| u | altgr | N24 | U+100017 |
 
 ## Musical Only
 
 | Key | Layer | Symbol | Codepoint |
 | --- | --- | --- | --- |
+| 1 | shift | M25 | U+100038 |
+| 2 | shift | M26 | U+100039 |
+| 3 | shift | M27 | U+10003A |
 | e | base | M18 | U+100031 |
 | r | base | M17 | U+100030 |
 | t | base | M16 | U+10002F |
@@ -314,13 +312,10 @@
 | g | base | M05 | U+100024 |
 | j | base | M13 | U+10002C |
 | j | shift | M19 | U+100032 |
-| j | altgr | M25 | U+100038 |
 | k | base | M14 | U+10002D |
 | k | shift | M20 | U+100033 |
-| k | altgr | M26 | U+100039 |
 | l | base | M15 | U+10002E |
 | l | shift | M21 | U+100034 |
-| l | altgr | M27 | U+10003A |
 | ; | base | M02 | U+100021 |
 | z | base | M08 | U+100027 |
 | x | base | M06 | U+100025 |
