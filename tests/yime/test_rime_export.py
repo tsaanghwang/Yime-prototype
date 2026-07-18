@@ -4,6 +4,7 @@ from pathlib import Path
 
 from yime.utils.rime_export import (
     convert_runtime_code_to_layout_keys,
+    export_pinyin_codes_tsv,
     export_rime_files,
     load_runtime_symbol_to_layout_key,
 )
@@ -118,6 +119,19 @@ def test_load_runtime_symbol_to_layout_key_rejects_altgr_yinyuan_id(tmp_path: Pa
         raise AssertionError("AltGr Yinyuan ID assignment should be rejected")
 
 
+def test_load_runtime_symbol_to_layout_key_accepts_compact_layout(tmp_path: Path) -> None:
+    _write_minimal_mapping_files(tmp_path)
+    layout_path = tmp_path / "trial-layout.json"
+    layout_path.write_text(
+        json.dumps({"yinyuan_id_to_key": {"N01": "b", "M01": "j", "M25": "M"}}),
+        encoding="utf-8",
+    )
+
+    symbol_to_key = load_runtime_symbol_to_layout_key(tmp_path, layout_path)
+
+    assert convert_runtime_code_to_layout_keys("XYZ", symbol_to_key) == "bjM"
+
+
 def test_repo_layout_matches_windows_yime_two_layer_keys() -> None:
     repo_root = Path(__file__).resolve().parents[2]
     layout = json.loads(
@@ -155,6 +169,38 @@ def test_repo_layout_matches_windows_yime_two_layer_keys() -> None:
         yinyuan_id: symbol_to_key[key_to_symbol[yinyuan_id]]
         for yinyuan_id in expected
     } == {yinyuan_id: display_label for yinyuan_id, (_, display_label) in expected.items()}
+
+
+def test_windows_trial_layout_covers_every_yinyuan_id_once() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    layout = json.loads(
+        (repo_root / "internal_data" / "windows_trial_layout_v1.json").read_text(encoding="utf-8")
+    )["yinyuan_id_to_key"]
+    expected_ids = {
+        *(f"N{index:02d}" for index in range(1, 25)),
+        *(f"M{index:02d}" for index in range(1, 34)),
+    }
+
+    assert set(layout) == expected_ids
+    assert len(set(layout.values())) == len(expected_ids)
+    assert "`" not in layout.values()
+
+
+def test_export_windows_trial_pinyin_codes_uses_fixed_length_layout_keys(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_path = tmp_path / "yime_pinyin_codes.tsv"
+
+    row_count = export_pinyin_codes_tsv(
+        output_path,
+        db_path=repo_root / "yime" / "pinyin_hanzi.db",
+        repo_root=repo_root,
+        layout_path=repo_root / "internal_data" / "windows_trial_layout_v1.json",
+    )
+
+    lines = output_path.read_text(encoding="utf-8").splitlines()
+    assert row_count > 1600
+    assert lines[0] == "pinyin_tone\tfull"
+    assert all(len(line.split("\t")[1]) == 4 for line in lines[1:])
 
 
 def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> None:

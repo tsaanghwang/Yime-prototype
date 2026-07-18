@@ -11,6 +11,7 @@ from yime.utils.rime_export import (
     DEFAULT_OUTPUT_DIR,
     RimeExportPaths,
     RimeExportResult,
+    export_pinyin_codes_tsv,
     export_rime_files,
     main,
 )
@@ -22,6 +23,7 @@ __all__ = [
     "RimeExportPaths",
     "RimeExportResult",
     "export_rime_files",
+    "export_pinyin_codes_tsv",
     "main",
 ]
 
