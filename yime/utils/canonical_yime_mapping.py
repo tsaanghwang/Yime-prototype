@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import json
 import sqlite3
 from functools import lru_cache
@@ -18,9 +17,6 @@ from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
-CANONICAL_PATCH_PATH = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "canonical_yime_patch.csv"
-
-
 def load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
@@ -113,9 +109,6 @@ def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
         for pinyin, code in code_map.items()
     }
 
-    for pinyin_tone, (patched_code, _) in load_canonical_patch_map(resolved_root).items():
-        canonical_code_map.setdefault(pinyin_tone, patched_code)
-
     return canonical_code_map
 
 
@@ -138,34 +131,11 @@ def load_code_mode_map(repo_root: Path | None = None) -> dict[str, CodeModeRecor
     )
 
 
-def load_canonical_patch_map(repo_root: Path | None = None) -> dict[str, tuple[str, int | None]]:
-    resolved_root = repo_root or WORKSPACE_ROOT
-    if not CANONICAL_PATCH_PATH.exists():
-        return {}
-
-    bmp_to_canonical = build_bmp_to_canonical_map(resolved_root)
-    patch_map: dict[str, tuple[str, int | None]] = {}
-    with CANONICAL_PATCH_PATH.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            pinyin_tone = standardize_numeric_pinyin(str(row.get("pinyin_tone") or "").strip())
-            raw_code = str(row.get("yime_code") or "")
-            mapping_id_raw = str(row.get("mapping_id") or "").strip()
-            if not pinyin_tone or not raw_code:
-                continue
-            patch_map[pinyin_tone] = (
-                canonicalize_code(raw_code, bmp_to_canonical),
-                int(mapping_id_raw) if mapping_id_raw else None,
-            )
-    return patch_map
-
-
 def build_canonical_pinyin_rows(
     conn: sqlite3.Connection,
     repo_root: Path | None = None,
 ) -> list[tuple[str, str, str]]:
     canonical_code_map = load_canonical_code_map(repo_root)
-    canonical_patch_map = load_canonical_patch_map(repo_root)
     rows = conn.execute(
         '''
         SELECT DISTINCT pinyin_tone
@@ -186,8 +156,7 @@ def build_canonical_pinyin_rows(
         canonical_code = canonical_code_map.get(pinyin_tone, '')
         if not canonical_code:
             continue
-        source_name = 'canonical_patch' if pinyin_tone in canonical_patch_map else 'yinjie_code'
-        pinyin_rows.append((pinyin_tone, canonical_code, source_name))
+        pinyin_rows.append((pinyin_tone, canonical_code, 'yinjie_code'))
         seen_pinyin.add(pinyin_tone)
 
     return pinyin_rows
@@ -204,7 +173,6 @@ def build_canonical_mapping_rows(
         tones: list[str]
 
     canonical_code_map = load_canonical_code_map(repo_root)
-    canonical_patch_map = load_canonical_patch_map(repo_root)
     rows = conn.execute(
         '''
         SELECT mapping_id, pinyin_tone
@@ -223,12 +191,6 @@ def build_canonical_mapping_rows(
         if not pinyin_tone:
             continue
         canonical_code = canonical_code_map.get(pinyin_tone, "")
-        if not canonical_code:
-            patch_payload = canonical_patch_map.get(pinyin_tone)
-            if patch_payload is not None:
-                patched_code, patched_mapping_id = patch_payload
-                if patched_mapping_id is None or patched_mapping_id == mapping_id:
-                    canonical_code = patched_code
         if not canonical_code:
             continue
         grouped[mapping_id]["codes"].add(canonical_code)

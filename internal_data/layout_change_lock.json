@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "purpose": "Layout changes may alter only the final Yinyuan-ID-to-key projection. Numeric Pinyin semantics and Yinyuan identity are protected upstream.",
+  "semantic_entrypoint": "yime.utils.yinyuan_id_chain.encode_numeric_pinyin_to_yinyuan_ids",
+  "semantic_sources": [
+    "syllable/yinyuan/zaoyin_yinyuan_enhanced.json",
+    "syllable/yinyuan/yueyin_yinyuan_enhanced.json"
+  ],
+  "semantic_registry_sha256": "ba46591d6ade4045741b0f0a36a8b5a5f0669c5f3ced8345f488348f40a128e4",
+  "pinyin_yinyuan_chain_sha256": "c7a115bc917a1fd4e64459ffb8539d07b5b3a961312dd1420384563bebb0c352",
+  "canonical_layout_source": "internal_data/manual_key_layout.json",
+  "derived_layout_artifacts": [
+    "internal_data/manual_key_layout.resolved.json",
+    "internal_data/layout_runtime_consistency_report.json",
+    "internal_data/klc_layout_visual_table.md",
+    "internal_data/yinyuan_id_crosswalk.json",
+    "internal_data/yinyuan_id_crosswalk.md",
+    "yinyuan.klc"
+  ],
+  "forbidden_parallel_layout_sources": [
+    "internal_data/windows_trial_layout_v1.json"
+  ],
+  "required_command": "python tools/run_locked_layout_pipeline.py"
+}

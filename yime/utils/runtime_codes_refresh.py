@@ -22,7 +22,6 @@ from yime.canonical_yime_mapping import (
     convert_legacy_code_to_primary,
     load_canonical_code_map,
     load_code_mode_map,
-    load_canonical_patch_map,
     sync_canonical_mapping_table,
 )
 from yime.utils.blcu_word_frequency_import import load_char_frequency_map
@@ -308,7 +307,6 @@ def build_char_updates(
     canonical_code_map: dict[str, str],
     examples_limit: int,
 ) -> tuple[list[tuple[str, str, str]], Counter[str], dict[str, list[tuple[object, ...]]]]:
-    patch_pinyin_tones = set(load_canonical_patch_map(REPO_ROOT))
     rows = conn.execute(
         '''
         SELECT npi.pinyin_tone, pyc.yime_code, pyc.code_source
@@ -349,8 +347,7 @@ def build_char_updates(
             stats["already_current"] += 1
             continue
 
-        code_source = "canonical_patch" if pinyin_tone in patch_pinyin_tones else "yinjie_code"
-        updates.append((pinyin_tone, expected_code, code_source))
+        updates.append((pinyin_tone, expected_code, "yinjie_code"))
         stats["to_update"] += 1
 
     return updates, stats, examples

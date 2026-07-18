@@ -23,6 +23,13 @@ if errorlevel 1 (
 
 echo Running focused validation suite...
 
+"%PYTHON%" tools\check_layout_change_lock.py
+if errorlevel 1 (
+  echo.
+  echo Layout change lock failed with exit code %ERRORLEVEL%.
+  exit /b %ERRORLEVEL%
+)
+
 "%PYTHON%" tools\validate_yinyuan_source_consistency.py
 if errorlevel 1 (
   echo.

@@ -37,7 +37,8 @@
 
 - runtime 主线已经改为 `pinyin_tone -> yime_code`，不再依赖旧 `音元拼音.全拼 UNIQUE`。
 - 单字和词语 prototype 导入不再从旧 `汉字 / 数字标调拼音 / 词汇` 表借字段或主键。
-- `numeric_pinyin_patch.csv` 与 `canonical_yime_patch.csv` 只作为受控兜底层，不再把旧表当主线真源。
+- `numeric_pinyin_patch.csv` 只补上游缺失的数字标调拼音事实；直接指定
+  “拼音 → 四音元码”的 canonical 补丁已退役，编码缺口必须回到正式音节编码链修复。
 
 推荐执行顺序：
 

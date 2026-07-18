@@ -10,6 +10,11 @@ from typing import Iterable, Mapping
 
 from yime.canonical_yime_mapping import build_canonical_pinyin_rows
 from yime.utils.code_modes import YimeCodeMode, code_mode_label, lookup_code_column, normalize_code_mode
+from yime.utils.yinyuan_id_chain import (
+    layout_projection_digest,
+    load_symbol_to_yinyuan_id,
+    load_yinyuan_id_to_layout_key,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -53,8 +58,8 @@ def parse_args() -> argparse.Namespace:
         "--layout",
         default="",
         help=(
-            "Optional keyboard-layout JSON. It may use the normal layers format or "
-            "a compact yinyuan_id_to_key mapping."
+            "Compatibility argument. Only the repository canonical layout is accepted; "
+            "alternate layout files are rejected."
         ),
     )
     parser.add_argument(
@@ -93,40 +98,9 @@ def load_runtime_symbol_to_layout_key(
     repo_root: Path = REPO_ROOT,
     layout_path: Path | None = None,
 ) -> dict[str, str]:
-    key_to_symbol = _json_load(repo_root / "internal_data" / "key_to_symbol.json")
-    layout = _json_load(layout_path or (repo_root / "internal_data" / "manual_key_layout.json"))
-
-    yinyuan_id_to_key: dict[str, str] = {}
-    compact_mapping = layout.get("yinyuan_id_to_key", {})
-    if isinstance(compact_mapping, dict):
-        for raw_yinyuan_id, raw_key in compact_mapping.items():
-            yinyuan_id = str(raw_yinyuan_id or "").strip()
-            key = str(raw_key or "")
-            if yinyuan_id and len(key) == 1:
-                yinyuan_id_to_key[yinyuan_id] = key
-    for raw_entry in layout.get("layers", []):
-        if not isinstance(raw_entry, dict):
-            continue
-        yinyuan_id = str(raw_entry.get("yinyuan_id") or "").strip()
-        if not yinyuan_id:
-            continue
-        display_label = str(raw_entry.get("display_label") or "").strip()
-        output_layer = str(raw_entry.get("output_layer") or "").strip()
-        if output_layer == "altgr":
-            raise ValueError(
-                "Yinyuan IDs must use the base or shift layer; "
-                f"AltGr assignment found for {yinyuan_id}."
-            )
-        if len(display_label) == 1:
-            yinyuan_id_to_key[yinyuan_id] = display_label
-
-    symbol_to_key: dict[str, str] = {}
-    for yinyuan_id, raw_symbol in key_to_symbol.items():
-        key = yinyuan_id_to_key.get(str(yinyuan_id))
-        symbol = str(raw_symbol or "")
-        if key and symbol:
-            symbol_to_key[symbol] = key
-    return symbol_to_key
+    symbol_to_id = load_symbol_to_yinyuan_id(repo_root)
+    id_to_key = load_yinyuan_id_to_layout_key(repo_root, layout_path)
+    return {symbol: id_to_key[yinyuan_id] for symbol, yinyuan_id in symbol_to_id.items()}
 
 
 def convert_runtime_code_to_layout_keys(code: str, symbol_to_key: Mapping[str, str]) -> str:
@@ -281,6 +255,7 @@ def build_rime_schema_text(
     schema_id: str,
     schema_name: str,
     dictionary_name: str,
+    user_dict_name: str,
     alphabet: str,
 ) -> str:
     today = date.today().isoformat()
@@ -321,6 +296,7 @@ def build_rime_schema_text(
             "",
             "translator:",
             f"  dictionary: {dictionary_name}",
+            f"  user_dict: {user_dict_name}",
             "  enable_user_dict: true",
             "  enable_sentence: false",
             "  enable_completion: true",
@@ -389,6 +365,8 @@ def export_rime_files(
         entries.append((text, code, _rime_weight(row["sort_weight"])))
 
     alphabet = _alphabet_from_codes(code for _, code, _ in entries)
+    layout_digest = layout_projection_digest(repo_root)
+    user_dict_name = f"{resolved_schema_id}_layout_{layout_digest[:12]}"
     paths = RimeExportPaths(
         schema_path=output_dir / f"{resolved_schema_id}.schema.yaml",
         dict_path=output_dir / f"{resolved_schema_id}.dict.yaml",
@@ -408,6 +386,7 @@ def export_rime_files(
             schema_id=resolved_schema_id,
             schema_name=resolved_schema_name,
             dictionary_name=resolved_schema_id,
+            user_dict_name=user_dict_name,
             alphabet=alphabet,
         ),
         encoding="utf-8",
@@ -421,6 +400,8 @@ def export_rime_files(
         "row_count": len(entries),
         "code_count": len({code for _, code, _ in entries}),
         "alphabet": alphabet,
+        "layout_projection_sha256": layout_digest,
+        "user_dict_name": user_dict_name,
         "limit": limit,
         "layout_path": str(layout_path) if layout_path else "",
     }
