@@ -67,7 +67,7 @@
 ### 步骤1：从布局真源生成 `yinyuan.klc`
 
 ```bash
-python tools/run_layout_pipeline.py --on-warning continue --open-msklc never --export-visual-table
+python tools/run_locked_layout_pipeline.py
 ```
 
 期望结果：
@@ -152,7 +152,7 @@ $klcRepo = if ($env:YIME_KEYBOARD_LAYOUT_REPO) {
 
 ## 一句话顺序
 
-1. `run_layout_pipeline.py`
+1. `run_locked_layout_pipeline.py`
 2. `run_msklc_packaging_pipeline.py`
 3. `run_msklc_install_pipeline.py --install-mode msi`
 4. 需要回滚时运行 `restore-default-chinese-keyboards.ps1` 或 `unregister-yinyuan-machine.ps1`

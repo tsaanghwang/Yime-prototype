@@ -28,7 +28,7 @@ python tools/check_layout_runtime_consistency.py `
 1. 用官方流水线重生产物，不要手改最终 `yinyuan.klc`。
 
 ```powershell
-python tools/run_layout_pipeline.py --open-msklc never --export-visual-table
+python tools/run_locked_layout_pipeline.py
 ```
 
 要求：四步都完成，生成

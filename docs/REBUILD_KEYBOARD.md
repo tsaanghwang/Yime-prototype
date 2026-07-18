@@ -19,7 +19,7 @@
 
 ## 当前主线只记一个顺序
 
-1. `run_layout_pipeline.py`
+1. `run_locked_layout_pipeline.py`
 2. `run_msklc_packaging_pipeline.py`
 3. 在 MSKLC GUI 里执行 `Build DLL and Setup Package`
 4. `run_msklc_install_pipeline.py --install-mode msi`

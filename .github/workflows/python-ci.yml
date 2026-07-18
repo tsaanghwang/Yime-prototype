@@ -33,6 +33,9 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
+      - name: Enforce layout change chain
+        run: python tools/check_layout_change_lock.py
+
       - name: Run tests with coverage
         run: python -m pytest -ra -vv --tb=short --cov=./ --cov-report=xml tests/
 

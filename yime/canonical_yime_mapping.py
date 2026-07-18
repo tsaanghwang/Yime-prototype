@@ -1,7 +1,6 @@
 """Compatibility shim for canonical mapping helpers."""
 
 from yime.utils.canonical_yime_mapping import (
-    CANONICAL_PATCH_PATH,
     WORKSPACE_ROOT,
     build_bmp_to_canonical_map,
     build_canonical_mapping_rows,
@@ -10,7 +9,6 @@ from yime.utils.canonical_yime_mapping import (
     convert_legacy_code_to_primary,
     load_canonical_code_map,
     load_code_mode_map,
-    load_canonical_patch_map,
     load_primary_code_map,
     load_virtual_initial_symbol,
     load_json,
@@ -18,7 +16,6 @@ from yime.utils.canonical_yime_mapping import (
 )
 
 __all__ = [
-    "CANONICAL_PATCH_PATH",
     "WORKSPACE_ROOT",
     "build_bmp_to_canonical_map",
     "build_canonical_mapping_rows",
@@ -27,7 +24,6 @@ __all__ = [
     "convert_legacy_code_to_primary",
     "load_canonical_code_map",
     "load_code_mode_map",
-    "load_canonical_patch_map",
     "load_primary_code_map",
     "load_virtual_initial_symbol",
     "load_json",

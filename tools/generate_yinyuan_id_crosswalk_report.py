@@ -208,6 +208,11 @@ def build_payload(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def markdown_cell(value: object) -> str:
+    """Escape generated text so a physical key cannot break the table."""
+    return str(value).replace("\\", "\\\\").replace("|", "\\|").replace("\n", "<br>")
+
+
 def build_markdown(rows: list[dict[str, Any]], payload: dict[str, Any]) -> str:
     metadata = payload["metadata"]
     lines = [
@@ -238,8 +243,18 @@ def build_markdown(rows: list[dict[str, Any]], payload: dict[str, Any]) -> str:
 
         relation = str(row["layer_relation"] or "")
         issues = ", ".join(row["issues"]) if row["issues"] else ""
+        cells = (
+            row["yinyuan_id"],
+            row["label"],
+            physical,
+            runtime_text,
+            projection_text,
+            canonical_text,
+            relation,
+            issues,
+        )
         lines.append(
-            f"|{row['yinyuan_id']}|{row['label']}|{physical}|{runtime_text}|{projection_text}|{canonical_text}|{relation}|{issues}|"
+            "|" + "|".join(markdown_cell(cell) for cell in cells) + "|"
         )
 
     return "\n".join(lines) + "\n"
