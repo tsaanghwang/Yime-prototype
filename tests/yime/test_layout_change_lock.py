@@ -6,6 +6,8 @@ from tools.check_layout_change_lock import (
     compare_pinyin_chain_entry,
     pinyin_yinyuan_chain_digest,
     semantic_registry_digest,
+    syllable_provenance_digest,
+    syllable_rule_catalog_digest,
 )
 from yime.utils.yinyuan_id_chain import encode_numeric_pinyin_to_yinyuan_ids
 
@@ -23,6 +25,8 @@ def test_semantic_registry_matches_reviewed_layout_lock() -> None:
     lock = json.loads((ROOT / "internal_data" / "layout_change_lock.json").read_text(encoding="utf-8"))
     assert semantic_registry_digest(ROOT) == lock["semantic_registry_sha256"]
     assert pinyin_yinyuan_chain_digest(ROOT) == lock["pinyin_yinyuan_chain_sha256"]
+    assert syllable_rule_catalog_digest(ROOT) == lock["syllable_rule_catalog_sha256"]
+    assert syllable_provenance_digest(ROOT) == lock["syllable_provenance_sha256"]
 
 
 def test_middle_entry_is_rejected() -> None:

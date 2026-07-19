@@ -6,8 +6,15 @@
     "syllable/yinyuan/zaoyin_yinyuan_enhanced.json",
     "syllable/yinyuan/yueyin_yinyuan_enhanced.json"
   ],
+  "semantic_explanation_source": "internal_data/syllable_encoding_rule_catalog.json",
+  "semantic_audit_artifacts": [
+    "internal_data/yime_syllable_encoding_provenance.tsv",
+    "internal_data/yime_syllable_omissions.tsv"
+  ],
   "semantic_registry_sha256": "ba46591d6ade4045741b0f0a36a8b5a5f0669c5f3ced8345f488348f40a128e4",
   "pinyin_yinyuan_chain_sha256": "c7a115bc917a1fd4e64459ffb8539d07b5b3a961312dd1420384563bebb0c352",
+  "syllable_rule_catalog_sha256": "f060cc939f5a840c5b638f59ead893e969002a6ae35ecdae273c8afbabc0acad",
+  "syllable_provenance_sha256": "b35e5b6987bd140f1162fb220f6dd0c41528ca78e7988852cd1da224572cbf7f",
   "canonical_layout_source": "internal_data/manual_key_layout.json",
   "derived_layout_artifacts": [
     "internal_data/manual_key_layout.resolved.json",

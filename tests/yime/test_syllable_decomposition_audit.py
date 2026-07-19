@@ -4,10 +4,14 @@ from dataclasses import asdict
 from pathlib import Path
 
 from yime.utils.syllable_decomposition_audit import (
+    build_encoder_failure_rows,
     build_syllable_decomposition_rows,
+    build_theoretical_ganyin_omission_rows,
     export_syllable_decomposition_tsv,
+    export_syllable_omissions_tsv,
     rule_ids,
 )
+from syllable.codec.yinjie_encoder import YinjieEncodingError
 
 
 def test_structured_audit_exposes_normalization_segments_ids_and_rules() -> None:
@@ -44,3 +48,39 @@ def test_checked_in_audit_matches_the_complete_current_encoder_chain() -> None:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
     assert actual == expected
+
+
+def test_theoretical_omissions_explain_rule_and_locked_change_entry() -> None:
+    rows = build_theoretical_ganyin_omission_rows({"a1"})
+    by_candidate = {row.candidate: row for row in rows}
+
+    assert "a1" not in by_candidate
+    assert by_candidate["ue1"].classification == "方案形式与音节拼写/编码形式差异"
+    assert by_candidate["ue1"].rule_ids == "ORTH-JQX-UMLAUT"
+    assert "不得混入布局改动" in by_candidate["ue1"].lock_scope
+
+
+def test_encoder_failure_points_to_the_failed_semantic_stage() -> None:
+    class FailingEncoder:
+        def encode_yinjie_structured(self, _candidate: str) -> None:
+            raise YinjieEncodingError("missing ganyin", stage="ganyin_encode")
+
+    rows = build_encoder_failure_rows(
+        {"bad1": "bad"},
+        encoder=FailingEncoder(),  # type: ignore[arg-type]
+    )
+
+    assert len(rows) == 1
+    assert rows[0].status == "encoder_failed"
+    assert rows[0].source_rule.endswith("ganyin_encoder.py")
+
+
+def test_checked_in_omission_audit_matches_current_sources() -> None:
+    output = Path("internal_data/yime_syllable_omissions.tsv")
+    rows = export_syllable_omissions_tsv(output)
+    with output.open(encoding="utf-8", newline="") as file:
+        actual = list(csv.DictReader(file, delimiter="\t"))
+
+    assert actual == [asdict(row) | {"occurrences": str(row.occurrences)} for row in rows]
+    assert not any(row.status == "filtered_before_inventory" for row in rows)
+    assert not any(row.status == "encoder_failed" for row in rows)

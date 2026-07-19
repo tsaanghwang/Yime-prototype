@@ -12,7 +12,8 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
-from syllable.codec.yinjie_encoder import YinjieEncoder
+from syllable.analysis.ganyin_categorizer import FinalCategorizer
+from syllable.codec.yinjie_encoder import YinjieEncoder, YinjieEncodingError
 from yime.utils.yinyuan_id_chain import (
     REPO_ROOT,
     load_semantic_yinyuan_registry,
@@ -25,6 +26,8 @@ DEFAULT_INVENTORY_PATH = (
     REPO_ROOT / "internal_data" / "pinyin_source_db" / "lexicon_exports" / "pinyin_normalized.json"
 )
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "internal_data" / "yime_syllable_decomposition.tsv"
+DEFAULT_OMISSION_OUTPUT_PATH = REPO_ROOT / "internal_data" / "yime_syllable_omissions.tsv"
+DEFAULT_CHAR_SOURCE_PATH = REPO_ROOT / "internal_data" / "hanzi_pinyin" / "pinyin.txt"
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,25 @@ class SyllableDecompositionRow:
     layout_code: str
     aliases: str
     status: str
+
+
+@dataclass(frozen=True)
+class SyllableOmissionRow:
+    """A candidate absent from a later stage, without pretending every gap is a syllable."""
+
+    candidate: str
+    candidate_kind: str
+    stage: str
+    status: str
+    classification: str
+    rule_ids: str
+    occurrences: int
+    reason: str
+    surface_forms: str
+    source_rule: str
+    first_change: str
+    followup_change: str
+    lock_scope: str
 
 
 def _rule_id(pinyin_tone: str, ids: tuple[str, str, str, str]) -> str:
@@ -161,3 +183,253 @@ def export_syllable_decomposition_tsv(
 
 def rule_ids(rows: Iterable[SyllableDecompositionRow]) -> set[str]:
     return {row.rule_id for row in rows}
+
+
+def _theoretical_ganyin_keys() -> set[str]:
+    finals: set[str] = set()
+    for group in FinalCategorizer.get_all_finals().values():
+        finals.update(group)
+    return {f"{final}{tone}" for final in finals for tone in range(1, 6)}
+
+
+def _missing_ganyin_route(final: str) -> tuple[str, str, str, str, str, str, str]:
+    if final in {"v", "van", "ve", "vn"}:
+        return (
+            "技术拼音别名",
+            "v 系列来自历史输入法或程序拼音，用于表示 ü 系列；现行规范层不建立第二套编码。",
+            final.replace("v", "ü", 1),
+            "TECH-V-ALIAS",
+            "yime/utils/pinyin_normalizer.py::PinyinNormalizer.normalize_one",
+            "只在兼容输入边界归一化为 ü；不要向规范音节表或码表补 v 系列。",
+            "兼容规则说明，不是现行规范音节缺失。",
+        )
+    orthographic_rules = {
+        "iu": ("ORTH-IU-TO-IOU", "iou"),
+        "ui": ("ORTH-UI-TO-UEI", "uei"),
+        "un": ("ORTH-UN-TO-UEN", "uen"),
+        "ue": ("ORTH-JQX-UMLAUT", "üe"),
+        "ueng": ("ORTH-W-FAMILY ENC-UENG-TO-UONG", "ueng/uong"),
+    }
+    if final in orthographic_rules:
+        rule_ids, equivalent = orthographic_rules[final]
+        return (
+            "方案形式与音节拼写/编码形式差异",
+            "该项属于方案韵母形式、音节表面拼写或编码查表名之间的等价表示，不是独立读音缺失。",
+            equivalent,
+            rule_ids,
+            "syllable/analysis/syllable_splitter.py",
+            "检查形式族的规范化关系；不要为两个写法建立平行编码。",
+            "语义规则改动须单独审查，不得混入布局修改。",
+        )
+    if final == "io":
+        return (
+            "词典扩展干音的未实例化声调",
+            "yo 在当前词典来源中有实例并分析为 y + io；这里只是 io 的这些声调未在现行来源中出现。",
+            "yo",
+            "ORTH-YO-TO-IO LEGACY-FIVE-TONE-CLOSURE",
+            "internal_data/hanzi_pinyin/pinyin.txt 与 internal_data/phrase_pinyin/phrase_pinyin.txt",
+            "先寻找对应声调的真实字词实例；没有实例时不要按五声穷举补码。",
+            "来源事实优先；不得从理论干音直接写入 yinjie_code.json。",
+        )
+
+    handling = FinalCategorizer.get_missing_handling_info(final)
+    classification = str(handling["status"])
+    reason = str(handling["reason"])
+    surface_forms = " ".join(str(item) for item in handling.get("surface_forms", []))
+
+    canonical_forms = [
+        canonical
+        for canonical, variants in FinalCategorizer.RULE_VARIANT_SURFACE_FORMS.items()
+        if final in variants
+    ]
+    final_info = FinalCategorizer.get_final_form_info(final)
+    if canonical_forms or final_info["kind"] == "规则变体":
+        classification = "拼写规则导致缺失"
+        reason = "该形式会在规范化或输入法拼写中归并到等价形式，不应直接补一套平行编码。"
+        if canonical_forms:
+            surface_forms = " ".join(canonical_forms)
+
+    if classification == "拼写规则导致缺失":
+        return (
+            classification,
+            reason,
+            surface_forms,
+            "LEGACY-FIVE-TONE-CLOSURE",
+            "syllable/analysis/ganyin_categorizer.py::RULE_VARIANT_SURFACE_FORMS",
+            "先审查该理论形式与实际拼写形式的等价关系；不要先补码表。",
+            "若决定改变语义，再改 syllable/analysis/syllable_splitter.py 和 syllable_encoding_pipeline.py。",
+        )
+    if classification == "当前导入过滤导致缺失":
+        return (
+            "早期五声穷举遗留",
+            "当前来源没有该带调实例；它由早期每个韵母补齐五声的理论集合产生。",
+            surface_forms,
+            "LEGACY-FIVE-TONE-CLOSURE",
+            "internal_data/pinyin_source_db/build_source_pinyin_db.py::is_supported_char_reading",
+            "先核实上游词典是否确有该带调实例；没有实例时保持不编码。",
+            "若找到实例，再从拼音来源重建完整链；禁止从 yinjie_code.json 中间补入。",
+        )
+    return (
+        "早期五声穷举遗留",
+        "当前来源没有该带调实例；它由早期每个韵母补齐五声的理论集合产生。",
+        surface_forms,
+        "LEGACY-FIVE-TONE-CLOSURE",
+        "syllable/analysis/ganyin_categorizer.py::FinalCategorizer",
+        "先核对真实字典来源；没有实例时不要把理论组合提升为规范音节。",
+        "若后来找到实例，再从来源层进入正式编码链。",
+    )
+
+
+def build_theoretical_ganyin_omission_rows(
+    actual_ganyin_keys: Iterable[str],
+) -> list[SyllableOmissionRow]:
+    """Compare the declared final/tone universe with ganyin generated from the inventory."""
+    rows: list[SyllableOmissionRow] = []
+    for candidate in sorted(_theoretical_ganyin_keys() - set(actual_ganyin_keys)):
+        final = candidate[:-1]
+        classification, reason, surface_forms, rule_ids, source_rule, first_change, followup = (
+            _missing_ganyin_route(final)
+        )
+        rows.append(
+            SyllableOmissionRow(
+                candidate=candidate,
+                candidate_kind="theoretical_ganyin",
+                stage="ganyin_generation",
+                status="not_generated_from_current_inventory",
+                classification=classification,
+                rule_ids=rule_ids,
+                occurrences=0,
+                reason=reason,
+                surface_forms=surface_forms,
+                source_rule=source_rule,
+                first_change=first_change,
+                followup_change=followup,
+                lock_scope="语义改动：单独审查并更新语义锁；不得混入布局改动。",
+            )
+        )
+    return rows
+
+
+def build_source_filter_omission_rows(
+    char_source_path: Path = DEFAULT_CHAR_SOURCE_PATH,
+) -> list[SyllableOmissionRow]:
+    """Expose marked readings silently rejected before the materialized inventory."""
+    # Import here so this read-only audit uses exactly the importer's conversion and regex.
+    from internal_data.pinyin_source_db.build_source_pinyin_db import (
+        is_supported_char_reading,
+        marked_syllable_to_numeric,
+        split_char_readings,
+    )
+
+    counts: dict[str, int] = {}
+    with char_source_path.open("r", encoding="utf-8", newline="") as file:
+        reader = csv.reader(file, delimiter="\t")
+        for raw in reader:
+            if not raw or raw[0].startswith("#") or raw[0] == "codepoint" or len(raw) < 4:
+                continue
+            for candidate in split_char_readings(raw[3].strip()):
+                if not is_supported_char_reading(candidate):
+                    counts[candidate] = counts.get(candidate, 0) + 1
+
+    return [
+        SyllableOmissionRow(
+            candidate=candidate,
+            candidate_kind="source_marked_syllable",
+            stage="source_import",
+            status="filtered_before_inventory",
+            classification="导入格式规则过滤",
+            rule_ids="",
+            occurrences=occurrences,
+            reason=f"转换为 {marked_syllable_to_numeric(candidate)!r} 后不满足 ^[a-zêü]+[1-5]$。",
+            surface_forms="",
+            source_rule="internal_data/pinyin_source_db/build_source_pinyin_db.py::is_supported_char_reading",
+            first_change="先核实上游读音是否合法；合法时修改导入规范化或允许格式。",
+            followup_change="重建 source_pinyin.db，再刷新物化音节清单和全部编码产物。",
+            lock_scope="上游语义输入改动：不得直接补 Yinyuan ID、码元或键位。",
+        )
+        for candidate, occurrences in sorted(counts.items())
+    ]
+
+
+def build_encoder_failure_rows(
+    inventory: dict[str, str],
+    *,
+    encoder: YinjieEncoder | None = None,
+) -> list[SyllableOmissionRow]:
+    """Expose canonical inventory entries that fail the real structured encoder."""
+    resolved_encoder = encoder or YinjieEncoder()
+    rows: list[SyllableOmissionRow] = []
+    for candidate in sorted(inventory):
+        try:
+            resolved_encoder.encode_yinjie_structured(candidate)
+        except YinjieEncodingError as error:
+            stage = error.stage
+            if stage == "split":
+                rule = "syllable/analysis/syllable_encoding_pipeline.py"
+            elif stage == "shouyin_encode":
+                rule = "syllable/analysis/shouyin_encoder.py"
+            elif stage == "ganyin_encode":
+                rule = "syllable/analysis/ganyin_encoder.py"
+            else:
+                rule = "syllable/codec/yinjie_encoder.py"
+            rows.append(
+                SyllableOmissionRow(
+                    candidate=candidate,
+                    candidate_kind="canonical_numeric_syllable",
+                    stage=f"canonical_encoder:{stage}",
+                    status="encoder_failed",
+                    classification="规范音节编码失败",
+                    rule_ids="",
+                    occurrences=1,
+                    reason=str(error),
+                    surface_forms="",
+                    source_rule=rule,
+                    first_change="从错误阶段指向的正式规则或语义真源开始修复。",
+                    followup_change="重建 yinjie_code.json，并由锁检查完整的拼音到四个 Yinyuan ID 链。",
+                    lock_scope="语义改动：单独审查并更新语义锁；不得在布局投影层兜底。",
+                )
+            )
+    return rows
+
+
+def build_syllable_omission_rows(
+    inventory: dict[str, str],
+    *,
+    char_source_path: Path = DEFAULT_CHAR_SOURCE_PATH,
+    encoder: YinjieEncoder | None = None,
+) -> list[SyllableOmissionRow]:
+    rows = build_source_filter_omission_rows(char_source_path)
+    rows.extend(build_encoder_failure_rows(inventory, encoder=encoder))
+    resolved_encoder = encoder or YinjieEncoder()
+    current_ganyin_keys: set[str] = set()
+    for candidate in sorted(inventory):
+        try:
+            current_ganyin_keys.add(
+                resolved_encoder.encode_yinjie_structured(candidate).ganyin_slots.ganyin_label
+            )
+        except YinjieEncodingError:
+            continue
+    rows.extend(build_theoretical_ganyin_omission_rows(current_ganyin_keys))
+    return rows
+
+
+def export_syllable_omissions_tsv(
+    output_path: Path = DEFAULT_OMISSION_OUTPUT_PATH,
+    *,
+    inventory_path: Path = DEFAULT_INVENTORY_PATH,
+    char_source_path: Path = DEFAULT_CHAR_SOURCE_PATH,
+) -> list[SyllableOmissionRow]:
+    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    if not isinstance(inventory, dict) or not inventory:
+        raise ValueError(f"Pinyin inventory is empty or invalid: {inventory_path}")
+    rows = build_syllable_omission_rows(
+        inventory,
+        char_source_path=char_source_path,
+    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = list(SyllableOmissionRow.__dataclass_fields__)
+    with output_path.open("w", encoding="utf-8", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter="\t", lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(asdict(row) for row in rows)
+    return rows

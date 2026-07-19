@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "purpose": "Explain the provenance and transformations of canonical syllable encodings without creating a parallel Pinyin-to-code table.",
+  "prohibited_fields": [
+    "yinyuan_ids",
+    "symbol_code",
+    "layout_key",
+    "vk_key"
+  ],
+  "rules": {
+    "SRC-UNIHAN": {
+      "layer": "source",
+      "title": "Unihan 单字读音实例",
+      "basis": "internal_data/hanzi_pinyin/pinyin.txt；文件头记录 Unihan kMandarin/kHanyuPinyin 合并来源。",
+      "policy": "只证明该带调音节在当前单字来源中实际出现，不推出同韵母的其他声调。"
+    },
+    "SRC-PHRASE-PINYIN": {
+      "layer": "source",
+      "title": "phrase-pinyin-data 词语读音实例",
+      "basis": "internal_data/phrase_pinyin/phrase_pinyin.txt；文件头和 README 记录上游及校验流程。",
+      "policy": "只证明词语读音中实际出现的带调音节。"
+    },
+    "SRC-REVIEWED-PATCH": {
+      "layer": "source",
+      "title": "经审查的规范拼音补充",
+      "basis": "internal_data/pinyin_source_db/pinyin_normalized_patch.json 与 PATCH_POLICY.md。",
+      "policy": "补充来源缺口或标调事实；不得直接指定音元、Yinyuan ID 或键位。"
+    },
+    "ORTH-REGULAR": {
+      "layer": "orthography",
+      "title": "常规声母与韵母切分",
+      "basis": "syllable/analysis/syllable_splitter.py::split_syllable 的常规分支。",
+      "policy": "没有命中特殊拼写规则时，按正式切分器的常规分支处理。"
+    },
+    "ORTH-ZERO-INITIAL": {
+      "layer": "orthography",
+      "title": "零声母音节",
+      "basis": "syllable_encoding_pipeline.py 与 syllable_splitter.py 的零声母分支。",
+      "policy": "元音起始或登记的独立音质使用零首音语义，不从键位反推。"
+    },
+    "ORTH-SYLLABIC-SPECIAL": {
+      "layer": "orthography",
+      "title": "ê、m、n、ng 及 hm/hn/hng 特殊音节",
+      "basis": "SyllableSplitter.SPECIAL_SYLLABLES 与 SyllableEncodingPipeline 的特殊音节分支。",
+      "policy": "仅处理规范音节清单中实际存在的带调形式；不得自动补齐五声。"
+    },
+    "ORTH-APICAL-I": {
+      "layer": "orthography",
+      "title": "舌尖元音 i 的内部表示",
+      "basis": "syllable_splitter.py 中 z/c/s/r 与 zh/ch/sh 后 i 转为 _i 的分支。",
+      "policy": "_i 是内部分析标签，不是新的拼音表面写法。"
+    },
+    "ORTH-IU-TO-IOU": {
+      "layer": "orthography",
+      "title": "音节拼写 iu 还原为方案形式 iou",
+      "basis": "SyllableSplitter._split_general_abbreviated_finals。",
+      "policy": "记录同一形式族的还原关系，不建立两套语义编码。"
+    },
+    "ORTH-UI-TO-UEI": {
+      "layer": "orthography",
+      "title": "音节拼写 ui 还原为方案形式 uei",
+      "basis": "SyllableSplitter._split_general_abbreviated_finals。",
+      "policy": "记录同一形式族的还原关系，不建立两套语义编码。"
+    },
+    "ORTH-UN-TO-UEN": {
+      "layer": "orthography",
+      "title": "音节拼写 un 还原为方案形式 uen",
+      "basis": "SyllableSplitter._split_general_abbreviated_finals。",
+      "policy": "记录同一形式族的还原关系，不建立两套语义编码。"
+    },
+    "ORTH-JQX-UMLAUT": {
+      "layer": "orthography",
+      "title": "j/q/x 后 u 字母恢复为 ü 类韵母",
+      "basis": "syllable_splitter.py 的 j/q/x + u/ü 分支。",
+      "policy": "这是音节拼写到内部韵母形式的恢复，不是技术 v 别名。"
+    },
+    "ORTH-Y-UMLAUT": {
+      "layer": "orthography",
+      "title": "yu/yue/yuan/yun 恢复为 ü 类韵母",
+      "basis": "syllable_splitter.py 的 y + u/ü 分支。",
+      "policy": "用虚拟首音与 ü 类韵母表达拼写关系。"
+    },
+    "ORTH-Y-FAMILY": {
+      "layer": "orthography",
+      "title": "y 起始音节的 i 类拼写恢复",
+      "basis": "SyllableSplitter._split_y_standard_family。",
+      "policy": "ya/ye/you 等表面形式恢复为相应 i 类内部干音。"
+    },
+    "ORTH-YO-TO-IO": {
+      "layer": "orthography",
+      "title": "词典实有 yo 分析为 y + io",
+      "basis": "当前 Unihan/词语来源中的 yo 实例与 SyllableSplitter._split_y_standard_family。",
+      "policy": "io 是有词典实例支持的内部干音；只承认来源实际出现的声调，不自动补齐五声。"
+    },
+    "ORTH-YONG-TO-IONG": {
+      "layer": "orthography",
+      "title": "yong 分析为虚拟首音 + iong",
+      "basis": "SyllableSplitter._split_yong_cuokou_placeholder_family。",
+      "policy": "记录表面拼写与内部分析的关系。"
+    },
+    "ORTH-W-FAMILY": {
+      "layer": "orthography",
+      "title": "w 起始音节的 u 类拼写恢复",
+      "basis": "SyllableSplitter._split_w_standard_family。",
+      "policy": "wa/wo/wei/wen/weng 等恢复为相应 u 类内部干音。"
+    },
+    "TECH-V-ALIAS": {
+      "layer": "compatibility",
+      "title": "v 表示 ü 的程序拼音别名",
+      "basis": "历史 Rime/微软码表兼容需求及 PinyinNormalizer.normalize_one。",
+      "policy": "只允许在输入兼容边界归一化为 ü；不得作为规范来源或第二套编码。"
+    },
+    "ENC-IOU-TO-IU": {
+      "layer": "encoder_alias",
+      "title": "编码查表将 iou 归并到 iu",
+      "basis": "GanyinEncoder._normalize_ganyin_name。",
+      "policy": "这是现有干音编码表的兼容查表名，不改变上游拼写分析记录。"
+    },
+    "ENC-UENG-TO-UONG": {
+      "layer": "encoder_alias",
+      "title": "编码查表将 ueng 归并到 uong",
+      "basis": "GanyinEncoder._normalize_ganyin_name。",
+      "policy": "这是现有干音编码表的兼容查表名。"
+    },
+    "ENC-ONG-TO-UONG": {
+      "layer": "encoder_alias",
+      "title": "编码查表将 ong 归并到 uong",
+      "basis": "GanyinEncoder._normalize_ganyin_name。",
+      "policy": "这是现有干音编码表的兼容查表名。"
+    },
+    "ENC-H-NASAL-ALIAS": {
+      "layer": "encoder_alias",
+      "title": "hm/hn/hng 干音查表归并",
+      "basis": "GanyinEncoder._normalize_ganyin_name。",
+      "policy": "h 保留在首音段，干音查表使用 m/n/ng。"
+    },
+    "LEGACY-FIVE-TONE-CLOSURE": {
+      "layer": "historical_reference",
+      "title": "早期韵母五声穷举规则",
+      "basis": "项目早期约 1836 音节方案的历史规则；现行清单不再使用。",
+      "policy": "仅用于解释历史差集。不得据此自动新增现行规范音节或编码。"
+    }
+  }
+}

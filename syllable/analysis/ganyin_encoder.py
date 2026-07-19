@@ -118,7 +118,7 @@ class GanyinEncoder:
         if not isinstance(ganyin, str):
             raise ValueError(f"无效的干音输入: '{ganyin}'")
 
-        normalized_ganyin = self._normalize_ganyin_name(ganyin)
+        normalized_ganyin = self.normalize_ganyin_name(ganyin)
 
         if not self._is_valid_ganyin(normalized_ganyin):
             raise ValueError(f"无效的干音输入: '{ganyin}'")
@@ -147,6 +147,10 @@ class GanyinEncoder:
             return f"uong{ganyin[-1]}"
 
         return ganyin
+
+    def normalize_ganyin_name(self, ganyin: str) -> str:
+        """公开编码查表名，供审计记录分析形式到查表形式的归并。"""
+        return self._normalize_ganyin_name(ganyin)
 
     def _encode_slot_characters(self, normalized_ganyin: str) -> tuple[str, str, str]:
         """按呼音/主音/末音序列生成三音元字符。"""
