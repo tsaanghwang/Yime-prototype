@@ -100,7 +100,7 @@ class SyllableDecoder(YinjieDecoder):
         return code[-1] if code else ""
 
     def get_jianyin_code(self, code_or_input: str) -> str:
-        """兼容旧接口：返回简拼（非常简单的缩写）。"""
+        """兼容旧接口：返回末音字符缩写；不等于当前省键模式。"""
         code = self.resolve_code(code_or_input) or code_or_input
         if not code:
             return ""

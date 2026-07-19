@@ -1,7 +1,9 @@
 # 拼音数据迁移说明
 
 本文档说明当前主线的数据重建入口、运行时查词消费面，以及
-2026-06 已删除的旧脚本。
+2026-06 已删除的旧脚本。当前总览见
+[当前架构与数据真源](../CURRENT_ARCHITECTURE.md)，音节规则依据见
+[音节编码规则与来源](../SYLLABLE_ENCODING_RULES.md)。
 
 ## 1. 当前主线 rebuild 链
 
@@ -11,10 +13,11 @@
 2. 从 `source_pinyin.db` 重建 prototype tables
 3. 用 canonical 码面刷新 runtime 资产
 
-默认建议把生成产物放在仓库外置的工作区路径，而不是继续改动已跟踪的大文件：
+默认把大型生成产物放在当前仓库的 `.generated/` 目录，而不是继续改动
+已跟踪的大文件：
 
-- `c:/dev/Yime/.generated/source_pinyin.db`
-- `c:/dev/Yime/.generated/runtime_candidates_by_code_true.json`
+- `.generated/source_pinyin.db`
+- `.generated/runtime_candidates_by_code_true.json`
 
 兼容策略：
 
@@ -24,13 +27,13 @@
 
 对应入口：
 
-- [build_source_pinyin_db.py](/c:/dev/Yime/internal_data/pinyin_source_db/build_source_pinyin_db.py)
-- [validate_source_pinyin_db.py](/c:/dev/Yime/internal_data/pinyin_source_db/validate_source_pinyin_db.py)
-- [import_danzi_into_prototype_tables.py](/c:/dev/Yime/yime/import_danzi_into_prototype_tables.py)
+- [build_source_pinyin_db.py](../../internal_data/pinyin_source_db/build_source_pinyin_db.py)
+- [validate_source_pinyin_db.py](../../internal_data/pinyin_source_db/validate_source_pinyin_db.py)
+- [import_danzi_into_prototype_tables.py](../../yime/import_danzi_into_prototype_tables.py)
   （兼容入口；真实实现位于 `yime/utils/prototype_single_char_import.py`）
-- [import_duozi_into_prototype_tables.py](/c:/dev/Yime/yime/import_duozi_into_prototype_tables.py)
+- [import_duozi_into_prototype_tables.py](../../yime/import_duozi_into_prototype_tables.py)
   （兼容入口；真实实现位于 `yime/utils/prototype_phrase_import.py`）
-- [refresh_runtime_yime_codes.py](/c:/dev/Yime/yime/refresh_runtime_yime_codes.py)
+- [refresh_runtime_yime_codes.py](../../yime/refresh_runtime_yime_codes.py)
   （兼容入口；真实实现位于 `yime/utils/runtime_codes_refresh.py`）
 
 这条链的关键点是：
@@ -42,13 +45,13 @@
 
 推荐执行顺序：
 
-```bash
-c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/build_source_pinyin_db.py
-c:/dev/Yime/.venv/Scripts/python.exe internal_data/pinyin_source_db/validate_source_pinyin_db.py
-c:/dev/Yime/.venv/Scripts/python.exe yime/import_danzi_into_prototype_tables.py
-c:/dev/Yime/.venv/Scripts/python.exe yime/import_duozi_into_prototype_tables.py
-c:/dev/Yime/.venv/Scripts/python.exe yime/refresh_runtime_yime_codes.py --apply
-c:/dev/Yime/.venv/Scripts/python.exe yime/export_runtime_candidates_json.py
+```powershell
+.\venv312\Scripts\python.exe internal_data\pinyin_source_db\build_source_pinyin_db.py
+.\venv312\Scripts\python.exe internal_data\pinyin_source_db\validate_source_pinyin_db.py
+.\venv312\Scripts\python.exe yime\import_danzi_into_prototype_tables.py
+.\venv312\Scripts\python.exe yime\import_duozi_into_prototype_tables.py
+.\venv312\Scripts\python.exe yime\refresh_runtime_yime_codes.py --apply
+.\venv312\Scripts\python.exe yime\export_runtime_candidates_json.py
 ```
 
 其中：
@@ -65,6 +68,16 @@ c:/dev/Yime/.venv/Scripts/python.exe yime/export_runtime_candidates_json.py
 ```bash
 scripts/run_tests.cmd
 ```
+
+若本次还改变了音节分解或编码规则，必须另外执行：
+
+```powershell
+.\venv312\Scripts\python.exe tools\export_syllable_decomposition.py
+.\venv312\Scripts\python.exe tools\run_locked_layout_pipeline.py
+```
+
+前一命令会同时刷新分解、规则来源和遗漏审计表；后一命令验证 1727 条
+“拼音 → 四个 Yinyuan ID”摘要没有被布局改动越界修改。
 
 ## 2. 运行时查词（IME 消费面）
 

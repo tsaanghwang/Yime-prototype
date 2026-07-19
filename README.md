@@ -12,11 +12,34 @@
 Windows 桌面输入法原型、相关生成链，以及一组已经可重复生成的
 效率基线。
 
+## 当前核心能力：由带调拼音字典生成音元编码
+
+给项目提供一套格式合格、带明确声调的标准拼音字典后，当前主线可以自动完成：
+
+```text
+带调拼音字典
+  → 来源校验与规范音节清单
+  → 拼写规范化和音节分解
+  → 4 个 Yinyuan ID
+  → 三模式编码
+  → 布局投影与词库编码
+```
+
+这项能力采用“实例驱动、有据才扩展”的原则：现有规则覆盖的音节自动编码；遇到真实但尚未登记的
+新音节或新表示形式时，工具链停止并报告来源或规则缺口，不让 AI 或程序临时猜一个编码。不得通过
+手写 `yinjie_code.json`、四音元码、Yinyuan ID 或键位绕过正式链路。
+
+目前1727个规范音节均有来源或经审查补丁依据，并全部通过正式编码器。详细规则、历史形式与逐项
+审计入口见 [音节编码规则与依据](docs/SYLLABLE_ENCODING_RULES.md)。
+
+当前分支的数据链、真源、三张审计表和键盘布局重构总览见
+[当前实现总览](docs/CURRENT_ARCHITECTURE.md)。
+
 当前主线已经能稳定给出几类可验证结果：
 
 - 带调全拼音节在当前主线下统一为 4 码编码。
 - 运行时候选以 SQLite `pinyin_hanzi.db` 为主路径查词。
-- 音元全拼 / 简拼 / 标准全拼的结构码长可以在同语料上并列比较。
+- 音元等长 / 省键 / 标准拼音的结构码长可以在同语料上并列比较。
 - 单字排序与首屏命中率仍是当前优化重点；当前单字需求权重真源是
     BCC 字频频道 `external_data/char_freq/merged_char_freq.txt`，并在
     runtime 中先经动态定标的 5 档分层骨架，再叠加真单字频率与轻量
@@ -28,9 +51,9 @@ Windows 桌面输入法原型、相关生成链，以及一组已经可重复生
 
 ## 实现范围说明
 
-README 中提到的简拼、双拼、并击、动态组词和更强的编码转换能力，
-很多仍属于理论能力、设计方向或长期可能性，不应默认理解为当前
-仓库都已实现。
+当前已经实现等长、变长和省键三种音元编码模式。双拼、并击、动态组词和
+更强的编码转换能力仍有不少属于理论能力、设计方向或长期可能性，不应默认
+理解为当前仓库都已实现。
 
 当前实际主线仍是 Windows 桌面输入法原型，优先处理全拼输入、候选显示、选字回贴、手动输入路径和基础稳定性。
 
@@ -101,9 +124,11 @@ YIME/
     [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)、
     [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)
 - 当前实现边界：
+    [docs/CURRENT_ARCHITECTURE.md](docs/CURRENT_ARCHITECTURE.md)、
     [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)
 - 文档入口： [docs/README.md](docs/README.md)、
     [docs/TERMINOLOGY_INDEX.md](docs/TERMINOLOGY_INDEX.md)、
+    [docs/SYLLABLE_ENCODING_RULES.md](docs/SYLLABLE_ENCODING_RULES.md)、
     [docs/CODEPOINT_POLICY.md](docs/CODEPOINT_POLICY.md)、
     [docs/SOURCE_AND_ARTIFACTS.md](docs/SOURCE_AND_ARTIFACTS.md)、
     [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)

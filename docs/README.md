@@ -14,7 +14,9 @@
 
 ## 📚 文档导航
 
-建议阅读顺序：先看 [../README.md](../README.md) 了解项目边界，
+建议阅读顺序：先看 [../README.md](../README.md) 了解项目边界，再看
+[CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md) 掌握当前已实现的数据链、
+真源和键盘布局，
 **改 `syllable/` 或用 AI 前读
 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md)**，再看
 [project/INPUT_METHOD_SOLUTION.md](project/INPUT_METHOD_SOLUTION.md)
@@ -22,6 +24,13 @@
 
 ### 重要设计约束
 
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支已经实现的字典驱动编码链、真源、审计表和键盘布局重构；
+  判断“现在到底是什么状态”时优先看这里
+- **[音节编码规则与依据](SYLLABLE_ENCODING_RULES.md)** -
+  1727项现行编码的来源原则、拼写形式族、历史五声穷举和修改入口
+- **[布局改动锁](LAYOUT_CHANGE_LOCK.md)** -
+  锁住拼音到 Yinyuan ID 的语义链，并规定唯一布局真源与生成入口
 - **[术语总入口（请先读）](TERMINOLOGY_INDEX.md)** -
   音元/片音/干音/乐音命名索引、常见误解、AI 提醒；
   链到中英文专题文档与 [syllable/NAMING.md](../syllable/NAMING.md)
@@ -36,9 +45,6 @@
   English counterpart
 - **[片音与语音技术单位的对应关系](PIANYIN_TECH_BRIDGE.md)** -
   片音与 ASR/TTS 技术单位的衔接
-- **[Correspondence Between Pianyin and
-  Speech-Technology Units](PIANYIN_TECH_BRIDGE_EN.md)** -
-  English bridge note
 
 ### 快速开始
 
@@ -96,6 +102,8 @@ KLC 文档分工：
 
 ### 核心文档
 
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支的工程事实入口；理论稿和历史记录不得覆盖其现状结论
 - **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** -
   当前 Windows 桌面输入法原型的实现状态、边界和后续方向
 - **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** -
@@ -125,6 +133,8 @@ KLC 文档分工：
 ### 项目管理
 
 - **[路线图](project/ROADMAP.md)** - 项目发展路线图
+- **[Wiki 连续语音与离散分析修订预案](project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md)** -
+  暂缓实施的理论文档整理留痕；当前不修改 Wiki 正文，也不作为现行定义
 - **[更新日志](../CHANGELOG.md)** - 版本更新历史
 - **[贡献指南](../CONTRIBUTING.md)** - 如何贡献代码
 - **[授权文档索引](LICENSING_INDEX.md)** -
@@ -151,9 +161,11 @@ KLC 文档分工：
 
 ### 2. 我想理解文件和生成链
 
-1. 先看 [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md)
-2. 再看 [KEYBOARD_LAYOUT_PIPELINE.md](KEYBOARD_LAYOUT_PIPELINE.md)
-3. 需要术语背景时，再看
+1. 先看 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)
+2. 再看 [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md) 与
+   [SYLLABLE_ENCODING_RULES.md](SYLLABLE_ENCODING_RULES.md)
+3. 布局相关再看 [KEYBOARD_LAYOUT_PIPELINE.md](KEYBOARD_LAYOUT_PIPELINE.md)
+4. 需要术语背景时，再看
    [YINYUAN_TERMINOLOGY.md](YINYUAN_TERMINOLOGY.md) 与
    [THEORY_INDEX.md](THEORY_INDEX.md)
 
@@ -164,7 +176,7 @@ KLC 文档分工：
 2. 不要把这类文档直接当成当前操作手册
 3. 当前流程仍以本页“快速开始”和上面的 KLC 主入口说明为准
 
-## 2026-06 主线更新（维护摘要）
+## 2026-07 主线更新（维护摘要）
 
 近期仓库清理与文档对齐要点：
 
@@ -179,6 +191,11 @@ KLC 文档分工：
   （旧 import 路径；结构真源在 `syllable/codec/yinjie.py`）
 - **静态兜底**：`pinyin_hanzi.json` 已 gitignore，缺失不影响主链
 - **本地验证**：`scripts/run_tests.cmd`
+- **字典驱动编码**：1727项现行音节全部具有来源/补丁依据并通过正式编码器；
+  规则目录和逐项依据受布局锁校验
+- **布局重构**：57个 Yinyuan ID 已统一进入 Base/Shift 两层；AltGr 留空，
+  取消数字/标点搬键兜底，`manual_key_layout.json` 成为唯一布局真源
+- **审计可视数据**：分解、逐项依据和历史差集三张 TSV 可由统一命令重建
   （unittest + pytest input_method）
 
 细节与历史删除清单见
@@ -195,5 +212,5 @@ KLC 文档分工：
 
 ---
 
-**最后更新**: 2026-06-17
-**文档版本**: 1.1.0
+**最后更新**: 2026-07-19
+**文档版本**: 1.2.0

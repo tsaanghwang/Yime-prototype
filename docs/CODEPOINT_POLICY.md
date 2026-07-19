@@ -12,6 +12,9 @@
 
 如果后续实现与本文档冲突，应优先审查实现，而不是先修改本文档。
 
+仓库中各层当前采用的具体文件和生成关系见
+[当前架构与数据真源](CURRENT_ARCHITECTURE.md)。
+
 ## 三层结构
 
 音元输入系统中的编码表示应当稳定地分为三层。
@@ -163,21 +166,27 @@
 - 平台层：`BMP PUA`
 - 辅助可读层：非私用区组合字符或拉丁转写
 
-## 文件职责建议
+## 当前文件职责
 
 以下职责应当稳定下来。
 
-### 应视为真源或准真源的文件
+### 应视为真源或受控依据的文件
 
 - `internal_data/manual_key_layout.json`
   - 历史文件名，当前语义应理解为布局真源。
   - 键位与 Yinyuan ID 的关系。
 - `internal_data/key_to_symbol.json`
   - Yinyuan ID 到规范字符的映射。
-- 后续建议新增：`shouyin_to_yinyuan_id.json`
-  - 首音到 `Nxx` 的语义映射
-- 后续建议新增：`ganyin_to_yinyuan_id_sequence.json`
-  - 干音到 `Mxx Mxx Mxx` 的语义映射
+- `syllable/yinyuan/zaoyin_yinyuan_enhanced.json`
+  - 首音语义及稳定 `Nxx` 身份的当前来源。
+- `syllable/yinyuan/yueyin_yinyuan_enhanced.json`
+  - 乐音语义及稳定 `Mxx` 身份的当前来源。
+- `internal_data/syllable_encoding_rule_catalog.json`
+  - 解释音节来源、拼写归一化和编码路径；不得保存逐音节 ID 或键位映射。
+
+早期建议另建的 `shouyin_to_yinyuan_id.json` 与
+`ganyin_to_yinyuan_id_sequence.json` 已被上述增强语义源和正式编码器取代，
+不得再新增为平行真源。
 
 ### 应视为生成产物的文件
 

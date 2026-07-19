@@ -15,7 +15,7 @@ imports.
 
 ## Default generated location
 
-- `c:/dev/Yime/.generated/source_pinyin.db` (preferred)
+- `.generated/source_pinyin.db` under the current repository (preferred)
 - synced copy: `internal_data/pinyin_source_db/source_pinyin.db`
 
 Override: set `YIME_SOURCE_PINYIN_DB`.

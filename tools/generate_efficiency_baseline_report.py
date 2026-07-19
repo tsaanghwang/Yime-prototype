@@ -544,7 +544,7 @@ def build_syllable_jianpin_rule_stats(
                 "share": share(omitted_middle_tone_count),
             },
             {
-                "label": "至少触发一条简拼规则",
+                "label": "至少触发一条省键规则",
                 "count": compressed_syllable_count,
                 "share": share(compressed_syllable_count),
             },
@@ -1113,7 +1113,7 @@ def build_markdown(payload: dict[str, Any]) -> str:
             if runtime_tuning_summary
             else "- 当前默认弱先验配置摘要不可用：数据库中未找到 runtime_tuning_parameters。"
         ),
-        f"- 同语料总体上，音元简拼平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元全拼平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
+        f"- 同语料总体上，音元省键模式平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元等长模式平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
         "",
         "## 指标表",
         "",
@@ -1162,13 +1162,13 @@ def build_markdown(payload: dict[str, Any]) -> str:
         "",
         "这部分不是第三方输入法实测，而是同一批运行时语料上的结构码长基线。它只回答“同一批条目如果按不同编码长度模型输入，理论键数大约是多少”。",
         "",
-        "比较口径：`音元全拼`每个音节固定 4 键；`音元简拼`按音元全拼进一步压缩，规则是省略虚首音、把构成干音的两个或三个连续存在的相同音元合并成一个、并在同音质的 `高-中-低` 或 `低-中-高` 三音序列中省略中间的中调乐音；`标准全拼`按无调拼音字母数累计；`带数字调号标准全拼`在无调字母数基础上为每个带调音节再计 1 个数字键；`抽象双拼`每个音节固定 2 键。",
+        "比较口径：`音元等长模式`每个音节固定 4 键；`音元省键模式`在变长模式的省略虚首音、合并连续相同音元规则之上，还会在同音质的 `高-中-低` 或 `低-中-高` 三音序列中省略中间的中调乐音；`标准全拼`按无调拼音字母数累计；`带数字调号标准全拼`在无调字母数基础上为每个带调音节再计 1 个数字键；`抽象双拼`每个音节固定 2 键。",
         "",
-        f"- 同语料总体上，音元简拼平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元全拼平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
-        f"- 但在本报告当前采用的省调 `标准全拼` 口径下，音元简拼总体平均仍比标准全拼约多 `{format_float(float(code_length_baseline['overall']['jianpin_vs_full_pinyin']))}` 键，因此这张表不能用来支持“已经比省调现行拼音平均码长更短”的说法。",
-        f"- 若把对照口径换成 `带数字调号标准全拼`，则同语料总体上音元简拼平均约少 `{format_float(abs(float(code_length_baseline['overall']['jianpin_vs_full_pinyin_with_tone_number'])))}` 键；这可以支持“音元简拼相对带数字调号全拼更短”的表述。",
+        f"- 同语料总体上，音元省键模式平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元等长模式平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
+        f"- 但在本报告当前采用的省调 `标准全拼` 口径下，音元省键模式总体平均仍比标准全拼约多 `{format_float(float(code_length_baseline['overall']['jianpin_vs_full_pinyin']))}` 键，因此这张表不能用来支持“已经比省调现行拼音平均码长更短”的说法。",
+        f"- 若把对照口径换成 `带数字调号标准全拼`，则同语料上音元省键模式平均约少 `{format_float(abs(float(code_length_baseline['overall']['jianpin_vs_full_pinyin_with_tone_number'])))}` 键；这可以支持“音元省键模式相对带数字调号全拼更短”的表述。",
         "",
-        "| 语料层级 | 条目数 | 平均音节数 | 音元全拼平均码长 | 音元简拼平均码长 | 标准全拼平均码长 | 带数字调号标准全拼平均码长 | 抽象双拼平均码长 | 简拼较全拼减少 | 简拼-标准全拼差值 | 简拼-带调全拼差值 | 简拼-双拼差值 |",
+        "| 语料层级 | 条目数 | 平均音节数 | 音元等长平均码长 | 音元省键平均码长 | 标准全拼平均码长 | 带数字调号标准全拼平均码长 | 抽象双拼平均码长 | 省键较等长减少 | 省键-标准全拼差值 | 省键-带调全拼差值 | 省键-双拼差值 |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         make_code_length_row("一级字（前 3500）", code_length_baseline["chars_level_1"]),
         make_code_length_row("二级前字（前 6500）", code_length_baseline["chars_level_2"]),
@@ -1181,10 +1181,10 @@ def build_markdown(payload: dict[str, Any]) -> str:
 
     lines.extend(
         [
-            "## 简拼样本分析",
+            "## 省键模式样本分析",
             "",
-            "下面只看单个音节的结构压缩效果。这里的‘压缩最明显’与‘几乎压不动’都只依据三条简拼规则对四码全拼做机械压缩，不涉及候选排序或学习成本。",
-            f"按全部音节库存统计，至少触发一条简拼规则的音节占 `{format_pct(float(syllable_jianpin_rule_stats['rule_rows'][3]['share']))}`，平均每个音节可比四码全拼少 `{format_float(float(syllable_jianpin_rule_stats['avg_saved_keys_per_syllable']))}` 键。",
+            "下面只看单个音节的结构压缩效果。这里的‘压缩最明显’与‘几乎压不动’都只依据三条省键规则对四码等长编码做机械压缩，不涉及候选排序或学习成本。",
+            f"按全部音节库存统计，至少触发一条省键规则的音节占 `{format_pct(float(syllable_jianpin_rule_stats['rule_rows'][3]['share']))}`，平均每个音节可比四码等长编码少 `{format_float(float(syllable_jianpin_rule_stats['avg_saved_keys_per_syllable']))}` 键。",
             "",
             "### 按规则类型分组统计",
             "",
@@ -1214,7 +1214,7 @@ def build_markdown(payload: dict[str, Any]) -> str:
             "",
             "### 压缩最明显的音节样本",
             "",
-            "| 音节 | 全拼码长 | 简拼码长 | 减少键数 | 主要原因 |",
+            "| 音节 | 等长码长 | 省键码长 | 减少键数 | 主要原因 |",
             "| --- | ---: | ---: | ---: | --- |",
         ]
     )
@@ -1229,7 +1229,7 @@ def build_markdown(payload: dict[str, Any]) -> str:
             "",
             "### 几乎压不动的音节样本",
             "",
-            "| 音节 | 全拼码长 | 简拼码长 | 减少键数 | 主要原因 |",
+            "| 音节 | 等长码长 | 省键码长 | 减少键数 | 主要原因 |",
             "| --- | ---: | ---: | ---: | --- |",
         ]
     )
