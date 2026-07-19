@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 from typing import Any, cast
 
@@ -23,6 +25,11 @@ from yime.utils.yinyuan_id_chain import (
     load_yinyuan_id_to_layout_key,
     symbol_code_to_yinyuan_ids,
 )
+from yime.utils.syllable_encoding_provenance import (
+    build_syllable_encoding_provenance_rows,
+    load_rule_catalog,
+    load_source_attestations,
+)
 
 
 LOCK_PATH = Path("internal_data/layout_change_lock.json")
@@ -33,6 +40,8 @@ PINYIN_INVENTORY_PATH = Path(
     "internal_data/pinyin_source_db/lexicon_exports/pinyin_normalized.json"
 )
 YINJIE_CODE_PATH = Path("syllable/codec/yinjie_code.json")
+SYLLABLE_RULE_CATALOG_PATH = Path("internal_data/syllable_encoding_rule_catalog.json")
+SYLLABLE_PROVENANCE_PATH = Path("internal_data/yime_syllable_encoding_provenance.tsv")
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -83,6 +92,49 @@ def pinyin_yinyuan_chain_digest(repo_root: Path = ROOT) -> str:
     return hashlib.sha256(serialized).hexdigest()
 
 
+def syllable_rule_catalog_digest(repo_root: Path = ROOT) -> str:
+    catalog = load_rule_catalog(repo_root / SYLLABLE_RULE_CATALOG_PATH)
+    serialized = json.dumps(
+        catalog,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(serialized).hexdigest()
+
+
+def _syllable_provenance_rows(repo_root: Path) -> list[dict[str, Any]]:
+    inventory = cast(
+        dict[str, str],
+        _load_json(repo_root / PINYIN_INVENTORY_PATH),
+    )
+    attestations = load_source_attestations(
+        char_source_path=repo_root / "internal_data/hanzi_pinyin/pinyin.txt",
+        phrase_source_path=repo_root / "internal_data/phrase_pinyin/phrase_pinyin.txt",
+        patch_path=repo_root / "internal_data/pinyin_source_db/pinyin_normalized_patch.json",
+    )
+    catalog = load_rule_catalog(repo_root / SYLLABLE_RULE_CATALOG_PATH)
+    return [
+        asdict(row)
+        for row in build_syllable_encoding_provenance_rows(
+            inventory,
+            attestations=attestations,
+            catalog=catalog,
+            repo_root=repo_root,
+        )
+    ]
+
+
+def syllable_provenance_digest(repo_root: Path = ROOT) -> str:
+    serialized = json.dumps(
+        _syllable_provenance_rows(repo_root),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(serialized).hexdigest()
+
+
 def _check_semantic_lock(repo_root: Path, lock: dict[str, Any], issues: list[str]) -> None:
     expected_digest = str(lock.get("semantic_registry_sha256") or "")
     actual_digest = semantic_registry_digest(repo_root)
@@ -99,6 +151,22 @@ def _check_semantic_lock(repo_root: Path, lock: dict[str, Any], issues: list[str
             "numeric-Pinyin -> Yinyuan-ID semantics changed during a layout change: "
             f"expected {expected_chain_digest}, got {actual_chain_digest}. "
             "Do not update this digest as part of a keyboard-layout change."
+        )
+    expected_catalog_digest = str(lock.get("syllable_rule_catalog_sha256") or "")
+    actual_catalog_digest = syllable_rule_catalog_digest(repo_root)
+    if actual_catalog_digest != expected_catalog_digest:
+        issues.append(
+            "syllable encoding rule catalog changed: "
+            f"expected {expected_catalog_digest}, got {actual_catalog_digest}. "
+            "Review the semantic/provenance rule change separately from keyboard layout."
+        )
+    expected_provenance_digest = str(lock.get("syllable_provenance_sha256") or "")
+    actual_provenance_digest = syllable_provenance_digest(repo_root)
+    if actual_provenance_digest != expected_provenance_digest:
+        issues.append(
+            "syllable source/rule provenance changed: "
+            f"expected {expected_provenance_digest}, got {actual_provenance_digest}. "
+            "Regenerate the audit and review the upstream semantic change."
         )
 
 
@@ -174,6 +242,24 @@ def _check_full_pinyin_chain(repo_root: Path, issues: list[str]) -> None:
                 return
 
 
+def _check_syllable_provenance_artifact(repo_root: Path, issues: list[str]) -> None:
+    path = repo_root / SYLLABLE_PROVENANCE_PATH
+    if not path.exists():
+        issues.append(f"missing syllable provenance audit: {SYLLABLE_PROVENANCE_PATH.as_posix()}")
+        return
+    with path.open("r", encoding="utf-8", newline="") as file:
+        actual = list(csv.DictReader(file, delimiter="\t"))
+    expected = [
+        {key: str(value) for key, value in row.items()}
+        for row in _syllable_provenance_rows(repo_root)
+    ]
+    if actual != expected:
+        issues.append(
+            "syllable encoding provenance audit is stale; "
+            "run tools/export_syllable_decomposition.py and review the rule changes"
+        )
+
+
 def compare_pinyin_chain_entry(
     pinyin_tone: str,
     semantic_ids: tuple[str, ...],
@@ -199,6 +285,7 @@ def check_layout_change_lock(
     if include_derived_artifacts:
         _check_resolved_layout(repo_root, issues)
     _check_full_pinyin_chain(repo_root, issues)
+    _check_syllable_provenance_artifact(repo_root, issues)
     return issues
 
 
@@ -209,6 +296,8 @@ def main() -> int:
     parser.add_argument("--repo-root", type=Path, default=ROOT)
     parser.add_argument("--print-semantic-digest", action="store_true")
     parser.add_argument("--print-pinyin-chain-digest", action="store_true")
+    parser.add_argument("--print-syllable-rule-catalog-digest", action="store_true")
+    parser.add_argument("--print-syllable-provenance-digest", action="store_true")
     parser.add_argument(
         "--preflight",
         action="store_true",
@@ -221,6 +310,12 @@ def main() -> int:
         return 0
     if args.print_pinyin_chain_digest:
         print(pinyin_yinyuan_chain_digest(repo_root))
+        return 0
+    if args.print_syllable_rule_catalog_digest:
+        print(syllable_rule_catalog_digest(repo_root))
+        return 0
+    if args.print_syllable_provenance_digest:
+        print(syllable_provenance_digest(repo_root))
         return 0
     issues = check_layout_change_lock(
         repo_root,

@@ -53,6 +53,10 @@ scripts\layout_workbench.cmd
 resolved layout、KLC、可视表及
 Yinyuan ID crosswalk，最后重新闭锁。CI 和本地测试也会执行同一把锁。
 
+锁还会重新计算 `syllable_encoding_rule_catalog.json` 与1727条来源—规则依据记录。规则目录不允许
+保存 Yinyuan ID 或键位映射；它只解释正式编码链。来源、拼写规则或编码查表别名发生变化但没有同步
+审计表时，预检也会失败。
+
 ## 布局改动允许做什么
 
 - 在 `manual_key_layout.json` 中调整 Yinyuan ID 的 base/shift 键位。
@@ -80,3 +84,26 @@ python tools/check_layout_change_lock.py
 
 不要通过删除检查、添加补丁或更新摘要来消除错误；应回到错误指出的上游真源修复，
 然后重新运行唯一入口。
+
+## 查看没有进入编码结果的候选
+
+运行：
+
+```bash
+python tools/export_syllable_decomposition.py
+```
+
+除成功编码表 `internal_data/yime_syllable_decomposition.tsv` 外，该命令还会生成
+`internal_data/yime_syllable_encoding_provenance.tsv` 和
+`internal_data/yime_syllable_omissions.tsv`。逐项规则与来源层次见
+`docs/SYLLABLE_ENCODING_RULES.md`。遗漏表必须按 `status` 区分，不能把所有差集都称为
+“被过滤的音节”：
+
+- `filtered_before_inventory`：上游标调读音被导入格式规则过滤；从
+  `internal_data/pinyin_source_db/build_source_pinyin_db.py` 的规范化和允许格式开始检查。
+- `encoder_failed`：规范数字拼音已经进入清单，但正式编码器失败；按表中的 `source_rule`
+  从切分、首音编码或干音编码阶段开始修复。
+- `not_generated_from_current_inventory`：理论干音集合中存在、当前规范音节编码链未产出的项；
+  先核实是拼写变体、未被词库收录的特殊形式，还是真异常，不能直接补 `yinjie_code.json`。
+如果确需改变分解或编码规则，这是独立的语义改动。应从表中所列上游真源开始，重建完整编码链，
+验证成功后再由审查者明确更新 `layout_change_lock.json` 的语义摘要；不得在布局分支中仅为通过锁而更新摘要。
