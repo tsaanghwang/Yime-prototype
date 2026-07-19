@@ -14,6 +14,9 @@
 
 建议与 [码点与中间层策略](CODEPOINT_POLICY.md) 配合阅读。
 
+当前工程状态的短入口见 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)。
+本文后半部保留大量历史清理记录；判断当前真源时，以本文件“当前建议分层”和该总览为准。
+
 2026-06 起，**已删除路径的历史审计**不再在本文件逐项追加；见下文「历史清理记录（归档）」与 git 历史。
 
 与首音细分层相关的规则说明草案，见 [首音细分规则与真源 Schema 提案](SHOUYIN_SPLITTER_RULES.md)。当前代码链未启用该草案中的细分切分方案。
@@ -66,21 +69,23 @@
 - `docs/KEYBOARD_LAYOUT_PIPELINE.md`
   - 规范键盘布局生成链应如何组织。
 
-### B. 应尽快补齐的缺失真源层
+### B. 已落地的音元语义与编码规则层
 
-这些文件在结构上应存在，但目前仓库里还没有稳定落地为独立真源。
+早期文档曾建议另建 `shouyin_to_yinyuan_id.json` 和
+`ganyin_to_yinyuan_id_sequence.json`。当前实现没有采用这两个平行文件名，而是把稳定身份和运行时
+承载合并登记在两份增强真源中，再由正式编码器生成派生产物：
 
-#### 1. 首音语义映射真源
-
-- 建议新增：`internal_data/shouyin_to_yinyuan_id.json`
-  - 用来表达：`b -> N01`、`zh -> N15` 这类语义关系。
-  - 这样首音语义就不再依赖具体字符文件。
-
-#### 2. 干音语义序列真源
-
-- 建议新增：`internal_data/ganyin_to_yinyuan_id_sequence.json`
-  - 用来表达：`i1 -> M01 M01 M01`、`an4 -> M10 M11 M30` 这类三乐音序列。
-  - 这样干音编码不会再直接绑定某个 Unicode 码点区。
+- `syllable/yinyuan/zaoyin_yinyuan_enhanced.json`
+  - 首音语义真源；每项包含稳定 `Nxx`、语义码、标签和运行时字符。
+- `syllable/yinyuan/yueyin_yinyuan_enhanced.json`
+  - 乐音语义真源；每项包含稳定 `Mxx`、语义码、别名和运行时字符。
+- `internal_data/syllable_encoding_rule_catalog.json`
+  - 来源、拼写规范化和编码兼容规则的解释目录。
+  - 明确禁止保存拼音到 Yinyuan ID、字符码或键位的逐项映射，避免形成第二套码表。
+- `syllable/analysis/syllable_encoding_pipeline.py`、`syllable_splitter.py`
+  - 标准拼音到首音段/干音段的正式规则入口。
+- `ShouyinEncoder`、`GanyinEncoder`、`YinjieEncoder`
+  - 正式生成四音元编码；禁止通过手写 `yinjie_code.json` 绕过。
 
 这两份文件应当成为后续修复生成链时最优先补上的真源层。
 
@@ -98,7 +103,7 @@
 - `internal_data/bmp_pua_trial_projection.md`
   - 对应投影的说明文件。
 
-### D. 当前生成产物层
+### D. 当前生成产物与审计层
 
 这些文件都可以重建，不应被长期手工承担真源职责。
 
@@ -153,6 +158,14 @@
 - `syllable/codec/yinjie_code.json`
   - 当前是最终音节到四字符编码的产物。
   - 应从首音语义层、干音语义层和码点映射层生成。
+
+- `internal_data/yime_syllable_decomposition.tsv`
+  - 1727项规范音节经过正式编码器后的分段、Yinyuan ID 和布局投影审计表。
+- `internal_data/yime_syllable_encoding_provenance.tsv`
+  - 1727项编码逐项记录 Unihan/词语/补丁依据及命中的稳定规则编号。
+  - 布局锁会从来源重新计算并拒绝过期内容。
+- `internal_data/yime_syllable_omissions.tsv`
+  - 旧理论干音全集相对现行实例驱动链的差集；不能当作“编码失败音节表”。
 
 - `yime/pinyin_normalized.json`
   - 当前承担 `数字标调拼音 -> 调号标调拼音` 的显示层资料。
@@ -339,7 +352,8 @@
 - `yime/syllable_decoder.py`
   （``SyllableDecoder`` 旧 import 路径，直接继承 ``YinjieDecoder``）
 
-- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
+- 已清退：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和
+  独立的缩写草稿兼容入口也已清退。当前变长/省键模式已经收编进正式三模式链。
   （2026-06 后合并入主链，恢复请查 git 历史）
 
 - 已清退本地 DB 旧中文拼音表：`数字标调拼音`、`多式拼音映射关系`、`音元拼音`
@@ -629,90 +643,20 @@ git show <commit> --stat
     只是历史上以错误文件名重复保存；在并入
     `internal_data` 时已一并清理。
 
-## 当前结构的主要问题
+## 当前结构结论（2026-07）
 
-### 1. 语义层缺失独立文件
+早期“语义层缺少独立文件、下一步另建两张 N/M 映射表”的建议已经被后续重构取代。当前结论是：
 
-当前首音和干音的语义关系仍然大量隐含在“字符结果文件”里，而不是明确落在 `N/M` Yinyuan ID 映射文件中。
+1. `zaoyin_yinyuan_enhanced.json` 与 `yueyin_yinyuan_enhanced.json` 已显式登记稳定 Yinyuan ID，
+   不再新增平行的 `shouyin_to_yinyuan_id.json` 或 `ganyin_to_yinyuan_id_sequence.json`。
+2. `YinjieEncoder` 是数字标调拼音到四音元编码的唯一正式入口；`yinjie_code.json` 是产物。
+3. `syllable_encoding_rule_catalog.json` 只解释来源与变换，不允许保存逐音节编码，避免形成第二套真源。
+4. `manual_key_layout.json` 是唯一 Yinyuan ID 到物理键投影；布局锁禁止从拼音、字符或消费者仓库
+   中间直入键位。
+5. 数据库、Rime、KLC、Windows 导入表和审计 TSV 都是消费者或可重建产物，不能作为单项语义
+   修复入口。
 
-这导致：
+仍需长期关注的是生成脚本能否始终从增强真源和正式编码器重建全部运行时字符文件，而不是恢复人工
+维护派生 JSON 的习惯。当前锁、来源依据表和一致性测试已经把这项风险显式化。
 
-1. 一旦换码点区，语义层也会跟着漂移。
-2. 测试失败时，容易直接去改字符结果。
-3. 生成链难以稳定拆分。
-
-### 2. 运行时字符文件被过度当作真源
-
-当前 `syllable/codec/yinjie_encoder.py` 仍然直接消费：
-
-- `syllable/yinyuan/shouyin_codepoint.json`
-- `syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json`
-
-这意味着字符层文件事实上仍在扮演真源角色，与策略文档要求不一致。
-
-### 3. 数据库文件容易被误改为修复入口
-
-当测试或运行链不通时，如果没有明确“数据库只是消费端产物”，就很容易出现“为提高测试通过率直接改库”的错误做法。
-
-## 下一步拆链建议
-
-建议按以下顺序进行。
-
-### 第一步：补齐语义真源层
-
-新增：
-
-1. `internal_data/shouyin_to_yinyuan_id.json`
-2. `internal_data/ganyin_to_yinyuan_id_sequence.json`
-
-目标：先把“首音/干音语义”与“Unicode 字符”彻底拆开。
-
-### 第二步：让运行时字符文件退回生成产物角色
-
-调整生成链，使以下文件由语义层自动生成：
-
-1. `syllable/yinyuan/shouyin_codepoint.json`
-2. `syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json`
-3. `syllable/yinyuan/yinyuan_codepoint.json`
-4. `syllable/codec/yinjie_code.json`
-
-### 第三步：明确 canonical 与 projection 的分工
-
-建议：
-
-1. `internal_data/key_to_symbol.json` 继续承担 canonical 映射职责。
-2. `internal_data/bmp_pua_trial_projection.json` 继续承担 BMP projection 职责。
-3. `yinyuan.klc` 由布局真源 + 选定 projection/canonical 模式生成。
-
-### 第四步：把数据库完全降级为消费端产物
-
-目标：
-
-1. 数据库不再被视为修复字符系统的入口。
-2. 需要修字符系统时，回到语义层和码点层修，再重建数据库导入结果。
-
-## 最终目标结构
-
-理想结构如下：
-
-1. 语义层
-   - `manual_key_layout.json`
-   - `shouyin_to_yinyuan_id.json`
-   - `ganyin_to_yinyuan_id_sequence.json`
-
-2. 规范码点层
-   - `key_to_symbol.json`
-
-3. 平台投影层
-   - `bmp_pua_trial_projection.json`
-
-4. 生成产物层包括：
-
-- `shouyin_codepoint.json`
-- `ganyin_to_fixed_length_yinyuan_sequence.json`
-- `yinyuan_codepoint.json`
-- `syllable/codec/yinjie_code.json`
-- `yinyuan.klc`
-- 数据库与导出文件
-
-只要这个分层稳定下来，后续无论换码点区、重做布局、修复工具链还是重建数据库，都可以各改各层，不会再互相污染。
+当前结构图和操作入口统一见 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)。

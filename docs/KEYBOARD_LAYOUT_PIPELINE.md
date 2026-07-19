@@ -7,7 +7,8 @@
 
 ## 设计约束
 
-在阅读本流程前，请先阅读 [码点与中间层策略](CODEPOINT_POLICY.md)。
+在阅读本流程前，请先阅读 [当前架构与数据真源](CURRENT_ARCHITECTURE.md)、
+[布局改动锁](LAYOUT_CHANGE_LOCK.md) 与 [码点与中间层策略](CODEPOINT_POLICY.md)。
 
 当前流程依赖四个前提：
 
@@ -22,9 +23,16 @@
 ## 当前有效的生成链
 
 ```text
-拼音/音元语义 -> Yinyuan ID 与字符映射 -> 布局真源 manual_key_layout.json
--> yinyuan.klc -> MSKLC 打包输出 -> MSI 安装
+数字标调拼音
+-> SyllableEncodingPipeline / YinjieEncoder
+-> 4 个 Yinyuan ID（语义编码锁定）
+-> manual_key_layout.json（唯一键位投影）
+-> resolved layout / crosswalk / KLC / Rime
+-> MSKLC 打包输出 -> MSI 安装
 ```
+
+布局重构只能改变“Yinyuan ID → 物理键”这一步，不能改写上游拼音分解或
+四个 Yinyuan ID。当前布局版本为 `canonical_yinyuan_vk_layout_v1`。
 
 ## 各层职责
 
@@ -43,7 +51,7 @@
 它决定：
 
 - 哪个物理键承载哪个 `Nxx/Mxx`
-- Base / Shift / AltGr 各层如何分配
+- Base / Shift 层如何分配；AltGr 字段为兼容保留，当前没有分配
 
 它不决定：
 
@@ -62,7 +70,28 @@
 
 这些都应重建，不应手工长期维护。
 
+## 当前布局摘要
+
+- 57 个 Yinyuan ID 全部位于 Base 或 Shift 层，AltGr 层为空。
+- Base 层共 47 键：22 个乐音、24 个首音类 ID 和 1 个反引号保留键。
+- Shift 层承载其余 11 个乐音；`Shift+1` 至 `Shift+9` 保留给候选选择。
+- Space、Enter、`Shift+1` 提交首选，`Shift+2` 至 `Shift+9` 选择对应候选。
+- 旧的数字和标点重定位功能已经移除；可打印键不再承担翻页键职责。
+
+布局的记忆规则和形成理由见
+[乐音布局设计依据](../internal_data/musical_layout_skeleton.md) 与
+[首音布局设计依据](../internal_data/shouyin_layout_skeleton.md)。
+
 ## 标准流程
+
+如需可视化调整与试打，先运行：
+
+```powershell
+scripts\layout_workbench.cmd
+```
+
+工作台中的交换只存在于草稿中；只有“保存布局并进入生成流程”才会写入唯一
+布局真源。保存失败会恢复原布局。
 
 ### 步骤1：从布局真源生成 `yinyuan.klc`
 
@@ -142,6 +171,8 @@ $klcRepo = if ($env:YIME_KEYBOARD_LAYOUT_REPO) {
 2. 不要直接复制 DLL 到系统目录来替代当前 MSI 流程。
 3. 不要通过手改 `releases/` 下历史目录来猜测当前发布状态。
 4. 不要把 `manual_key_layout.json` 误解成“手工安装流程”的一部分。
+5. 不要为某个拼音直接指定键位，也不要新增平行的 `yinyuan_id_to_key` 映射。
+6. 不要在消费者仓库里以字符或旧编码反推 Yinyuan ID 键位。
 
 ## 出问题时优先检查什么
 

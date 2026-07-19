@@ -1,13 +1,13 @@
-# Base 层乐音排键基线
+# 乐音布局设计依据（已同步到当前布局真源）
 
-本文件是键盘布局研究中乐音类 Yinyuan ID 的上游设计依据。它先固定
-Base 层的 22 个乐音位置，并逐步记录 Shift 层乐音位置；实首音和候选操作
-由首音骨架文档继续研究。
+本文件记录当前布局中乐音类 Yinyuan ID 的设计理由和记忆规则。Base 层的
+22 个乐音与 Shift 层的 11 个乐音均已同步到
+`internal_data/manual_key_layout.json`；首音和候选操作见首音布局文档。
 
 `internal_data/musical_group_template.json` 提供乐音分组和组内高、中、低
-语义。本文件决定研究方案中的物理键位，不以该文件记录的当前运行时键位
-为依据。运行时审计表、crosswalk、KLC 和 Rime 键位表属于实现或派生产物，
-不得反过来覆盖本文件的设计结论。
+语义。本文件解释布局选择，但实现事实以唯一布局真源
+`internal_data/manual_key_layout.json` 为准。运行时审计表、crosswalk、KLC
+和 Rime 键位表属于派生产物，不得反过来定义布局。
 
 ## 范围和容量
 
@@ -62,7 +62,7 @@ Shift 数字键的数字一致，共可直接选择 9 个候选。
 - `/er/` 组三键叠在 Base 层 `/u/` 组的 `U I O` 三键上；
 - `/n/` 中音使用 `Shift+N`；
 - `/ng/` 中音使用 `Shift+G`，以 `ng` 末尾的 `g` 提示。
-- `/-i/` 组沿用当前可打方案的 `Shift+J/K/L`，从左到右保持高、中、低。
+- `/-i/` 组使用 `Shift+J/K/L`，从左到右保持高、中、低。
 
 ## 乐音分组
 
@@ -198,17 +198,18 @@ Z = n低 M30            / = ng低 M33
 └─ 1 个保留键
 ```
 
-若实测后确需修改这 22 个乐音，必须先回到本文件重新讨论规则，再同步程序
-和派生产物。
+若实测后确需修改这 22 个乐音，应先明确要修订的设计规则，再通过布局工作台
+或唯一布局真源改动，并将最终理由回写本文件。
 
-## 后续工作
+## 当前实现状态与后续试验
 
-设计文档中的键位已经排完，后续工作是：
+当前 57 个 Yinyuan ID 已全部进入 Base 或 Shift 层，AltGr 层保留但为空。
+本文件与首音布局文档共同解释当前 `canonical_yinyuan_vk_layout_v1`：
 
 1. 确定反引号 `` ` `` 保留键将来的用途；
-2. 将本方案同步到原型运行时、Windows Yime、KLC、Rime 和 crosswalk；
-3. 生成可安装、可试打的实验布局；
-4. 根据试打结果决定是否修订设计。
+2. 使用 `scripts\layout_workbench.cmd` 进行可视化交换和词库试打；
+3. 保存后由 `python tools/run_locked_layout_pipeline.py` 重建 resolved layout、
+   crosswalk、KLC 和其他消费者产物；
+4. 根据试打结果决定是否修订布局真源及本设计依据。
 
-在进入实现同步前，`internal_data/musical_layout_skeleton.md` 与
-`internal_data/shouyin_layout_skeleton.md` 共同构成完整布局依据。
+不得直接修改 KLC、Rime 键表或运行时 JSON 来形成另一套布局。

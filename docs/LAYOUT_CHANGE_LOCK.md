@@ -3,6 +3,9 @@
 布局讨论不需要每次都从音元体系的历史重新讲起，但实现必须保留已经取得的约束。
 本锁把这些约束变成可执行检查，防止再次从数据链中间直接写码或写键位。
 
+当前各层真源、生成物和修改入口的总表见
+[当前架构与数据真源](CURRENT_ARCHITECTURE.md)。
+
 ## 受保护的数据链
 
 ```text
@@ -24,6 +27,9 @@
 ```text
 internal_data/manual_key_layout.json
 ```
+
+当前版本 `canonical_yinyuan_vk_layout_v1` 把全部 57 个 Yinyuan ID 分配到
+Base 或 Shift 层，AltGr 层保留为空；具体设计理由见乐音和首音布局依据文档。
 
 每次修改后只运行：
 
