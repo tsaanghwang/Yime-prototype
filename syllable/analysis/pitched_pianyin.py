@@ -1,15 +1,15 @@
 """
-Pitched Segment Representation Module
+Yueyin Pianyin Representation Module
 乐音类片音表示模块
 #
-This module defines a class for representing pitched segments in Chinese phonetics.
+This module defines the project-specific yueyin pianyin object.
 #
 乐音 (YueyinPianyin) 由音质和音高构成.
 乐音的音高特指与乐音的音质联结的调段.
 音质 (quality): 必选属性
 音高 (pitch): 必选属性
 #
-A pitched segment (yueyin) consists of quality and pitch (a tone segment associated with the quality).
+A yueyin pianyin has quality and a specified pitch that jointly participate in contrast.
 Quality: required attribute
 Pitch: required attribute
 """
@@ -17,7 +17,7 @@ Pitch: required attribute
 from typing import Any
 
 
-class PitchedPianyin:
+class YueyinPianyinBase:
     def __init__(self, quality: str, pitch: str):
         if not quality:
             raise ValueError("quality cannot be empty")
@@ -30,7 +30,7 @@ class PitchedPianyin:
         self.loudness: Any | None = None
 
 
-class YueyinPianyin(PitchedPianyin):
+class YueyinPianyin(YueyinPianyinBase):
     """
     Represents the pitched segment of a Chinese syllable.
     表示汉语音节的乐音(yueyin)
@@ -146,3 +146,7 @@ class YueyinPianyin(PitchedPianyin):
             representation=representation,
             pitch_style=pitch_style
         )
+
+
+# 兼容这个实验模块的旧导入；正式公共类型位于 syllable.pianyin。
+PitchedPianyin = YueyinPianyinBase

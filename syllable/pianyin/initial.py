@@ -15,10 +15,10 @@ The tone of the initial sound, the tone segment connected to the initial consona
 named initial tone, is an optional attribute.
 """
 
-from .pianyin import UnpitchedPianyin
+from .pianyin import ZaoyinPianyin
 
 
-class Initial(UnpitchedPianyin):
+class Initial(ZaoyinPianyin):
     """
     Represents the initial sound of a Chinese syllable.
     表示汉语音节的首音
