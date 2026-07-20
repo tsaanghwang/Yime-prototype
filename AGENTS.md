@@ -13,6 +13,9 @@
 
 ## 必须保持的原则
 
+- 片音不是等长时间窗、平顶音段、原始波形块或声学帧；音元是表示条件片音的抽象变元，
+  Yinyuan ID 只是音元的唯一编号。不得从 `M01`、`N01` 或四元编码位置反推固定音值、等长时限或
+  已经得到实验验证的自然语音边界。
 - 采用实例驱动：来源中实际出现或经过明确审查的带调音节才进入现行清单；不得用早期“五声补齐”
   假设自动生成新音节。
 - 新字典中现有规则覆盖的音节应由正式链自动编码；新形式没有依据时必须失败并报告，不能由 AI
@@ -28,6 +31,8 @@
 先阅读：
 
 - `docs/CURRENT_ARCHITECTURE.md`
+- `docs/PIANYIN_ANALYSIS_OVERVIEW.md`
+- `docs/ZAOYIN_YUEYIN_CLASSIFICATION.md`
 - `docs/SYLLABLE_ENCODING_RULES.md`
 - `docs/LAYOUT_CHANGE_LOCK.md`
 - `internal_data/syllable_encoding_rule_catalog.json`
