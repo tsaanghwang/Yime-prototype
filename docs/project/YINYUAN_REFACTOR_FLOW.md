@@ -6,10 +6,10 @@
 
 ## 目标
 
-- 把 **噪音 / 乐音** 明确为跨层共享的类别轴，而不是某一层专有对象名。
+- 把 **噪音类 (`zaoyin`) / 乐音类 (`yueyin`)** 明确为跨层共享的类别轴，而不是普通声学术语或某一层专有对象名。分类定义以 [噪音类与乐音类：分类说明](../ZAOYIN_YUEYIN_CLASSIFICATION.md) 为准。
 - 把 **片音对象**、**音元对象**、**片音到音元的归并规则**、**编码表示** 四层拆开。
 - 让正式编码器统一产出稳定的四个 Yinyuan ID，再由布局层单独投影到物理键。
-- 避免 `YueyinYinyuan` / `NoiseYinyuan` 同时兼任“领域对象 + 归并器 + 配置加载器 + 工具函数”。
+- 避免 `YueyinYinyuan` / `ZaoyinYinyuan` 同时兼任“领域对象 + 归并器 + 配置加载器 + 工具函数”。
 
 ## 重构后主线
 
@@ -51,7 +51,7 @@ flowchart TD
 负责干音结构编码。它消费 mapper 与运行时映射，但不再把归并规则塞进 `YueyinYinyuan`。
 
 5. `syllable.analysis.shouyin_encoder.ShouyinEncoder`
-负责首音结构编码。当前主线从真源 JSON 直接读取显式映射，不再构造未参与主流程的 `NoiseYinyuan` 实例。
+负责首音结构编码。当前主线从真源 JSON 直接读取显式映射，不再构造未参与主流程的 `ZaoyinYinyuan` 实例。
 
 6. `internal_data/syllable_encoding_rule_catalog.json`
 负责解释 1727 个规范带调音节的来源、拼写变换和编码路径。它不保存四 ID
@@ -81,15 +81,16 @@ flowchart TD
 ## 不再推荐的旧模式
 
 - 在 `YueyinYinyuan` 上继续添加 `_process_mid_high_model`、`_change_pitch_style` 之类的流程方法。
-- 让 `NoiseYinyuan` / `YueyinYinyuan` 同时兼任“领域对象”和“编码流程服务”。
+- 让 `ZaoyinYinyuan` / `YueyinYinyuan` 同时兼任“领域对象”和“编码流程服务”。
 - 把“噪音 / 乐音”写成只属于音元层、或只属于片音层的分类。
-- 让 `UnpitchedPianyin` 默认投射成 `YueyinYinyuan`。
+- 让 `ZaoyinPianyin` 默认投射成 `YueyinYinyuan`。
 - 在 `yinjie_code.json`、数据库或消费者键表中直接补某个拼音的编码。
 - 为布局试验建立平行的拼音到键位或 Yinyuan ID 到键位映射。
 
 ## 兼容性说明
 
 - `type` 等历史字段保持兼容；新代码优先使用共享 `category` 轴。
+- `UnpitchedPianyin`、`PitchedPianyin`、`NoiseYinyuan` 和 `MusicalYinyuan` 只保留为旧调用别名；新代码使用 `Zaoyin*` / `Yueyin*`。
 - `YueyinYinyuan.from_pianyin()` 现在只接受乐音片音；噪音片音不再默认补成“中性调乐音音元”。
 - 工具脚本已切到 `YueyinMapper`，主链与脚本链的归并规则保持同源。
 - 1727 条规范音节编码及语义注册表摘要由布局改动锁固定；键盘重构只允许

@@ -29,6 +29,11 @@
   判断“现在到底是什么状态”时优先看这里
 - **[音节编码规则与依据](SYLLABLE_ENCODING_RULES.md)** -
   1727项现行编码的来源原则、拼写形式族、历史五声穷举和修改入口
+- **[片音分析与音元表示：工程阅读概要](PIANYIN_ANALYSIS_OVERVIEW.md)** -
+  片音、音元和 Yinyuan ID 的工程解释优先级；明确四元位置不是等长时间窗，
+  当前代码也没有实现波形切分或插值合成
+- **[噪音类与乐音类：分类说明](ZAOYIN_YUEYIN_CLASSIFICATION.md)** -
+  `zaoyin/yueyin` 的唯一双语名称、区别特征分类依据、共享类别轴和代码约束
 - **[布局改动锁](LAYOUT_CHANGE_LOCK.md)** -
   锁住拼音到 Yinyuan ID 的语义链，并规定唯一布局真源与生成入口
 - **[术语总入口（请先读）](TERMINOLOGY_INDEX.md)** -
