@@ -17,7 +17,7 @@ from .yinyuan import (
 )
 
 @dataclass
-class NoiseYinyuan(UncertainPitchYinyuan):
+class ZaoyinYinyuan(UncertainPitchYinyuan):
     """
     噪音类音元基类，继承自 UncertainPitchYinyuan
     包含清音和浊辅音的共同特性
@@ -70,7 +70,7 @@ class NoiseYinyuan(UncertainPitchYinyuan):
 
 
 @dataclass
-class ClearNoise(NoiseYinyuan):
+class ClearZaoyin(ZaoyinYinyuan):
     """
     清音类噪音(无调音元)
     对应清辅音，没有音调
@@ -84,7 +84,7 @@ class ClearNoise(NoiseYinyuan):
 
 
 @dataclass
-class VoicedNoise(NoiseYinyuan):
+class VoicedZaoyin(ZaoyinYinyuan):
     """
     浊辅音类噪音(不稳定音高音元)
     可能有非规律性音高特征
@@ -95,3 +95,9 @@ class VoicedNoise(NoiseYinyuan):
     @property
     def subtype(self) -> str:
         return "unstable_pitch"
+
+
+# 兼容旧导入和序列化词汇。新代码使用 Zaoyin* 名称。
+NoiseYinyuan = ZaoyinYinyuan
+ClearNoise = ClearZaoyin
+VoicedNoise = VoicedZaoyin

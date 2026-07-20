@@ -1,15 +1,15 @@
 """
 噪音类音元数据生成模块
 
-根据 zaoyin_yinyuan.py 中的 ClearNoise 和 VoicedNoise 类，
-直接生成噪音类音元(Noise Yinyuan)的 JSON 数据文件。
+根据 zaoyin_yinyuan.py 中的 ClearZaoyin 和 VoicedZaoyin 类，
+生成噪音类音元（zaoyin yinyuan）的 JSON 数据文件。
 """
 
 import json
 from pathlib import Path
 from typing import TypedDict
 
-from syllable.analysis.zaoyin_yinyuan import ClearNoise, VoicedNoise
+from syllable.analysis.zaoyin_yinyuan import ClearZaoyin, VoicedZaoyin
 
 
 SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
@@ -114,11 +114,11 @@ def generate_zaoyin_yinyuan():
 
     # 合并所有声母
     merged_mapping: dict[str, MergedEntry] = {}
-    noise_type_pairs: list[tuple[str, type[ClearNoise] | type[VoicedNoise]]] = [
-        ('unpitched_pianyin', ClearNoise),
-        ('unstable_pitch_pianyin', VoicedNoise),
+    zaoyin_type_pairs: list[tuple[str, type[ClearZaoyin] | type[VoicedZaoyin]]] = [
+        ('unpitched_pianyin', ClearZaoyin),
+        ('unstable_pitch_pianyin', VoicedZaoyin),
     ]
-    for yinyuan_type, _noise_class in noise_type_pairs:
+    for yinyuan_type, _zaoyin_class in zaoyin_type_pairs:
         if yinyuan_type not in pianyin_data['uncertain_pitch_pianyin']:
             continue
 

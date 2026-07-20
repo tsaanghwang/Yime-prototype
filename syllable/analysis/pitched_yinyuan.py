@@ -20,7 +20,7 @@ PITCH_MARKS: dict[int, str] = {
 
 
 @dataclass
-class MusicalYinyuan(PitchedYinyuan):
+class YueyinYinyuanBase(PitchedYinyuan):
     """
     乐音类音元(MusicalYinyuan/YueyinYinyuan)，表示有稳定音调的音元
 
@@ -50,7 +50,7 @@ class MusicalYinyuan(PitchedYinyuan):
         return result
 
     @classmethod
-    def from_dict(cls, data: dict[str, object]) -> 'MusicalYinyuan':
+    def from_dict(cls, data: dict[str, object]) -> 'YueyinYinyuanBase':
         """从字典创建实例"""
         return cls(
             quality=cast(str, data['quality']),
@@ -60,6 +60,5 @@ class MusicalYinyuan(PitchedYinyuan):
             pitch_style=cast(PitchStyle, data.get('pitch_style', 'number')),
         )
 
-
-class YueyinYinyuan():
-    pass
+# 兼容旧导入；具体的乐音类音元对象位于 yueyin_yinyuan.py。
+MusicalYinyuan = YueyinYinyuanBase
