@@ -146,7 +146,7 @@
 - **严格（生成音系学）**：韵母及与其联结的声调段构成的音段
 - **通俗（结构音系学 / 日常说法）**：带声调的韵母（final with tone）
 
-**噪音 (zaoyin)** 与 **乐音 (yueyin)** 是 **音元类别**：噪音 **填充** 首音段；乐音 **填充** 干音在 Yinjie 模型内的呼/主/末子段。类别名 **不能** 替代上述音段定义，也不与首音/干音 **同级**。
+**噪音类 (`zaoyin`)** 与 **乐音类 (`yueyin`)** 是片音层与音元层共享的项目类别轴。`zaoyin` 以音质承担当前编码区别，音高可以不存在、不确定、不稳定，或存在但不参与区别；`yueyin` 由音质与指定音高共同承担区别。当前普通话模型中，前者填充首音段，后者填充干音的呼/主/末位置；类别名 **不能** 替代结构段定义。详见 [噪音类与乐音类：分类说明](ZAOYIN_YUEYIN_CLASSIFICATION.md)。
 
 ```text
 音节 (yinjie)                          ← 结构：分析单位
@@ -201,7 +201,8 @@
 | yinjie | syllable (Yinjie) | onset + rime-body structure in this project |
 | shouyin | shouyin segment | **initial + tone linked to initial** (colloquially: initial / consonant); **not** zaoyin category |
 | ganyin | ganyin segment | **final + tone linked to final** (colloquially: toned final); **not** yueyin |
-| yueyin | pitched musical segment | class/category; fills huyin / peak / descender inside ganyin |
+| zaoyin | `zaoyin` category | quality is contrastive; pitch is not contrastive in this encoding |
+| yueyin | `yueyin` category | quality and specified pitch jointly participate in contrast |
 | huyin | pre-peak segment | `ascender`; **not** medial / onset glide |
 | peak (主音) | peak segment | `peak` |
 | descender (末音) | post-peak segment | `descender`; **not** rime coda |
@@ -240,11 +241,11 @@ Do **not** rename project concepts to generic English (`MusicalSegment`, `RimeTo
 在生成或修改本仓库代码/文档时：
 
 1. **先读本页 + [syllable/NAMING.md](../syllable/NAMING.md)**，再 `grep` 是否已有同名类或模块。
-2. **禁止** 新建第二份 `pianyin.py`、第二个 `PitchedPianyin` 等同义类（见 NAMING 文档中的「禁止」表）。
+2. **禁止** 新建第二份 `pianyin.py`、第二个 `ZaoyinPianyin` / `YueyinPianyin` 等同义类（见 NAMING 文档中的「禁止」表）。
 3. **禁止** 将 `ganyin`（干音结构）与 `yueyin`（乐音类别）混为同一概念或类名。
 4. **禁止** 改写 [`syllable/codec/yinjie.py`](../syllable/codec/yinjie.py) 所定义的音节层级（例如压成「首音 + 乐音」、删除干音/韵音中间层、或新建平行 `Yinjie` 结构）。
 5. 无法用英文忠实翻译的概念，**保留拼音标识**（`yinyuan`、`pianyin`、`ganyin`），
-   不要强行换成 `MusicalYinyuan` 之类自造英文名除非 NAMING 表已登记。
+   不要强行换成 `MusicalYinyuan` 等普通英语近似名；类别标识固定为 `zaoyin` / `yueyin`。
 6. 运行时码表键使用 **带调 numeric 拼音**（如 `zhong1`），不要用英文单词键替代。
 7. 不确定时 **扩写 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md) 音节结构节**，
    不要在外部博客式表述里重新定义术语（易形成错误传播，且曾被 AI 二次放大）。

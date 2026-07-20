@@ -18,6 +18,7 @@ concepts in phonetics and phonology.
 
 **Hub index, quick reference, and AI rules:** [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md).
 **Code identifiers:** [syllable/NAMING.md](../syllable/NAMING.md).
+**Category specification:** [Zaoyin and Yueyin](ZAOYIN_YUEYIN_CLASSIFICATION_EN.md).
 
 The goal is not to force the Yinyuan system into the exact terminology of
 traditional phonemics or traditional phonetics. Instead, this document
@@ -44,8 +45,11 @@ This means that:
 
 In the Modern Standard Chinese case, the framework differs sharply from the
 traditional phonemic system because speech is segmented jointly by pitch and
-quality. Formally, even consonantal noise is included in the same system,
-except that its pitch value is taken to be zero or null.
+quality. A `zaoyin` may have no pitch, indeterminate or unstable pitch, or a
+pitch phenomenon that does not carry the contrast used by this encoding. In a
+`yueyin`, quality and a specified pitch jointly carry that contrast. This is a
+project-specific classification, not a claim that `zaoyin` is physically
+pitchless.
 
 Accordingly, the basic units of the Yinyuan system cannot simply be identified
 with the traditional phoneme, phone, or segment.
@@ -58,6 +62,8 @@ with the traditional phoneme, phone, or segment.
 | 时段         | `temporal slot`     | A temporally extended position or span in the speech stream that can be occupied by a speech unit.                        |
 | 片音         | `phonic slice`      | A speech-sound slice cut in the temporal dimension; not simply a traditional phone or segment.                            |
 | 音元         | `yinyuan`           | An abstract unit occupying a temporal slot and defined by the contrastive speech properties relevant in a given language. |
+| 噪音类       | `zaoyin`            | A project category in which quality, but not pitch, carries the current encoding contrast.                                |
+| 乐音类       | `yueyin`            | A project category in which quality and specified pitch jointly carry the current encoding contrast.                     |
 <!-- markdownlint-enable MD013 -->
 
 ## Citation-Ready Definitions

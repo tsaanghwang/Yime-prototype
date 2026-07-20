@@ -1,6 +1,6 @@
 # syllable 代码命名约定
 
-概念定义与中英翻译见 **[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)** 与 **[docs/YINYUAN_TERMINOLOGY.md](../docs/YINYUAN_TERMINOLOGY.md)**。
+概念定义与中英翻译见 **[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)**、**[docs/YINYUAN_TERMINOLOGY.md](../docs/YINYUAN_TERMINOLOGY.md)** 与 **[docs/ZAOYIN_YUEYIN_CLASSIFICATION.md](../docs/ZAOYIN_YUEYIN_CLASSIFICATION.md)**。
 本文只规定 **Python 模块、类名、文件名** 的唯一用法，供维护者与 AI 遵守。
 
 ---
@@ -22,12 +22,13 @@
 
 | 中文概念                | 唯一类 / 模块                                      | 禁止混淆                                                               |
 | ----------------------- | -------------------------------------------------- | ---------------------------------------------------------------------- |
-| 乐音片音（简单模型）    | `syllable.pianyin.PitchedPianyin`                  | ≠ `analysis.pitched_pianyin.PitchedPianyin`                            |
-| 噪音片音（简单模型）    | `syllable.pianyin.UnpitchedPianyin`                |                                                                        |
+| 乐音类片音              | `syllable.pianyin.YueyinPianyin`                   | 旧名 `PitchedPianyin` 仅为兼容别名                                    |
+| 噪音类片音              | `syllable.pianyin.ZaoyinPianyin`                   | 旧名 `UnpitchedPianyin` 仅为兼容别名                                  |
 | 共享类别轴              | `analysis.yinyuan_categories.YinyuanCategory`      | 贯穿片音 / 音元两层；≠ 结构段                                          |
-| 乐音片音（试验/切片链） | `analysis.pitched_pianyin.YueyinPianyin`           | 仅 `tools/syllable_analysis/ganyin_slicer.py` 等试验链；**非**主链默认 |
-| 乐音音元                | `analysis.yueyin_yinyuan.YueyinYinyuan`            | 继承 `MusicalYinyuan`；**不**表示「干音」                              |
-| 乐音音元基类            | `analysis.pitched_yinyuan.MusicalYinyuan`          |                                                                        |
+| 乐音片音（试验/切片链） | `analysis.pitched_pianyin.YueyinPianyin`           | 历史试验链；公共类型仍以 `syllable.pianyin` 为准                       |
+| 噪音类音元              | `analysis.zaoyin_yinyuan.ZaoyinYinyuan`            | 旧名 `NoiseYinyuan` 仅为兼容别名                                      |
+| 乐音类音元              | `analysis.yueyin_yinyuan.YueyinYinyuan`            | **不**表示「干音」                                                     |
+| 乐音类音元基类          | `analysis.pitched_yinyuan.YueyinYinyuanBase`       | 旧名 `MusicalYinyuan` 仅为兼容别名                                    |
 | 乐音归并器              | `analysis.yueyin_mapper.YueyinMapper`              | 片音 → 乐音音元；调号样式转换；**不是**音元对象                        |
 | 音节结构                | `syllable.codec.yinjie.Yinjie`                     | 内部分解：呼/韵/主/末                                                  |
 | 首音音段                | `syllable.analysis.syllable.Syllable.shouyin`      | 声母 + `shoudiao`；通俗即声母/辅音；≠ `Zaoyin*` 类别                   |

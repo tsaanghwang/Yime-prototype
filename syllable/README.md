@@ -2,7 +2,7 @@
 
 `syllable/` 是 Yime 仓库中的 **汉语音节音系分析与音元编解码** Python 子包（与 `yime*` 一起在 `pyproject.toml` 中打包）。它覆盖从「带调拼音 → 音节结构分解 → 4 码音元编码 → 解码还原」的技术链，**不包含**输入法运行时（`yime/`）与词库 rebuild（`internal_data/pinyin_source_db/`）。
 
-**命名与概念请先读：** [docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)、[NAMING.md](NAMING.md)（含 **干音 ≠ 乐音** 等易混说明）。
+**命名与概念请先读：** [片音分析与音元表示：工程阅读概要](../docs/PIANYIN_ANALYSIS_OVERVIEW.md)、[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)、[NAMING.md](NAMING.md)（含 **片音 ≠ 等长平顶音段**、**Yinyuan ID ≠ 实际音值**、**干音 ≠ 乐音** 等易混说明）。
 
 当前整条工程链见 [docs/CURRENT_ARCHITECTURE.md](../docs/CURRENT_ARCHITECTURE.md)，
 音节规则依据见 [docs/SYLLABLE_ENCODING_RULES.md](../docs/SYLLABLE_ENCODING_RULES.md)。
@@ -21,6 +21,9 @@ syllable/
 ├── pianyin/        片音模型与调值/statistics 试验（偏理论，非 IME 主链）
 └── README.md       本文件
 ```
+
+进入 `analysis/` 前请读 [`analysis/README.md`](analysis/README.md)。该目录当前处理符号化音节分析，
+没有实现从语音波形自动切分片音或通过插值合成连续语音。
 
 ### 职责边界
 
@@ -185,9 +188,9 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 完整约定见 **[NAMING.md](NAMING.md)**。摘要：
 
-- **`syllable/pianyin/`**：片音 canonical 模块；主链 `from_pianyin` 使用 `PitchedPianyin` / `UnpitchedPianyin`。
+- **`syllable/pianyin/`**：片音 canonical 模块；主链使用 `YueyinPianyin` / `ZaoyinPianyin`。
 - **已删除 `syllable/analysis/pianyin.py`**：原为与 `pianyin/pianyin.py` 重复的旧副本；请统一使用 canonical 的 `syllable/pianyin/`。
-- **`syllable/analysis/pitched_pianyin.py`**：`YueyinPianyin` 仅试验链；≠ `pianyin.PitchedPianyin`。
+- **`syllable/analysis/pitched_pianyin.py`**：历史试验模块；公共类型以 `syllable.pianyin` 为准。
 
 ## 测试
 
@@ -214,6 +217,7 @@ python -m pytest tests/yinjie/test_yinjie_encoder.py tests/yinjie/test_yinjie_ro
 
 ## 进一步阅读
 
+- [docs/PIANYIN_ANALYSIS_OVERVIEW.md](../docs/PIANYIN_ANALYSIS_OVERVIEW.md) — 片音/音元代码阅读约束与实验边界
 - [docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md) — 术语总入口
 - [docs/CURRENT_ARCHITECTURE.md](../docs/CURRENT_ARCHITECTURE.md) — 当前能力、真源和改动边界
 - [docs/SYLLABLE_ENCODING_RULES.md](../docs/SYLLABLE_ENCODING_RULES.md) — 音节规则来源与遗漏分类
