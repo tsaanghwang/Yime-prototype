@@ -12,7 +12,7 @@ if str(ROOT) not in sys.path:
 from yime.asset_paths import (  # noqa: E402
     generated_runtime_candidates_json_path,
     resolve_runtime_candidates_json_path,
-    resolve_source_pinyin_db_path,
+    resolve_lexicon_source_db_path,
 )
 from yime.utils.lexicon_quality import (  # noqa: E402
     finalize_report,
@@ -50,7 +50,7 @@ def resolve_source_db_path(raw: str) -> Path | None:
     if raw.strip():
         path = Path(raw)
         return path if path.exists() else None
-    path = resolve_source_pinyin_db_path(ROOT)
+    path = resolve_lexicon_source_db_path(ROOT)
     return path if path.exists() else None
 
 

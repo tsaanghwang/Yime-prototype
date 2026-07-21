@@ -21,9 +21,7 @@ Write-Host "Pulling LFS pinyin_hanzi.db..."
 git lfs pull --include="yime/pinyin_hanzi.db"
 
 $remove = @(
-  ".generated/source_pinyin.db",
-  ".generated/runtime_candidates_by_code_true.json",
-  "internal_data/pinyin_source_db/source_pinyin.db"
+  ".generated/runtime_candidates_by_code_true.json"
 )
 foreach ($path in $remove) {
   if (Test-Path $path) {

@@ -10,11 +10,15 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from build_source_pinyin_db import DEFAULT_CHAR_SOURCE, DEFAULT_DB_PATH, DEFAULT_PHRASE_SOURCE
-
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
+DEFAULT_DB_PATH = (
+    WORKSPACE_ROOT
+    / ".generated"
+    / "lexicon_source_bundle"
+    / "source_lexicon.sqlite3"
+)
+DEFAULT_WANXIANG_ROOT = WORKSPACE_ROOT.parent / "RIME-LMDG"
 DEFAULT_NORMALIZED_OUTPUT = SCRIPT_DIR / "lexicon_exports" / "pinyin_normalized.json"
 DEFAULT_RUNTIME_NORMALIZED_OUTPUT = WORKSPACE_ROOT / "yime" / "pinyin_normalized.json"
 DEFAULT_YINJIE_OUTPUT = WORKSPACE_ROOT / "syllable" / "codec" / "yinjie_code.json"
@@ -23,8 +27,8 @@ DEFAULT_SUMMARY_OUTPUT = SCRIPT_DIR / "rebuild_summary.json"
 
 class Args(argparse.Namespace):
     db: str
-    char_source: str
-    phrase_source: str
+    wanxiang_root: str
+    skip_bundle_build: bool
     normalized_output: str
     runtime_normalized_output: str
     skip_runtime_normalized_sync: bool
@@ -36,20 +40,16 @@ class Args(argparse.Namespace):
 def parse_args() -> Args:
     parser = argparse.ArgumentParser(
         description=(
-            "Rebuild source pinyin assets: import -> validate -> export pinyin_normalized.json. "
+            "Rebuild the unified lexicon source database, validate it, and export pinyin_normalized.json. "
             "By default the syllable codebook is left unchanged; use --apply-codebook for phase 2."
         )
     )
     parser.add_argument("--db", default=str(DEFAULT_DB_PATH), help="SQLite database path")
+    parser.add_argument("--wanxiang-root", default=str(DEFAULT_WANXIANG_ROOT))
     parser.add_argument(
-        "--char-source",
-        default=str(DEFAULT_CHAR_SOURCE),
-        help="Hanzi pinyin TSV (default: internal_data/hanzi_pinyin/pinyin.txt)",
-    )
-    parser.add_argument(
-        "--phrase-source",
-        default=str(DEFAULT_PHRASE_SOURCE),
-        help="Phrase pinyin TSV (default: internal_data/phrase_pinyin/phrase_pinyin.txt)",
+        "--skip-bundle-build",
+        action="store_true",
+        help="Reuse an existing unified source database and run only downstream validation/export.",
     )
     parser.add_argument(
         "--normalized-output",
@@ -155,17 +155,20 @@ def main() -> int:
     )
     summary_output = Path(args.summary_output)
 
-    build_command = [
-        sys.executable,
-        str(SCRIPT_DIR / "build_source_pinyin_db.py"),
-        "--db",
-        str(db_path),
-        "--char-source",
-        args.char_source,
-        "--phrase-source",
-        args.phrase_source,
-    ]
-    run_step("import", build_command)
+    if db_path.name != "source_lexicon.sqlite3":
+        raise ValueError("unified lexicon database filename must be source_lexicon.sqlite3")
+    if not args.skip_bundle_build:
+        build_command = [
+            sys.executable,
+            str(WORKSPACE_ROOT / "tools" / "build_lexicon_source_bundle.py"),
+            "--wanxiang-root",
+            args.wanxiang_root,
+            "--output-dir",
+            str(db_path.parent),
+        ]
+        run_step("build-unified-source", build_command)
+    elif not db_path.is_file():
+        raise FileNotFoundError(f"unified source database not found: {db_path}")
 
     validate_command = [
         sys.executable,

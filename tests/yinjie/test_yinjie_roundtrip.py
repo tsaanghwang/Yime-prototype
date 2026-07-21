@@ -7,6 +7,7 @@ from pathlib import Path
 from syllable.codec.paths import YINJIE_CODE_PATH
 from syllable.codec.yinjie_decoder import YinjieDecoder
 from syllable.codec.yinjie_encoder import YinjieEncoder
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 class TestYinjieRoundTrip(unittest.TestCase):
@@ -40,7 +41,7 @@ class TestYinjieRoundTrip(unittest.TestCase):
         )
 
     def test_codebook_keys_with_lexicon_attestation_are_in_normalized(self):
-        db_path = Path(".generated/source_pinyin.db")
+        db_path = resolve_lexicon_source_db_path(Path.cwd())
         if not db_path.exists():
             self.skipTest("inventory table not available")
         conn = sqlite3.connect(db_path)

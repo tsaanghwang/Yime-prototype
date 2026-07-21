@@ -197,7 +197,7 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 该模块已于 2026-06 Phase E 删除。
 如果你的目标是重建当前拼音数据链，请优先使用：
 
-- `internal_data/pinyin_source_db/build_source_pinyin_db.py`
+- `tools/build_lexicon_source_bundle.py`
 - `internal_data/pinyin_source_db/validate_source_pinyin_db.py`
 - `yime/import_danzi_into_prototype_tables.py`
     （兼容入口；真实实现位于

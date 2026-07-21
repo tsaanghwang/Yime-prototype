@@ -1,5 +1,9 @@
 # 当前实现总览
 
+> **2026-07 主线切换：** `.generated/lexicon_source_bundle/source_lexicon.sqlite3`
+> 是字词来源、读音、来源证据、分类频次以及后续音元编码输入的唯一生产真源。
+> 旧 `.generated/source_pinyin.db` 不再是默认入口，也不得作为运行库重建的回退来源。
+
 本文是当前分支的工程状态入口。它只描述已经落到代码、数据和锁检查中的主线；理论设想、旧试验和
 外部 Windows 前端的实现细节不在这里冒充现状。
 
@@ -22,7 +26,7 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
        -> 有旁证的来源错误：按字头校正
        -> 方案允许的省写：还原为编码入口形式
        -> 已知非规范拼式：保留字形和审计证据，只阻止该读音进入解码
-  -> source_pinyin.db
+  -> source_lexicon.sqlite3（统一生产真源）
   -> 规范数字标调音节清单（当前 1725 项）
   -> SyllableEncodingPipeline
   -> 首音段 + 干音段
@@ -41,8 +45,10 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 层 | 真源 | 职责 |
 |---|---|---|
 | 来源合规 | `dictionary_pinyin_compliance_policy.json` | 外部字典进入解码前的声韵准入、字头校正、已知排除和儿化省写还原策略 |
-| 单字读音 | `internal_data/hanzi_pinyin/pinyin.txt` | Unihan 合并后的带调单字读音实例 |
-| 词语读音 | `internal_data/phrase_pinyin/phrase_pinyin.txt` | 经校验的词语带调读音实例 |
+| 字词、读音、频次与来源证据 | `.generated/lexicon_source_bundle/source_lexicon.sqlite3` | 唯一生产真源；统一门禁后的编码输入边界 |
+| 上游单字输入 | Unihan / `internal_data/hanzi_pinyin/pinyin.txt` | 重建统一库的来源证据，不由下游直接消费 |
+| 上游词语输入 | pypinyin、万象及其原始分类文件 | 重建统一库的来源证据，不由下游直接消费 |
+| 上游频次输入 | BCC 各原始分域字频/词频频道 | 原始 count 写入统一库；merged 二手文件不接入生产链 |
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
 | 拼写规则说明 | `internal_data/syllable_encoding_rule_catalog.json` | 解释来源、规范化和兼容规则；禁止保存编码映射 |
 | 首音语义 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符 |

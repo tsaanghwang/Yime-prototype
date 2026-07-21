@@ -1,7 +1,7 @@
 import unittest
 
-from internal_data.pinyin_source_db.build_source_pinyin_db import (
-    marked_phrase_to_numeric,
+from yime.utils.marked_pinyin import (
+    marked_pinyin_to_numeric as marked_phrase_to_numeric,
     marked_syllable_to_numeric,
 )
 

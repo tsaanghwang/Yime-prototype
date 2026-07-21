@@ -3,10 +3,11 @@ import sqlite3
 import unittest
 from pathlib import Path
 
-from internal_data.pinyin_source_db.build_source_pinyin_db import marked_syllable_to_numeric
+from yime.utils.marked_pinyin import marked_syllable_to_numeric
 from syllable.codec.paths import YINJIE_CODE_PATH
 from syllable.codec.yinjie_decoder import YinjieDecoder
 from syllable.codec.yinjie_encoder import YinjieEncoder
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 class TestPinyinBidirectionalValidation(unittest.TestCase):
@@ -24,7 +25,7 @@ class TestPinyinBidirectionalValidation(unittest.TestCase):
         cls.encoder = YinjieEncoder()
         cls.decoder = YinjieDecoder(code_file=cls.codebook_path)
 
-        db_path = Path(".generated/source_pinyin.db")
+        db_path = resolve_lexicon_source_db_path(Path.cwd())
         if db_path.exists():
             conn = sqlite3.connect(db_path)
             try:

@@ -4,15 +4,19 @@ import sqlite3
 from pathlib import Path
 from typing import cast
 
-from yime.asset_paths import resolve_source_pinyin_db_path
+from yime.asset_paths import resolve_lexicon_source_db_path
 from yime.canonical_yime_mapping import load_canonical_code_map, sync_canonical_mapping_table
 from yime.utils.char_frequency_policy import PHRASE_LEXICON_DEFAULT_FREQUENCY
-from yime.utils.source_pinyin_db_loader import prototype_source_name, uses_v2_source_schema
+from yime.utils.source_pinyin_db_loader import (
+    prototype_source_name,
+    uses_lexicon_bundle_schema,
+    uses_v2_source_schema,
+)
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = Path(__file__).resolve().parents[1] / "pinyin_hanzi.db"
-SOURCE_DB_PATH = resolve_source_pinyin_db_path(WORKSPACE_ROOT)
+SOURCE_DB_PATH = resolve_lexicon_source_db_path(WORKSPACE_ROOT)
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "create_prototype_schema_additions.sql"
 
 PREFERRED_PHRASE_READINGS: dict[str, tuple[str, str]] = {
@@ -290,8 +294,163 @@ def import_phrases_and_mappings(
     return len(phrase_rows), len(phrase_map_rows)
 
 
+def import_bundle_phrases_and_mappings(
+    conn: sqlite3.Connection,
+    source_path: Path,
+    *,
+    batch_size: int = 10_000,
+) -> tuple[int, int, int]:
+    """Stream primary phrase readings from the unified source without loading 2M rows."""
+    source_name = "phrase:source_lexicon.sqlite3"
+    conn.execute("DELETE FROM phrase_pinyin_map")
+    conn.execute("DELETE FROM phrase_inventory")
+    conn.execute("DELETE FROM phrase_reading_preference")
+    conn.execute("DELETE FROM phrase_readings")
+    conn.execute("DELETE FROM source_files WHERE source_kind = 'phrase'")
+    conn.execute(
+        "INSERT INTO source_files (source_name, source_kind, source_path) VALUES (?, 'phrase', ?)",
+        (source_name, str(source_path)),
+    )
+
+    sync_canonical_mapping_table(conn, WORKSPACE_ROOT)
+    yime_by_pinyin = load_canonical_code_map(WORKSPACE_ROOT)
+    known_numeric = {
+        str(row[0]) for row in conn.execute("SELECT pinyin_tone FROM numeric_pinyin_inventory")
+    }
+    phrase_count = phrase_map_count = missing_numeric_count = 0
+
+    with sqlite3.connect(source_path) as source_conn:
+        source_cursor = source_conn.execute(
+            """
+            SELECT id, text, marked_pinyin, numeric_pinyin, reading_rank,
+                   bcc_frequency, pinyin_sources, reading_source_categories,
+                   wanxiang_categories
+            FROM canonical_readings
+            WHERE text_length > 1 AND is_primary = 1
+            ORDER BY id
+            """
+        )
+        while batch := source_cursor.fetchmany(batch_size):
+            phrase_inventory_rows: list[tuple[object, ...]] = []
+            source_reading_rows: list[tuple[object, ...]] = []
+            phrase_map_rows: list[tuple[object, ...]] = []
+            missing_numeric_rows: list[tuple[object, ...]] = []
+
+            for (
+                row_id,
+                phrase,
+                marked_pinyin,
+                numeric_pinyin,
+                reading_rank,
+                bcc_frequency,
+                pinyin_sources,
+                source_categories,
+                wanxiang_categories,
+            ) in batch:
+                numeric_pinyin = str(numeric_pinyin)
+                yime_code = build_phrase_yime_code(numeric_pinyin, yime_by_pinyin)
+                if yime_code is None:
+                    raise RuntimeError(
+                        f"unified source passed its decoder gate but has no canonical code: "
+                        f"{phrase} -> {numeric_pinyin}"
+                    )
+                for syllable in numeric_pinyin.split():
+                    if syllable in known_numeric:
+                        continue
+                    initial, final, tone_number = parse_numeric_pinyin_parts(syllable)
+                    missing_numeric_rows.append(
+                        (syllable, initial, final, tone_number, None, None)
+                    )
+                    known_numeric.add(syllable)
+                    missing_numeric_count += 1
+
+                source_note = (
+                    f"sources={pinyin_sources};categories={source_categories};"
+                    f"wanxiang={wanxiang_categories}"
+                )
+                phrase_inventory_rows.append(
+                    (
+                        int(row_id),
+                        str(phrase),
+                        yime_code,
+                        int(bcc_frequency),
+                        len(str(phrase)),
+                        1,
+                        None,
+                    )
+                )
+                source_reading_rows.append(
+                    (
+                        int(row_id),
+                        source_name,
+                        str(phrase),
+                        str(marked_pinyin),
+                        numeric_pinyin,
+                        int(reading_rank),
+                        source_note,
+                        f"{phrase}\t{marked_pinyin}\t{int(bcc_frequency)}",
+                    )
+                )
+                phrase_map_rows.append(
+                    (
+                        int(row_id),
+                        numeric_pinyin,
+                        int(reading_rank),
+                        source_name,
+                        source_note,
+                    )
+                )
+
+            if missing_numeric_rows:
+                conn.executemany(
+                    """
+                    INSERT OR IGNORE INTO numeric_pinyin_inventory (
+                        pinyin_tone, initial, final, tone_number,
+                        mapping_id, legacy_numeric_pinyin_id, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    """,
+                    missing_numeric_rows,
+                )
+            conn.executemany(
+                """
+                INSERT INTO phrase_inventory (
+                    id, phrase, yime_code, phrase_frequency, phrase_length,
+                    is_common_phrase, legacy_phrase_id, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """,
+                phrase_inventory_rows,
+            )
+            conn.executemany(
+                """
+                INSERT INTO phrase_readings (
+                    id, source_name, phrase, marked_pinyin, numeric_pinyin,
+                    reading_rank, comment, raw_line
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                source_reading_rows,
+            )
+            conn.executemany(
+                """
+                INSERT INTO phrase_pinyin_map (
+                    phrase_id, pinyin_tone, reading_rank, source_file, source_note
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                phrase_map_rows,
+            )
+            phrase_count += len(phrase_inventory_rows)
+            phrase_map_count += len(phrase_map_rows)
+            conn.commit()
+
+    return phrase_count, phrase_map_count, missing_numeric_count
+
+
 def write_import_metadata(conn: sqlite3.Connection, phrase_count: int, phrase_map_count: int) -> None:
     rows = [
+        (
+            "phrase_source_strategy",
+            "clone_unified_lexicon_primary_phrase_readings",
+            "Derive the phrase inventory only from source_lexicon.sqlite3.",
+        ),
         ("prototype_duozi_import_source", str(SOURCE_DB_PATH), "词语拼音来源数据库（phrase_readings）"),
         ("prototype_duozi_phrase_rows", str(phrase_count), "本次导入覆盖的词语读音行数"),
         ("prototype_duozi_phrase_map_rows", str(phrase_map_count), "本次导入的 phrase_pinyin_map 行数"),
@@ -308,7 +467,15 @@ def write_import_metadata(conn: sqlite3.Connection, phrase_count: int, phrase_ma
 
 
 def main() -> None:
-    source_files, source_rows = load_source_phrase_rows(SOURCE_DB_PATH)
+    with sqlite3.connect(SOURCE_DB_PATH) as source_connection:
+        is_bundle_source = uses_lexicon_bundle_schema(source_connection)
+    if not is_bundle_source:
+        raise RuntimeError(
+            "production import requires unified source_lexicon.sqlite3; "
+            "legacy source_pinyin.db schemas are not accepted"
+        )
+    source_files: list[tuple[str, str, str]] = []
+    source_rows: list[tuple[int, str, str, str, str, int, str | None, str]] = []
     conn = sqlite3.connect(DB_PATH)
     try:
         conn.execute('PRAGMA foreign_keys = ON')
@@ -318,8 +485,15 @@ def main() -> None:
         conn.execute('DROP TABLE IF EXISTS pinyin_yime_code')
         conn.execute('DROP TABLE IF EXISTS mapping_yime_code')
         apply_schema(conn)
-        copied_rows = sync_source_phrase_table(conn, source_files, source_rows)
-        phrase_count, phrase_map_count = import_phrases_and_mappings(conn, source_rows)
+        if is_bundle_source:
+            phrase_count, phrase_map_count, _ = import_bundle_phrases_and_mappings(
+                conn,
+                SOURCE_DB_PATH,
+            )
+            copied_rows = phrase_count
+        else:
+            copied_rows = sync_source_phrase_table(conn, source_files, source_rows)
+            phrase_count, phrase_map_count = import_phrases_and_mappings(conn, source_rows)
         write_import_metadata(conn, phrase_count, phrase_map_count)
         conn.commit()
     finally:

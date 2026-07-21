@@ -15,16 +15,7 @@ if str(PINYIN_SOURCE_DB_DIR) not in sys.path:
     sys.path.insert(0, str(PINYIN_SOURCE_DB_DIR))
 
 from syllable.codec.paths import YINJIE_CODE_PATH
-
-
-_build_spec = importlib.util.spec_from_file_location(
-    "build_source_pinyin_db",
-    PINYIN_SOURCE_DB_DIR / "build_source_pinyin_db.py",
-)
-if _build_spec is None or _build_spec.loader is None:
-    raise ImportError("Could not load build_source_pinyin_db module")
-_build_source_pinyin_db = importlib.util.module_from_spec(_build_spec)
-_build_spec.loader.exec_module(_build_source_pinyin_db)
+from yime.utils.marked_pinyin import marked_syllable_to_numeric
 
 
 _export_spec = importlib.util.spec_from_file_location(
@@ -45,20 +36,14 @@ class _ExportPinyinNormalizedModule(Protocol):
 _typed_export_pinyin_normalized = cast(_ExportPinyinNormalizedModule, _export_pinyin_normalized)
 
 
-class _BuildSourcePinyinDbModule(Protocol):
-    marked_syllable_to_numeric: Callable[[str], str]
-
-
-_typed_build_source_pinyin_db = cast(_BuildSourcePinyinDbModule, _build_source_pinyin_db)
-
-
 collect_numeric_to_marked_pairs = _typed_export_pinyin_normalized.collect_numeric_to_marked_pairs
 load_inventory_numeric_syllables = _typed_export_pinyin_normalized.load_inventory_numeric_syllables
-marked_syllable_to_numeric = _typed_build_source_pinyin_db.marked_syllable_to_numeric
 
 
 EXPORT_SCRIPT = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "export_pinyin_normalized.py"
-DEFAULT_DB = WORKSPACE_ROOT / ".generated" / "source_pinyin.db"
+DEFAULT_DB = (
+    WORKSPACE_ROOT / ".generated" / "lexicon_source_bundle" / "source_lexicon.sqlite3"
+)
 INVENTORY_TABLE = "m_distinct_syllable_inventory"
 NORMALIZED_PATH = (
     WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "lexicon_exports" / "pinyin_normalized.json"
@@ -76,7 +61,7 @@ def refresh_inventory(db_path: Path) -> None:
     subprocess.run(command, check=True, cwd=WORKSPACE_ROOT)
 
 
-@unittest.skipUnless(DEFAULT_DB.exists(), "requires .generated/source_pinyin.db")
+@unittest.skipUnless(DEFAULT_DB.exists(), "requires unified source_lexicon.sqlite3")
 class TestExportPinyinNormalizedInventoryDomain(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -165,7 +150,7 @@ class TestExportPinyinNormalizedInventoryCollection(unittest.TestCase):
         self.assertEqual(mapping["er5"], {"r"})
 
 
-@unittest.skipUnless(DEFAULT_DB.exists(), "requires .generated/source_pinyin.db")
+@unittest.skipUnless(DEFAULT_DB.exists(), "requires unified source_lexicon.sqlite3")
 class TestExportPinyinNormalizedInventoryScript(unittest.TestCase):
     def test_inventory_domain_export_writes_full_inventory(self):
         with tempfile.TemporaryDirectory() as temp_dir:

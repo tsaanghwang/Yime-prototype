@@ -392,5 +392,5 @@ VALUES
     ('phrase_inventory_table', 'phrase_inventory', '当前原型词语主表（英文隔离表）', CURRENT_TIMESTAMP),
     ('runtime_candidates_materialized_table', 'runtime_candidates_materialized', '当前运行时按码查询使用的物化候选表', CURRENT_TIMESTAMP),
     ('phrase_reading_preference_table', 'phrase_reading_preference', '歧义词显式默认读音表；runtime 仅暴露默认读音', CURRENT_TIMESTAMP),
-    ('char_source_strategy', 'clone_source_char_readings', '单字相关先复制 source_pinyin.db.char_readings，再派生 char_lexicon', CURRENT_TIMESTAMP),
-    ('phrase_source_strategy', 'clone_source_phrase_readings', '词语相关先复制 source_pinyin.db.phrase_readings，再派生 phrase_lexicon_view', CURRENT_TIMESTAMP);
+    ('char_source_strategy', 'clone_unified_lexicon_char_readings', '单字只从 source_lexicon.sqlite3.char_readings 消费视图派生', CURRENT_TIMESTAMP),
+    ('phrase_source_strategy', 'clone_unified_lexicon_primary_phrase_readings', '词语只从 source_lexicon.sqlite3.phrase_readings 消费视图派生', CURRENT_TIMESTAMP);

@@ -41,13 +41,37 @@ DEFAULT_WANXIANG_FILES = (
     "yixue.dict.yaml",
 )
 
+BCC_CATEGORY_FILES = (
+    ("modern_chinese", "modern_chinese_{kind}_freq.txt"),
+    ("news", "news_total_{kind}_freq.txt"),
+    ("dialogue", "dialogue_{kind}_freq.txt"),
+    ("literature", "literature_{kind}_freq.txt"),
+    ("classical_chinese", "classical_chinese_{kind}_freq.txt"),
+    ("multi_domain", "multi_domain_total_{kind}_freq.txt"),
+)
+BCC_CATEGORY_COLUMNS = tuple(category for category, _ in BCC_CATEGORY_FILES)
+GENERATED_BCC_FILENAMES = frozenset(
+    {
+        "merged_word_freq.txt",
+        "merged_char_freq.txt",
+        "word_freq_merged_single_char_freq.txt",
+    }
+)
+
+
+@dataclass(frozen=True)
+class CategorizedPath:
+    category: str
+    kind: str
+    path: Path
+
 
 @dataclass(frozen=True)
 class BundleInputs:
     unihan: Path
     pypinyin_phrases: Path
-    bcc_words: Path
-    bcc_chars: Path
+    bcc_word_files: tuple[CategorizedPath, ...]
+    bcc_char_files: tuple[CategorizedPath, ...]
     wanxiang_files: tuple[Path, ...]
     decoder_inventory: Path
 
@@ -68,11 +92,19 @@ class BundleResult:
 
 def default_inputs(wanxiang_root: Path | None = None) -> BundleInputs:
     root = wanxiang_root or REPO_ROOT.parent / "RIME-LMDG"
+    word_dir = REPO_ROOT / "external_data" / "word_freq"
+    char_dir = REPO_ROOT / "external_data" / "char_freq"
     return BundleInputs(
         unihan=REPO_ROOT / "internal_data" / "hanzi_pinyin" / "pinyin.txt",
         pypinyin_phrases=REPO_ROOT / "internal_data" / "phrase_pinyin" / "phrase_pinyin.txt",
-        bcc_words=REPO_ROOT / "external_data" / "word_freq" / "merged_word_freq.txt",
-        bcc_chars=REPO_ROOT / "external_data" / "char_freq" / "merged_char_freq.txt",
+        bcc_word_files=tuple(
+            CategorizedPath(category, "word", word_dir / pattern.format(kind="word"))
+            for category, pattern in BCC_CATEGORY_FILES
+        ),
+        bcc_char_files=tuple(
+            CategorizedPath(category, "char", char_dir / pattern.format(kind="char"))
+            for category, pattern in BCC_CATEGORY_FILES
+        ),
         wanxiang_files=tuple(root / "dicts" / name for name in DEFAULT_WANXIANG_FILES),
         decoder_inventory=REPO_ROOT / "yime" / "pinyin_normalized.json",
     )
@@ -94,21 +126,76 @@ def _create_schema(conn: sqlite3.Connection) -> None:
         CREATE TABLE accepted_readings (
             text TEXT NOT NULL,
             marked TEXT NOT NULL,
+            source_marked TEXT NOT NULL,
             numeric TEXT NOT NULL,
             source TEXT NOT NULL,
+            source_category TEXT NOT NULL,
             source_file TEXT NOT NULL,
             source_rank INTEGER NOT NULL,
             source_weight INTEGER,
             source_primary INTEGER NOT NULL,
             rule_ids TEXT NOT NULL,
-            PRIMARY KEY (text, marked, source, source_file)
+            PRIMARY KEY (text, marked, source, source_category, source_file)
         ) WITHOUT ROWID;
         CREATE INDEX accepted_text_idx ON accepted_readings(text);
+        CREATE TABLE canonical_readings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            text TEXT NOT NULL,
+            text_length INTEGER NOT NULL,
+            codepoint TEXT,
+            marked_pinyin TEXT NOT NULL,
+            numeric_pinyin TEXT NOT NULL,
+            reading_rank INTEGER NOT NULL,
+            is_primary INTEGER NOT NULL CHECK (is_primary IN (0, 1)),
+            bcc_frequency INTEGER NOT NULL,
+            bcc_modern_chinese INTEGER,
+            bcc_news INTEGER,
+            bcc_dialogue INTEGER,
+            bcc_literature INTEGER,
+            bcc_classical_chinese INTEGER,
+            bcc_multi_domain INTEGER,
+            wanxiang_weight INTEGER NOT NULL,
+            pinyin_sources TEXT NOT NULL,
+            reading_source_categories TEXT NOT NULL,
+            wanxiang_categories TEXT NOT NULL,
+            rule_ids TEXT NOT NULL,
+            UNIQUE (text, marked_pinyin)
+        );
+        CREATE INDEX canonical_text_rank_idx
+            ON canonical_readings(text, reading_rank);
+        CREATE INDEX canonical_numeric_idx
+            ON canonical_readings(numeric_pinyin);
+        CREATE INDEX canonical_primary_frequency_idx
+            ON canonical_readings(is_primary, bcc_frequency DESC, text);
+        CREATE TABLE metadata (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        ) WITHOUT ROWID;
+        CREATE TABLE source_files (
+            source_kind TEXT PRIMARY KEY CHECK (source_kind IN ('char', 'phrase')),
+            source_path TEXT NOT NULL,
+            imported_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) WITHOUT ROWID;
         CREATE TABLE bcc_frequency (
             text TEXT PRIMARY KEY,
             frequency INTEGER NOT NULL,
-            source_file TEXT NOT NULL
+            modern_chinese INTEGER,
+            news INTEGER,
+            dialogue INTEGER,
+            literature INTEGER,
+            classical_chinese INTEGER,
+            multi_domain INTEGER
         ) WITHOUT ROWID;
+        CREATE TABLE bcc_frequency_evidence (
+            text TEXT NOT NULL,
+            source_category TEXT NOT NULL,
+            source_kind TEXT NOT NULL,
+            frequency INTEGER NOT NULL,
+            source_file TEXT NOT NULL,
+            PRIMARY KEY (text, source_category, source_kind, source_file)
+        ) WITHOUT ROWID;
+        CREATE INDEX bcc_evidence_category_frequency_idx
+            ON bcc_frequency_evidence(source_category, frequency DESC, text);
         CREATE TABLE rejections (
             source TEXT NOT NULL,
             source_file TEXT NOT NULL,
@@ -118,6 +205,27 @@ def _create_schema(conn: sqlite3.Connection) -> None:
             rule_ids TEXT NOT NULL,
             reason TEXT NOT NULL
         );
+        CREATE VIEW v_bcc_frequency_by_category AS
+        SELECT text, frequency AS aggregate_frequency,
+               modern_chinese, news, dialogue, literature,
+               classical_chinese, multi_domain
+        FROM bcc_frequency;
+        CREATE VIEW v_reading_source_conflicts AS
+        SELECT text, COUNT(DISTINCT marked) AS reading_count,
+               GROUP_CONCAT(DISTINCT marked) AS marked_readings
+        FROM accepted_readings
+        GROUP BY text
+        HAVING COUNT(DISTINCT marked) > 1;
+        CREATE VIEW char_readings AS
+        SELECT id, codepoint, text AS hanzi,
+               marked_pinyin, numeric_pinyin, reading_rank, is_primary
+        FROM canonical_readings
+        WHERE text_length = 1;
+        CREATE VIEW phrase_readings AS
+        SELECT id, text AS phrase, text_length AS phrase_len,
+               marked_pinyin, numeric_pinyin, reading_rank
+        FROM canonical_readings
+        WHERE text_length > 1 AND is_primary = 1;
         """
     )
 
@@ -151,8 +259,8 @@ def _import_readings(
             continue
         conn.execute(
             """
-            INSERT INTO accepted_readings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ON CONFLICT(text, marked, source, source_file) DO UPDATE SET
+            INSERT INTO accepted_readings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(text, marked, source, source_category, source_file) DO UPDATE SET
                 source_rank = MIN(source_rank, excluded.source_rank),
                 source_weight = CASE
                     WHEN source_weight IS NULL THEN excluded.source_weight
@@ -164,8 +272,10 @@ def _import_readings(
             (
                 record.text,
                 result.marked,
+                record.reading,
                 result.numeric,
                 record.source,
+                record.source_category,
                 record.source_file,
                 record.source_rank,
                 record.source_weight,
@@ -183,17 +293,41 @@ def _import_frequencies(conn: sqlite3.Connection, records: Iterable[FrequencyRec
     for record in records:
         if not is_han_text(record.text):
             continue
+        if record.source_kind == "word" and len(record.text) < 2:
+            continue
+        if record.source_kind == "char" and len(record.text) != 1:
+            continue
+        if record.source_kind not in {"word", "char"}:
+            raise ValueError(f"unknown BCC source kind: {record.source_kind}")
+        if record.source_category not in BCC_CATEGORY_COLUMNS:
+            raise ValueError(f"unknown BCC source category: {record.source_category}")
         conn.execute(
             """
-            INSERT INTO bcc_frequency VALUES (?, ?, ?)
+            INSERT INTO bcc_frequency_evidence VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(text, source_category, source_kind, source_file) DO UPDATE SET
+                frequency = MAX(frequency, excluded.frequency)
+            """,
+            (
+                record.text,
+                record.source_category,
+                record.source_kind,
+                record.frequency,
+                record.source_file,
+            ),
+        )
+        category_column = record.source_category
+        conn.execute(
+            f"""
+            INSERT INTO bcc_frequency (text, frequency, {category_column})
+            VALUES (?, ?, ?)
             ON CONFLICT(text) DO UPDATE SET
                 frequency = MAX(frequency, excluded.frequency),
-                source_file = CASE
-                    WHEN excluded.frequency > frequency THEN excluded.source_file
-                    ELSE source_file
+                {category_column} = CASE
+                    WHEN {category_column} IS NULL THEN excluded.{category_column}
+                    ELSE MAX({category_column}, excluded.{category_column})
                 END
             """,
-            (record.text, record.frequency, record.source_file),
+            (record.text, record.frequency, record.frequency),
         )
         count += 1
     conn.commit()
@@ -203,7 +337,9 @@ def _import_frequencies(conn: sqlite3.Connection, records: Iterable[FrequencyRec
 def _reading_groups(conn: sqlite3.Connection) -> Iterator[tuple[str, list[sqlite3.Row]]]:
     cursor = conn.execute(
         """
-        SELECT a.*, COALESCE(f.frequency, 0) AS bcc_frequency
+        SELECT a.*, COALESCE(f.frequency, 0) AS bcc_frequency,
+               f.modern_chinese, f.news, f.dialogue, f.literature,
+               f.classical_chinese, f.multi_domain
         FROM accepted_readings AS a
         LEFT JOIN bcc_frequency AS f USING (text)
         ORDER BY a.text, a.marked, a.source_rank, a.source
@@ -227,9 +363,14 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
     conflicts_path = output_dir / "reading_conflicts.tsv"
     fields = [
         "text", "text_length", "pinyin_marked", "pinyin_numeric", "reading_rank",
-        "is_primary", "bcc_frequency", "wanxiang_weight", "pinyin_sources", "rule_ids",
+        "is_primary", "bcc_frequency", "bcc_categories",
+        "bcc_modern_chinese", "bcc_news", "bcc_dialogue", "bcc_literature",
+        "bcc_classical_chinese", "bcc_multi_domain", "wanxiang_weight",
+        "wanxiang_categories", "pinyin_sources", "reading_source_categories", "rule_ids",
     ]
     output_count = conflict_count = 0
+    conn.execute("DELETE FROM canonical_readings")
+    canonical_batch: list[tuple[object, ...]] = []
     with entries_path.open("w", encoding="utf-8", newline="") as entries_stream, conflicts_path.open(
         "w", encoding="utf-8", newline=""
     ) as conflicts_stream:
@@ -252,6 +393,16 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
             )
             for rank, (marked, rows) in enumerate(ranked, start=1):
                 sources = sorted({str(row["source"]) for row in rows})
+                source_categories = sorted(
+                    {f'{row["source"]}:{row["source_category"]}' for row in rows}
+                )
+                wanxiang_categories = sorted(
+                    {
+                        str(row["source_category"])
+                        for row in rows
+                        if row["source"] == "wanxiang"
+                    }
+                )
                 rules = sorted(
                     {rule for row in rows for rule in str(row["rule_ids"]).split(",") if rule}
                 )
@@ -259,6 +410,11 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                     (int(row["source_weight"] or 0) for row in rows if row["source"] == "wanxiang"),
                     default=0,
                 )
+                bcc_categories = [
+                    category
+                    for category in BCC_CATEGORY_COLUMNS
+                    if rows[0][category] is not None
+                ]
                 exported = {
                     "text": text,
                     "text_length": len(text),
@@ -267,15 +423,77 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                     "reading_rank": rank,
                     "is_primary": int(rank == 1),
                     "bcc_frequency": int(rows[0]["bcc_frequency"]),
+                    "bcc_categories": ",".join(bcc_categories),
+                    "bcc_modern_chinese": rows[0]["modern_chinese"],
+                    "bcc_news": rows[0]["news"],
+                    "bcc_dialogue": rows[0]["dialogue"],
+                    "bcc_literature": rows[0]["literature"],
+                    "bcc_classical_chinese": rows[0]["classical_chinese"],
+                    "bcc_multi_domain": rows[0]["multi_domain"],
                     "wanxiang_weight": wanxiang_weight,
+                    "wanxiang_categories": ",".join(wanxiang_categories),
                     "pinyin_sources": ",".join(sources),
+                    "reading_source_categories": ",".join(source_categories),
                     "rule_ids": ",".join(rules),
                 }
                 writer.writerow(exported)
+                canonical_batch.append(
+                    (
+                        text,
+                        len(text),
+                        f"U+{ord(text):04X}" if len(text) == 1 else None,
+                        marked,
+                        str(rows[0]["numeric"]),
+                        rank,
+                        int(rank == 1),
+                        int(rows[0]["bcc_frequency"]),
+                        rows[0]["modern_chinese"],
+                        rows[0]["news"],
+                        rows[0]["dialogue"],
+                        rows[0]["literature"],
+                        rows[0]["classical_chinese"],
+                        rows[0]["multi_domain"],
+                        wanxiang_weight,
+                        ",".join(sources),
+                        ",".join(source_categories),
+                        ",".join(wanxiang_categories),
+                        ",".join(rules),
+                    )
+                )
+                if len(canonical_batch) >= 10_000:
+                    conn.executemany(
+                        """
+                        INSERT INTO canonical_readings (
+                            text, text_length, codepoint, marked_pinyin, numeric_pinyin,
+                            reading_rank, is_primary, bcc_frequency,
+                            bcc_modern_chinese, bcc_news, bcc_dialogue, bcc_literature,
+                            bcc_classical_chinese, bcc_multi_domain, wanxiang_weight,
+                            pinyin_sources, reading_source_categories,
+                            wanxiang_categories, rule_ids
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        canonical_batch,
+                    )
+                    canonical_batch.clear()
                 if len(ranked) > 1:
                     conflict_writer.writerow(exported)
                     conflict_count += 1
                 output_count += 1
+        if canonical_batch:
+            conn.executemany(
+                """
+                INSERT INTO canonical_readings (
+                    text, text_length, codepoint, marked_pinyin, numeric_pinyin,
+                    reading_rank, is_primary, bcc_frequency,
+                    bcc_modern_chinese, bcc_news, bcc_dialogue, bcc_literature,
+                    bcc_classical_chinese, bcc_multi_domain, wanxiang_weight,
+                    pinyin_sources, reading_source_categories,
+                    wanxiang_categories, rule_ids
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                canonical_batch,
+            )
+    conn.commit()
     return output_count, conflict_count
 
 
@@ -316,11 +534,29 @@ def _export_unresolved_bcc(conn: sqlite3.Connection, output_dir: Path) -> int:
 
 
 def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
+    categorized_bcc = (*inputs.bcc_word_files, *inputs.bcc_char_files)
+    generated_bcc_inputs = [
+        str(item.path)
+        for item in categorized_bcc
+        if item.path.name in GENERATED_BCC_FILENAMES
+    ]
+    if generated_bcc_inputs:
+        raise ValueError(
+            "generated/secondary BCC files cannot be source evidence: "
+            + "; ".join(generated_bcc_inputs)
+        )
+    invalid_bcc_kinds = [
+        f"{item.path}:{item.kind}"
+        for item in categorized_bcc
+        if item.kind not in {"word", "char"}
+    ]
+    if invalid_bcc_kinds:
+        raise ValueError("invalid BCC source kinds: " + "; ".join(invalid_bcc_kinds))
+    bcc_files = tuple(item.path for item in categorized_bcc)
     source_paths = (
         inputs.unihan,
         inputs.pypinyin_phrases,
-        inputs.bcc_words,
-        inputs.bcc_chars,
+        *bcc_files,
         inputs.decoder_inventory,
         *inputs.wanxiang_files,
     )
@@ -358,14 +594,37 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     }
     accepted_total += wanxiang_accepted
 
-    bcc_rows = _import_frequencies(conn, iter_bcc_frequencies(inputs.bcc_words))
-    bcc_rows += _import_frequencies(conn, iter_bcc_frequencies(inputs.bcc_chars))
+    bcc_rows = 0
+    for categorized in categorized_bcc:
+        bcc_rows += _import_frequencies(
+            conn,
+            iter_bcc_frequencies(
+                categorized.path,
+                source_category=categorized.category,
+                source_kind=categorized.kind,
+            ),
+        )
 
     output_entries, conflict_rows = _export_entries(conn, output_dir)
     rejected_rows = _export_rejections(conn, output_dir)
     unresolved_count = _export_unresolved_bcc(conn, output_dir)
     unique_bcc = int(conn.execute("SELECT COUNT(*) FROM bcc_frequency").fetchone()[0])
     unique_texts = int(conn.execute("SELECT COUNT(DISTINCT text) FROM accepted_readings").fetchone()[0])
+    conn.executemany(
+        "INSERT INTO source_files (source_kind, source_path) VALUES (?, ?)",
+        (("char", str(database)), ("phrase", str(database))),
+    )
+    conn.executemany(
+        "INSERT INTO metadata (key, value) VALUES (?, ?)",
+        (
+            ("schema_version", "yime-gated-source-lexicon-v1"),
+            ("char_rows", str(conn.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0])),
+            ("phrase_rows", str(conn.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0])),
+            ("canonical_reading_rows", str(output_entries)),
+            ("source_role", "canonical_lexicon_and_encoding_source"),
+        ),
+    )
+    conn.commit()
     conn.close()
 
     manifest_path = output_dir / "manifest.json"
@@ -374,7 +633,13 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "policy": {
             "frequency": "BCC integer counts are preserved; absent BCC evidence remains 0.",
+            "bcc_categories": "Domain counts remain separate; aggregate frequency is their maximum.",
+            "bcc_source_boundary": (
+                "Only original domain downloads are accepted; word channels contribute multi-character terms, "
+                "char channels contribute single characters, and generated merged/derived files are rejected."
+            ),
             "wanxiang_weight": "Kept separately; never treated as a BCC count.",
+            "wanxiang_categories": "Original dictionary categories are preserved from file names.",
             "reading": "Shared first-round source compliance plus current decoder inventory.",
             "unresolved": "No per-character pronunciation guessing for unmatched BCC terms.",
             "excluded_wanxiang_files": ["cuoyin.dict.yaml", "mixed.dict.yaml"],

@@ -95,7 +95,7 @@ python syllable/codec/yinjie_decoder.py
 
 | Phase                           | 做什么                                                                         | 典型命令                                                                                             |
 | ------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| **Phase 1 — 词库 + 音节表导出** | `source_pinyin.db` → `pinyin_normalized.json`；**默认不**改 `yinjie_code.json` | `python internal_data/pinyin_source_db/rebuild_pinyin_assets.py` 或 `scripts/run_tests.cmd` 前置步骤 |
+| **Phase 1 — 词库 + 音节表导出** | `source_lexicon.sqlite3` → `pinyin_normalized.json`；**默认不**改 `yinjie_code.json` | `python internal_data/pinyin_source_db/rebuild_pinyin_assets.py` 或 `scripts/run_tests.cmd` 前置步骤 |
 | **Phase 2 — 编码表**            | 首音/干音 JSON → `yinjie_code.json` → `yime/code_pinyin.json`                  | `python tools/rebuild_encoding_assets.py` 或 `scripts/apply_syllable_codebook.cmd`                   |
 
 Phase 2 仅在 Phase 1 测试通过、且你 **有意刷新编码层** 时执行。详见 [internal_data/pinyin_source_db/README.md](../internal_data/pinyin_source_db/README.md) 与 [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md)「编码资产重建」一节。

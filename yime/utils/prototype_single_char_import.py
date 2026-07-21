@@ -4,15 +4,20 @@ import csv
 import sqlite3
 from pathlib import Path
 
-from yime.asset_paths import resolve_source_pinyin_db_path
+from yime.asset_paths import resolve_lexicon_source_db_path
 from yime.canonical_yime_mapping import sync_canonical_mapping_table
 from yime.utils.numeric_pinyin_standardizer import standardize_numeric_pinyin
-from yime.utils.source_pinyin_db_loader import prototype_source_name, uses_v2_source_schema
+from yime.utils.char_frequency_policy import BCC_SOURCE
+from yime.utils.source_pinyin_db_loader import (
+    prototype_source_name,
+    uses_lexicon_bundle_schema,
+    uses_v2_source_schema,
+)
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = Path(__file__).resolve().parents[1] / "pinyin_hanzi.db"
-SOURCE_DB_PATH = resolve_source_pinyin_db_path(WORKSPACE_ROOT)
+SOURCE_DB_PATH = resolve_lexicon_source_db_path(WORKSPACE_ROOT)
 SCHEMA_PATH = Path(__file__).resolve().parents[1] / "create_prototype_schema_additions.sql"
 NUMERIC_PATCH_PATH = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "numeric_pinyin_patch.csv"
 
@@ -24,6 +29,53 @@ def apply_schema(conn: sqlite3.Connection) -> None:
 def load_source_single_char_rows(path: Path) -> tuple[list[tuple[str, str, str]], list[tuple[int, str, str, str, str, str, int, int, str | None, str]]]:
     with sqlite3.connect(path) as source_conn:
         source_cur = source_conn.cursor()
+        if uses_lexicon_bundle_schema(source_conn):
+            source_name = "char:source_lexicon.sqlite3"
+            source_files = [(source_name, "char", str(path))]
+            rows = [
+                (
+                    int(row_id),
+                    source_name,
+                    str(codepoint),
+                    str(hanzi),
+                    str(marked_pinyin),
+                    str(numeric_pinyin),
+                    int(reading_rank),
+                    int(is_primary),
+                    f"sources={sources};categories={categories}",
+                    f"{hanzi}\t{marked_pinyin}\t{int(bcc_frequency)}\t{int(has_bcc)}",
+                )
+                for (
+                    row_id,
+                    codepoint,
+                    hanzi,
+                    marked_pinyin,
+                    numeric_pinyin,
+                    reading_rank,
+                    is_primary,
+                    bcc_frequency,
+                    has_bcc,
+                    sources,
+                    categories,
+                ) in source_cur.execute(
+                    """
+                    SELECT id, codepoint, text, marked_pinyin, numeric_pinyin,
+                           reading_rank, is_primary, bcc_frequency,
+                           CASE WHEN bcc_modern_chinese IS NOT NULL
+                                  OR bcc_news IS NOT NULL
+                                  OR bcc_dialogue IS NOT NULL
+                                  OR bcc_literature IS NOT NULL
+                                  OR bcc_classical_chinese IS NOT NULL
+                                  OR bcc_multi_domain IS NOT NULL
+                                THEN 1 ELSE 0 END AS has_bcc,
+                           pinyin_sources, reading_source_categories
+                    FROM canonical_readings
+                    WHERE text_length = 1
+                    ORDER BY id
+                    """
+                )
+            ]
+            return source_files, rows
         if uses_v2_source_schema(source_conn):
             source_files: list[tuple[str, str, str]] = [
                 (prototype_source_name(str(source_kind), str(source_path)), str(source_kind), str(source_path))
@@ -117,6 +169,21 @@ def parse_numeric_pinyin_parts(pinyin_tone: str) -> tuple[str | None, str | None
     return None, final or None, tone_number
 
 
+def parse_source_frequency(raw_line: str) -> int:
+    parts = raw_line.split("\t")
+    if len(parts) < 3:
+        return 0
+    try:
+        return int(parts[2])
+    except ValueError:
+        return 0
+
+
+def source_has_bcc_frequency(raw_line: str) -> bool:
+    parts = raw_line.split("\t")
+    return len(parts) >= 4 and parts[3] == "1"
+
+
 def load_numeric_pinyin_patch_rows(path: Path) -> list[tuple[str, str | None, str | None, int, int | None, int | None]]:
     if not path.exists():
         return []
@@ -162,7 +229,9 @@ def import_hanzi_and_mappings(conn: sqlite3.Connection, source_rows: list[tuple[
     conn.execute('DELETE FROM char_inventory')
     conn.execute('DELETE FROM numeric_pinyin_inventory')
 
-    for _, source_name, _, hanzi, _, numeric_pinyin, reading_rank, is_primary, comment, _ in source_rows:
+    char_frequency_by_hanzi: dict[str, int] = {}
+    bcc_evidence_by_hanzi: dict[str, bool] = {}
+    for _, source_name, _, hanzi, _, numeric_pinyin, reading_rank, is_primary, comment, raw_line in source_rows:
         numeric_pinyin = standardize_numeric_pinyin(numeric_pinyin)
         char_id = ord(hanzi)
         if char_id not in seen_chars:
@@ -174,6 +243,14 @@ def import_hanzi_and_mappings(conn: sqlite3.Connection, source_rows: list[tuple[
                 None,
             ))
             seen_chars.add(char_id)
+        char_frequency_by_hanzi[hanzi] = max(
+            char_frequency_by_hanzi.get(hanzi, 0),
+            parse_source_frequency(raw_line),
+        )
+        bcc_evidence_by_hanzi[hanzi] = (
+            bcc_evidence_by_hanzi.get(hanzi, False)
+            or source_has_bcc_frequency(raw_line)
+        )
 
         if numeric_pinyin not in seen_numeric_pinyin:
             initial, final, tone_number = parse_numeric_pinyin_parts(numeric_pinyin)
@@ -203,6 +280,23 @@ def import_hanzi_and_mappings(conn: sqlite3.Connection, source_rows: list[tuple[
         ) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ''',
         char_rows,
+    )
+    conn.executemany(
+        """
+        UPDATE char_inventory
+        SET char_frequency_abs = ?, frequency_source = ?,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE hanzi = ?
+        """,
+        (
+            (
+                frequency,
+                BCC_SOURCE if bcc_evidence_by_hanzi.get(hanzi, False)
+                else "unified_lexicon_no_bcc",
+                hanzi,
+            )
+            for hanzi, frequency in char_frequency_by_hanzi.items()
+        ),
     )
 
     conn.executemany(
@@ -314,7 +408,20 @@ def write_import_metadata(
     source_distinct_count: int,
     patched_numeric_count: int,
 ) -> None:
+    conn.execute(
+        "DELETE FROM prototype_metadata WHERE key LIKE 'prototype_blcu_word_freq_%'"
+    )
     rows = [
+        (
+            "canonical_lexicon_source",
+            str(SOURCE_DB_PATH),
+            "Unified provenance, pronunciation, frequency, and encoding input database.",
+        ),
+        (
+            "char_source_strategy",
+            "clone_unified_lexicon_char_readings",
+            "Derive the character inventory only from source_lexicon.sqlite3.",
+        ),
         ("prototype_danzi_import_source", str(SOURCE_DB_PATH), "单字拼音来源数据库（single_char_readings）"),
         ("prototype_danzi_char_rows", str(char_count), "本次导入覆盖的单字行数"),
         ("prototype_danzi_numeric_map_rows", str(numeric_map_count), "本次导入的 char_pinyin_map 行数"),
@@ -335,6 +442,12 @@ def write_import_metadata(
 
 
 def main() -> None:
+    with sqlite3.connect(SOURCE_DB_PATH) as source_connection:
+        if not uses_lexicon_bundle_schema(source_connection):
+            raise RuntimeError(
+                "production import requires unified source_lexicon.sqlite3; "
+                "legacy source_pinyin.db schemas are not accepted"
+            )
     source_files, source_rows = load_source_single_char_rows(SOURCE_DB_PATH)
     conn = sqlite3.connect(DB_PATH)
     try:

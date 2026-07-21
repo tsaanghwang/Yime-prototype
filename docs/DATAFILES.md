@@ -66,7 +66,7 @@
   `char_frequency_policy.py` 写入 `phrase_frequency` /
   `char_inventory.char_frequency_abs`；
   `yime/refresh_runtime_yime_codes.py` 读取
-  `merged_char_freq.txt` 构建 `char_modern_common_profile`（BCC 序位），
+  统一 `source_lexicon.sqlite3` 的 `bcc_modern_chinese` 构建 `char_modern_common_profile`（BCC 序位），
   并按当前字频量级为 `char_usage_profile` 动态定标 5 档
   `tier_sort_weight`，TGHZ 分层与非 TGHZ 辅助排序分别来自
   `unihan_readings.db` 与 `char_inventory`。
@@ -74,8 +74,7 @@
 
 ### 单字动态分档设计
 
-- 单字需求权重真源是 BCC **字频频道**合并结果
-  `external_data/char_freq/merged_char_freq.txt`，不是 `word_freq`
+- 单字需求权重真源是统一 `source_lexicon.sqlite3` 中保留的 BCC **字频频道原始证据**，不是 `word_freq`
   频道里顺带出现的单字行；后者只保留作对照，不参与 runtime
   写库。详见
   [external_data/word_freq_README.md](../external_data/word_freq_README.md)。

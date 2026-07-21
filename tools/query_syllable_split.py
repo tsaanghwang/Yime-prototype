@@ -5,11 +5,11 @@ import sqlite3
 from pathlib import Path
 from typing import Sequence
 
-from yime.asset_paths import resolve_source_pinyin_db_path
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DB_PATH = resolve_source_pinyin_db_path(ROOT)
+SOURCE_DB_PATH = resolve_lexicon_source_db_path(ROOT)
 
 # cspell:ignore jqxy zcsr
 APPROVED_RULE_MISMATCHES = {

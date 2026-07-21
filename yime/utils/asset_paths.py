@@ -27,17 +27,22 @@ def resolve_runtime_candidates_json_path(app_dir: Path) -> Path:
     return app_dir / "reports" / "runtime_candidates_by_code_true.json"
 
 
-def generated_source_pinyin_db_path(workspace_root: Path) -> Path:
-    return workspace_root / ".generated" / "source_pinyin.db"
+def generated_lexicon_source_db_path(workspace_root: Path) -> Path:
+    return (
+        workspace_root
+        / ".generated"
+        / "lexicon_source_bundle"
+        / "source_lexicon.sqlite3"
+    )
+
+
+def resolve_lexicon_source_db_path(workspace_root: Path) -> Path:
+    override = _read_env_path("YIME_LEXICON_SOURCE_DB")
+    if override is not None:
+        return override
+    return generated_lexicon_source_db_path(workspace_root)
 
 
 def resolve_source_pinyin_db_path(workspace_root: Path) -> Path:
-    override = _read_env_path("YIME_SOURCE_PINYIN_DB")
-    if override is not None:
-        return override
-
-    generated_path = generated_source_pinyin_db_path(workspace_root)
-    if generated_path.exists():
-        return generated_path
-
-    return workspace_root / "internal_data" / "pinyin_source_db" / "source_pinyin.db"
+    """Deprecated API name; resolves only the unified lexicon source database."""
+    return resolve_lexicon_source_db_path(workspace_root)

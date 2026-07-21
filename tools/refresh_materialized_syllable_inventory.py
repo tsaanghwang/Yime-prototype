@@ -4,12 +4,12 @@ import argparse
 import sqlite3
 from pathlib import Path
 
-from yime.asset_paths import resolve_source_pinyin_db_path
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 # cspell:ignore zcsr jqxy uēng uéng uěng uèng
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DB_PATH = resolve_source_pinyin_db_path(ROOT)
+SOURCE_DB_PATH = resolve_lexicon_source_db_path(ROOT)
 DEFAULT_TABLE_NAME = "m_distinct_syllable_inventory"
 
 # Inline flattening: char_readings rows + phrase_readings split by spaces.
@@ -106,13 +106,13 @@ _FLAT_SYLLABLES_CTE = """
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="把 source_pinyin.db 中的音节库存物化成独立表，供后续排查查询直接使用。"
+        description="把统一 source_lexicon.sqlite3 中的音节库存物化成独立表。"
     )
     parser.add_argument(
         "--db-path",
         type=Path,
         default=SOURCE_DB_PATH,
-        help="source_pinyin.db 路径，默认使用仓库内置路径。",
+        help="统一 source_lexicon.sqlite3 路径，默认使用仓库生成路径。",
     )
     parser.add_argument(
         "--table-name",

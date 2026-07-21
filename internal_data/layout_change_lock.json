@@ -14,7 +14,7 @@
   "semantic_registry_sha256": "ba46591d6ade4045741b0f0a36a8b5a5f0669c5f3ced8345f488348f40a128e4",
   "pinyin_yinyuan_chain_sha256": "4a59cb8dbee32c11e8e9eb7401a967443901015f3c7d6d2482745479003916d5",
   "syllable_rule_catalog_sha256": "c28efcb56ec83e901b43f21aaa2de3af3f90b7b27a41f940f155d263631554a0",
-  "syllable_provenance_sha256": "80796fe43fb712b16c80adb5fd95e79c2064f121025f4c4f1315f00d706514b7",
+  "syllable_provenance_sha256": "a55b2e507a08744f4cfe79dd2dc4b1b46f7801b4b9f2f00939fca7bb09f65c4b",
   "canonical_layout_source": "internal_data/manual_key_layout.json",
   "derived_layout_artifacts": [
     "internal_data/manual_key_layout.resolved.json",

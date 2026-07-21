@@ -63,6 +63,9 @@ SPECIAL_COMBINING_TONES: dict[str, tuple[str, int]] = {
 
 def marked_syllable_to_numeric(syllable: str) -> str:
     syllable = unicodedata.normalize("NFC", syllable.strip().lower())
+    if syllable == "r":
+        # 《汉语拼音方案》允许儿化后的 er 省写为 r；编码边界恢复完整音节。
+        return "er5"
     special = SPECIAL_COMBINING_TONES.get(syllable)
     if special is not None:
         return f"{special[0]}{special[1]}"
