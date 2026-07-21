@@ -278,9 +278,9 @@ def inspect_lexicon(db_path: Path) -> LexiconStatus:
                 (
                     candidate
                     for candidate in (
-                        "variable_yinyuan_code",
-                        "primary_yime_code",
                         "yime_code",
+                        "primary_yime_code",
+                        "variable_yinyuan_code",
                     )
                     if candidate in columns
                 ),
