@@ -37,7 +37,8 @@ BCC 在线语料库：<https://bcc.blcu.edu.cn/>
   - `kMandarin` → 1
   - 五列皆无 → 0
 - 多列并存取 **max**；BCC 命中时 **只用 BCC**，`frequency_source = external_data/BCC-word-freq`。
-- 导入 Yime 后，`phrase_inventory.phrase_frequency` 为 **BCC 原始整数 count**（命中时），否则 **词库默认 1**（表示词条在 curated 词库中至少有一次收录）。
+- 导入 Yime 后，`phrase_inventory.phrase_frequency` 为 **BCC 原始整数 count**；BCC 未命中时保持为
+  **0**。词典收录只证明词条存在，不再伪装成一次语料命中。
 - `char_inventory.char_frequency_abs` 写入 **有效频率**（BCC 或合成值）；`frequency_source` 标记来源。历史列 `char_frequency_rel` 已废弃，不再写入。
 - 运行时排序对缺失值仍可用 `COALESCE(..., 0)`；词库导入后短语频率不再留 `NULL`。
 
@@ -63,7 +64,7 @@ scripts/import_blcu_word_frequency.cmd
 
 行为说明：
 
-- 多字词频按 `phrase_inventory.phrase` 文本 join；BCC 未命中时写入 **1**。
+- 多字词频按 `phrase_inventory.phrase` 文本 join；BCC 未命中时写入 **0**。
 - 单字频按 `char_inventory.hanzi` join；BCC 未命中时使用 Unihan 合成序位（见上）。
 - 写库前会清空原有 `phrase_frequency` / `char_frequency_*`，并清空 `char_pinyin_map.reading_weight`。
 - 若历史库中 `phrase_inventory.phrase_frequency` 仍为 `REAL`，导入时会自动迁移为 `INTEGER` 并写入 BCC 原始 count。

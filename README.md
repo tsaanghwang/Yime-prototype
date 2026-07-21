@@ -29,8 +29,10 @@ Windows 桌面输入法原型、相关生成链，以及一组已经可重复生
 新音节或新表示形式时，工具链停止并报告来源或规则缺口，不让 AI 或程序临时猜一个编码。不得通过
 手写 `yinjie_code.json`、四音元码、Yinyuan ID 或键位绕过正式链路。
 
-目前1727个规范音节均有来源或经审查补丁依据，并全部通过正式编码器。详细规则、历史形式与逐项
-审计入口见 [音节编码规则与依据](docs/SYLLABLE_ENCODING_RULES.md)。
+目前1725个规范音节均有来源或经审查补丁依据，并全部通过正式编码器。字典进入解码前先经过
+[字典拼音第一轮合规审查](docs/DICTIONARY_PINYIN_COMPLIANCE.md)：原始证据可以保留，只有合规实例或
+有据校正后的形式才进入解码；详细编码规则、历史形式与逐项审计入口见
+[音节编码规则与依据](docs/SYLLABLE_ENCODING_RULES.md)。
 
 当前分支的数据链、真源、三张审计表和键盘布局重构总览见
 [当前实现总览](docs/CURRENT_ARCHITECTURE.md)。
@@ -128,6 +130,7 @@ YIME/
     [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)
 - 文档入口： [docs/README.md](docs/README.md)、
     [docs/TERMINOLOGY_INDEX.md](docs/TERMINOLOGY_INDEX.md)、
+    [docs/DICTIONARY_PINYIN_COMPLIANCE.md](docs/DICTIONARY_PINYIN_COMPLIANCE.md)、
     [docs/SYLLABLE_ENCODING_RULES.md](docs/SYLLABLE_ENCODING_RULES.md)、
     [docs/CODEPOINT_POLICY.md](docs/CODEPOINT_POLICY.md)、
     [docs/SOURCE_AND_ARTIFACTS.md](docs/SOURCE_AND_ARTIFACTS.md)、

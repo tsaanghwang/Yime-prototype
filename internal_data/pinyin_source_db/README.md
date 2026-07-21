@@ -1,7 +1,9 @@
 # Pinyin Source DB
 
-This folder contains the source-of-truth SQLite workspace for pinyin
-imports.
+This folder contains the policy and generated SQLite workspace for pinyin
+imports. Raw dictionary evidence remains under `external_data`; only readings
+that pass the shared first-round compliance boundary enter the internal
+exports and this database.
 
 ## Why it lives here
 
@@ -30,6 +32,16 @@ Override: set `YIME_SOURCE_PINYIN_DB`.
 Run `internal_data/hanzi_pinyin/build_valid_pinyin.py` and
 `internal_data/phrase_pinyin/build_valid_pinyin.py` first if these files are
 missing.
+
+Before rebuilding, audit both raw dictionaries with:
+
+```powershell
+.\venv312\Scripts\python.exe tools\audit_dictionary_pinyin.py
+```
+
+The shared implementation, policy, and report semantics are documented in
+`docs/DICTIONARY_PINYIN_COMPLIANCE.md`. `build_source_pinyin_db.py` applies the
+same policy again so a direct rebuild cannot bypass source canonicalization.
 
 ## One-click rebuild (phase 1 — lexicon + syllable table, no codebook)
 
@@ -64,8 +76,10 @@ Format: `"numeric_key": "marked_form"`.
 Keys must stay numeric; do **not** add marked-form aliases to
 `yinjie_code.json`.
 
-Standalone 儿化韵单写 `r` is normalized to numeric `er5` at import
-(`marked_syllable_to_numeric`); upstream marked spelling may stay `r`.
+An upstream `r` occupying an 儿-character reading slot is the scheme-sanctioned
+erhua-final abbreviation. It is restored to numeric `er5` at the full-syllable
+encoding boundary; the source spelling remains auditable as `r`. A trailing
+`r` attached to a preceding syllable still requires contextual analysis.
 
 Export domain = distinct numeric syllables from
 `m_distinct_syllable_inventory` ∪ patch keys (inventory-first; only

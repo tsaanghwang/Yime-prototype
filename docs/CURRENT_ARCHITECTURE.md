@@ -17,8 +17,13 @@
 
 ```text
 Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
+  -> 字典拼音第一轮合规审查（共用策略、保留来源上下文）
+       -> 合规实例：准入
+       -> 有旁证的来源错误：按字头校正
+       -> 方案允许的省写：还原为编码入口形式
+       -> 已知非规范拼式：保留字形和审计证据，只阻止该读音进入解码
   -> source_pinyin.db
-  -> 规范数字标调音节清单（当前 1727 项）
+  -> 规范数字标调音节清单（当前 1725 项）
   -> SyllableEncodingPipeline
   -> 首音段 + 干音段
   -> ShouyinEncoder + GanyinEncoder
@@ -28,13 +33,14 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
   -> SQLite 运行时候选、Rime/KLC/Windows 消费产物
 ```
 
-1727个现行音节均有 Unihan、词语来源或经审查补丁依据，并全部能通过正式编码器。逐项来源、规则和
+1725个现行音节均有 Unihan、词语来源或经审查补丁依据，并全部能通过正式编码器。逐项来源、规则和
 四个 Yinyuan ID 见 `internal_data/yime_syllable_encoding_provenance.tsv`。
 
 ## 当前真源
 
 | 层 | 真源 | 职责 |
 |---|---|---|
+| 来源合规 | `dictionary_pinyin_compliance_policy.json` | 外部字典进入解码前的声韵准入、字头校正、已知排除和儿化省写还原策略 |
 | 单字读音 | `internal_data/hanzi_pinyin/pinyin.txt` | Unihan 合并后的带调单字读音实例 |
 | 词语读音 | `internal_data/phrase_pinyin/phrase_pinyin.txt` | 经校验的词语带调读音实例 |
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
@@ -87,7 +93,7 @@ A/Z = n 高/低            ; / = ng 高/低
 
 运行 `tools/export_syllable_decomposition.py` 会同时生成：
 
-1. `yime_syllable_decomposition.tsv`：1727项正式分解、Yinyuan ID 和布局码。
+1. `yime_syllable_decomposition.tsv`：1725项正式分解、Yinyuan ID 和布局码。
 2. `yime_syllable_encoding_provenance.tsv`：每项编码的来源和规则依据。
 3. `yime_syllable_omissions.tsv`：旧理论全集与现行实例驱动链的50项差集。
 
@@ -99,10 +105,12 @@ A/Z = n 高/低            ; / = ng 高/低
 
 ### 修改拼音来源或音节规则
 
-1. 从单字/词语来源或经审查补丁开始。
-2. 修改正式规范化、切分或编码真源。
-3. 重建编码和三张审计表。
-4. 单独审查语义变化并执行布局锁；不得从 `yinjie_code.json` 中间补入。
+1. 从单字/词语原始来源开始，并先运行 `tools/audit_dictionary_pinyin.py`。
+2. 判断问题属于通用拼写规则、带字头上下文的来源校正，还是只保留证据的已知排除；不得把单字
+   勘误扩张成全局音节别名。
+3. 修改合规策略、正式规范化、切分或编码真源，并在规则目录登记依据。
+4. 重建来源库、编码和三张审计表。
+5. 单独审查语义变化并执行布局锁；不得从 `yinjie_code.json` 中间补入。
 
 ### 修改键盘布局
 

@@ -26,7 +26,7 @@ python build_valid_pinyin.py
 2. **hanzi_pinyin.py** — 创建空表 `hanzi_pinyin` 及检视视图
 3. **hanzi_frequency.py** — 导入字频 → `hanzi_frequency`（BCC `merged_char_freq.txt` + Unihan 合成序位；逻辑见 `yime/utils/char_frequency_policy.py`）
 4. **pinyin_source_staging.py** — 从 `hanzi_pinyin.txt` 导入 → `pinyin_source_staging`
-5. **append_pinyin.py** — 将 staging 原样写入 `hanzi_pinyin`（仅存有拼音汉字）
+5. **append_pinyin.py** — 将 staging 原样写入 `hanzi_pinyin`（含保留字形但读音被排除的来源字）
 6. **export_hanzi_txt.py** — 导出 → `pinyin.txt`
 
 ## 产物
@@ -43,7 +43,7 @@ python build_valid_pinyin.py
 | `hanzi`                 | 全量 Unicode 汉字（码点、块名）                 |
 | `hanzi_frequency`       | 字频                                            |
 | `pinyin_source_staging` | 本次导入的 Unihan 读音（与源 TSV 一致）         |
-| `hanzi_pinyin`          | **产品用**有读音汉字（稀疏表，与 staging 一致） |
+| `hanzi_pinyin`          | **产品用**来源字表（合规读音或空读音，与 staging 一致） |
 
 `common_reading` / `readings` / `common_reading_source` / `is_single` 均来自 Unihan 合并，本库不做二次选取。
 
