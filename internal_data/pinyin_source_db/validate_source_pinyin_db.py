@@ -4,11 +4,24 @@ import argparse
 import json
 import re
 import sqlite3
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from build_source_pinyin_db import DEFAULT_DB_PATH, marked_phrase_to_numeric, marked_syllable_to_numeric
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
+from yime.utils.marked_pinyin import (
+    marked_pinyin_to_numeric as marked_phrase_to_numeric,
+    marked_syllable_to_numeric,
+)
+
+
+DEFAULT_DB_PATH = (
+    WORKSPACE_ROOT / ".generated" / "lexicon_source_bundle" / "source_lexicon.sqlite3"
+)
 
 
 CODEPOINT_RE = re.compile(r"^U\+[0-9A-F]{4,6}$")

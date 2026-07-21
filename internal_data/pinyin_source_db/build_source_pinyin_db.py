@@ -233,6 +233,14 @@ def sync_legacy_fallback_db(db_path: Path, legacy_db_path: Path = LEGACY_DB_PATH
 
 
 def main() -> None:
+    raise SystemExit(
+        "retired: build the canonical source with tools/build_lexicon_source_bundle.py; "
+        "legacy source_pinyin.db is not a production input"
+    )
+
+
+def _legacy_main() -> None:
+    """Archived implementation retained only for historical format recovery."""
     args = parse_args()
     db_path = Path(args.db)
     schema_path = Path(args.schema)

@@ -14,7 +14,7 @@ external_data/phrase_pinyin.txt ─┘   ├─ 具体来源记录校勘
 
 共用实现是 `yime/utils/dictionary_pinyin_compliance.py`，策略真源是
 `internal_data/pinyin_source_db/dictionary_pinyin_compliance_policy.json`。单字和词语构建入口都调用它；
-`build_source_pinyin_db.py` 再执行一次同样的边界检查，防止维护人员绕过前置构建步骤直接把旧中间文件
+`tools/build_lexicon_source_bundle.py` 再执行一次同样的边界检查，防止维护人员绕过前置构建步骤直接把旧中间文件
 送进解码链。
 
 ## 第一轮检查什么

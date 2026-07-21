@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import csv
 import json
+import sqlite3
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, cast
 
 from syllable.codec.yinjie_encoder import YinjieEncoder
 from yime.utils.yinyuan_id_chain import REPO_ROOT, load_symbol_to_yinyuan_id
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 DEFAULT_RULE_CATALOG_PATH = REPO_ROOT / "internal_data" / "syllable_encoding_rule_catalog.json"
@@ -82,28 +84,21 @@ def load_source_attestations(
     phrase_source_path: Path = DEFAULT_PHRASE_SOURCE_PATH,
     patch_path: Path = DEFAULT_PATCH_PATH,
 ) -> dict[str, SourceAttestation]:
-    """Count actual tone-bearing syllable occurrences in the checked-in sources."""
-    from internal_data.pinyin_source_db.build_source_pinyin_db import (
-        marked_syllable_to_numeric,
-        split_char_readings,
-    )
+    """Count accepted source evidence from the unified canonical source DB."""
+    # The path arguments remain for API compatibility with older callers. They
+    # must not redirect the audit around the canonical source database.
+    _ = (char_source_path, phrase_source_path)
 
     char_counts: dict[str, int] = {}
-    with char_source_path.open("r", encoding="utf-8", newline="") as file:
-        for raw in csv.reader(file, delimiter="\t"):
-            if not raw or raw[0].startswith("#") or raw[0] == "codepoint" or len(raw) < 4:
-                continue
-            for marked in split_char_readings(raw[3].strip()):
-                _add_count(char_counts, marked_syllable_to_numeric(marked))
-
     phrase_counts: dict[str, int] = {}
-    with phrase_source_path.open("r", encoding="utf-8", newline="") as file:
-        for raw in csv.reader(file, delimiter="\t"):
-            if not raw or raw[0].startswith("#") or raw[0] == "phrase" or len(raw) < 4:
-                continue
-            for marked_phrase in raw[3].split("|"):
-                for marked in marked_phrase.strip().split():
-                    _add_count(phrase_counts, marked_syllable_to_numeric(marked))
+    source_db = resolve_lexicon_source_db_path(REPO_ROOT)
+    with sqlite3.connect(source_db) as conn:
+        for text, numeric in conn.execute(
+            "SELECT text, numeric FROM accepted_readings"
+        ):
+            target = char_counts if len(str(text)) == 1 else phrase_counts
+            for syllable in str(numeric).split():
+                _add_count(target, syllable)
 
     patch_payload = json.loads(patch_path.read_text(encoding="utf-8"))
     patch_keys = {str(key) for key in patch_payload}

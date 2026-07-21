@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import json
+import sqlite3
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -20,6 +21,7 @@ from yime.utils.yinyuan_id_chain import (
     load_symbol_to_yinyuan_id,
     load_yinyuan_id_to_layout_key,
 )
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 DEFAULT_INVENTORY_PATH = (
@@ -265,7 +267,7 @@ def _missing_ganyin_route(final: str) -> tuple[str, str, str, str, str, str, str
             "当前来源没有该带调实例；它由早期每个韵母补齐五声的理论集合产生。",
             surface_forms,
             "LEGACY-FIVE-TONE-CLOSURE",
-            "internal_data/pinyin_source_db/build_source_pinyin_db.py::is_supported_char_reading",
+            "yime.lexicon_bundle.gate.ReadingGate",
             "先核实上游词典是否确有该带调实例；没有实例时保持不编码。",
             "若找到实例，再从拼音来源重建完整链；禁止从 yinjie_code.json 中间补入。",
         )
@@ -313,23 +315,20 @@ def build_theoretical_ganyin_omission_rows(
 def build_source_filter_omission_rows(
     char_source_path: Path = DEFAULT_CHAR_SOURCE_PATH,
 ) -> list[SyllableOmissionRow]:
-    """Expose marked readings silently rejected before the materialized inventory."""
-    # Import here so this read-only audit uses exactly the importer's conversion and regex.
-    from internal_data.pinyin_source_db.build_source_pinyin_db import (
-        is_supported_char_reading,
-        marked_syllable_to_numeric,
-        split_char_readings,
-    )
-
-    counts: dict[str, int] = {}
-    with char_source_path.open("r", encoding="utf-8", newline="") as file:
-        reader = csv.reader(file, delimiter="\t")
-        for raw in reader:
-            if not raw or raw[0].startswith("#") or raw[0] == "codepoint" or len(raw) < 4:
-                continue
-            for candidate in split_char_readings(raw[3].strip()):
-                if not is_supported_char_reading(candidate):
-                    counts[candidate] = counts.get(candidate, 0) + 1
+    """Expose single-character readings rejected by the unified source gate."""
+    _ = char_source_path
+    counts: dict[tuple[str, str], int] = {}
+    source_db = resolve_lexicon_source_db_path(REPO_ROOT)
+    with sqlite3.connect(source_db) as conn:
+        for candidate, reason, occurrences in conn.execute(
+            """
+            SELECT reading, reason, COUNT(*)
+            FROM rejections
+            WHERE length(text) = 1
+            GROUP BY reading, reason
+            """
+        ):
+            counts[(str(candidate), str(reason))] = int(occurrences)
 
     return [
         SyllableOmissionRow(
@@ -340,14 +339,14 @@ def build_source_filter_omission_rows(
             classification="导入格式规则过滤",
             rule_ids="",
             occurrences=occurrences,
-            reason=f"转换为 {marked_syllable_to_numeric(candidate)!r} 后不满足 ^[a-zêü]+[1-5]$。",
+            reason=reason,
             surface_forms="",
-            source_rule="internal_data/pinyin_source_db/build_source_pinyin_db.py::is_supported_char_reading",
+            source_rule="yime.lexicon_bundle.gate.ReadingGate",
             first_change="先核实上游读音是否合法；合法时修改导入规范化或允许格式。",
-            followup_change="重建 source_pinyin.db，再刷新物化音节清单和全部编码产物。",
+            followup_change="重建 source_lexicon.sqlite3，再刷新物化音节清单和全部编码产物。",
             lock_scope="上游语义输入改动：不得直接补 Yinyuan ID、码元或键位。",
         )
-        for candidate, occurrences in sorted(counts.items())
+        for (candidate, reason), occurrences in sorted(counts.items())
     ]
 
 

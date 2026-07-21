@@ -49,6 +49,9 @@ class ReadingGate:
     def __init__(self, inventory_path: Path) -> None:
         payload = json.loads(inventory_path.read_text(encoding="utf-8"))
         self._decodable = frozenset(str(key) for key in payload)
+        self._marked_by_numeric = {
+            str(key): str(value) for key, value in payload.items()
+        }
         self._policy = load_policy()
 
     @lru_cache(maxsize=8192)
@@ -97,7 +100,9 @@ class ReadingGate:
 
         return GateResult(
             True,
-            marked=" ".join(item.canonical_marked for item in reviews),
+            marked=" ".join(
+                self._marked_by_numeric[item.canonical_numeric] for item in reviews
+            ),
             numeric=" ".join(item.canonical_numeric for item in reviews),
             rule_ids=tuple(dict.fromkeys(item.rule_id for item in reviews)),
         )

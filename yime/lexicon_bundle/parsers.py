@@ -13,6 +13,7 @@ class ReadingRecord:
     text: str
     reading: str
     source: str
+    source_category: str
     source_file: str
     line_number: int
     source_rank: int
@@ -25,6 +26,8 @@ class ReadingRecord:
 class FrequencyRecord:
     text: str
     frequency: int
+    source_category: str
+    source_kind: str
     source_file: str
     line_number: int
 
@@ -57,6 +60,7 @@ def iter_unihan_readings(path: Path) -> Iterator[ReadingRecord]:
                 text=text,
                 reading=reading,
                 source="unihan",
+                source_category="single_char",
                 source_file=str(path),
                 line_number=line_number,
                 source_rank=10,
@@ -76,6 +80,7 @@ def iter_pypinyin_phrase_readings(path: Path) -> Iterator[ReadingRecord]:
                 text=text,
                 reading=reading,
                 source="pypinyin",
+                source_category="phrase",
                 source_file=str(path),
                 line_number=line_number,
                 source_rank=10,
@@ -84,6 +89,7 @@ def iter_pypinyin_phrase_readings(path: Path) -> Iterator[ReadingRecord]:
 
 
 def iter_wanxiang_readings(path: Path, *, source_rank: int = 30) -> Iterator[ReadingRecord]:
+    category = path.name.removesuffix(".dict.yaml")
     in_body = False
     with path.open("r", encoding="utf-8-sig") as stream:
         for line_number, raw_line in enumerate(stream, start=1):
@@ -108,6 +114,7 @@ def iter_wanxiang_readings(path: Path, *, source_rank: int = 30) -> Iterator[Rea
                 text=text,
                 reading=reading,
                 source="wanxiang",
+                source_category=category,
                 source_file=str(path),
                 line_number=line_number,
                 source_rank=source_rank,
@@ -115,7 +122,12 @@ def iter_wanxiang_readings(path: Path, *, source_rank: int = 30) -> Iterator[Rea
             )
 
 
-def iter_bcc_frequencies(path: Path) -> Iterator[FrequencyRecord]:
+def iter_bcc_frequencies(
+    path: Path,
+    *,
+    source_category: str,
+    source_kind: str,
+) -> Iterator[FrequencyRecord]:
     with path.open("r", encoding="utf-8-sig", newline="") as stream:
         reader = csv.reader(stream)
         for line_number, row in enumerate(reader, start=1):
@@ -129,4 +141,11 @@ def iter_bcc_frequencies(path: Path) -> Iterator[FrequencyRecord]:
             except ValueError:
                 continue
             if text:
-                yield FrequencyRecord(text, frequency, str(path), line_number)
+                yield FrequencyRecord(
+                    text,
+                    frequency,
+                    source_category,
+                    source_kind,
+                    str(path),
+                    line_number,
+                )

@@ -220,7 +220,7 @@ python -m pytest tests/syllable_analysis/test_encode_ganyin.py tests/yinjie/test
 当前 rebuild 链（详见 `docs/project/PINYIN_DATA_MIGRATION.md`）：
 
 ```text
-上游文本 → source_pinyin.db → prototype tables → runtime_candidates（SQLite）
+上游来源 → 统一门禁 → source_lexicon.sqlite3 → prototype tables → runtime_candidates（SQLite）
 ```
 
 ---
@@ -437,7 +437,7 @@ python -m build
 
 ### Q: 如何添加新的拼音映射？
 
-A: 当前主线通过 `source_pinyin.db` 与 prototype 导入链维护；见 `docs/project/PINYIN_DATA_MIGRATION.md`。
+A: 当前主线通过统一 `source_lexicon.sqlite3` 与 prototype 导入链维护；见 `docs/project/PINYIN_DATA_MIGRATION.md`。
 
 ### Q: 如何优化转换性能？
 

@@ -12,7 +12,7 @@
 | 词频中的单字 | `external_data/char_freq/word_freq_merged_single_char_freq.txt` | `tools/merge_word_freq.py`（同上） | 词频频道里 **`len(word) == 1`** 的条目；反映「语料词表统计里出现的单字频」，与专用字频频道不是同一文件 |
 | 字频频道单字 | `external_data/char_freq/merged_char_freq.txt`                  | `tools/merge_char_freq.py`         | `char_freq/` 下各频道 `*.txt`（专用字频下载），各频道取 **max(freq)**                                  |
 
-**Yime 写库与 runtime 字频导入统一使用 `merged_char_freq.txt`**（专用字频频道 + `char_frequency_policy` 合成兜底）。`word_freq_merged_single_char_freq.txt` 仍保留，用于对照词频派生单字与专用字频频道的差异，或离线分析；二者键集与 count 可能不一致（词频单字 ⊂ 或 ≠ 字频频道，且同字 max 值可能不同）。
+**当前生产写库与 runtime 不再读取这些 merged 二手文件。** 构建器直接读取各 BCC 原始分域频道，将证据写入统一 `source_lexicon.sqlite3`；本页列出的 merged 文件只供历史对照和离线分析。
 
 原始频道文件示例：`modern_chinese_word_freq.txt`、`news_total_word_freq.txt`、`literature_word_freq.txt`、`dialogue_word_freq.txt`、`classical_chinese_word_freq.txt`、`multi_domain_total_word_freq.txt`。
 
@@ -27,7 +27,7 @@ BCC 在线语料库：<https://bcc.blcu.edu.cn/>
 ## 口径
 
 - `freq` 按原始整数 **count** 理解，不是归一化权重。
-- 单字频写库真源：`external_data/char_freq/merged_char_freq.txt`（BCC **字频频道**）。
+- 单字频生产真源：统一 `source_lexicon.sqlite3` 中逐文件保留的 BCC **字频频道原始证据**。
 - 词频派生单字：`external_data/char_freq/word_freq_merged_single_char_freq.txt`（BCC **词频频道**里的单字行，由 `tools/merge_word_freq.py` 分出，不用于写库）。
 - BCC 未命中的单字，各导入脚本按同一 **Unihan 合成序位** 写入有效频率（严格小于 BCC 最小正值 6）：
   - `kTGHZ2013` → 5

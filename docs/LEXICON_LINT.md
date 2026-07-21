@@ -25,7 +25,7 @@
 
 建议在以下时机之一执行 **lint**（不必每次日常开发都跑）：
 
-1. 修改 `source_pinyin.db` 构建脚本或源 TSV 之后
+1. 修改统一 `source_lexicon.sqlite3` 构建器、门禁或上游来源之后
 2. 执行 `runtime_codes_refresh.py --apply` 之后
 3. 执行 `yime/export_runtime_candidates_json.py` 之后
 4. 准备把 `runtime_candidates` 导出为 Rime `dict.yaml` 并合入 **Yime** 运行时仓库之前
@@ -36,7 +36,7 @@
 
 ```powershell
 # 自动寻找 .generated/runtime_candidates_by_code_true.json、
-# yime/pinyin_hanzi.db、.generated/source_pinyin.db（存在则扫描）
+# yime/pinyin_hanzi.db、.generated/lexicon_source_bundle/source_lexicon.sqlite3（存在则扫描）
 python tools/lexicon_lint.py
 
 # 显式指定 runtime JSON
@@ -103,7 +103,7 @@ python tools/lexicon_clean.py --apply
 
 ### `source_suffix_particle`（warning）
 
-- 在 `source_pinyin.db` 的 `phrase_readings` 表上应用相同尾字规则
+- 在 `source_lexicon.sqlite3` 的 `phrase_readings` 兼容视图上应用相同尾字规则
 
 ### `placeholder_phrase_code`（warning）
 
@@ -116,7 +116,7 @@ python tools/lexicon_clean.py --apply
 ## 与构建管线的关系
 
 ```
-source_pinyin.db  ──validate──►  (已有 validate_source_pinyin_db.py)
+source_lexicon.sqlite3 ──validate──►  (validate_source_pinyin_db.py)
         │
         ▼
 runtime refresh / export

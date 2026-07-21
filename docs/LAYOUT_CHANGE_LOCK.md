@@ -106,7 +106,7 @@ python tools/export_syllable_decomposition.py
 “被过滤的音节”：
 
 - `filtered_before_inventory`：上游标调读音被导入格式规则过滤；从
-  `internal_data/pinyin_source_db/build_source_pinyin_db.py` 的规范化和允许格式开始检查。
+  `tools/build_lexicon_source_bundle.py` 及统一合规门禁的规范化和允许格式开始检查。
 - `encoder_failed`：规范数字拼音已经进入清单，但正式编码器失败；按表中的 `source_rule`
   从切分、首音编码或干音编码阶段开始修复。
 - `not_generated_from_current_inventory`：理论干音集合中存在、当前规范音节编码链未产出的项；

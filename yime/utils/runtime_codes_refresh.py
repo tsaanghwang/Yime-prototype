@@ -24,7 +24,7 @@ from yime.canonical_yime_mapping import (
     load_code_mode_map,
     sync_canonical_mapping_table,
 )
-from yime.utils.blcu_word_frequency_import import load_char_frequency_map
+from yime.asset_paths import resolve_lexicon_source_db_path
 from yime.utils.char_frequency_policy import (
     BCC_SOURCE,
     DEFAULT_BCC_CHAR_FREQ_PATH,
@@ -48,18 +48,12 @@ DEFAULT_TUNING_SCAN_JSON_OUTPUT = PACKAGE_DIR / "reports" / "runtime_tuning_scan
 DEFAULT_TUNING_SCAN_MARKDOWN_OUTPUT = PACKAGE_DIR / "reports" / "runtime_tuning_scan.md"
 DEFAULT_UNIHAN_READINGS_DB_PATH = DEFAULT_UNIHAN_READINGS_DB
 DEFAULT_XHC1983_SOURCE = Path("C:/dev/pinyin-data/kXHC1983.txt")
-DEFAULT_BLCU_CHAR_FREQ_SOURCE = DEFAULT_BCC_CHAR_FREQ_PATH
 
 OPTIONAL_EXTERNAL_FREQUENCY_SOURCES = (
     (
         DEFAULT_UNIHAN_READINGS_DB_PATH,
         "《通用规范汉字表》TGHZ2013 + BCC 单字频",
         "缺失时将跳过 TGHZ2013 单字分层增强；需要时可运行 external_data/unihan_readings/build_all.py 重建 unihan_readings.db。",
-    ),
-    (
-        DEFAULT_BLCU_CHAR_FREQ_SOURCE,
-        "BCC 合并单字频（merged_char_freq.txt）",
-        "缺失时将跳过 BCC 单字序位增强；需要时可运行 tools/merge_char_freq.py 生成后放回 external_data/char_freq/。",
     ),
 )
 
@@ -573,15 +567,21 @@ def load_char_inventory_frequencies(conn: sqlite3.Connection) -> dict[str, int]:
     }
 
 
-def load_single_char_word_frequencies(path: Path) -> dict[str, int]:
-    if not path.exists():
+def load_unified_modern_char_ranks(path: Path) -> dict[str, int]:
+    if not path.is_file():
         return {}
-    by_char, _parsed_rows = load_char_frequency_map(path)
-    return by_char
-
-
-def load_single_char_word_ranks(path: Path) -> dict[str, int]:
-    frequency_by_char = load_single_char_word_frequencies(path)
+    with sqlite3.connect(path) as source_conn:
+        frequency_by_char = {
+            str(text): int(frequency)
+            for text, frequency in source_conn.execute(
+                """
+                SELECT text, bcc_modern_chinese
+                FROM canonical_readings
+                WHERE text_length = 1 AND is_primary = 1
+                  AND bcc_modern_chinese IS NOT NULL
+                """
+            )
+        }
     sorted_chars = sorted(
         frequency_by_char.items(),
         key=lambda item: (-item[1], item[0]),
@@ -1322,7 +1322,9 @@ def rebuild_char_modern_common_profile(conn: sqlite3.Connection, tuning_paramete
         for row in conn.execute("SELECT hanzi FROM char_inventory")
         if str(row[0] or "")
     }
-    modern_rank_by_char = load_single_char_word_ranks(DEFAULT_BLCU_CHAR_FREQ_SOURCE)
+    modern_rank_by_char = load_unified_modern_char_ranks(
+        resolve_lexicon_source_db_path(REPO_ROOT)
+    )
     max_rank = int(tuning_parameters.get("modern_common_max_rank", MODERN_COMMON_MAX_RANK))
     rank_divisor = float(tuning_parameters.get("modern_common_rank_divisor", MODERN_COMMON_RANK_DIVISOR)) or 1.0
 
@@ -1333,7 +1335,7 @@ def rebuild_char_modern_common_profile(conn: sqlite3.Connection, tuning_paramete
         if rank > max_rank:
             continue
         boost = max(max_rank - rank, 0) / rank_divisor
-        rows.append((hanzi, rank, float(boost), "blcu_bcc_single_char_rank"))
+        rows.append((hanzi, rank, float(boost), "unified_lexicon_bcc_modern_chinese_rank"))
 
     conn.execute("DELETE FROM char_modern_common_profile")
     if rows:

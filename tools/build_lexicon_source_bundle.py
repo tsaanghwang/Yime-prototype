@@ -22,8 +22,6 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--unihan", type=Path, default=defaults.unihan)
     parser.add_argument("--pypinyin-phrases", type=Path, default=defaults.pypinyin_phrases)
-    parser.add_argument("--bcc-words", type=Path, default=defaults.bcc_words)
-    parser.add_argument("--bcc-chars", type=Path, default=defaults.bcc_chars)
     parser.add_argument("--decoder-inventory", type=Path, default=defaults.decoder_inventory)
     parser.add_argument(
         "--wanxiang-root",
@@ -45,8 +43,8 @@ def main() -> int:
     inputs = BundleInputs(
         unihan=args.unihan.resolve(),
         pypinyin_phrases=args.pypinyin_phrases.resolve(),
-        bcc_words=args.bcc_words.resolve(),
-        bcc_chars=args.bcc_chars.resolve(),
+        bcc_word_files=wanxiang_defaults.bcc_word_files,
+        bcc_char_files=wanxiang_defaults.bcc_char_files,
         wanxiang_files=wanxiang_defaults.wanxiang_files,
         decoder_inventory=args.decoder_inventory.resolve(),
     )

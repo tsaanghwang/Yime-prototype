@@ -187,7 +187,7 @@ KLC 文档分工：
 
 近期仓库清理与文档对齐要点：
 
-- **数据 rebuild**：`source_pinyin.db` → prototype 导入 →
+- **数据 rebuild**：`source_lexicon.sqlite3`（统一真源）→ prototype 导入 →
   `refresh_runtime_yime_codes`
 - **运行时查词**：**SQLite** `pinyin_hanzi.db` /
   `runtime_candidates` 为主；JSON 导出可选

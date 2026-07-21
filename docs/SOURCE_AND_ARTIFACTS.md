@@ -343,7 +343,7 @@
 - `docs/project/PINYIN_DATA_MIGRATION.md`
   - 分类：当前迁移说明。
   - 原因：该文档明确区分当前主线
-    `source_pinyin.db -> prototype tables -> runtime` rebuild 链与
+    `source_lexicon.sqlite3 -> prototype tables -> runtime` rebuild 链与
     legacy-compatible 区域。
 
 - `syllable/codec/yinjie.py`（``Yinjie`` 四元模型真源）
@@ -626,10 +626,9 @@ git show <commit> --stat
     `external_data/phrase_pinyin.txt` 为上游快照，gitignore。
 
 - `external_data/char_freq/merged_char_freq.txt`
-  - 分类：BCC **字频频道**合并单字频（`tools/merge_char_freq.py`）。
-  - 原因：Yime 字频写库与 `char_frequency_policy` 合成兜底的 BCC 真源；
-    供 `import_blcu_word_frequency.py`、`import_hanzi_frequency.py`
-    等使用。
+  - 分类：BCC **字频频道**历史合并产物（`tools/merge_char_freq.py`）。
+  - 原因：只供离线对照；当前生产写库直接读取原始分域频道，并把证据保存到
+    `source_lexicon.sqlite3`，不再从该二手文件接入。
 
 - `external_data/char_freq/word_freq_merged_single_char_freq.txt`
   - 分类：BCC **词频频道**中的单字条目（`tools/merge_word_freq.py` 从 `word_freq/*.txt` 分出 `len(word)==1`）。
