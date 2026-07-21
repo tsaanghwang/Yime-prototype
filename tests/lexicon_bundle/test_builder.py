@@ -7,6 +7,7 @@ from pathlib import Path
 
 from yime.lexicon_bundle.builder import BundleInputs, CategorizedPath, build_bundle
 from yime.utils.prototype_phrase_import import import_bundle_phrases_and_mappings
+from tools.export_lexicon_review_summary import export_summary
 
 
 def _write(path: Path, text: str) -> Path:
@@ -77,6 +78,12 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
     rejected = result.rejections.read_text(encoding="utf-8")
     assert "𱿅" in rejected
     assert "syllable_count_mismatch" in rejected
+    review_summary = tmp_path / "review.md"
+    export_summary(result.output_dir, review_summary, limit=2)
+    review = review_summary.read_text(encoding="utf-8")
+    assert "无拼音" in review
+    assert "no_reading_source_record" in review
+    assert "翻页" not in review
     manifest = json.loads(result.manifest.read_text(encoding="utf-8"))
     assert manifest["schema_version"] == "yime-gated-source-lexicon-v1"
     with sqlite3.connect(result.database) as connection:
