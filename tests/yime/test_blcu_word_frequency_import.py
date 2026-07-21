@@ -190,7 +190,7 @@ class TestBlcuWordFrequencyImport(unittest.TestCase):
                     conn.execute(
                         "SELECT phrase_frequency FROM phrase_inventory WHERE phrase = '独有词'"
                     ).fetchone()[0],
-                    1,
+                    0,
                 )
                 row = conn.execute(
                     "SELECT char_frequency_abs, char_frequency_rel, frequency_source "

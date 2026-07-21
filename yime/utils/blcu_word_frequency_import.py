@@ -622,8 +622,9 @@ def main() -> int:
     print(f"char_inventory without BCC freq: {stats.unmatched_char_rows}")
     print(f"BCC citation: {BCC_CITATION}")
     print(
-        "note: phrase frequencies use BCC when present, otherwise lexicon default 1; "
-        "char frequencies use BCC when present otherwise Unihan synthetic ladder (5..1, else 0)."
+        "note: phrase frequencies preserve BCC counts and use 0 when BCC has no entry; "
+        "explicit BCC char weight 0 is preserved, while chars absent from BCC retain the separately labelled "
+        "Unihan evidence ladder (5..1, else 0)."
     )
 
     if args.dry_run:

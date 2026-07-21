@@ -196,8 +196,8 @@ def _rime_weight(value: object) -> int:
     try:
         weight = int(round(float(value or 0)))
     except (TypeError, ValueError):
-        return 1
-    return max(weight, 1)
+        return 0
+    return max(weight, 0)
 
 
 def _schema_id_for(mode: YimeCodeMode, schema_id: str = "") -> str:

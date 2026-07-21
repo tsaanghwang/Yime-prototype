@@ -1,15 +1,16 @@
 """Shared character and phrase frequency import policy for Yime.
 
-Single-character (BCC merged char frequency is primary; integer counts, min observed 6).
-When BCC has no hit, apply a fixed Unihan-column synthetic ladder strictly below 6:
+Single-character BCC counts, including an explicit zero, are preserved unchanged.
+Only when BCC has no entry at all may the existing Unihan-column evidence ladder
+provide a separately labelled synthetic value below the minimum observed BCC count:
 
   kTGHZ2013 -> 5, kHanyuPinlu -> 4, kXHC1983 -> 3, kHanyuPinyin -> 2, kMandarin -> 1, else 0
 
 Multiple Unihan columns take the maximum synthetic tier. kHanyuPinlu uses a flat 4;
 embedded Pinlu relative counts are intentionally ignored.
 
-Multi-character phrases in the lexicon default to frequency 1 when BCC has no hit,
-reflecting minimum attestation in the curated phrase inventory.
+Multi-character phrases without a BCC hit retain weight 0.  Dictionary attestation
+is not converted into a fabricated corpus count.
 """
 
 from __future__ import annotations
@@ -33,7 +34,7 @@ DEFAULT_UNIHAN_READINGS_DB = (
 
 BCC_SOURCE = "external_data/BCC-word-freq"
 SYNTHETIC_NONE_SOURCE = "synthetic/none"
-PHRASE_LEXICON_DEFAULT_FREQUENCY = 1
+PHRASE_LEXICON_DEFAULT_FREQUENCY = 0
 
 # Removed import chains / misleading snapshot keys purged on BCC import and runtime refresh.
 LEGACY_FREQUENCY_METADATA_KEYS = (
@@ -98,14 +99,14 @@ def resolve_char_frequency(
     unihan_columns: Mapping[str, object] | None = None,
     bcc_source: str = BCC_SOURCE,
 ) -> ResolvedCharFrequency:
-    if bcc_frequency is not None and bcc_frequency > 0:
+    if bcc_frequency is not None:
         return ResolvedCharFrequency(int(bcc_frequency), bcc_source)
     synthetic = synthetic_frequency_from_unihan_columns(unihan_columns)
     return synthetic
 
 
 def resolve_phrase_frequency(bcc_frequency: int | None) -> int:
-    if bcc_frequency is not None and bcc_frequency > 0:
+    if bcc_frequency is not None:
         return int(bcc_frequency)
     return PHRASE_LEXICON_DEFAULT_FREQUENCY
 
