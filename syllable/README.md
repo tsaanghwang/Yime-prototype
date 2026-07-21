@@ -146,7 +146,7 @@ python tools/export_syllable_decomposition.py
 
 该入口生成三张便于逐项观察的表：
 
-- `internal_data/yime_syllable_decomposition.tsv`：1727 个规范带调音节的分解与编码；
+- `internal_data/yime_syllable_decomposition.tsv`：1725 个规范带调音节的分解与编码；
 - `internal_data/yime_syllable_encoding_provenance.tsv`：每条编码的来源和规则依据；
 - `internal_data/yime_syllable_omissions.tsv`：理论集合、技术拼写与当前字典清单的差异。
 

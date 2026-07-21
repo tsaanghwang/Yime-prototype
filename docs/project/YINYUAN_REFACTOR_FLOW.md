@@ -54,7 +54,7 @@ flowchart TD
 负责首音结构编码。当前主线从真源 JSON 直接读取显式映射，不再构造未参与主流程的 `ZaoyinYinyuan` 实例。
 
 6. `internal_data/syllable_encoding_rule_catalog.json`
-负责解释 1727 个规范带调音节的来源、拼写变换和编码路径。它不保存四 ID
+负责解释 1725 个规范带调音节的来源、拼写变换和编码路径。它不保存四 ID
 结果或键位，避免成为第二套编码真源。
 
 7. `internal_data/manual_key_layout.json`
@@ -93,5 +93,5 @@ flowchart TD
 - `UnpitchedPianyin`、`PitchedPianyin`、`NoiseYinyuan` 和 `MusicalYinyuan` 只保留为旧调用别名；新代码使用 `Zaoyin*` / `Yueyin*`。
 - `YueyinYinyuan.from_pianyin()` 现在只接受乐音片音；噪音片音不再默认补成“中性调乐音音元”。
 - 工具脚本已切到 `YueyinMapper`，主链与脚本链的归并规则保持同源。
-- 1727 条规范音节编码及语义注册表摘要由布局改动锁固定；键盘重构只允许
+- 1725 条规范音节编码及语义注册表摘要由布局改动锁固定；键盘重构只允许
   改动 `manual_key_layout.json` 的最后一层投影。

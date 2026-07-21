@@ -160,9 +160,9 @@
   - 应从首音语义层、干音语义层和码点映射层生成。
 
 - `internal_data/yime_syllable_decomposition.tsv`
-  - 1727项规范音节经过正式编码器后的分段、Yinyuan ID 和布局投影审计表。
+  - 1725项规范音节经过正式编码器后的分段、Yinyuan ID 和布局投影审计表。
 - `internal_data/yime_syllable_encoding_provenance.tsv`
-  - 1727项编码逐项记录 Unihan/词语/补丁依据及命中的稳定规则编号。
+  - 1725项编码逐项记录 Unihan/词语/补丁依据及命中的稳定规则编号。
   - 布局锁会从来源重新计算并拒绝过期内容。
 - `internal_data/yime_syllable_omissions.tsv`
   - 旧理论干音全集相对现行实例驱动链的差集；不能当作“编码失败音节表”。
@@ -377,7 +377,7 @@
 - `yime/import_xiandaihaiyu_phrase_frequency.py`、`yime/utils/xiandaihaiyu_phrase_frequency_import.py`
   - 分类：已删除的现代汉语语料词频导入脚本。
   - 原因：词语频率改由 `import_blcu_word_frequency.py` 写入 BCC count
-    或词库默认 1。
+    或无 BCC 命中时的 0；词典收录不折算为虚构的语料次数。
 
 - `yime/import_8105_char_frequency.py`、`yime/utils/char_frequency_8105_import.py`
   - 分类：已删除的 8105.dict.yaml 字频导入脚本。

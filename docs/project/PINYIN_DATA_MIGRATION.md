@@ -76,7 +76,7 @@ scripts/run_tests.cmd
 .\venv312\Scripts\python.exe tools\run_locked_layout_pipeline.py
 ```
 
-前一命令会同时刷新分解、规则来源和遗漏审计表；后一命令验证 1727 条
+前一命令会同时刷新分解、规则来源和遗漏审计表；后一命令验证 1725 条
 “拼音 → 四个 Yinyuan ID”摘要没有被布局改动越界修改。
 
 ## 2. 运行时查词（IME 消费面）
