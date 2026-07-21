@@ -2,6 +2,12 @@ import sqlite3
 import sys
 from pathlib import Path
 
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
+from yime.utils.dictionary_pinyin_compliance import canonicalize_reading, load_policy
+
 DB_FILE = str(Path(__file__).parent / "phrase_pinyin.db")
 
 
@@ -27,6 +33,7 @@ def import_to_staging(source_path: str) -> None:
     if not path.exists():
         raise FileNotFoundError(f"词语拼音源文件未找到: {path}")
 
+    policy = load_policy()
     readings_map: dict[str, tuple[int, str, str]] = {}
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
@@ -42,7 +49,8 @@ def import_to_staging(source_path: str) -> None:
         if not phrase or not pinyin_str:
             continue
 
-        syllables = _split_syllables(pinyin_str)
+        canonical_pinyin, _ = canonicalize_reading(pinyin_str, policy)
+        syllables = _split_syllables(canonical_pinyin)
         if not syllables:
             continue
         syllables = _reorder_syllables(syllables)

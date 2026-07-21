@@ -1,4 +1,4 @@
-# 本文件由 hanzi_pinyin.db 的 hanzi_pinyin 表导出（仅含 Unihan 有读音汉字）。数据源为 external_data/hanzi_pinyin.txt（Unihan mandarin_readings_merged 导出），经 pinyin_source_staging 导入后直接写入 hanzi_pinyin。构建流水线见 internal_data/hanzi_pinyin/build_valid_pinyin.py。
+# 本文件由 hanzi_pinyin.db 的 hanzi_pinyin 表导出（含合规读音汉字，以及保留字形但无合规读音的来源字）。数据源为 external_data/hanzi_pinyin.txt（Unihan mandarin_readings_merged 导出），经 pinyin_source_staging 导入后直接写入 hanzi_pinyin。构建流水线见 internal_data/hanzi_pinyin/build_valid_pinyin.py。
 codepoint	hanzi	common_reading	readings	common_reading_source	is_single
 U+20000	𠀀	hē	hē	kHanyuPinyin	1
 U+20001	𠀁	qī	qī	kMandarin	1
@@ -6881,7 +6881,7 @@ U+2593A	𥤺	wā	wā	kHanyuPinyin	1
 U+2593B	𥤻	pí	pí	kHanyuPinyin	1
 U+2593C	𥤼	suì	suì	kHanyuPinyin	1
 U+25945	𥥅	kǒng	kǒng	kHanyuPinyin	1
-U+25948	𥥈	hóng	hóng,wòng	kHanyuPinyin	0
+U+25948	𥥈	hóng	hóng,wèng	kHanyuPinyin	0
 U+2594A	𥥊	mǐng	mǐng	kHanyuPinyin	1
 U+2594B	𥥋	líng	líng	kHanyuPinyin	1
 U+2594C	𥥌	yì	yì,dié	kHanyuPinyin	0
@@ -6925,7 +6925,7 @@ U+259A3	𥦣	guī	guī	kHanyuPinyin	1
 U+259A5	𥦥	xiòng	xiòng	kHanyuPinyin	1
 U+259A8	𥦨	kè	kè	kHanyuPinyin	1
 U+259B6	𥦶	xiàn	xiàn	kHanyuPinyin	1
-U+259B7	𥦷	wòng	wòng	kHanyuPinyin	1
+U+259B7	𥦷	wèng	wèng	kHanyuPinyin	1
 U+259C2	𥧂	gǒng	gǒng	kMandarin	1
 U+259C6	𥧆	ǒu	ǒu	kHanyuPinyin	1
 U+259C7	𥧇	kē	kē,cháo	kHanyuPinyin	0
@@ -17587,7 +17587,7 @@ U+31F86	𱾆	guàn	guàn	kMandarin	1
 U+31F8E	𱾎	xié	xié	kMandarin	1
 U+31F9D	𱾝	zhuī	zhuī	kMandarin	1
 U+31FBE	𱾾	pū	pū	kMandarin	1
-U+31FC5	𱿅	bòng	bòng	kMandarin	1
+U+31FC5	𱿅			kMandarin	0
 U+31FD7	𱿗	biáng	biáng	kMandarin	1
 U+31FE3	𱿣	kè	kè	kMandarin	1
 U+31FEB	𱿫	tàng	tàng	kMandarin	1
@@ -24266,7 +24266,7 @@ U+513B	儻	tǎng	tǎng,tàng,chǎng	kXHC1983	0
 U+513C	儼	yǎn	yǎn	kXHC1983	1
 U+513D	儽	léi	léi,lěi,luǒ	kXHC1983	0
 U+513E	儾	nàng	nàng	kHanyuPinyin	1
-U+513F	儿	r	ér,r,rén	kHanyuPinlu	0
+U+513F	儿	er	ér,er,rén	kHanyuPinlu	0
 U+5140	兀	wù	wù,wū	kTGHZ2013	0
 U+5141	允	yǔn	yǔn,yuán	kHanyuPinlu	0
 U+5142	兂	zān	zān	kMandarin	1
@@ -24285,7 +24285,7 @@ U+514E	兎	tù	tù	kXHC1983	1
 U+514F	兏	cháng	cháng	kMandarin	1
 U+5150	児	ér	ér	kMandarin	1
 U+5151	兑	duì	duì,ruì,duó	kTGHZ2013	0
-U+5152	兒	r	r,ér,ní	kHanyuPinlu	0
+U+5152	兒	er	er,ér,ní	kHanyuPinlu	0
 U+5153	兓	jīn	jīn,zàn	kHanyuPinyin	0
 U+5154	兔	tù	tù,tú,chān	kHanyuPinlu	0
 U+5155	兕	sì	sì	kTGHZ2013	1

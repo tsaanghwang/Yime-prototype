@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import unicodedata
+
 ACCENTED_VOWEL_MAP: dict[str, tuple[str, int]] = {
     "ā": ("a", 1),
     "á": ("a", 2),
@@ -9,10 +11,9 @@ ACCENTED_VOWEL_MAP: dict[str, tuple[str, int]] = {
     "é": ("e", 2),
     "ě": ("e", 3),
     "è": ("e", 4),
-    "ê": ("e", 1),
-    "ḗ": ("e", 2),
-    "ế": ("e", 2),
-    "ề": ("e", 4),
+    "ḗ": ("ê", 2),
+    "ế": ("ê", 2),
+    "ề": ("ê", 4),
     "ī": ("i", 1),
     "í": ("i", 2),
     "ǐ": ("i", 3),
@@ -35,8 +36,37 @@ ACCENTED_VOWEL_MAP: dict[str, tuple[str, int]] = {
     "ḿ": ("m", 2),
 }
 
+SPECIAL_COMBINING_TONES: dict[str, tuple[str, int]] = {
+    "ê̄": ("ê", 1),
+    "ê̌": ("ê", 3),
+    "ề": ("ê", 4),
+    "m̄": ("m", 1),
+    "m̌": ("m", 3),
+    "m̀": ("m", 4),
+    "n̄": ("n", 1),
+    "ň": ("n", 3),
+    "ǹ": ("n", 4),
+    "n̄g": ("ng", 1),
+    "ňg": ("ng", 3),
+    "ǹg": ("ng", 4),
+    "hm̄": ("hm", 1),
+    "hm̌": ("hm", 3),
+    "hm̀": ("hm", 4),
+    "hn̄": ("hn", 1),
+    "hň": ("hn", 3),
+    "hǹ": ("hn", 4),
+    "hn̄g": ("hng", 1),
+    "hňg": ("hng", 3),
+    "hǹg": ("hng", 4),
+}
+
 
 def marked_syllable_to_numeric(syllable: str) -> str:
+    syllable = unicodedata.normalize("NFC", syllable.strip().lower())
+    special = SPECIAL_COMBINING_TONES.get(syllable)
+    if special is not None:
+        return f"{special[0]}{special[1]}"
+
     tone = 5
     base_chars: list[str] = []
     for char in syllable:

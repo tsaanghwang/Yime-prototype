@@ -81,9 +81,35 @@ def test_checked_in_provenance_covers_every_canonical_encoding() -> None:
     ) as file:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
-    assert len(actual) == len(inventory) == 1727
+    assert len(actual) == len(inventory) == 1725
     assert {row["pinyin_tone"] for row in actual} == set(inventory)
     assert all(row["status"] == "encoded-with-registered-basis" for row in actual)
     assert all(row["source_rule_ids"] for row in actual)
     assert all(row["orthography_rule_ids"] for row in actual)
     assert all(len(row["yinyuan_ids"].split()) == 4 for row in actual)
+
+
+def test_excluded_reading_does_not_erase_its_character() -> None:
+    with Path("internal_data/hanzi_pinyin/pinyin.txt").open(
+        encoding="utf-8", newline=""
+    ) as file:
+        rows = {
+            row["codepoint"]: row
+            for row in csv.DictReader(
+                (line for line in file if not line.startswith("#")),
+                delimiter="\t",
+            )
+        }
+
+    retained = rows["U+31FC5"]
+    assert retained["hanzi"] == "𱿅"
+    assert retained["common_reading"] == ""
+    assert retained["readings"] == ""
+
+    inventory = json.loads(
+        Path("internal_data/pinyin_source_db/lexicon_exports/pinyin_normalized.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert "bong4" not in inventory
+    assert "wong4" not in inventory

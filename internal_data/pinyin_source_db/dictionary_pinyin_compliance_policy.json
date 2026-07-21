@@ -1,0 +1,61 @@
+{
+  "schema_version": "dictionary-pinyin-compliance-v1",
+  "scope": "字典拼音进入音节分解与编码之前的第一轮来源合规审查；不是普通话规范认证。",
+  "admitted_finals_by_initial": {
+    "'": "a ai an ang ao e ei en eng er o ou ê",
+    "b": "a ai an ang ao ei en eng i ian iang iao ie in ing o u",
+    "c": "a ai an ang ao e ei en eng i ong ou u uan ui un uo",
+    "ch": "a ai an ang ao e en eng i ong ou u ua uai uan uang ui un uo",
+    "d": "a ai an ang ao e ei en eng i ia ian iao ie in ing iu ong ou u uan ui un uo",
+    "f": "a an ang ei en eng iao o ou u",
+    "g": "a ai an ang ao e ei en eng ong ou u ua uai uan uang ui un uo",
+    "h": "a ai an ang ao e ei en eng m ng ong ou u ua uai uan uang ui un uo",
+    "j": "i ia ian iang iao ie in ing iong iu u uan ue un",
+    "k": "a ai an ang ao e ei en eng ong ou u ua uai uan uang ui un uo",
+    "l": "a ai an ang ao e ei en eng i ia ian iang iao ie in ing iu o ong ou u uan un uo ü üe",
+    "m": "a ai an ang ao e ei en eng i ian iao ie in ing iu o ou u",
+    "n": "a ai an ang ao e ei en eng g i ia ian iang iao ie in ing iu ong ou u uan un uo ü üe",
+    "p": "a ai an ang ao ei en eng i ian iao ie in ing o ou u",
+    "q": "i ia ian iang iao ie in ing iong iu u uan ue un",
+    "r": "a an ang ao e en eng i ong ou u ua uan ui un uo",
+    "s": "a ai an ang ao e en eng i ong ou u uan ui un uo",
+    "sh": "a ai an ang ao e ei en eng i ou u ua uai uan uang ui un uo",
+    "t": "a ai an ang ao e ei eng i ian iao ie in ing ong ou u uan ui un uo",
+    "w": "a ai an ang ei en eng o u",
+    "x": "i ia ian iang iao ie in ing iong iu u uan ue un",
+    "y": "a an ang ao e i in ing o ong ou u uan ue un",
+    "z": "a ai an ang ao e ei en eng i ong ou u uan ui un uo",
+    "zh": "a ai an ang ao e ei en eng i ong ou u ua uai uan uang ui un uo"
+  },
+  "admitted_syllabic_specials": ["m", "n", "ng", "hm", "hng", "ê"],
+  "aliases": {
+    "r5": {
+      "canonical_numeric": "er5",
+      "canonical_marked": "er",
+      "rule_id": "ORTH-ERHUA-R-RESTORE",
+      "reason": "《汉语拼音方案》允许儿化韵尾省写为 r；完整音节编码入口将该省写还原为 er5。"
+    }
+  },
+  "source_corrections": {
+    "U+25948|wong4": {
+      "canonical_numeric": "weng4",
+      "canonical_marked": "wèng",
+      "rule_id": "SRC-CORRECTION-U25948-WENG",
+      "reason": "Unihan 原始值 wòng 不符合 ong 的零声母拼写；澳典与台湾教育部字典旁证为 wèng。"
+    },
+    "U+259B7|wong4": {
+      "canonical_numeric": "weng4",
+      "canonical_marked": "wèng",
+      "rule_id": "SRC-CORRECTION-U259B7-WENG",
+      "reason": "Unihan 原始值 wòng 不符合 ong 的零声母拼写；多个现代字典旁证为 wèng。"
+    }
+  },
+  "source_exclusions": {
+    "U+31FC5|bong4": {
+      "rule_id": "SRC-EXCLUDE-U31FC5-BONG",
+      "status": "excluded_nonstandard_orthography",
+      "reason": "来源记录 bòng，但普通话唇音声母 b 不与 ong 相拼；保留来源证据，不进入音节分解。",
+      "review_note": "字典与 Unicode 资料支持地方读音 bòng；当地以“茨”代写不构成把原字改读 cí 的依据。"
+    }
+  }
+}
