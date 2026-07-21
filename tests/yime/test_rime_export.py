@@ -63,6 +63,7 @@ def _create_runtime_db(path: Path, repo_root: Path) -> None:
             [
                 ("char", "1", "一", "yi1", first_code, first_code, first_code, first_code, symbols["N01"], 120.4, 1, 1, "2026-06-30"),
                 ("phrase", "2", "一二", "yi1 er4", phrase_code, phrase_code, phrase_code, phrase_code, first_code, 80.0, 1, 2, "2026-06-30"),
+                ("phrase", "3", "一三", "yi1 san1", phrase_code, phrase_code, phrase_code, phrase_code, first_code, 0.0, 0, 2, "2026-06-30"),
             ],
         )
         conn.commit()
@@ -194,7 +195,7 @@ def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> No
         repo_root=repo_root,
     )
 
-    assert result.row_count == 2
+    assert result.row_count == 3
     assert result.code_count == 2
     dict_text = result.paths.dict_path.read_text(encoding="utf-8")
     schema_text = result.paths.schema_path.read_text(encoding="utf-8")
@@ -203,11 +204,12 @@ def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> No
     assert "name: yime_variable_test" in dict_text
     assert "一\tbj\t120" in dict_text
     assert "一二\tbjM\t80" in dict_text
+    assert "一三\tbjM\t0" in dict_text
     assert "schema_id: yime_variable_test" in schema_text
     assert 'dictionary: yime_variable_test' in schema_text
     assert "user_dict: yime_variable_test_layout_6d00e609f689" in schema_text
     assert metadata["mode"] == "variable"
     assert metadata["code_form"] == "layout-key"
-    assert metadata["row_count"] == 2
+    assert metadata["row_count"] == 3
     assert metadata["layout_projection_sha256"].startswith("6d00e609f689")
     assert metadata["user_dict_name"] == "yime_variable_test_layout_6d00e609f689"

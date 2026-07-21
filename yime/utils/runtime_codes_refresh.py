@@ -1537,7 +1537,7 @@ def build_phrase_support_by_char(conn: sqlite3.Connection) -> dict[str, float]:
         phrase = str(row[0] or "")
         if not phrase:
             continue
-        frequency = float(row[1] or 1.0)
+        frequency = float(row[1]) if row[1] is not None else 0.0
         for hanzi in phrase:
             support_by_char[hanzi] += frequency
     return dict(support_by_char)
