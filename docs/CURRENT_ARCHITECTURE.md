@@ -132,3 +132,11 @@ A/Z = n 高/低            ; / = ng 高/低
 - 词频、默认读音、多音排序和候选质量仍依赖输入字典与频率数据。
 - Python 原型是语义、生成和审计主仓库；Windows 输入法、Rime 或 KLC 是消费者，必须从这里的正式
   语义和布局产物同步，不能在消费者仓库另建一套拼音到键位映射。
+
+## 大规模字词来源语料包
+
+`tools/build_lexicon_source_bundle.py` 把 Unihan 单字拼音、pypinyin 词语拼音、万象字词拼音与 BCC
+字词频次汇入 `.generated/lexicon_source_bundle/`。所有读音先经过共用的第一轮合规审查和当前可解码
+音节门禁；BCC 原始计数与万象权重分列保存，未匹配词条和读音冲突分别报告。具体口径和产物见
+[字词拼音与频次统一语料包](LEXICON_SOURCE_BUNDLE.md)。该语料包仍必须从正式音节编码链进入下游，
+不得直接保存或猜测 Yinyuan ID。
