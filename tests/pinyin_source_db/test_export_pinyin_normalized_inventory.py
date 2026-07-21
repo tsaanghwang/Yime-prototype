@@ -120,9 +120,9 @@ class TestExportPinyinNormalizedInventoryDomain(unittest.TestCase):
             with self.subTest(numeric_pinyin=numeric_pinyin):
                 self.assertEqual(marked_syllable_to_numeric(marked_pinyin), numeric_pinyin)
 
-    def test_er5_prefers_char_marked_form_over_phrase_variant(self):
+    def test_er5_uses_restored_full_form(self):
         self.assertIn("er5", self.exported)
-        self.assertEqual(self.exported["er5"], "r")
+        self.assertEqual(self.exported["er5"], "er")
 
 
 class TestExportPinyinNormalizedInventoryCollection(unittest.TestCase):

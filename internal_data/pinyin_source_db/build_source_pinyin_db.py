@@ -5,49 +5,22 @@ import csv
 import re
 import shutil
 import sqlite3
+import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
+from yime.utils.dictionary_pinyin_compliance import canonicalize_reading, load_policy, review_syllable
+from yime.utils.marked_pinyin import marked_syllable_to_numeric as _marked_syllable_to_numeric
 DEFAULT_DB_PATH = WORKSPACE_ROOT / ".generated" / "source_pinyin.db"
 LEGACY_DB_PATH = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "source_pinyin.db"
 DEFAULT_SCHEMA_PATH = SCRIPT_DIR / "schema.sql"
 DEFAULT_CHAR_SOURCE = WORKSPACE_ROOT / "internal_data" / "hanzi_pinyin" / "pinyin.txt"
 DEFAULT_PHRASE_SOURCE = WORKSPACE_ROOT / "internal_data" / "phrase_pinyin" / "phrase_pinyin.txt"
 NUMERIC_SYLLABLE_RE = re.compile(r"^[a-zêü]+[1-5]$")
-
-TONE_CHAR_MAP = {
-    "ā": "a1",
-    "á": "a2",
-    "ǎ": "a3",
-    "à": "a4",
-    "ē": "e1",
-    "é": "e2",
-    "ě": "e3",
-    "è": "e4",
-    "ế": "ê2",
-    "ề": "ê4",
-    "ī": "i1",
-    "í": "i2",
-    "ǐ": "i3",
-    "ì": "i4",
-    "ō": "o1",
-    "ó": "o2",
-    "ǒ": "o3",
-    "ò": "o4",
-    "ū": "u1",
-    "ú": "u2",
-    "ǔ": "u3",
-    "ù": "u4",
-    "ǖ": "ü1",
-    "ǘ": "ü2",
-    "ǚ": "ü3",
-    "ǜ": "ü4",
-    "ń": "n2",
-    "ň": "n3",
-    "ǹ": "n4",
-    "ḿ": "m2",
-}
 
 # 成音节辅音「儿化 r」在编码前归并为完整音节 er5（与 legacy merge_json 口径一致）。
 SYLLABIC_ERHUA_MARKED_TO_NUMERIC = {
@@ -100,42 +73,9 @@ def reset_import_tables(conn: sqlite3.Connection) -> None:
 
 
 def marked_syllable_to_numeric(marked: str) -> str:
-    special_combining = {
-        "ê̄": "ê1",
-        "ê̌": "ê3",
-        "ề": "ê4",
-        "m̄": "m1",
-        "m̌": "m3",
-        "m̀": "m4",
-        "n̄": "n1",
-        "ň": "n3",
-        "ǹ": "n4",
-        "n̄g": "ng1",
-        "ňg": "ng3",
-        "ǹg": "ng4",
-        "hm̄": "hm1",
-        "hm̌": "hm3",
-        "hm̀": "hm4",
-        "hn̄": "hn1",
-        "hň": "hn3",
-        "hǹ": "hn4",
-        "hn̄g": "hng1",
-        "hňg": "hng3",
-        "hǹg": "hng4",
-    }
-    if marked in special_combining:
-        return special_combining[marked]
-
     if marked in SYLLABIC_ERHUA_MARKED_TO_NUMERIC:
         return SYLLABIC_ERHUA_MARKED_TO_NUMERIC[marked]
-
-    numeric = marked + "5"
-    for char in marked:
-        if char in TONE_CHAR_MAP:
-            replacement = TONE_CHAR_MAP[char]
-            numeric = marked.replace(char, replacement[0]) + replacement[1]
-            break
-    return numeric
+    return _marked_syllable_to_numeric(marked)
 
 
 def marked_phrase_to_numeric(marked_phrase: str) -> str:
@@ -166,6 +106,7 @@ def register_source_file(conn: sqlite3.Connection, source_kind: str, source_path
 
 def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
     register_source_file(conn, "char", source_path)
+    policy = load_policy()
 
     inserted = 0
     with source_path.open("r", encoding="utf-8", newline="") as handle:
@@ -182,7 +123,14 @@ def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
             if not codepoint or not hanzi or not readings:
                 continue
 
-            candidates = split_char_readings(readings)
+            candidates: list[str] = []
+            for item in split_char_readings(readings):
+                review = review_syllable(item, policy, codepoint=codepoint)
+                if review.known_exclusion:
+                    continue
+                if not review.accepted:
+                    raise ValueError(f"{codepoint} {hanzi} {item}: {review.reason}")
+                candidates.append(review.canonical_marked)
             valid_pinyins = [p for p in candidates if is_supported_char_reading(p)]
             if not valid_pinyins:
                 continue
@@ -215,6 +163,7 @@ def import_char_source(conn: sqlite3.Connection, source_path: Path) -> int:
 
 def import_phrase_source(conn: sqlite3.Connection, source_path: Path) -> int:
     register_source_file(conn, "phrase", source_path)
+    policy = load_policy()
 
     inserted = 0
     with source_path.open("r", encoding="utf-8", newline="") as handle:
@@ -238,6 +187,8 @@ def import_phrase_source(conn: sqlite3.Connection, source_path: Path) -> int:
             seen: set[str] = set()
             for part in readings.split("|"):
                 candidate = part.strip()
+                if candidate:
+                    candidate, _ = canonicalize_reading(candidate, policy)
                 if candidate and candidate not in seen:
                     seen.add(candidate)
                     reading_list.append(candidate)

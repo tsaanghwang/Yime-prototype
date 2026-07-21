@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import sqlite3
 import subprocess
@@ -88,7 +89,11 @@ def parse_args() -> Args:
 
 def run_step(step_name: str, command: list[str]) -> None:
     print(f"[{step_name}] {' '.join(command)}")
-    subprocess.run(command, check=True, cwd=WORKSPACE_ROOT)
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(WORKSPACE_ROOT), env.get("PYTHONPATH", "")) if part
+    )
+    subprocess.run(command, check=True, cwd=WORKSPACE_ROOT, env=env)
 
 
 def load_json_count(path: Path) -> int:

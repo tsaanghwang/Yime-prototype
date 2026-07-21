@@ -26,6 +26,30 @@
       "basis": "internal_data/pinyin_source_db/pinyin_normalized_patch.json 与 PATCH_POLICY.md。",
       "policy": "补充来源缺口或标调事实；不得直接指定音元、Yinyuan ID 或键位。"
     },
+    "SRC-DICTIONARY-ATTESTED": {
+      "layer": "source_compliance",
+      "title": "字典实例通过第一轮来源合规审查",
+      "basis": "yime/utils/dictionary_pinyin_compliance.py 与 external_data 中的单字、词语来源。",
+      "policy": "只表示来源实例通过字符、声调、形态和已准入声韵结构检查；不把所有字典读音宣称为普通话核心规范音节。"
+    },
+    "SRC-CORRECTION-U25948-WENG": {
+      "layer": "source_compliance",
+      "title": "U+25948 的来源拼写校正为 wèng",
+      "basis": "Unihan kHanyuPinyin 原始值 wòng、现代汉语拼音正字法及澳典/台湾教育部字典旁证。",
+      "policy": "只校正 U+25948 的这一条来源记录；不得扩展为通用 wong-to-weng 替换。"
+    },
+    "SRC-CORRECTION-U259B7-WENG": {
+      "layer": "source_compliance",
+      "title": "U+259B7 的来源拼写校正为 wèng",
+      "basis": "Unihan kHanyuPinyin 原始值 wòng、现代汉语拼音正字法及多个现代字典旁证。",
+      "policy": "只校正 U+259B7 的这一条来源记录；不得扩展为通用 wong-to-weng 替换。"
+    },
+    "SRC-EXCLUDE-U31FC5-BONG": {
+      "layer": "source_compliance",
+      "title": "U+31FC5 的来源读音 bòng 保留但不编码",
+      "basis": "Unihan kMandarin、字典地方读音记录及普通话唇音声母不与 ong 相拼的限制。",
+      "policy": "保留原始字形、读音和来源审计；不进入音节分解，不猜改为 cí、bèng 或其他读音。"
+    },
     "ORTH-REGULAR": {
       "layer": "orthography",
       "title": "常规声母与韵母切分",
@@ -43,6 +67,12 @@
       "title": "ê、m、n、ng 及 hm/hn/hng 特殊音节",
       "basis": "SyllableSplitter.SPECIAL_SYLLABLES 与 SyllableEncodingPipeline 的特殊音节分支。",
       "policy": "仅处理规范音节清单中实际存在的带调形式；不得自动补齐五声。"
+    },
+    "ORTH-ERHUA-R-RESTORE": {
+      "layer": "source_normalization",
+      "title": "儿化韵尾省写 r 还原为 er5",
+      "basis": "《汉语拼音方案》“韵母ㄦ写成 er，用作韵尾的时候写成 r”及现行 source_pinyin 导入口。",
+      "policy": "保留来源形式 r 和儿化韵尾角色；完整音节编码层还原为 er5，不建立 r5 平行编码。"
     },
     "ORTH-APICAL-I": {
       "layer": "orthography",
@@ -103,6 +133,12 @@
       "title": "w 起始音节的 u 类拼写恢复",
       "basis": "SyllableSplitter._split_w_standard_family。",
       "policy": "wa/wo/wei/wen/weng 等恢复为相应 u 类内部干音。"
+    },
+    "ORTH-ONG-DISTRIBUTION": {
+      "layer": "source_compliance",
+      "title": "ong 的声韵分布与零声母拼写约束",
+      "basis": "《汉语拼音方案》韵母表、声韵配合事实及 u 行韵母零声母写作 weng 的规定。",
+      "policy": "唇音声母 b/p/m/f 不与 ong 相拼；零声母 ueng 写作 weng，不从 wong 推导新音节。"
     },
     "TECH-V-ALIAS": {
       "layer": "compatibility",
