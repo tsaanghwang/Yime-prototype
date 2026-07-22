@@ -102,7 +102,7 @@ A/Z = n 高/低            ; / = ng 高/低
 
 1. `yime_syllable_decomposition.tsv`：1732项正式分解、Yinyuan ID 和布局码。
 2. `yime_syllable_encoding_provenance.tsv`：每项编码的来源和规则依据。
-3. `yime_syllable_omissions.tsv`：1项审查登记中的词级范围排除，以及旧理论全集与现行实例驱动链的50项差集。
+3. `yime_syllable_omissions.tsv`：旧理论全集与现行实例驱动链的50项差集；有来源的轻声由统一规则准入，不再按每个 `-5` 音节列举。
 
 50项差集目前分为：22项方案形式/音节拼写/编码形式差异，20项历史 `v` 技术拼音，3项 `io`
 形式族中未实例化的声调，以及5项早期五声穷举遗留（`er1、m3、n1、ng1、ê5`）。它们不是50个

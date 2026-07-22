@@ -12,7 +12,10 @@ from yime.utils.dictionary_pinyin_compliance import (
     load_policy,
     review_syllable,
 )
+
 from .syllable_admission import DEFAULT_ADMISSION_PATH, load_syllable_admissions
+
+SOURCE_ATTESTED_NEUTRAL_RULE = "ORTH-SOURCE-ATTESTED-NEUTRAL"
 
 
 @dataclass(frozen=True)
@@ -66,6 +69,13 @@ class ReadingGate:
     def _review(self, syllable: str, codepoint: str | None) -> SyllableReview:
         return review_syllable(syllable, self._policy, codepoint=codepoint)
 
+    def _is_source_attested_neutral(self, review: SyllableReview) -> bool:
+        numeric = review.canonical_numeric
+        if not numeric.endswith("5"):
+            return False
+        base = numeric[:-1]
+        return any(f"{base}{tone}" in self._decodable for tone in "1234")
+
     def admit(
         self,
         text: str,
@@ -116,6 +126,7 @@ class ReadingGate:
             item.canonical_numeric
             for item in reviews
             if item.canonical_numeric not in self._decodable
+            and not self._is_source_attested_neutral(item)
             and not (
                 item.canonical_numeric in self._admissions
                 and self._admissions[item.canonical_numeric].admits(text)
@@ -135,18 +146,29 @@ class ReadingGate:
             and item.canonical_numeric in self._admissions
             and self._admissions[item.canonical_numeric].admits(text)
         )
+        neutral_rules = tuple(
+            SOURCE_ATTESTED_NEUTRAL_RULE
+            for item in reviews
+            if self._is_source_attested_neutral(item)
+        )
         return GateResult(
             True,
             marked=" ".join(
                 self._marked_by_numeric[item.canonical_numeric]
                 if item.canonical_numeric in self._marked_by_numeric
-                else self._admissions[item.canonical_numeric].marked
+                else (
+                    self._admissions[item.canonical_numeric].marked
+                    if item.canonical_numeric in self._admissions
+                    else item.canonical_marked
+                )
                 for item in reviews
             ),
             numeric=" ".join(item.canonical_numeric for item in reviews),
             rule_ids=tuple(
                 dict.fromkeys(
-                    [item.rule_id for item in reviews] + list(admission_rules)
+                    [item.rule_id for item in reviews]
+                    + list(admission_rules)
+                    + list(neutral_rules)
                 )
             ),
         )
