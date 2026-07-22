@@ -16,7 +16,7 @@ from .types import (
 )
 
 
-SCHEMA_VERSION = "yime-input-candidate-model-v1"
+SCHEMA_VERSION = "yime-input-candidate-model-v2"
 
 
 SCHEMA = """
@@ -26,6 +26,20 @@ CREATE TABLE IF NOT EXISTS metadata (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
 ) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS candidate_universe (
+    text TEXT PRIMARY KEY,
+    text_length INTEGER NOT NULL,
+    bcc_frequency INTEGER NOT NULL,
+    has_bcc_evidence INTEGER NOT NULL CHECK (has_bcc_evidence IN (0, 1)),
+    has_gated_reading INTEGER NOT NULL CHECK (has_gated_reading IN (0, 1)),
+    has_source_rejection INTEGER NOT NULL CHECK (has_source_rejection IN (0, 1)),
+    baseline_class TEXT NOT NULL,
+    baseline_policy TEXT NOT NULL,
+    baseline_rule TEXT NOT NULL,
+    last_seen_generation TEXT NOT NULL
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS candidate_universe_review_idx
+    ON candidate_universe(bcc_frequency DESC, baseline_policy, baseline_class, text);
 CREATE TABLE IF NOT EXISTS assessments (
     text TEXT PRIMARY KEY,
     text_length INTEGER NOT NULL,
@@ -73,11 +87,20 @@ CREATE TABLE IF NOT EXISTS composition_patterns (
     rationale TEXT NOT NULL,
     evidence_json TEXT NOT NULL
 ) WITHOUT ROWID;
-CREATE VIEW IF NOT EXISTS v_review_queue AS
-SELECT text, text_length, bcc_frequency, candidate_class, integration_policy,
-       confidence, rationale, assessor, evidence_json, updated_at_utc
-FROM assessments
-WHERE decision_status IN ('proposed', 'deferred');
+DROP VIEW IF EXISTS v_review_queue;
+CREATE VIEW v_review_queue AS
+SELECT u.text, u.text_length, u.bcc_frequency,
+       COALESCE(a.candidate_class, u.baseline_class) AS candidate_class,
+       COALESCE(a.integration_policy, u.baseline_policy) AS integration_policy,
+       COALESCE(a.decision_status, 'proposed') AS decision_status,
+       a.confidence,
+       COALESCE(a.rationale, u.baseline_rule) AS rationale,
+       COALESCE(a.assessor, 'baseline:' || u.baseline_rule) AS assessor,
+       COALESCE(a.evidence_json, '{}') AS evidence_json,
+       a.updated_at_utc
+FROM candidate_universe AS u
+LEFT JOIN assessments AS a USING (text)
+WHERE COALESCE(a.decision_status, 'proposed') IN ('proposed', 'deferred');
 """
 
 
@@ -118,6 +141,171 @@ class InputModelStore:
         )
         self.connection.commit()
 
+    def sync_candidate_universe(self, *, source_database: Path, policy_path: Path) -> int:
+        """Materialize the complete source candidate set with compact baseline decisions."""
+        policy = json.loads(policy_path.read_text(encoding="utf-8"))
+        generation = _now()
+        self.connection.execute(
+            "ATTACH DATABASE ? AS source_lexicon",
+            (str(source_database.resolve()),),
+        )
+
+        def source_read_only(
+            action_code: int,
+            _argument_1: str | None,
+            _argument_2: str | None,
+            database_name: str | None,
+            _trigger_name: str | None,
+        ) -> int:
+            if database_name == "source_lexicon" and action_code not in {
+                sqlite3.SQLITE_READ,
+                sqlite3.SQLITE_SELECT,
+                sqlite3.SQLITE_FUNCTION,
+            }:
+                return sqlite3.SQLITE_DENY
+            return sqlite3.SQLITE_OK
+
+        self.connection.set_authorizer(source_read_only)
+        try:
+            self.connection.execute(
+                """
+                UPDATE candidate_universe
+                SET bcc_frequency = 0,
+                    has_bcc_evidence = 0,
+                    has_gated_reading = 0,
+                    has_source_rejection = 0,
+                    baseline_class = 'unknown',
+                    baseline_policy = 'needs_review',
+                    baseline_rule = 'not_seen_in_current_source'
+                """
+            )
+            self.connection.execute(
+                """
+                INSERT INTO candidate_universe(
+                    text, text_length, bcc_frequency, has_bcc_evidence,
+                    has_gated_reading, has_source_rejection,
+                    baseline_class, baseline_policy, baseline_rule,
+                    last_seen_generation
+                )
+                SELECT text, LENGTH(text), MAX(bcc_frequency),
+                       CASE WHEN MAX(bcc_frequency) > 0 THEN 1 ELSE 0 END,
+                       1, 0,
+                       CASE WHEN LENGTH(text) = 1 THEN 'single_character'
+                            ELSE 'lexical_candidate' END,
+                       CASE WHEN LENGTH(text) = 1 THEN 'static_keep'
+                            ELSE 'needs_review' END,
+                       CASE WHEN LENGTH(text) = 1 THEN 'single_character_with_gated_reading'
+                            ELSE 'gated_reading_unclassified' END,
+                       ?
+                FROM source_lexicon.canonical_readings
+                GROUP BY text
+                ON CONFLICT(text) DO UPDATE SET
+                    text_length = excluded.text_length,
+                    bcc_frequency = excluded.bcc_frequency,
+                    has_bcc_evidence = excluded.has_bcc_evidence,
+                    has_gated_reading = 1,
+                    has_source_rejection = 0,
+                    baseline_class = excluded.baseline_class,
+                    baseline_policy = excluded.baseline_policy,
+                    baseline_rule = excluded.baseline_rule,
+                    last_seen_generation = excluded.last_seen_generation
+                """,
+                (generation,),
+            )
+            self.connection.execute(
+                """
+                INSERT INTO candidate_universe(
+                    text, text_length, bcc_frequency, has_bcc_evidence,
+                    has_gated_reading, has_source_rejection,
+                    baseline_class, baseline_policy, baseline_rule,
+                    last_seen_generation
+                )
+                SELECT text, LENGTH(text), frequency, 1, 0, 0,
+                       'unknown', 'needs_review', 'bcc_without_gated_reading', ?
+                FROM source_lexicon.bcc_frequency
+                WHERE 1
+                ON CONFLICT(text) DO UPDATE SET
+                    text_length = excluded.text_length,
+                    bcc_frequency = excluded.bcc_frequency,
+                    has_bcc_evidence = 1,
+                    last_seen_generation = excluded.last_seen_generation
+                """,
+                (generation,),
+            )
+            self.connection.execute(
+                """
+                INSERT INTO candidate_universe(
+                    text, text_length, bcc_frequency, has_bcc_evidence,
+                    has_gated_reading, has_source_rejection,
+                    baseline_class, baseline_policy, baseline_rule,
+                    last_seen_generation
+                )
+                SELECT text, LENGTH(text), 0, 0, 0, 1,
+                       'unknown', 'needs_review', 'rejected_reading_only', ?
+                FROM source_lexicon.rejections
+                GROUP BY text
+                ON CONFLICT(text) DO UPDATE SET
+                    has_source_rejection = 1,
+                    baseline_rule = CASE
+                        WHEN candidate_universe.has_gated_reading = 1
+                        THEN candidate_universe.baseline_rule
+                        ELSE 'rejected_reading_only'
+                    END,
+                    last_seen_generation = excluded.last_seen_generation
+                """,
+                (generation,),
+            )
+
+            hints = sorted(
+                policy.get("source_category_hints", {}).items(),
+                key=lambda item: (int(item[1].get("priority", 1000)), item[0]),
+                reverse=True,
+            )
+            for category_key, hint in hints:
+                source, category = category_key.split(":", 1)
+                self.connection.execute(
+                    """
+                    UPDATE candidate_universe
+                    SET baseline_class = ?, baseline_policy = ?, baseline_rule = ?
+                    WHERE has_gated_reading = 1
+                      AND text_length > 1
+                      AND text IN (
+                          SELECT text
+                          FROM source_lexicon.accepted_readings
+                          WHERE source = ? AND source_category = ?
+                      )
+                    """,
+                    (
+                        hint["candidate_class"],
+                        hint["integration_policy"],
+                        f"source_category:{category_key}",
+                        source,
+                        category,
+                    ),
+                )
+            self.connection.execute(
+                "DELETE FROM candidate_universe WHERE last_seen_generation <> ?",
+                (generation,),
+            )
+            self.connection.execute(
+                """
+                INSERT INTO metadata(key, value) VALUES ('candidate_universe_generation', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """,
+                (generation,),
+            )
+            count = int(
+                self.connection.execute("SELECT COUNT(*) FROM candidate_universe").fetchone()[0]
+            )
+            self.connection.commit()
+            return count
+        except Exception:
+            self.connection.rollback()
+            raise
+        finally:
+            self.connection.set_authorizer(None)
+            self.connection.execute("DETACH DATABASE source_lexicon")
+
     def close(self) -> None:
         self.connection.close()
 
@@ -146,7 +334,37 @@ class InputModelStore:
             allowed_reading_ids=tuple(json.loads(row["allowed_reading_ids_json"])),
         )
 
+    def effective(self, text: str) -> CandidateAssessment | None:
+        universe_row = self.connection.execute(
+            "SELECT * FROM candidate_universe WHERE text = ?",
+            (text,),
+        ).fetchone()
+        if universe_row is None:
+            return None
+        assessment = self.get(text)
+        if assessment is not None:
+            return assessment
+        return CandidateAssessment(
+            text=str(universe_row["text"]),
+            candidate_class=CandidateClass(universe_row["baseline_class"]),
+            integration_policy=IntegrationPolicy(universe_row["baseline_policy"]),
+            status=DecisionStatus.PROPOSED,
+            rationale=str(universe_row["baseline_rule"]),
+            assessor=f"baseline:{universe_row['baseline_rule']}",
+            evidence={
+                "bcc_frequency": int(universe_row["bcc_frequency"]),
+                "has_bcc_evidence": bool(universe_row["has_bcc_evidence"]),
+                "has_gated_reading": bool(universe_row["has_gated_reading"]),
+                "has_source_rejection": bool(universe_row["has_source_rejection"]),
+            },
+        )
+
     def put(self, assessment: CandidateAssessment, *, overwrite: bool = True) -> bool:
+        if self.connection.execute(
+            "SELECT 1 FROM candidate_universe WHERE text = ?",
+            (assessment.text,),
+        ).fetchone() is None:
+            raise ValueError(f"assessment text is outside the candidate universe: {assessment.text}")
         current = self.get(assessment.text)
         if current is not None and not overwrite:
             return False
@@ -238,6 +456,12 @@ class InputModelStore:
                 "SELECT decision_status, COUNT(*) FROM assessments GROUP BY decision_status"
             )
         }
+
+    def universe_count(self) -> int:
+        return int(self.connection.execute("SELECT COUNT(*) FROM candidate_universe").fetchone()[0])
+
+    def review_queue_count(self) -> int:
+        return int(self.connection.execute("SELECT COUNT(*) FROM v_review_queue").fetchone()[0])
 
     def add_context(self, evidence: ContextEvidence) -> bool:
         cursor = self.connection.execute(

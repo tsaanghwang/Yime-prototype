@@ -7,7 +7,8 @@
 
 ```text
 source_lexicon.sqlite3（只读来源真源）
-  -> 高频候选查询与来源证据
+  -> 完整候选全集（合规读音、BCC、拒绝记录的字串并集）
+  -> 按 BCC 频次安排审查顺序
   -> 保守规则 / 统计模型 / LLM 分类适配器
   -> input_model.sqlite3（决策覆盖层）
        -> proposed：机器建议，不能进入生产
@@ -19,9 +20,10 @@ source_lexicon.sqlite3（只读来源真源）
   -> 正式词库与 Gram/运行时候选消费者
 ```
 
-来源真源继续保存字词、读音、BCC 分域频次、万象权重和拒绝证据。决策覆盖层只保存材料分类、整合
-政策、依据、批准状态和允许使用的来源读音 ID；`context_evidence` 表另外保存可追溯的 KWIC 前后文，
-供边界判断和模型审查使用。它不得向来源库写入数据。
+来源真源继续保存字词、读音、BCC 分域频次、万象权重和拒绝证据。`candidate_universe` 为来源库中的
+每个不同字串保存紧凑的全集目录和基础状态；`assessments` 只保存人工或模型作出实质判断后的稀疏覆盖
+记录，避免为四百多万项重复保存大段证据。`context_evidence` 另外保存可追溯的 KWIC 前后文，供边界
+判断和模型审查使用。整个覆盖层不得向来源库写入数据。
 
 ## 分类轴与整合轴
 
@@ -81,9 +83,9 @@ Gram 或小型神经模型可以替换具体实现，但不得绕过统一的建
 ```
 
 默认读取 `.generated/lexicon_source_bundle/source_lexicon.sqlite3`，生成
-`.generated/input_candidate_model/input_model.sqlite3`，并按 BCC 频次为前一万项建立待审建议。重复运行
-不会覆盖已经存在的人工或模型审查结果。首批队列默认只取多字材料，避免已解决的基础单字占用审查
-名额；可用 `--proposal-limit`、`--minimum-frequency` 和 `--minimum-text-length` 调整范围。
+`.generated/input_candidate_model/input_model.sqlite3`。每次构建都会同步整个候选全集，而不是截取高频
+前若干项；`v_review_queue` 再按 BCC 频次分批呈现审查次序。重复运行会更新来源基础状态，但不会覆盖
+已经存在的人工或模型决策。
 
 ## 尚未接入的部分
 

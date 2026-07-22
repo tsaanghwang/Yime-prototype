@@ -3,6 +3,8 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
+import pytest
+
 from yime.input_model import (
     CandidateAssessment,
     CandidateClass,
@@ -86,7 +88,7 @@ def _approved_component(text: str, reading_id: int) -> CandidateAssessment:
     )
 
 
-def test_build_overlay_preserves_sources_and_only_creates_proposals(tmp_path: Path) -> None:
+def test_build_catalogs_the_complete_source_universe(tmp_path: Path) -> None:
     source_database = _create_source_database(tmp_path / "source.sqlite3")
     output_database = tmp_path / "input_model.sqlite3"
 
@@ -94,23 +96,26 @@ def test_build_overlay_preserves_sources_and_only_creates_proposals(tmp_path: Pa
         source_database=source_database,
         output_database=output_database,
         policy_path=POLICY,
-        proposal_limit=10,
     )
 
-    assert result.proposals_added == 4
-    assert result.status_counts == {"proposed": 4}
+    assert result.universe_count == 4
+    assert result.review_queue_count == 4
+    assert result.decision_overlays == 0
+    assert result.overlay_status_counts == {}
     with InputModelStore(output_database) as store:
-        person = store.get("张大千")
+        assert store.universe_count() == 4
+        assert store.get("张大千") is None
+        person = store.effective("张大千")
         assert person is not None
         assert person.candidate_class is CandidateClass.PERSON_NAME
         assert person.integration_policy is IntegrationPolicy.STATIC_KEEP
         assert person.status is DecisionStatus.PROPOSED
 
-        unresolved = store.get("的时候我")
+        unresolved = store.effective("的时候我")
         assert unresolved is not None
         assert unresolved.candidate_class is CandidateClass.UNKNOWN
         assert unresolved.integration_policy is IntegrationPolicy.NEEDS_REVIEW
-        assert unresolved.evidence["reading_ids"] == []
+        assert not unresolved.evidence["has_gated_reading"]
         context = ContextEvidence(
             text="的时候我",
             left_context="就在这个",
@@ -122,6 +127,9 @@ def test_build_overlay_preserves_sources_and_only_creates_proposals(tmp_path: Pa
         assert store.add_context(context)
         assert not store.add_context(context)
         assert store.contexts("的时候我") == (context,)
+        assert store.connection.execute("SELECT COUNT(*) FROM v_review_queue").fetchone()[0] == 4
+        with pytest.raises(ValueError, match="outside the candidate universe"):
+            store.put(_approved_component("来源外材料", 999))
 
     with SourceLexicon(source_database) as source:
         assert source.readings("的时候我") == ()
@@ -135,7 +143,6 @@ def test_dynamic_composition_uses_only_approved_attested_readings(tmp_path: Path
         source_database=source_database,
         output_database=output_database,
         policy_path=POLICY,
-        proposal_limit=10,
     )
 
     with InputModelStore(output_database) as store, SourceLexicon(source_database) as source:
@@ -161,10 +168,9 @@ def test_rebuild_does_not_overwrite_reviewed_decision(tmp_path: Path) -> None:
         source_database=source_database,
         output_database=output_database,
         policy_path=POLICY,
-        proposal_limit=10,
     )
     with InputModelStore(output_database) as store:
-        proposal = store.get("张大千")
+        proposal = store.effective("张大千")
         assert proposal is not None
         store.put(
             CandidateAssessment(
@@ -182,8 +188,9 @@ def test_rebuild_does_not_overwrite_reviewed_decision(tmp_path: Path) -> None:
         source_database=source_database,
         output_database=output_database,
         policy_path=POLICY,
-        proposal_limit=10,
     )
-    assert result.proposals_preserved == 4
+    assert result.universe_count == 4
+    assert result.review_queue_count == 3
+    assert result.decision_overlays == 1
     with InputModelStore(output_database) as store:
-        assert store.get("张大千").status is DecisionStatus.APPROVED  # type: ignore[union-attr]
+        assert store.effective("张大千").status is DecisionStatus.APPROVED  # type: ignore[union-attr]

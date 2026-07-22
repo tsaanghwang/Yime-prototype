@@ -151,8 +151,9 @@ A/Z = n 高/低            ; / = ng 高/低
 
 `yime/input_model/` 在统一来源库之上提供独立的候选决策覆盖层。它只读
 `source_lexicon.sqlite3`，把机器建议、人工批准、拒绝和暂缓决策写入单独的
-`.generated/input_candidate_model/input_model.sqlite3`。动态组合器只使用已经批准的组件及来源库中
-已有的合规读音；不会逐字猜读音，也不会直接修改运行时词库。
+`.generated/input_candidate_model/input_model.sqlite3`。候选目录覆盖合规读音、BCC 频次和拒绝记录中的
+全部不同字串；BCC 频次只决定审查顺序，不限制整理范围。动态组合器只使用已经批准的组件及来源库
+中已有的合规读音；不会逐字猜读音，也不会直接修改运行时词库。
 
 主体结构、分类轴、整合政策和后续模型接入口见
 [汉语输入候选整理与动态组合系统](INPUT_CANDIDATE_MODEL.md)。
