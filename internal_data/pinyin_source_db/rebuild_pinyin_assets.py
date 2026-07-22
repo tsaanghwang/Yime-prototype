@@ -200,6 +200,16 @@ def main() -> int:
         sync_runtime_normalized_export(normalized_output, runtime_normalized_output)
         print(f"runtime_normalized_output: {runtime_normalized_output}")
 
+    audit_command = [
+        sys.executable,
+        str(WORKSPACE_ROOT / "tools" / "audit_missing_source_syllables.py"),
+        "--db",
+        str(db_path),
+        "--inventory",
+        str(normalized_output),
+    ]
+    run_step("audit-source-syllable-admissions", audit_command)
+
     apply_codebook = args.apply_codebook and not args.skip_yinjie
     if apply_codebook:
         codebook_command = [

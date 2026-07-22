@@ -81,7 +81,7 @@ def test_checked_in_provenance_covers_every_canonical_encoding() -> None:
     ) as file:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
-    assert len(actual) == len(inventory) == 1725
+    assert len(actual) == len(inventory) == 1732
     assert {row["pinyin_tone"] for row in actual} == set(inventory)
     assert all(row["status"] == "encoded-with-registered-basis" for row in actual)
     assert all(row["source_rule_ids"] for row in actual)

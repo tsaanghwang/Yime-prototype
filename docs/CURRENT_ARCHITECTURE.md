@@ -27,7 +27,7 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
        -> 方案允许的省写：还原为编码入口形式
        -> 已知非规范拼式：保留字形和审计证据，只阻止该读音进入解码
   -> source_lexicon.sqlite3（统一生产真源）
-  -> 规范数字标调音节清单（当前 1725 项）
+  -> 规范数字标调音节清单（当前 1732 项）
   -> SyllableEncodingPipeline
   -> 首音段 + 干音段
   -> ShouyinEncoder + GanyinEncoder
@@ -37,7 +37,7 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
   -> SQLite 运行时候选、Rime/KLC/Windows 消费产物
 ```
 
-1725个现行音节均有 Unihan、词语来源或经审查补丁依据，并全部能通过正式编码器。逐项来源、规则和
+1732个现行音节均有 Unihan、词语来源或经审查补丁依据，并全部能通过正式编码器。逐项来源、规则和
 四个 Yinyuan ID 见 `internal_data/yime_syllable_encoding_provenance.tsv`。
 
 ## 当前真源
@@ -50,6 +50,7 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 上游词语输入 | pypinyin、万象及其原始分类文件 | 重建统一库的来源证据，不由下游直接消费 |
 | 上游频次输入 | BCC 各原始分域字频/词频频道 | 原始 count 写入统一库；merged 二手文件不接入生产链 |
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
+| 缺失音节审查 | `internal_data/pinyin_source_db/syllable_admission_reviews.json` | 让有真实来源、结构合法且经批准的音节跨过旧清单循环门禁；可限定多字来源，不能写编码 |
 | 拼写规则说明 | `internal_data/syllable_encoding_rule_catalog.json` | 解释来源、规范化和兼容规则；禁止保存编码映射 |
 | 首音语义 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符 |
 | 乐音语义 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符 |
@@ -99,9 +100,9 @@ A/Z = n 高/低            ; / = ng 高/低
 
 运行 `tools/export_syllable_decomposition.py` 会同时生成：
 
-1. `yime_syllable_decomposition.tsv`：1725项正式分解、Yinyuan ID 和布局码。
+1. `yime_syllable_decomposition.tsv`：1732项正式分解、Yinyuan ID 和布局码。
 2. `yime_syllable_encoding_provenance.tsv`：每项编码的来源和规则依据。
-3. `yime_syllable_omissions.tsv`：旧理论全集与现行实例驱动链的50项差集。
+3. `yime_syllable_omissions.tsv`：1项审查登记中的词级范围排除，以及旧理论全集与现行实例驱动链的50项差集。
 
 50项差集目前分为：22项方案形式/音节拼写/编码形式差异，20项历史 `v` 技术拼音，3项 `io`
 形式族中未实例化的声调，以及5项早期五声穷举遗留（`er1、m3、n1、ng1、ê5`）。它们不是50个
