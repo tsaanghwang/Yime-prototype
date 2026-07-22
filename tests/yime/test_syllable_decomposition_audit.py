@@ -82,5 +82,8 @@ def test_checked_in_omission_audit_matches_current_sources() -> None:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
     assert actual == [asdict(row) | {"occurrences": str(row.occurrences)} for row in rows]
-    assert not any(row.status == "filtered_before_inventory" for row in rows)
+    filtered_rows = [row for row in rows if row.status == "filtered_before_inventory"]
+    assert [(row.candidate, row.reason.split(":", 1)[0]) for row in filtered_rows] == [
+        ("la", "excluded_obsolete_reading")
+    ]
     assert not any(row.status == "encoder_failed" for row in rows)
