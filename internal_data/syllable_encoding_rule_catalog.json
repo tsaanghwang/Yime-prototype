@@ -56,11 +56,17 @@
       "basis": "Unihan kMandarin、字典地方读音记录及普通话唇音声母不与 ong 相拼的限制。",
       "policy": "保留原始字形、读音和来源审计；不进入音节分解，不猜改为 cí、bèng 或其他读音。"
     },
+    "SRC-EXCLUDE-U84DD-LA5": {
+      "layer": "source_compliance",
+      "title": "U+84DD 蓝的 la 旧读保留但不编码",
+      "basis": "上游单字源保留蓝的 la 旧读；1985 年《普通话异读词审音表》规定“蓝读 lán，在‘苤蓝’中读 lan，不读 la”。",
+      "policy": "排除 U+84DD 蓝的孤立 la5 旧读；保留 lan2 单字音和有完整词语来源约束的词内轻声 lan5，不得扩张为全局 la5 排除。"
+    },
     "SRC-EXCLUDE-U85CD-LA5": {
       "layer": "source_compliance",
       "title": "U+85CD 藍的 la 旧读保留但不编码",
       "basis": "Unihan kXHC1983 的《现代汉语词典》1983 年版索引记录 0669.091:la；1985 年《普通话异读词审音表》规定“蓝读 lán，在‘苤蓝’中读 lan，不读 la”。",
-      "policy": "只排除 U+85CD 藍的 la5 旧读；保留 lan2 单字音和有完整词语来源约束的词内轻声 lan5，不得扩张为全局 la5 排除。"
+      "policy": "排除 U+85CD 藍的孤立 la5 旧读；保留 lan2 单字音和有完整词语来源约束的词内轻声 lan5，不得扩张为全局 la5 排除。"
     },
     "ORTH-SOURCE-ATTESTED-NEUTRAL": {
       "layer": "source_normalization",
