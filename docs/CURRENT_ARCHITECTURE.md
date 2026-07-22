@@ -146,3 +146,13 @@ A/Z = n 高/低            ; / = ng 高/低
 音节门禁；BCC 原始计数与万象权重分列保存，未匹配词条和读音冲突分别报告。具体口径和产物见
 [字词拼音与频次统一语料包](LEXICON_SOURCE_BUNDLE.md)。该语料包仍必须从正式音节编码链进入下游，
 不得直接保存或猜测 Yinyuan ID。
+
+## 输入候选整理与动态组合覆盖层
+
+`yime/input_model/` 在统一来源库之上提供独立的候选决策覆盖层。它只读
+`source_lexicon.sqlite3`，把机器建议、人工批准、拒绝和暂缓决策写入单独的
+`.generated/input_candidate_model/input_model.sqlite3`。动态组合器只使用已经批准的组件及来源库中
+已有的合规读音；不会逐字猜读音，也不会直接修改运行时词库。
+
+主体结构、分类轴、整合政策和后续模型接入口见
+[汉语输入候选整理与动态组合系统](INPUT_CANDIDATE_MODEL.md)。
