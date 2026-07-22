@@ -55,11 +55,11 @@ scripts\layout_workbench.cmd
 布局发生变化时会自动进入新的学习库命名空间，防止旧键码的候选学习记录混入当前
 布局；旧 `.userdb` 不删除，仍可备份或另行迁移。
 
-该入口会用固定摘要锁住语义注册表和 1725 条“拼音 → 四个 Yinyuan ID”结果，再生成
+该入口会用固定摘要锁住语义注册表和 1732 条“拼音 → 四个 Yinyuan ID”结果，再生成
 resolved layout、KLC、可视表及
 Yinyuan ID crosswalk，最后重新闭锁。CI 和本地测试也会执行同一把锁。
 
-锁还会重新计算 `syllable_encoding_rule_catalog.json` 与1725条来源—规则依据记录。规则目录不允许
+锁还会重新计算 `syllable_encoding_rule_catalog.json` 与1732条来源—规则依据记录。规则目录不允许
 保存 Yinyuan ID 或键位映射；它只解释正式编码链。来源、拼写规则或编码查表别名发生变化但没有同步
 审计表时，预检也会失败。
 

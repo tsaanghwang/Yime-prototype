@@ -34,6 +34,11 @@
   -> 正式音节编码器与一致性检查
 ```
 
+若来源中出现结构合法、已有明确注音、但尚未存在于当前物化音节表的拼音，运行
+`tools/audit_missing_source_syllables.py` 生成按 BCC 频次排列的审查报告。只有登记在
+`syllable_admission_reviews.json` 且状态为 `approved` 的项目才可临时跨过旧音节表门禁；
+重建后即由正式音节编码链生成。登记文件不得保存音元 ID、码元或键位，也不得补齐未出现的声调。
+
 指定另一份统一库时，只接受新变量 `YIME_LEXICON_SOURCE_DB`。
 
 ## 数据库接口

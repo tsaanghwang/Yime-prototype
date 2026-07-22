@@ -32,6 +32,12 @@
       "basis": "yime/utils/dictionary_pinyin_compliance.py 与 external_data 中的单字、词语来源。",
       "policy": "只表示来源实例通过字符、声调、形态和已准入声韵结构检查；不把所有字典读音宣称为普通话核心规范音节。"
     },
+    "SRC-REVIEWED-SYLLABLE-ADMISSION": {
+      "layer": "source_compliance",
+      "title": "有来源而未进入现行音节库的音节审查准入",
+      "basis": "internal_data/pinyin_source_db/syllable_admission_reviews.json 与 tools/audit_missing_source_syllables.py。",
+      "policy": "只让结构合法、已有真实来源实例并经明确审查批准的拼音跨过旧音节表的循环门禁；不得补齐声调，不得记录或手写音元 ID、码元或键位。限定为多字来源的轻声不得扩张为单字音。"
+    },
     "SRC-CORRECTION-U25948-WENG": {
       "layer": "source_compliance",
       "title": "U+25948 的来源拼写校正为 wèng",

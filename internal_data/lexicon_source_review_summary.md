@@ -4,11 +4,11 @@
 未解码词不使用逐字常用音猜测读音；读音、来源、拒绝原因和 BCC count 均来自本地上游证据。
 BCC 汇总频次是各分域原始 count 的最大值，表内同时列出逐分域证据。
 
-- 语料包生成时间（UTC）：`2026-07-21T21:58:01.299920+00:00`
-- 合规来源记录：`2662976`
-- 字词—读音记录：`2468906`
-- BCC 未解码字词总数：`1667081`
-- 多读音冲突行数：`50025`
+- 语料包生成时间（UTC）：`2026-07-22T01:31:32.654459+00:00`
+- 合规来源记录：`2663036`
+- 字词—读音记录：`2468966`
+- BCC 未解码字词总数：`1667076`
+- 多读音冲突行数：`50054`
 - 下列高频表各保留前 `100` 项；排序为 `bcc_frequency DESC, text ASC`。
 
 ## 高频未解码字词（前 100 项）
@@ -122,11 +122,6 @@ BCC 汇总频次是各分域原始 count 的最大值，表内同时列出逐分
 
 | 字词 | BCC 汇总频次 | BCC 来源证据 | 被拒绝读音、来源与原因 |
 | --- | --- | --- | --- |
-| 嘚瑟 | 1836 | dialogue:word:external_data/word_freq/dialogue_word_freq.txt=1836; multi_domain:word:external_data/word_freq/multi_domain_total_word_freq.txt=1324; news:word:external_data/word_freq/news_total_word_freq.txt=21 | wanxiang:../RIME-LMDG/dicts/jichu.dict.yaml:dè se -> outside_current_decoder_inventory:de4,se5 |
-| 铁栅栏 | 435 | multi_domain:word:external_data/word_freq/multi_domain_total_word_freq.txt=435; literature:word:external_data/word_freq/literature_word_freq.txt=421; news:word:external_data/word_freq/news_total_word_freq.txt=365; modern_chinese:word:external_data/word_freq/modern_chinese_word_freq.txt=98; dialogue:word:external_data/word_freq/dialogue_word_freq.txt=18 | wanxiang:../RIME-LMDG/dicts/jichu.dict.yaml:tiě zhà lan -> outside_current_decoder_inventory:lan5 |
-| 栅栏门 | 250 | multi_domain:word:external_data/word_freq/multi_domain_total_word_freq.txt=250; literature:word:external_data/word_freq/literature_word_freq.txt=226; modern_chinese:word:external_data/word_freq/modern_chinese_word_freq.txt=65; news:word:external_data/word_freq/news_total_word_freq.txt=42 | wanxiang:../RIME-LMDG/dicts/jichu.dict.yaml:zhà lan mén -> outside_current_decoder_inventory:lan5 |
-| 臭嘚瑟 | 9 | dialogue:word:external_data/word_freq/dialogue_word_freq.txt=9; multi_domain:word:external_data/word_freq/multi_domain_total_word_freq.txt=6 | wanxiang:../RIME-LMDG/dicts/jichu.dict.yaml:chòu dè se -> outside_current_decoder_inventory:de4,se5 |
-| 不嘚瑟 | 6 | dialogue:word:external_data/word_freq/dialogue_word_freq.txt=6 | wanxiang:../RIME-LMDG/dicts/jichu.dict.yaml:bù dè se -> outside_current_decoder_inventory:de4,se5 |
 
 ## 高频多读音冲突（前 100 项）
 

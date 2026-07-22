@@ -160,9 +160,9 @@
   - 应从首音语义层、干音语义层和码点映射层生成。
 
 - `internal_data/yime_syllable_decomposition.tsv`
-  - 1725项规范音节经过正式编码器后的分段、Yinyuan ID 和布局投影审计表。
+  - 1732项规范音节经过正式编码器后的分段、Yinyuan ID 和布局投影审计表。
 - `internal_data/yime_syllable_encoding_provenance.tsv`
-  - 1725项编码逐项记录 Unihan/词语/补丁依据及命中的稳定规则编号。
+  - 1732项编码逐项记录 Unihan/词语/补丁依据及命中的稳定规则编号。
   - 布局锁会从来源重新计算并拒绝过期内容。
 - `internal_data/yime_syllable_omissions.tsv`
   - 旧理论干音全集相对现行实例驱动链的差集；不能当作“编码失败音节表”。

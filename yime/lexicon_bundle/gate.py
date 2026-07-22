@@ -12,6 +12,7 @@ from yime.utils.dictionary_pinyin_compliance import (
     load_policy,
     review_syllable,
 )
+from .syllable_admission import DEFAULT_ADMISSION_PATH, load_syllable_admissions
 
 
 @dataclass(frozen=True)
@@ -46,13 +47,20 @@ def is_han_text(text: str) -> bool:
 class ReadingGate:
     """Apply the shared dictionary gate and require current decoder coverage."""
 
-    def __init__(self, inventory_path: Path) -> None:
+    def __init__(
+        self,
+        inventory_path: Path,
+        admission_path: Path | None = DEFAULT_ADMISSION_PATH,
+    ) -> None:
         payload = json.loads(inventory_path.read_text(encoding="utf-8"))
         self._decodable = frozenset(str(key) for key in payload)
         self._marked_by_numeric = {
             str(key): str(value) for key, value in payload.items()
         }
         self._policy = load_policy()
+        self._admissions = (
+            load_syllable_admissions(admission_path) if admission_path is not None else {}
+        )
 
     @lru_cache(maxsize=8192)
     def _review(self, syllable: str, codepoint: str | None) -> SyllableReview:
@@ -86,10 +94,32 @@ class ReadingGate:
                 reason=f"{first.status}:{first.reason}",
             )
 
+        scope_excluded = tuple(
+            item.canonical_numeric
+            for item in reviews
+            if item.canonical_numeric in self._admissions
+            and self._admissions[item.canonical_numeric].status == "approved"
+            and not self._admissions[item.canonical_numeric].admits(text)
+        )
+        if scope_excluded:
+            return GateResult(
+                False,
+                rule_ids=tuple(
+                    dict.fromkeys(
+                        self._admissions[numeric].rule_id for numeric in scope_excluded
+                    )
+                ),
+                reason="reviewed_syllable_scope_exclusion:" + ",".join(scope_excluded),
+            )
+
         undecodable = tuple(
             item.canonical_numeric
             for item in reviews
             if item.canonical_numeric not in self._decodable
+            and not (
+                item.canonical_numeric in self._admissions
+                and self._admissions[item.canonical_numeric].admits(text)
+            )
         )
         if undecodable:
             return GateResult(
@@ -98,11 +128,25 @@ class ReadingGate:
                 reason="outside_current_decoder_inventory:" + ",".join(undecodable),
             )
 
+        admission_rules = tuple(
+            self._admissions[item.canonical_numeric].rule_id
+            for item in reviews
+            if item.canonical_numeric not in self._decodable
+            and item.canonical_numeric in self._admissions
+            and self._admissions[item.canonical_numeric].admits(text)
+        )
         return GateResult(
             True,
             marked=" ".join(
-                self._marked_by_numeric[item.canonical_numeric] for item in reviews
+                self._marked_by_numeric[item.canonical_numeric]
+                if item.canonical_numeric in self._marked_by_numeric
+                else self._admissions[item.canonical_numeric].marked
+                for item in reviews
             ),
             numeric=" ".join(item.canonical_numeric for item in reviews),
-            rule_ids=tuple(dict.fromkeys(item.rule_id for item in reviews)),
+            rule_ids=tuple(
+                dict.fromkeys(
+                    [item.rule_id for item in reviews] + list(admission_rules)
+                )
+            ),
         )
