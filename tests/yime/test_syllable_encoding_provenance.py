@@ -106,6 +106,11 @@ def test_excluded_reading_does_not_erase_its_character() -> None:
     assert retained["common_reading"] == ""
     assert retained["readings"] == ""
 
+    blue = rows["U+85CD"]
+    assert blue["hanzi"] == "藍"
+    assert blue["common_reading"] == "lán"
+    assert blue["readings"] == "lán"
+
     inventory = json.loads(
         Path("internal_data/pinyin_source_db/lexicon_exports/pinyin_normalized.json").read_text(
             encoding="utf-8"

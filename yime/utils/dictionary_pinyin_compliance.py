@@ -43,11 +43,11 @@ class SyllableReview:
 
     @property
     def accepted(self) -> bool:
-        return self.status not in {"rejected", "excluded_nonstandard_orthography"}
+        return self.status != "rejected" and not self.status.startswith("excluded_")
 
     @property
     def known_exclusion(self) -> bool:
-        return self.status == "excluded_nonstandard_orthography"
+        return self.status.startswith("excluded_")
 
     @property
     def changed(self) -> bool:

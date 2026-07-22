@@ -42,6 +42,17 @@ def test_bong_is_not_admitted_as_an_ordinary_pinyin_syllable() -> None:
     assert review.rule_id == "SRC-UNADMITTED-ORTHOGRAPHY"
 
 
+def test_obsolete_lan_reduction_is_excluded_only_for_u85cd() -> None:
+    obsolete = review_syllable("la", codepoint="U+85CD")
+    assert not obsolete.accepted
+    assert obsolete.known_exclusion
+    assert obsolete.status == "excluded_obsolete_reading"
+    assert obsolete.rule_id == "SRC-EXCLUDE-U85CD-LA5"
+
+    assert review_syllable("la").accepted
+    assert review_syllable("lán", codepoint="U+85CD").accepted
+
+
 def test_technical_v_spelling_is_rejected_at_dictionary_boundary() -> None:
     review = review_syllable("lv4")
     assert not review.accepted

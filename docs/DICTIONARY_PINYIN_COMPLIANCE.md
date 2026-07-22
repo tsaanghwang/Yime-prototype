@@ -32,6 +32,9 @@ external_data/phrase_pinyin.txt ─┘   ├─ 具体来源记录校勘
   `wong` 必须失败并重新校勘。
 - U+31FC5 `𱿅` 的 `bòng` 有来源记录，但不符合普通话声韵拼合限制。原始证据保留，状态为
   `excluded_nonstandard_orthography`，不进入音节分解，也不猜改成 `cí` 或 `bèng`。
+- U+85CD `藍` 的 `la` 来自 Unihan `kXHC1983` 所索引的《现代汉语词典》1983 年版旧读；1985 年
+  《普通话异读词审音表》已经规定“蓝读 `lán`，在‘苤蓝’中读 `lan`，不读 `la`”。该条状态为
+  `excluded_obsolete_reading`，不进入单字候选；`lan2` 仍是单字音，`lan5` 只按完整词语来源进入词境。
 - 《汉语拼音方案》允许韵母ㄦ用作韵尾时省写为 `r`。Unihan/BCC 按字位带来的独立 `r` 在完整音节
   编码入口还原为 `er5`，同时保留来源形式和儿化韵尾角色；附着在前一音节后的 `r` 仍须按上下文分析。
 
@@ -52,7 +55,7 @@ external_data/phrase_pinyin.txt ─┘   ├─ 具体来源记录校勘
 - `phrase_pinyin_review.tsv`：词语表错误、规范别名和特殊读音。
 
 存在 `error` 时命令返回非零。`canonical_alias`、`source_correction` 和
-`excluded_nonstandard_orthography` 是必须让维护者看见但不阻断整个构建的 `notice`。排除针对的是
+所有 `excluded_*` 状态都是必须让维护者看见但不阻断整个构建的 `notice`。排除针对的是
 具体读音，不是字形：字及其码点继续进入字符清单和单字 staging；如果该字没有其它合规读音，内部
 读音字段留空，因此不会进入音节分解、编码清单或候选码表。原始 `external_data` 文件不被改写，只有
 合规或有据校正后的读音进入后续音节派生数据。
