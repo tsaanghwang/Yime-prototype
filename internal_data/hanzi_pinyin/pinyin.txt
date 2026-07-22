@@ -37710,7 +37710,7 @@ U+85C9	藉	jí	jí,jiè	kTGHZ2013	0
 U+85CA	藊	biǎn	biǎn	kXHC1983	1
 U+85CB	藋	diào	diào,dí,zhuó	kHanyuPinyin	0
 U+85CC	藌	mì	mì	kMandarin	1
-U+85CD	藍	lán	lán,la	kHanyuPinlu	0
+U+85CD	藍	lán	lán	kHanyuPinlu	1
 U+85CE	藎	jìn	jìn	kXHC1983	1
 U+85CF	藏	cáng	cáng,zàng,zāng	kHanyuPinlu	0
 U+85D0	藐	miǎo	miǎo,mò	kTGHZ2013	0

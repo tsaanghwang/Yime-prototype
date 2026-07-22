@@ -44,8 +44,7 @@ def audit_hanzi(path: Path, policy: dict) -> tuple[list[dict], list]:
                 "rejected",
                 "canonical_alias",
                 "source_correction",
-                "excluded_nonstandard_orthography",
-            }:
+            } or review.known_exclusion:
                 issues.append({"source": "hanzi", "entry": row.hanzi, "codepoint": row.codepoint,
                                "severity": "error" if review.status == "rejected" else "notice",
                                **asdict(review)})

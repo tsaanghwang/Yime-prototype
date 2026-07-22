@@ -29,7 +29,7 @@
   },
   "admitted_syllabic_specials": ["m", "n", "ng", "hm", "hng", "ê"],
   "aliases": {
-    "r5": {
+    "er5": {
       "canonical_numeric": "er5",
       "canonical_marked": "er",
       "rule_id": "ORTH-ERHUA-R-RESTORE",
@@ -51,6 +51,12 @@
     }
   },
   "source_exclusions": {
+    "U+85CD|la5": {
+      "rule_id": "SRC-EXCLUDE-U85CD-LA5",
+      "status": "excluded_obsolete_reading",
+      "reason": "Unihan kXHC1983 保留《现代汉语词典》1983 年版 la 旧读；1985 年《普通话异读词审音表》规定“蓝读 lán，在‘苤蓝’中读 lan，不读 la”，故不作为现行普通话单字读音进入解码。",
+      "review_note": "只排除 U+85CD 藍的 la5；保留本调 lan2，并将苤蓝等词中的 lan5 作为词境读音处理。"
+    },
     "U+31FC5|bong4": {
       "rule_id": "SRC-EXCLUDE-U31FC5-BONG",
       "status": "excluded_nonstandard_orthography",
