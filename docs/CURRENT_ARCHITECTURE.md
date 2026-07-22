@@ -63,6 +63,10 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 `yinjie_code.json`、resolved layout、crosswalk、KLC 和审计 TSV 都是派生或审计产物，不应手工作为
 单项修复入口。
 
+统一来源库把轻声作为完整词音的表层属性保存：`neutral_tone_positions` 记录位置，
+`neutral_tone_status` 区分确认轻声与未定无调，`pronunciation_scope` 防止孤立词境证据生成单字候选。
+本调、词汇性轻声和临时语流弱化不得压成一张“每个音节都有第五声”的闭合表。
+
 ## 这版键盘布局重构
 
 当前布局状态为 `canonical_yinyuan_vk_layout_v1`，已经写入唯一布局真源并由布局锁闭合。

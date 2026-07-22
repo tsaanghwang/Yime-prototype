@@ -237,6 +237,72 @@ def validate_source_file_metadata(conn: sqlite3.Connection, report: dict[str, An
             })
 
 
+def validate_pronunciation_metadata(
+    conn: sqlite3.Connection,
+    report: dict[str, Any],
+) -> None:
+    valid_scopes = {"standalone", "word_context_only"}
+    valid_statuses = {"none", "attested_neutral", "unmarked_ambiguous"}
+    rows = conn.execute(
+        """
+        SELECT id, text, numeric_pinyin, pronunciation_scope,
+               neutral_tone_positions, neutral_tone_status
+        FROM canonical_readings
+        WHERE pronunciation_scope <> 'standalone'
+           OR neutral_tone_positions <> ''
+           OR neutral_tone_status <> 'none'
+        ORDER BY id
+        """
+    )
+    for row_id, text, numeric, scope, positions_text, status in rows:
+        if scope not in valid_scopes:
+            record_issue(report, "errors", "invalid_pronunciation_scope", {
+                "id": row_id, "text": text, "pronunciation_scope": scope,
+            })
+        if status not in valid_statuses:
+            record_issue(report, "errors", "invalid_neutral_tone_status", {
+                "id": row_id, "text": text, "neutral_tone_status": status,
+            })
+        try:
+            positions = tuple(
+                int(item) for item in str(positions_text).split(",") if item
+            )
+        except ValueError:
+            positions = ()
+            record_issue(report, "errors", "invalid_neutral_tone_positions", {
+                "id": row_id, "text": text, "neutral_tone_positions": positions_text,
+            })
+        expected = tuple(
+            index
+            for index, syllable in enumerate(str(numeric).split(), start=1)
+            if syllable.endswith("5")
+        )
+        if positions != expected:
+            record_issue(report, "errors", "neutral_tone_position_mismatch", {
+                "id": row_id, "text": text, "numeric_pinyin": numeric,
+                "neutral_tone_positions": positions_text,
+                "expected_positions": ",".join(str(item) for item in expected),
+            })
+        if bool(positions) == (status == "none"):
+            record_issue(report, "errors", "neutral_tone_status_mismatch", {
+                "id": row_id, "text": text, "neutral_tone_positions": positions_text,
+                "neutral_tone_status": status,
+            })
+
+    leaked = conn.execute(
+        """
+        SELECT COUNT(*)
+        FROM char_readings AS c
+        JOIN canonical_readings AS r ON r.id = c.id
+        WHERE r.pronunciation_scope <> 'standalone'
+        """
+    ).fetchone()[0]
+    if leaked:
+        record_issue(report, "errors", "word_context_reading_leaked_to_char_view", {
+            "row_count": int(leaked),
+        })
+
+
 def finalize_report(report: dict[str, Any]) -> dict[str, Any]:
     report["errors"] = {key: value for key, value in sorted(report["errors"].items())}
     report["warnings"] = {key: value for key, value in sorted(report["warnings"].items())}
@@ -256,6 +322,7 @@ def main() -> int:
     conn = sqlite3.connect(db_path)
     try:
         validate_source_file_metadata(conn, report)
+        validate_pronunciation_metadata(conn, report)
         validate_char_rows(conn, report)
         validate_phrase_rows(conn, report)
     finally:
