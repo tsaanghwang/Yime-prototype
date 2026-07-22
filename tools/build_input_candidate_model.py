@@ -26,33 +26,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-database", type=Path, default=DEFAULT_SOURCE)
     parser.add_argument("--output-database", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
-    parser.add_argument("--proposal-limit", type=int, default=10_000)
-    parser.add_argument("--minimum-frequency", type=int, default=1)
-    parser.add_argument(
-        "--minimum-text-length",
-        type=int,
-        default=2,
-        help="Default 2 keeps the initial review queue focused on multi-character materials.",
-    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    if args.proposal_limit < 1:
-        raise ValueError("proposal-limit must be positive")
     result = build_input_model(
         source_database=args.source_database,
         output_database=args.output_database,
         policy_path=args.policy,
-        proposal_limit=args.proposal_limit,
-        minimum_frequency=args.minimum_frequency,
-        minimum_text_length=args.minimum_text_length,
     )
     print(f"input_model_database: {result.database}")
-    print(f"proposals_added: {result.proposals_added}")
-    print(f"proposals_preserved: {result.proposals_preserved}")
-    print(f"status_counts: {result.status_counts}")
+    print(f"candidate_universe: {result.universe_count}")
+    print(f"review_queue: {result.review_queue_count}")
+    print(f"decision_overlays: {result.decision_overlays}")
+    print(f"overlay_status_counts: {result.overlay_status_counts}")
     return 0
 
 
