@@ -38,6 +38,8 @@
 `tools/audit_missing_source_syllables.py` 生成按 BCC 频次排列的审查报告。只有登记在
 `syllable_admission_reviews.json` 且状态为 `approved` 的项目才可临时跨过旧音节表门禁；
 重建后即由正式音节编码链生成。登记文件不得保存音元 ID、码元或键位，也不得补齐未出现的声调。
+轻声不逐项登记：上游实际给出的无调音节若通过结构审查，且同拼式已有一至四声来源实例，则按
+GB/T 16159-2012 的轻声标写规则准入。这里只接纳来源实例，不从本调自动生成任何词语轻声。
 
 指定另一份统一库时，只接受新变量 `YIME_LEXICON_SOURCE_DB`。
 
