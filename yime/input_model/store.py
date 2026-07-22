@@ -149,6 +149,12 @@ class InputModelStore:
             "ATTACH DATABASE ? AS source_lexicon",
             (str(source_database.resolve()),),
         )
+        canonical_columns = {
+            str(row[1])
+            for row in self.connection.execute(
+                "PRAGMA source_lexicon.table_info(canonical_readings)"
+            )
+        }
 
         def source_read_only(
             action_code: int,
@@ -167,6 +173,11 @@ class InputModelStore:
 
         self.connection.set_authorizer(source_read_only)
         try:
+            scope_filter = (
+                "WHERE LENGTH(text) > 1 OR pronunciation_scope = 'standalone'"
+                if "pronunciation_scope" in canonical_columns
+                else ""
+            )
             self.connection.execute(
                 """
                 UPDATE candidate_universe
@@ -180,7 +191,7 @@ class InputModelStore:
                 """
             )
             self.connection.execute(
-                """
+                f"""
                 INSERT INTO candidate_universe(
                     text, text_length, bcc_frequency, has_bcc_evidence,
                     has_gated_reading, has_source_rejection,
@@ -198,6 +209,7 @@ class InputModelStore:
                             ELSE 'gated_reading_unclassified' END,
                        ?
                 FROM source_lexicon.canonical_readings
+                {scope_filter}
                 GROUP BY text
                 ON CONFLICT(text) DO UPDATE SET
                     text_length = excluded.text_length,

@@ -71,6 +71,7 @@ def load_source_single_char_rows(path: Path) -> tuple[list[tuple[str, str, str]]
                            pinyin_sources, reading_source_categories
                     FROM canonical_readings
                     WHERE text_length = 1
+                      AND pronunciation_scope = 'standalone'
                     ORDER BY id
                     """
                 )

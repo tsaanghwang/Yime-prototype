@@ -59,14 +59,16 @@ class SourceLexicon:
     def readings(self, text: str) -> tuple[SourceReading, ...]:
         rows = self.connection.execute(
             """
-            SELECT id, text, marked_pinyin, numeric_pinyin, is_primary,
-                   bcc_frequency, pinyin_sources, reading_source_categories
+            SELECT *
             FROM canonical_readings
             WHERE text = ?
             ORDER BY reading_rank, id
             """,
             (text,),
         )
+        def optional(row: sqlite3.Row, key: str, default: object) -> object:
+            return row[key] if key in row.keys() else default
+
         return tuple(
             SourceReading(
                 reading_id=int(row["id"]),
@@ -77,6 +79,19 @@ class SourceLexicon:
                 bcc_frequency=int(row["bcc_frequency"]),
                 sources=_csv_tuple(row["pinyin_sources"]),
                 source_categories=_csv_tuple(row["reading_source_categories"]),
+                pronunciation_scope=str(
+                    optional(row, "pronunciation_scope", "standalone")
+                ),
+                neutral_tone_positions=tuple(
+                    int(item)
+                    for item in str(
+                        optional(row, "neutral_tone_positions", "")
+                    ).split(",")
+                    if item
+                ),
+                neutral_tone_status=str(
+                    optional(row, "neutral_tone_status", "none")
+                ),
             )
             for row in rows
         )

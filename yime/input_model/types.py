@@ -49,6 +49,9 @@ class SourceReading:
     bcc_frequency: int
     sources: tuple[str, ...]
     source_categories: tuple[str, ...]
+    pronunciation_scope: str = "standalone"
+    neutral_tone_positions: tuple[int, ...] = ()
+    neutral_tone_status: str = "none"
 
 
 @dataclass(frozen=True)

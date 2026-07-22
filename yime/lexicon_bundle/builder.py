@@ -12,7 +12,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Iterator
 
-from .gate import ReadingGate, is_han_text
+from .gate import DEFAULT_NEUTRAL_SOURCE_POLICY_PATH, ReadingGate, is_han_text
+from .syllable_admission import DEFAULT_ADMISSION_PATH
 from .parsers import (
     FrequencyRecord,
     ReadingRecord,
@@ -135,6 +136,9 @@ def _create_schema(conn: sqlite3.Connection) -> None:
             source_weight INTEGER,
             source_primary INTEGER NOT NULL,
             rule_ids TEXT NOT NULL,
+            pronunciation_scope TEXT NOT NULL,
+            neutral_tone_positions TEXT NOT NULL,
+            neutral_tone_status TEXT NOT NULL,
             PRIMARY KEY (text, marked, source, source_category, source_file)
         ) WITHOUT ROWID;
         CREATE INDEX accepted_text_idx ON accepted_readings(text);
@@ -159,6 +163,9 @@ def _create_schema(conn: sqlite3.Connection) -> None:
             reading_source_categories TEXT NOT NULL,
             wanxiang_categories TEXT NOT NULL,
             rule_ids TEXT NOT NULL,
+            pronunciation_scope TEXT NOT NULL,
+            neutral_tone_positions TEXT NOT NULL,
+            neutral_tone_status TEXT NOT NULL,
             UNIQUE (text, marked_pinyin)
         );
         CREATE INDEX canonical_text_rank_idx
@@ -220,7 +227,7 @@ def _create_schema(conn: sqlite3.Connection) -> None:
         SELECT id, codepoint, text AS hanzi,
                marked_pinyin, numeric_pinyin, reading_rank, is_primary
         FROM canonical_readings
-        WHERE text_length = 1;
+        WHERE text_length = 1 AND pronunciation_scope = 'standalone';
         CREATE VIEW phrase_readings AS
         SELECT id, text AS phrase, text_length AS phrase_len,
                marked_pinyin, numeric_pinyin, reading_rank
@@ -241,6 +248,7 @@ def _import_readings(
             record.text,
             record.reading,
             codepoint_context=record.codepoint_context,
+            source=record.source,
         )
         if not result.accepted:
             conn.execute(
@@ -259,7 +267,7 @@ def _import_readings(
             continue
         conn.execute(
             """
-            INSERT INTO accepted_readings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO accepted_readings VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(text, marked, source, source_category, source_file) DO UPDATE SET
                 source_rank = MIN(source_rank, excluded.source_rank),
                 source_weight = CASE
@@ -281,6 +289,9 @@ def _import_readings(
                 record.source_weight,
                 int(record.source_primary),
                 ",".join(result.rule_ids),
+                result.pronunciation_scope,
+                ",".join(str(item) for item in result.neutral_tone_positions),
+                result.neutral_tone_status,
             ),
         )
         accepted += 1
@@ -367,6 +378,7 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
         "bcc_modern_chinese", "bcc_news", "bcc_dialogue", "bcc_literature",
         "bcc_classical_chinese", "bcc_multi_domain", "wanxiang_weight",
         "wanxiang_categories", "pinyin_sources", "reading_source_categories", "rule_ids",
+        "pronunciation_scope", "neutral_tone_positions", "neutral_tone_status",
     ]
     output_count = conflict_count = 0
     conn.execute("DELETE FROM canonical_readings")
@@ -406,6 +418,26 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                 rules = sorted(
                     {rule for row in rows for rule in str(row["rule_ids"]).split(",") if rule}
                 )
+                pronunciation_scope = (
+                    "standalone"
+                    if any(str(row["pronunciation_scope"]) == "standalone" for row in rows)
+                    else "word_context_only"
+                )
+                neutral_positions = sorted(
+                    {
+                        int(position)
+                        for row in rows
+                        for position in str(row["neutral_tone_positions"]).split(",")
+                        if position
+                    }
+                )
+                neutral_status = (
+                    "attested_neutral"
+                    if any(str(row["neutral_tone_status"]) == "attested_neutral" for row in rows)
+                    else "unmarked_ambiguous"
+                    if neutral_positions
+                    else "none"
+                )
                 wanxiang_weight = max(
                     (int(row["source_weight"] or 0) for row in rows if row["source"] == "wanxiang"),
                     default=0,
@@ -435,6 +467,9 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                     "pinyin_sources": ",".join(sources),
                     "reading_source_categories": ",".join(source_categories),
                     "rule_ids": ",".join(rules),
+                    "pronunciation_scope": pronunciation_scope,
+                    "neutral_tone_positions": ",".join(str(item) for item in neutral_positions),
+                    "neutral_tone_status": neutral_status,
                 }
                 writer.writerow(exported)
                 canonical_batch.append(
@@ -458,6 +493,9 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                         ",".join(source_categories),
                         ",".join(wanxiang_categories),
                         ",".join(rules),
+                        pronunciation_scope,
+                        ",".join(str(item) for item in neutral_positions),
+                        neutral_status,
                     )
                 )
                 if len(canonical_batch) >= 10_000:
@@ -469,8 +507,9 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                             bcc_modern_chinese, bcc_news, bcc_dialogue, bcc_literature,
                             bcc_classical_chinese, bcc_multi_domain, wanxiang_weight,
                             pinyin_sources, reading_source_categories,
-                            wanxiang_categories, rule_ids
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            wanxiang_categories, rule_ids, pronunciation_scope,
+                            neutral_tone_positions, neutral_tone_status
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         """,
                         canonical_batch,
                     )
@@ -488,8 +527,9 @@ def _export_entries(conn: sqlite3.Connection, output_dir: Path) -> tuple[int, in
                     bcc_modern_chinese, bcc_news, bcc_dialogue, bcc_literature,
                     bcc_classical_chinese, bcc_multi_domain, wanxiang_weight,
                     pinyin_sources, reading_source_categories,
-                    wanxiang_categories, rule_ids
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    wanxiang_categories, rule_ids, pronunciation_scope,
+                    neutral_tone_positions, neutral_tone_status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 canonical_batch,
             )
@@ -556,6 +596,8 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     source_paths = (
         inputs.unihan,
         inputs.pypinyin_phrases,
+        DEFAULT_ADMISSION_PATH,
+        DEFAULT_NEUTRAL_SOURCE_POLICY_PATH,
         *bcc_files,
         inputs.decoder_inventory,
         *inputs.wanxiang_files,
@@ -617,7 +659,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     conn.executemany(
         "INSERT INTO metadata (key, value) VALUES (?, ?)",
         (
-            ("schema_version", "yime-gated-source-lexicon-v1"),
+            ("schema_version", "yime-gated-source-lexicon-v2"),
             ("char_rows", str(conn.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0])),
             ("phrase_rows", str(conn.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0])),
             ("canonical_reading_rows", str(output_entries)),
@@ -629,7 +671,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
 
     manifest_path = output_dir / "manifest.json"
     manifest = {
-        "schema_version": "yime-gated-source-lexicon-v1",
+        "schema_version": "yime-gated-source-lexicon-v2",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "policy": {
             "frequency": "BCC integer counts are preserved; absent BCC evidence remains 0.",
@@ -640,7 +682,10 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
             ),
             "wanxiang_weight": "Kept separately; never treated as a BCC count.",
             "wanxiang_categories": "Original dictionary categories are preserved from file names.",
-            "reading": "Shared first-round source compliance plus current decoder inventory.",
+            "reading": (
+                "Shared first-round source compliance, reviewed non-neutral admissions, "
+                "source-specific unmarked-tone interpretation, and current decoder inventory."
+            ),
             "unresolved": "No per-character pronunciation guessing for unmatched BCC terms.",
             "excluded_wanxiang_files": ["cuoyin.dict.yaml", "mixed.dict.yaml"],
         },

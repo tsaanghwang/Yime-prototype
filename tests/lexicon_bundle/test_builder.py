@@ -85,7 +85,7 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
     assert "no_reading_source_record" in review
     assert "翻页" not in review
     manifest = json.loads(result.manifest.read_text(encoding="utf-8"))
-    assert manifest["schema_version"] == "yime-gated-source-lexicon-v1"
+    assert manifest["schema_version"] == "yime-gated-source-lexicon-v2"
     with sqlite3.connect(result.database) as connection:
         assert connection.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0] == 2
         assert connection.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0] == 3

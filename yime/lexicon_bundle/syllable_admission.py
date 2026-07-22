@@ -37,7 +37,7 @@ class SyllableAdmission:
 
     def admits(self, text: str) -> bool:
         return self.status == "approved" and (
-            self.scope == "all_source_records"
+            self.scope in {"all_source_records", "word_context_only"}
             or (self.scope == "multi_character_only" and len(text) > 1)
         )
 
@@ -60,7 +60,11 @@ def load_syllable_admissions(
         evidence = tuple(raw.get("evidence", ()))
         if status not in {"approved", "deferred", "rejected"}:
             raise ValueError(f"invalid review status for {numeric}: {status}")
-        if scope not in {"all_source_records", "multi_character_only"}:
+        if scope not in {
+            "all_source_records",
+            "multi_character_only",
+            "word_context_only",
+        }:
             raise ValueError(f"invalid admission scope for {numeric}: {scope}")
         reviewed = review_syllable(marked, policy)
         if not reviewed.accepted or reviewed.canonical_numeric != numeric:

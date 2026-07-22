@@ -18,6 +18,14 @@
       "decision_basis": "The local merged Unihan material records U+351E 㔞 as kuài and Wanxiang supplies the source-attested kuái reading; the review preserves the attested form rather than guessing a replacement.",
       "evidence": [{"source": "wanxiang", "text": "㔞", "reading": "kuái"}, {"source": "unihan-local", "text": "㔞", "reading": "kuài"}]
     },
+    "lan5": {
+      "status": "approved",
+      "canonical_marked": "lan",
+      "scope": "word_context_only",
+      "rule_id": "ORTH-SOURCE-ATTESTED-NEUTRAL",
+      "decision_basis": "Wanxiang preserves an isolated 藍 lan source row, while word-level evidence places the unmarked syllable in contexts such as 栅栏 and the 汉典 苤藍 page. Preserve it as word-context pronunciation evidence without creating a standalone neutral-tone character candidate.",
+      "evidence": [{"source": "wanxiang", "text": "藍", "reading": "lan"}, {"source": "zdic-word-context", "text": "苤藍", "reading": "piě lɑn", "url": "https://www.zdic.net/hans/%E8%8B%A4%E8%97%8D"}]
+    },
     "sa2": {
       "status": "approved",
       "canonical_marked": "sá",

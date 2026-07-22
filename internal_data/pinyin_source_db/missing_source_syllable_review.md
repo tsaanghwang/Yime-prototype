@@ -6,6 +6,7 @@
 |---|---|---|---|---|---:|---:|
 | de4 | 已有 | approved | multi_character_only | 通过 | 0 | 20 |
 | kuai2 | 已有 | approved | all_source_records | 通过 | 0 | 1 |
+| lan5 | 已有 | approved | word_context_only | 通过 | 0 | 14 |
 | sa2 | 已有 | approved | all_source_records | 通过 | 0 | 9 |
 
 ## BCC 高频与来源实例
@@ -17,6 +18,11 @@
 
 ### `kuai2`
 审查依据：The local merged Unihan material records U+351E 㔞 as kuài and Wanxiang supplies the source-attested kuái reading; the review preserves the attested form rather than guessing a replacement.
+
+当前统一来源库中已无该音节造成的门禁拒绝；审查证据保留在登记文件中。
+
+### `lan5`
+审查依据：Wanxiang preserves an isolated 藍 lan source row, while word-level evidence places the unmarked syllable in contexts such as 栅栏 and the 汉典 苤藍 page. Preserve it as word-context pronunciation evidence without creating a standalone neutral-tone character candidate.
 
 当前统一来源库中已无该音节造成的门禁拒绝；审查证据保留在登记文件中。
 

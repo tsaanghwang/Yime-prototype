@@ -33,6 +33,25 @@ def _registry(tmp_path: Path, *, scope: str = "all_source_records") -> Path:
     )
 
 
+def _neutral_context_registry(tmp_path: Path) -> Path:
+    return _write_json(
+        tmp_path / "neutral_reviews.json",
+        {
+            "schema_version": "source-syllable-admission-review-v1",
+            "reviews": {
+                "lan5": {
+                    "status": "approved",
+                    "canonical_marked": "lan",
+                    "scope": "word_context_only",
+                    "rule_id": "ORTH-SOURCE-ATTESTED-NEUTRAL",
+                    "decision_basis": "fixture word-context evidence",
+                    "evidence": [{"source": "fixture", "text": "苤藍", "reading": "piě lan"}],
+                }
+            },
+        },
+    )
+
+
 def test_reviewed_missing_non_neutral_syllable_bridges_inventory(tmp_path: Path) -> None:
     inventory = _write_json(tmp_path / "inventory.json", {"kuai4": "kuài"})
     gate = ReadingGate(inventory, _registry(tmp_path))
@@ -50,17 +69,40 @@ def test_source_attested_neutral_uses_orthographic_rule_without_enumeration(
 ) -> None:
     inventory = _write_json(
         tmp_path / "inventory.json",
-        {"qi1": "qī", "qiao1": "qiāo", "lan2": "lán"},
+        {"qi1": "qī"},
     )
     gate = ReadingGate(inventory, admission_path=None)
 
-    phrase = gate.admit("蹊跷", "qī qiao")
-    isolated_source_record = gate.admit("藍", "lan", codepoint_context=True)
+    phrase = gate.admit("蹊跷", "qī qiao", source="wanxiang")
 
     assert phrase.accepted and phrase.numeric == "qi1 qiao5"
-    assert isolated_source_record.accepted and isolated_source_record.numeric == "lan5"
     assert "ORTH-SOURCE-ATTESTED-NEUTRAL" in phrase.rule_ids
-    assert "ORTH-SOURCE-ATTESTED-NEUTRAL" in isolated_source_record.rule_ids
+    assert phrase.neutral_tone_positions == (2,)
+    assert phrase.neutral_tone_status == "attested_neutral"
+
+
+def test_isolated_neutral_evidence_can_be_kept_word_context_only(tmp_path: Path) -> None:
+    inventory = _write_json(tmp_path / "inventory.json", {"lan2": "lán"})
+    gate = ReadingGate(inventory, _neutral_context_registry(tmp_path))
+
+    result = gate.admit("藍", "lan", codepoint_context=True, source="wanxiang")
+
+    assert result.accepted and result.numeric == "lan5"
+    assert result.pronunciation_scope == "word_context_only"
+    assert result.neutral_tone_positions == (1,)
+    assert result.neutral_tone_status == "attested_neutral"
+
+
+def test_unknown_source_unmarked_syllable_is_not_bootstrapped_as_neutral(
+    tmp_path: Path,
+) -> None:
+    inventory = _write_json(tmp_path / "inventory.json", {"qi1": "qī"})
+    gate = ReadingGate(inventory, admission_path=None)
+
+    result = gate.admit("蹊跷", "qī qiao", source="unknown-web-scrape")
+
+    assert not result.accepted
+    assert result.reason == "outside_current_decoder_inventory:qiao5"
 
 
 def test_unreviewed_missing_syllable_remains_rejected(tmp_path: Path) -> None:
