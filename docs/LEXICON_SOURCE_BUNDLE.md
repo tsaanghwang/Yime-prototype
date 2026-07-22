@@ -69,6 +69,9 @@ SQLite 中的来源和拒绝原因，不补写读音或编码；可用 `--limit`
 `.generated/` 不纳入 Git。以后生成 Windows 码表时应读取完整语料包及 `manifest.json`，不得手工复制
 其中一列或绕开本仓库的“标准拼音 → 音元分解 → Yinyuan ID”正式链。
 
+当前规模、BCC 未解码分层、多读音现状以及从静态大词库转向动态组合的整理阶段，统一记录在
+[候选语料库整理路线图](CANDIDATE_CORPUS_ROADMAP.md)。
+
 SQLite 中的 `bcc_frequency_evidence` 保留每个 BCC 分域原始文件及 `word/char` 来源类型，
 `v_bcc_frequency_by_category` 提供分域查询，`v_reading_source_conflicts` 提供多来源读音冲突查询。
 排序策略只能读取这些派生字段，不得反向覆盖原始频次或来源分类。
