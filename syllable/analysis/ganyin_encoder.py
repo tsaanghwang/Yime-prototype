@@ -293,10 +293,13 @@ class GanyinEncoder:
         self.save_yinyuan_data(notes_output_path, notes_data)
 
         # 5. 生成简化版干音音符数据
+        # Keep the runtime snapshot on the same normalization path as
+        # on-demand encoding. Registered form-family aliases such as
+        # ueng/uong must not retain a second, stale encoding here.
         simplified_notes_data: Dict[str, str] = {
-            ganyin_name: "".join(str(part) for part in parts.values())
+            ganyin_name: self.encode_ganyin(ganyin_name)
             for ganyin_type in notes_data
-            for ganyin_name, parts in notes_data[ganyin_type].items()
+            for ganyin_name in notes_data[ganyin_type]
         }
         fixed_length_encoding_output_path = self.runtime_output_path(self.DINGCHANGMA_FILENAME)
         self.save_yinyuan_data(fixed_length_encoding_output_path, simplified_notes_data)

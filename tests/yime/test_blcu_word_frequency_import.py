@@ -11,6 +11,7 @@ from yime.utils.blcu_word_frequency_import import (
     phrase_frequency_column_type,
     purge_obsolete_frequency_metadata,
 )
+from yime.asset_paths import resolve_lexicon_source_db_path
 
 
 class TestBlcuWordFrequencyImport(unittest.TestCase):
@@ -311,28 +312,32 @@ class TestBlcuWordFrequencyImport(unittest.TestCase):
 
 
 @unittest.skipUnless(
-    Path("external_data/word_freq/merged_word_freq.txt").exists(),
-    "requires BCC merged word frequency file",
+    resolve_lexicon_source_db_path(Path.cwd()).exists()
+    and Path("yime/pinyin_hanzi.db").exists(),
+    "requires unified lexicon source and prototype runtime databases",
 )
 class TestBlcuWordFrequencyImportAgainstRuntime(unittest.TestCase):
-    def test_runtime_lexicon_has_substantial_bcc_overlap(self) -> None:
-        phrase_freq, _ = load_phrase_frequency_map(
-            Path("external_data/word_freq/merged_word_freq.txt")
-        )
+    def test_runtime_contains_all_resolved_bcc_phrases(self) -> None:
+        source_db = resolve_lexicon_source_db_path(Path.cwd())
         conn = sqlite3.connect("yime/pinyin_hanzi.db")
         try:
-            phrases = {
-                str(row[0])
-                for row in conn.execute(
-                    "SELECT DISTINCT phrase FROM phrase_inventory WHERE LENGTH(phrase) > 1"
-                )
-            }
+            conn.execute("ATTACH DATABASE ? AS source_lexicon", (str(source_db),))
+            resolved_bcc_count, imported_count = conn.execute(
+                """
+                SELECT COUNT(DISTINCT b.text),
+                       COUNT(DISTINCT CASE WHEN p.phrase IS NOT NULL THEN b.text END)
+                FROM source_lexicon.bcc_frequency AS b
+                JOIN source_lexicon.canonical_readings AS r
+                  ON r.text = b.text AND r.text_length > 1
+                LEFT JOIN phrase_inventory AS p ON p.phrase = b.text
+                WHERE LENGTH(b.text) > 1
+                """
+            ).fetchone()
         finally:
             conn.close()
 
-        overlap = phrases & set(phrase_freq)
-        self.assertGreater(len(overlap), 100_000)
-        self.assertGreater(len(overlap) / len(phrases), 0.45)
+        self.assertGreater(resolved_bcc_count, 100_000)
+        self.assertEqual(imported_count, resolved_bcc_count)
 
 
 if __name__ == "__main__":

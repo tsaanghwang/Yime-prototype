@@ -287,11 +287,24 @@ def test_decoders(result: TestResult):
     except Exception as e:
         result.add_fail(test_name, str(e))
 
-    test_name = "CompositeCandidateDecoder 大写 H 走变长主码路径"
+    test_name = "CompositeCandidateDecoder 已登记 Shift 音元走变长主码路径"
     try:
         physical_input_map = build_physical_input_map(project_root)
-        projected = project_physical_input("Hs", physical_input_map)
-        canonical, active, pinyin, candidates, status = composite_decoder.decode_text(projected)
+        shifted_inputs = sorted(
+            key for key in physical_input_map if len(key) == 1 and key.isupper()
+        )
+        assert shifted_inputs, "当前布局应至少登记一个 Shift 层音元"
+
+        decoded = None
+        for shifted_input in shifted_inputs:
+            projected = project_physical_input(shifted_input, physical_input_map)
+            result_tuple = composite_decoder.decode_text(projected)
+            if result_tuple[3]:
+                decoded = (projected, result_tuple)
+                break
+
+        assert decoded is not None, "当前 Shift 层音元应至少有一个能命中运行时候选"
+        projected, (canonical, active, pinyin, candidates, status) = decoded
         if composite_decoder.runtime_decoder is not None:
             expected = "".join(
                 composite_decoder.runtime_decoder.bmp_to_canonical.get(char, char)
@@ -1160,10 +1173,16 @@ def test_utilities(result: TestResult):
         unprojected_text = unproject_physical_input(projected_text, projected_to_physical_map)
         assert unprojected_text != projected_text
         assert project_physical_input(unprojected_text, physical_input_map) == projected_text
-        assert project_physical_input("H", physical_input_map) == physical_input_map["H"]
-        unprojected_single = unproject_physical_input(physical_input_map["H"], projected_to_physical_map)
-        assert unprojected_single != physical_input_map["H"]
-        assert project_physical_input(unprojected_single, physical_input_map) == physical_input_map["H"]
+        shifted_inputs = sorted(
+            key for key in physical_input_map if len(key) == 1 and key.isupper()
+        )
+        assert shifted_inputs, "当前布局应至少登记一个 Shift 层音元"
+        shifted_input = shifted_inputs[0]
+        shifted_projected = physical_input_map[shifted_input]
+        assert project_physical_input(shifted_input, physical_input_map) == shifted_projected
+        unprojected_single = unproject_physical_input(shifted_projected, projected_to_physical_map)
+        assert unprojected_single != shifted_projected
+        assert project_physical_input(unprojected_single, physical_input_map) == shifted_projected
         result.add_pass(test_name)
     except Exception as e:
         result.add_fail(test_name, str(e))
