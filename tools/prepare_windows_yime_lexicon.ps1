@@ -9,6 +9,7 @@ $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 $python = Join-Path $repoRoot "venv312\Scripts\python.exe"
 $runtimeDb = Join-Path $repoRoot "yime\pinyin_hanzi.db"
 $exporter = Join-Path $repoRoot "yime\export_rime_yime.py"
+$auxiliaryExporter = Join-Path $repoRoot "tools\prepare_windows_yime_auxiliary_assets.py"
 
 if (-not $OutputDir) {
     $OutputDir = Join-Path $repoRoot ".generated\windows_yime_import"
@@ -16,7 +17,7 @@ if (-not $OutputDir) {
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $resolvedOutputDir = (Resolve-Path -LiteralPath $OutputDir).Path
 
-foreach ($requiredPath in @($python, $runtimeDb, $exporter)) {
+foreach ($requiredPath in @($python, $runtimeDb, $exporter, $auxiliaryExporter)) {
     if (-not (Test-Path -LiteralPath $requiredPath)) {
         throw "Required prototype asset is missing: $requiredPath"
     }
@@ -35,6 +36,11 @@ $pinyinCodes = Join-Path $resolvedOutputDir "yime_pinyin_codes.tsv"
     --pinyin-codes-output $pinyinCodes
 if ($LASTEXITCODE -ne 0) {
     throw "Prototype full-lexicon export failed with exit code $LASTEXITCODE"
+}
+
+& $python $auxiliaryExporter --output-dir $resolvedOutputDir
+if ($LASTEXITCODE -ne 0) {
+    throw "Prototype auxiliary-asset export failed with exit code $LASTEXITCODE"
 }
 
 if (-not $SkipWindowsDerivation) {
