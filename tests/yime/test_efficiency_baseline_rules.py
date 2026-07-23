@@ -25,7 +25,7 @@ def test_efficiency_length_preserves_virtual_initial_before_middle_tone_omission
     assert analysis["saved_keys"] == 1
 
 
-def test_efficiency_length_only_merges_adjacent_equal_ganyin() -> None:
+def test_efficiency_length_merges_adjacent_equal_yinyuan_composing_ganyin() -> None:
     assert simplify_yime_syllable_code_length("XAAA", METADATA) == 2
     analysis = analyze_syllable_simplification("XAAA", METADATA)
     assert analysis["merged_repeat_count"] == 2

@@ -1,8 +1,11 @@
 """Convert canonical four-yinyuan syllables to variable-length codes.
 
-The first position is always retained as a real or virtual initial. Only
-adjacent equal yinyuan in the three-position ganyin are merged. The initial is
-an explicit syllable boundary for continuous input, not compressible ganyin.
+The first position is always retained as a real or virtual shouyin. The three
+following positions compose the ganyin: huyin, zhuyin, and moyin. Variable
+length mode merges adjacent identical yinyuan that compose this ganyin; it
+does not merge the ganyin as a whole. Thus ABC stays ABC, AAC becomes AC,
+ABB becomes AB, and AAA becomes A. The shouyin is an explicit syllable
+boundary for continuous input and never participates in this merging.
 """
 
 from __future__ import annotations
@@ -58,7 +61,7 @@ def transform_full_code(
     *,
     virtual_initial: str | None = None,
 ) -> VariableLengthYinyuanResult:
-    """Merge adjacent equal ganyin while preserving the initial boundary."""
+    """Merge adjacent identical yinyuan composing ganyin; preserve shouyin."""
     normalized_code = _normalize_full_code(full_code)
     initial = normalized_code[0]
     merged_ganyin, merged_adjacent_count = merge_adjacent_equal_yinyuan(normalized_code[1:])
