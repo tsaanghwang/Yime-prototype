@@ -1,12 +1,8 @@
-"""四元模型到变长音元模型的转换。
+"""Convert canonical four-yinyuan syllables to variable-length codes.
 
-转换规则只有两条，且顺序固定：
-
-1. 先合并相邻且完全相同的音元；
-2. 再省略虚首音。
-
-这里依赖四元模型的不变量：首音元与首音后的任一干音音元不会相同。
-因此先合并再省略虚首音，不会隐藏跨边界重复。
+The first position is always retained as a real or virtual initial. Only
+adjacent equal yinyuan in the three-position ganyin are merged. The initial is
+an explicit syllable boundary for continuous input, not compressible ganyin.
 """
 
 from __future__ import annotations
@@ -22,7 +18,7 @@ FOUR_YINYUAN_CODE_LENGTH = 4
 
 @dataclass(frozen=True)
 class VariableLengthYinyuanResult:
-    """四元模型转换为变长音元模型后的结果。"""
+    """Result of converting one canonical four-yinyuan syllable."""
 
     full_code: str
     merged_code: str
@@ -33,7 +29,7 @@ class VariableLengthYinyuanResult:
 
 
 def merge_adjacent_equal_yinyuan(symbols: Iterable[str]) -> tuple[list[str], int]:
-    """合并相邻且完全相同的音元。"""
+    """Merge adjacent, exactly equal yinyuan."""
     merged: list[str] = []
     merged_adjacent_count = 0
     for symbol in symbols:
@@ -62,25 +58,18 @@ def transform_full_code(
     *,
     virtual_initial: str | None = None,
 ) -> VariableLengthYinyuanResult:
-    """把等长四元码转换为变长音元码。"""
+    """Merge adjacent equal ganyin while preserving the initial boundary."""
     normalized_code = _normalize_full_code(full_code)
-    merged_symbols, merged_adjacent_count = merge_adjacent_equal_yinyuan(normalized_code)
-    merged_code = "".join(merged_symbols)
-
-    omitted_virtual_initial = bool(
-        virtual_initial and merged_symbols and merged_symbols[0] == virtual_initial
-    )
-    if omitted_virtual_initial:
-        variable_symbols = merged_symbols[1:]
-    else:
-        variable_symbols = merged_symbols
+    initial = normalized_code[0]
+    merged_ganyin, merged_adjacent_count = merge_adjacent_equal_yinyuan(normalized_code[1:])
+    merged_code = "".join([initial, *merged_ganyin])
 
     return VariableLengthYinyuanResult(
         full_code=normalized_code,
         merged_code=merged_code,
-        variable_code="".join(variable_symbols),
+        variable_code=merged_code,
         virtual_initial=virtual_initial,
-        omitted_virtual_initial=omitted_virtual_initial,
+        omitted_virtual_initial=False,
         merged_adjacent_count=merged_adjacent_count,
     )
 
@@ -90,7 +79,7 @@ def transform_yinjie(
     *,
     virtual_initial: str | None = None,
 ) -> VariableLengthYinyuanResult:
-    """把 ``Yinjie`` 四元模型对象转换为变长音元模型。"""
+    """Convert a ``Yinjie`` full-code object to variable length."""
     return transform_full_code(yinjie.to_code(), virtual_initial=virtual_initial)
 
 
@@ -99,7 +88,7 @@ def to_variable_length_yinyuan_code(
     *,
     virtual_initial: str | None = None,
 ) -> str:
-    """返回四元码对应的变长音元码字符串。"""
+    """Return the variable code while preserving its initial boundary."""
     return transform_full_code(full_code, virtual_initial=virtual_initial).variable_code
 
 

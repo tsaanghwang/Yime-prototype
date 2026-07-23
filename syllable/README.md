@@ -180,7 +180,8 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和
 独立的缩写草稿兼容入口也已清退。当前变长/省键模式由正式三模式编码链实现，
-不依赖这些旧入口。
+不依赖这些旧入口。正式链从四元等长码出发，保留首音边界并只合并干音中的相邻相同音元生成
+变长码，再从变长码省略符合高—中—低或低—中—高条件的干音中调生成省键码；虚首音不再省略。
 
 ---
 
