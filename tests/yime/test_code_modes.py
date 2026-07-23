@@ -1,3 +1,5 @@
+import pytest
+
 from yime.utils.code_modes import (
     YimeCodeMode,
     build_code_mode_record,
@@ -15,16 +17,15 @@ def test_build_code_mode_record_outputs_full_variable_and_shorthand_codes() -> N
 
     record = build_code_mode_record(
         "XABC",
-        virtual_initial="X",
         ganyin_symbol_metadata=metadata,
     )
 
     assert record.full_code == "XABC"
-    assert record.variable_code == "ABC"
-    assert record.shorthand_code == "AC"
+    assert record.variable_code == "XABC"
+    assert record.shorthand_code == "XAC"
     assert record.lookup_code(YimeCodeMode.FULL) == "XABC"
-    assert record.lookup_code(YimeCodeMode.VARIABLE) == "ABC"
-    assert record.lookup_code(YimeCodeMode.SHORTHAND) == "AC"
+    assert record.lookup_code(YimeCodeMode.VARIABLE) == "XABC"
+    assert record.lookup_code(YimeCodeMode.SHORTHAND) == "XAC"
 
 
 def test_build_code_mode_record_keeps_nonvirtual_initial_in_shorthand() -> None:
@@ -36,12 +37,16 @@ def test_build_code_mode_record_keeps_nonvirtual_initial_in_shorthand() -> None:
 
     record = build_code_mode_record(
         "NABC",
-        virtual_initial="X",
         ganyin_symbol_metadata=metadata,
     )
 
     assert record.variable_code == "NABC"
     assert record.shorthand_code == "NAC"
+
+
+def test_build_code_mode_record_rejects_incomplete_full_syllable() -> None:
+    with pytest.raises(ValueError, match="divisible by 4"):
+        build_code_mode_record("ABC")
 
 
 def test_normalize_code_mode_defaults_to_variable() -> None:

@@ -151,8 +151,9 @@ def test_materialized_runtime_candidates_store_primary_yime_code_and_match_expor
     assert len(materialized) == 1
     assert materialized[0]["yime_code"] == "􀀋􀀩􀀩􀀩"
     assert materialized[0]["full_yime_code"] == "􀀋􀀩􀀩􀀩"
-    assert materialized[0]["primary_yime_code"] == "􀀩"
-    assert materialized[0]["variable_yinyuan_code"] == "􀀩"
-    assert materialized[0]["input_shorthand_code"] == "􀀩"
-    assert list(grouped) == ["􀀩"]
+    expected_derived_code = "􀀋􀀩"
+    assert materialized[0]["primary_yime_code"] == expected_derived_code
+    assert materialized[0]["variable_yinyuan_code"] == expected_derived_code
+    assert materialized[0]["input_shorthand_code"] == expected_derived_code
+    assert list(grouped) == [expected_derived_code]
     conn.close()

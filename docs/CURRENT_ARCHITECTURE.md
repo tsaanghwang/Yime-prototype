@@ -37,6 +37,8 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
   -> SQLite 运行时候选、Rime/KLC/Windows 消费产物
 ```
 
+三模式严格按同一条派生链生成：等长模式保留每音节四个音元；变长模式固定保留第一位实首音或虚首音，只合并后三位干音中相邻且相同的音元；省键模式以变长结果为输入，只对仍由三个同音质音元构成、且调级为高—中—低或低—中—高的干音省略中间的中调音元。虚首音承担连续输入的音节边界，不再作为省键项删除。该顺序与 Windows Yime 的 `codemode` 实现一致。
+
 1732个现行音节均有 Unihan、词语来源或经审查补丁依据，并全部能通过正式编码器。逐项来源、规则和
 四个 Yinyuan ID 见 `internal_data/yime_syllable_encoding_provenance.tsv`。
 

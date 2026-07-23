@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Mapping, cast
 
 from syllable.codec.input_shorthand import omit_middle_tone_if_same_quality_run
-from syllable.codec.variable_length_yinyuan import merge_adjacent_equal_yinyuan, transform_full_code
+from syllable.codec.variable_length_yinyuan import transform_full_code
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
@@ -114,41 +114,20 @@ def load_ganyin_symbol_metadata(repo_root: Path | None = None) -> dict[str, dict
     return _load_ganyin_symbol_metadata_cached(str(resolved_root.resolve()))
 
 
-def _split_complete_four_codes(code: str) -> tuple[list[str], str]:
-    complete_length = (len(code) // 4) * 4
-    return (
-        [code[index:index + 4] for index in range(0, complete_length, 4)],
-        code[complete_length:],
-    )
-
-
-def _to_variable_prefix_compat(code: str, *, virtual_initial: str | None) -> str:
-    merged, _ = merge_adjacent_equal_yinyuan(list(code))
-    if virtual_initial and merged and merged[0] == virtual_initial:
-        merged = merged[1:]
-    return "".join(merged)
-
-
 def _to_shorthand_syllable_code(
-    full_code: str,
+    variable_code: str,
     *,
-    virtual_initial: str | None,
     ganyin_symbol_metadata: Mapping[str, Mapping[str, Any]],
 ) -> str:
-    merged, _ = merge_adjacent_equal_yinyuan(list(full_code))
-    shouyin = ""
-    ganyin = list(merged)
-    if ganyin and virtual_initial and ganyin[0] == virtual_initial:
-        ganyin = ganyin[1:]
-    elif ganyin:
-        shouyin = ganyin[0]
-        ganyin = ganyin[1:]
+    symbols = list(variable_code)
+    shouyin = symbols[:1]
+    ganyin = symbols[1:]
 
     compressed_ganyin, _ = omit_middle_tone_if_same_quality_run(
         ganyin,
         ganyin_symbol_metadata,
     )
-    return shouyin + "".join(compressed_ganyin)
+    return "".join([*shouyin, *compressed_ganyin])
 
 
 def build_code_mode_record(
@@ -162,29 +141,28 @@ def build_code_mode_record(
         return CodeModeRecord("", "", "")
 
     metadata = ganyin_symbol_metadata or {}
-    complete_codes, trailing = _split_complete_four_codes(normalized_code)
+    _ = virtual_initial  # Compatibility argument; initials are always preserved.
+    if len(normalized_code) % 4 != 0:
+        raise ValueError(
+            f"full_code length must be divisible by 4, got {len(normalized_code)}: "
+            f"{normalized_code!r}"
+        )
+    complete_codes = [
+        normalized_code[index:index + 4]
+        for index in range(0, len(normalized_code), 4)
+    ]
     variable_parts: list[str] = []
     shorthand_parts: list[str] = []
 
     for syllable_code in complete_codes:
-        variable_parts.append(
-            transform_full_code(
-                syllable_code,
-                virtual_initial=virtual_initial,
-            ).variable_code
-        )
+        variable_code = transform_full_code(syllable_code).variable_code
+        variable_parts.append(variable_code)
         shorthand_parts.append(
             _to_shorthand_syllable_code(
-                syllable_code,
-                virtual_initial=virtual_initial,
+                variable_code,
                 ganyin_symbol_metadata=metadata,
             )
         )
-
-    if trailing:
-        trailing_code = _to_variable_prefix_compat(trailing, virtual_initial=virtual_initial)
-        variable_parts.append(trailing_code)
-        shorthand_parts.append(trailing_code)
 
     variable_code = "".join(variable_parts)
     shorthand_code = "".join(shorthand_parts)
