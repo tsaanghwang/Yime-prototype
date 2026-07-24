@@ -2,8 +2,8 @@
 
 欢迎来到 YIME（音元输入法编辑器）文档中心！
 
-说明：本文档中心优先组织当前 Windows
-桌面输入法原型直接相关的主线材料；理论、术语和音系分析类文档
+说明：本文档中心优先组织当前字典驱动编码、候选生产、Python
+桌面交互原型和 Windows 消费交接相关的主线材料；理论、术语和音系分析类文档
 主要作为背景与长期参考，不等于当前仓库均已实现。
 
 补充说明：仓库内旧的 `docs/*.html` 静态文档站已外置到单独的
@@ -114,7 +114,9 @@ KLC 文档分工：
 - **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
   当前分支的工程事实入口；理论稿和历史记录不得覆盖其现状结论
 - **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** -
-  当前 Windows 桌面输入法原型的实现状态、边界和后续方向
+  原型仓库、Python 桌面交互原型与 Windows 系统前端消费者的实现分工
+- **[Windows 前端状态](install/WINDOWS_FRONTENDS_STATUS.md)** -
+  Windows Yime、Weasel/Rime 和 PIME 的消费边界与验收基线
 - **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** -
   rebuild 链、SQLite 主路径、已删除 legacy 脚本
 - **[连续输入候选组织草案](project/CONTINUOUS_INPUT_CANDIDATE_ORGANIZATION_DRAFT.md)** -
@@ -141,7 +143,8 @@ KLC 文档分工：
 
 ### 项目管理
 
-- **[路线图](project/ROADMAP.md)** - 项目发展路线图
+- **[路线图](project/ROADMAP.md)** -
+  生产链闭合后的候选质量、Windows 交接和稳定性优先级
 - **[Wiki 连续语音与离散分析修订预案](project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md)** -
   暂缓实施的理论文档整理留痕；当前不修改 Wiki 正文，也不作为现行定义
 - **[更新日志](../CHANGELOG.md)** - 版本更新历史
@@ -221,5 +224,5 @@ KLC 文档分工：
 
 ---
 
-**最后更新**: 2026-07-22
+**最后更新**: 2026-07-24
 **文档版本**: 1.2.0
