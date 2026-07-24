@@ -5,9 +5,26 @@ import sqlite3
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable
+from urllib.parse import quote
 
-# 助词 / 语气词尾字：命中后仅记为 warning，供人工审阅，不自动删除。
-PARTICLE_SUFFIX_CHARS = frozenset("的了了吗呢吧啊嘛呀哦哈呗哇呐麽")
+# 助词 / 语气词尾字及其当前数字标调读音。只按字形会把“目的 di4”“花呢 ni2”
+# “爪哇 wa1”等词误报；运行扫描必须同时命中末字和末音节读音。
+PARTICLE_SUFFIX_PINYIN = {
+    "的": frozenset({"de5"}),
+    "了": frozenset({"le5"}),
+    "吗": frozenset({"ma5"}),
+    "呢": frozenset({"ne5"}),
+    "吧": frozenset({"ba5"}),
+    "啊": frozenset({"a5"}),
+    "嘛": frozenset({"ma5"}),
+    "呀": frozenset({"ya5"}),
+    "哦": frozenset({"o2", "o4", "o5", "e2"}),
+    "呗": frozenset({"bei5"}),
+    "哇": frozenset({"wa5"}),
+    "呐": frozenset({"na4"}),
+    "麽": frozenset({"me5"}),
+}
+PARTICLE_SUFFIX_CHARS = frozenset(PARTICLE_SUFFIX_PINYIN)
 
 # 常见短语白名单：即使以助词结尾也跳过 suffix_particle 警告。
 PARTICLE_SUFFIX_WHITELIST = frozenset({
@@ -41,7 +58,7 @@ REQUIRED_CANDIDATE_FIELDS = (
     "updated_at",
 )
 
-RUNTIME_CANDIDATES_SQL = """
+RUNTIME_CANDIDATES_COLUMNS = """
 SELECT
     text,
     entry_type,
@@ -52,8 +69,6 @@ SELECT
     is_common,
     text_length,
     updated_at
-FROM runtime_candidates
-ORDER BY yime_code, sort_weight DESC, text
 """
 
 SOURCE_PHRASE_SQL = """
@@ -61,6 +76,11 @@ SELECT id, phrase, marked_pinyin, numeric_pinyin, reading_rank
 FROM phrase_readings
 ORDER BY id
 """
+
+RUNTIME_TABLE_PREFERENCE = (
+    "runtime_candidates_materialized",
+    "runtime_candidates",
+)
 
 
 def make_report(*, sample_limit: int, inputs: dict[str, str]) -> dict[str, Any]:
@@ -73,14 +93,17 @@ def make_report(*, sample_limit: int, inputs: dict[str, str]) -> dict[str, Any]:
             "error_count": 0,
             "warning_count": 0,
             "suffix_particle_count": 0,
+            "source_suffix_particle_count": 0,
             "placeholder_phrase_count": 0,
+            "suffix_particle_by_char": {},
+            "source_suffix_particle_by_char": {},
         },
         "errors": defaultdict(list),
         "warnings": defaultdict(list),
         "sample_limit": sample_limit,
         "notes": [
             "suffix_particle 规则仅作审阅提示，当前不会自动清理词库。",
-            "请配合 docs/LEXICON_LINT.md 使用；确认后再考虑 lexicon_clean --apply（尚未启用）。",
+            "请配合 docs/LEXICON_LINT.md 使用；人工决定应进入独立候选整理覆盖层。",
         ],
     }
 
@@ -95,10 +118,30 @@ def record_issue(
     report["summary"][summary_key] += 1
     if category == "suffix_particle":
         report["summary"]["suffix_particle_count"] += 1
+        suffix_char = str(detail.get("suffix_char") or "")
+        counts = report["summary"]["suffix_particle_by_char"]
+        counts[suffix_char] = counts.get(suffix_char, 0) + 1
+    if category == "source_suffix_particle":
+        report["summary"]["source_suffix_particle_count"] += 1
+        suffix_char = str(detail.get("suffix_char") or "")
+        counts = report["summary"]["source_suffix_particle_by_char"]
+        counts[suffix_char] = counts.get(suffix_char, 0) + 1
     if category == "placeholder_phrase_code":
         report["summary"]["placeholder_phrase_count"] += 1
     bucket = report[level][category]
-    if len(bucket) < report["sample_limit"]:
+    sample_limit = report["sample_limit"]
+    if sample_limit <= 0:
+        return
+    if "sort_weight" in detail:
+        bucket.append(detail)
+        bucket.sort(
+            key=lambda item: (
+                -float(item.get("sort_weight") or 0.0),
+                str(item.get("text") or item.get("phrase") or ""),
+            )
+        )
+        del bucket[sample_limit:]
+    elif len(bucket) < sample_limit:
         bucket.append(detail)
 
 
@@ -108,11 +151,24 @@ def finalize_report(report: dict[str, Any]) -> dict[str, Any]:
     return report
 
 
-def ends_with_particle(text: str, *, min_length: int = 2) -> bool:
+def ends_with_particle(
+    text: str,
+    *,
+    pinyin_tone: str | None = None,
+    min_length: int = 2,
+) -> bool:
     stripped = str(text or "").strip()
     if len(stripped) < min_length:
         return False
-    return stripped[-1] in PARTICLE_SUFFIX_CHARS
+    suffix_char = stripped[-1]
+    if suffix_char not in PARTICLE_SUFFIX_CHARS:
+        return False
+    if pinyin_tone is None:
+        return True
+    pinyin_tokens = str(pinyin_tone or "").split()
+    if not pinyin_tokens:
+        return False
+    return pinyin_tokens[-1] in PARTICLE_SUFFIX_PINYIN[suffix_char]
 
 
 def is_whitelisted_phrase(text: str) -> bool:
@@ -167,15 +223,21 @@ def lint_candidate_row(
         })
 
     if is_placeholder_phrase(entry_type, yime_code, pinyin_tone):
+        sort_weight = float(candidate.get("sort_weight") or 0.0)
         record_issue(report, "warnings", "placeholder_phrase_code", {
             "source": source,
             "text": text,
             "pinyin_tone": pinyin_tone,
             "yime_code": yime_code,
+            "sort_weight": sort_weight,
             "entry_id": candidate.get("entry_id"),
         })
 
-    if entry_type == "phrase" and ends_with_particle(text) and not is_whitelisted_phrase(text):
+    if (
+        entry_type == "phrase"
+        and ends_with_particle(text, pinyin_tone=pinyin_tone)
+        and not is_whitelisted_phrase(text)
+    ):
         sort_weight = float(candidate.get("sort_weight") or 0.0)
         record_issue(report, "warnings", "suffix_particle", {
             "source": source,
@@ -225,66 +287,123 @@ def lint_runtime_json_payload(
             )
 
 
+def _readonly_connection(path: Path) -> sqlite3.Connection:
+    resolved = path.resolve().as_posix()
+    uri = f"file:{quote(resolved, safe='/:')}?mode=ro"
+    return sqlite3.connect(uri, uri=True)
+
+
+def _resolve_runtime_table(conn: sqlite3.Connection) -> str:
+    for table_name in RUNTIME_TABLE_PREFERENCE:
+        row = conn.execute(
+            "SELECT type FROM sqlite_master WHERE name = ?",
+            (table_name,),
+        ).fetchone()
+        if row is not None and row[0] in {"table", "view"}:
+            return table_name
+    raise sqlite3.OperationalError(
+        "missing runtime_candidates_materialized/runtime_candidates"
+    )
+
+
 def load_runtime_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
 def lint_runtime_json_file(path: Path, report: dict[str, Any]) -> None:
-    payload = load_runtime_json(path)
+    try:
+        payload = load_runtime_json(path)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        record_issue(report, "errors", "runtime_json_read_error", {
+            "source": str(path),
+            "detail": str(exc),
+        })
+        return
     lint_runtime_json_payload(payload, report, source_label=str(path))
 
 
 def lint_runtime_db_file(path: Path, report: dict[str, Any]) -> None:
-    conn = sqlite3.connect(path)
+    try:
+        conn = _readonly_connection(path)
+    except sqlite3.Error as exc:
+        record_issue(report, "errors", "runtime_db_read_error", {
+            "source": str(path),
+            "detail": str(exc),
+        })
+        return
     conn.row_factory = sqlite3.Row
     try:
-        rows = conn.execute(RUNTIME_CANDIDATES_SQL).fetchall()
+        table_name = _resolve_runtime_table(conn)
+        cursor = conn.execute(
+            f"{RUNTIME_CANDIDATES_COLUMNS} "
+            f"FROM {table_name} "
+            "ORDER BY entry_type, entry_id"
+        )
+        for row in cursor:
+            candidate = {key: row[key] for key in row.keys()}
+            lint_candidate_row(
+                report,
+                code_key=str(candidate["yime_code"]),
+                candidate=candidate,
+                source=str(path),
+            )
+    except sqlite3.Error as exc:
+        record_issue(report, "errors", "runtime_db_read_error", {
+            "source": str(path),
+            "detail": str(exc),
+        })
     finally:
         conn.close()
-
-    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in rows:
-        candidate = {key: row[key] for key in row.keys()}
-        grouped[str(candidate["yime_code"])].append(candidate)
-
-    lint_runtime_json_payload(
-        {"by_code": grouped},
-        report,
-        source_label=str(path),
-    )
 
 
 def lint_source_db_file(path: Path, report: dict[str, Any]) -> None:
-    conn = sqlite3.connect(path)
     try:
-        rows = conn.execute(SOURCE_PHRASE_SQL).fetchall()
+        conn = _readonly_connection(path)
+    except sqlite3.Error as exc:
+        record_issue(report, "errors", "source_db_read_error", {
+            "source": str(path),
+            "detail": str(exc),
+        })
+        return
+    try:
+        cursor = conn.execute(SOURCE_PHRASE_SQL)
+        for row_id, phrase, marked_pinyin, numeric_pinyin, reading_rank in cursor:
+            report["summary"]["source_phrase_rows"] += 1
+            phrase_text = str(phrase or "").strip()
+            if not phrase_text:
+                record_issue(report, "errors", "empty_source_phrase", {
+                    "source": str(path),
+                    "id": row_id,
+                })
+                continue
+
+            if (
+                ends_with_particle(
+                    phrase_text,
+                    pinyin_tone=str(numeric_pinyin or ""),
+                )
+                and not is_whitelisted_phrase(phrase_text)
+            ):
+                record_issue(report, "warnings", "source_suffix_particle", {
+                    "source": str(path),
+                    "id": row_id,
+                    "phrase": phrase_text,
+                    "suffix_char": phrase_text[-1],
+                    "marked_pinyin": marked_pinyin,
+                    "numeric_pinyin": numeric_pinyin,
+                    "reading_rank": reading_rank,
+                })
+    except sqlite3.Error as exc:
+        record_issue(report, "errors", "source_db_read_error", {
+            "source": str(path),
+            "detail": str(exc),
+        })
     finally:
         conn.close()
 
-    for row_id, phrase, marked_pinyin, numeric_pinyin, reading_rank in rows:
-        report["summary"]["source_phrase_rows"] += 1
-        phrase_text = str(phrase or "").strip()
-        if not phrase_text:
-            record_issue(report, "errors", "empty_source_phrase", {
-                "source": str(path),
-                "id": row_id,
-            })
-            continue
 
-        if ends_with_particle(phrase_text) and not is_whitelisted_phrase(phrase_text):
-            record_issue(report, "warnings", "source_suffix_particle", {
-                "source": str(path),
-                "id": row_id,
-                "phrase": phrase_text,
-                "suffix_char": phrase_text[-1],
-                "marked_pinyin": marked_pinyin,
-                "numeric_pinyin": numeric_pinyin,
-                "reading_rank": reading_rank,
-            })
-
-
-def iter_clean_targets(report: dict[str, Any]) -> Iterable[dict[str, Any]]:
-    """Return warning samples that a future clean step might act on."""
+def iter_review_samples(report: dict[str, Any]) -> Iterable[dict[str, Any]]:
+    """Return sampled warnings for human review, never an exhaustive clean set."""
     for category in ("suffix_particle", "placeholder_phrase_code", "source_suffix_particle"):
         for item in report.get("warnings", {}).get(category, []):
             yield {"category": category, **item}

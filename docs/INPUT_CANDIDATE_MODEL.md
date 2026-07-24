@@ -90,8 +90,19 @@ Gram 或小型神经模型可以替换具体实现，但不得绕过统一的建
 前若干项；`v_review_queue` 再按 BCC 频次分批呈现审查次序。重复运行会更新来源基础状态，但不会覆盖
 已经存在的人工或模型决策。
 
+词库尾助词质检信号可以通过：
+
+```powershell
+.\venv312\Scripts\python.exe tools\export_lexicon_quality_review.py
+```
+
+与 `candidate_universe`、`assessments` 和 `context_evidence` 只读合并，生成
+`.generated/lexicon_quality_review/` 下的全量 TSV、Markdown 摘要和 manifest。它只负责安排审查
+顺序，不会自动写 assessment；已有 approved/rejected 决策的字串会从待审队列排除。
+
 ## 尚未接入的部分
 
-当前骨架尚不自动修改运行时词库，也不声称已经完成汉语分词。进入生产前仍需补齐：真实上下文导入、
+当前骨架尚不自动修改运行时词库，也不声称已经完成汉语分词。现有 BCC 输入只是分域频次表，不能
+反向重建 KWIC 原句。进入生产前仍需补齐：真实上下文导入、
 功能词和框式构式规则、审查界面、Gram/排序器接口、旧词库回放指标，以及只有在动态恢复稳定后才执行
 的精简发布步骤。

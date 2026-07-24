@@ -26,6 +26,13 @@ DEFAULT_RUNTIME_DB = ROOT / "yime" / "pinyin_hanzi.db"
 DEFAULT_OUTPUT = ROOT / ".generated" / "lexicon_lint_report.json"
 
 
+def configure_utf8_stdio() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
@@ -74,13 +81,6 @@ def resolve_runtime_json_path(raw: str) -> Path | None:
     if raw.strip():
         path = Path(raw)
         return path if path.exists() else None
-    candidates = [
-        generated_runtime_candidates_json_path(ROOT),
-        resolve_runtime_candidates_json_path(ROOT / "yime"),
-    ]
-    for path in candidates:
-        if path.exists():
-            return path
     return None
 
 
@@ -107,18 +107,65 @@ def print_summary(report: dict[str, object]) -> None:
     print(f"source_phrase_rows: {summary['source_phrase_rows']}")
     print(f"errors: {summary['error_count']}")
     print(f"warnings: {summary['warning_count']}")
-    print(f"suffix_particle_samples: {summary['suffix_particle_count']}")
-    print(f"placeholder_phrase_samples: {summary['placeholder_phrase_count']}")
+    print(f"suffix_particle_count: {summary['suffix_particle_count']}")
+    print(f"source_suffix_particle_count: {summary['source_suffix_particle_count']}")
+    print(f"placeholder_phrase_count: {summary['placeholder_phrase_count']}")
 
 
 def main() -> int:
+    configure_utf8_stdio()
     args = parse_args()
+    if args.sample_limit < 0:
+        print("--sample-limit 不能小于 0", file=sys.stderr)
+        return 2
+
+    explicit_paths = {
+        "--runtime-json": args.runtime_json,
+        "--runtime-db": args.runtime_db,
+        "--source-db": args.source_db,
+    }
+    missing_explicit = [
+        f"{flag}={raw}"
+        for flag, raw in explicit_paths.items()
+        if raw.strip() and not Path(raw).exists()
+    ]
+    if missing_explicit:
+        print("显式指定的输入不存在：", file=sys.stderr)
+        for item in missing_explicit:
+            print(f"  {item}", file=sys.stderr)
+        return 2
+
     inputs: dict[str, str] = {}
     report = make_report(sample_limit=args.sample_limit, inputs=inputs)
 
-    runtime_json = resolve_runtime_json_path(args.runtime_json)
-    runtime_db = resolve_runtime_db_path(args.runtime_db)
-    source_db = resolve_source_db_path(args.source_db)
+    has_explicit_input = any(raw.strip() for raw in explicit_paths.values())
+    if has_explicit_input:
+        runtime_json = resolve_runtime_json_path(args.runtime_json)
+        runtime_db = (
+            resolve_runtime_db_path(args.runtime_db)
+            if args.runtime_db.strip()
+            else None
+        )
+        source_db = (
+            resolve_source_db_path(args.source_db)
+            if args.source_db.strip()
+            else None
+        )
+    else:
+        # 默认只选择一个权威输入，避免同一批候选从 JSON、运行库和来源库重复计数。
+        runtime_json = None
+        runtime_db = resolve_runtime_db_path("")
+        source_db = None
+        if runtime_db is None:
+            for candidate in (
+                generated_runtime_candidates_json_path(ROOT),
+                resolve_runtime_candidates_json_path(ROOT / "yime"),
+            ):
+                if candidate.exists():
+                    runtime_json = candidate
+                    break
+        if runtime_db is None and runtime_json is None:
+            source_db = resolve_source_db_path("")
 
     if runtime_json is not None:
         inputs["runtime_json"] = str(runtime_json)
