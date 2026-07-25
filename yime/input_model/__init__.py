@@ -4,7 +4,17 @@ from .builder import BuildResult, build_input_model
 from .classifier import PolicyClassifier
 from .composer import CompositionPolicy, DynamicComposer, FrequencyCompositionScorer
 from .protocols import CandidateClassifier, CompositionScorer
+from .review_workbench import (
+    ReviewQueueItem,
+    ReviewQueuePage,
+    UnencodedCandidateReview,
+)
 from .source import SourceLexicon
+from .static_capacity import (
+    StaticCapacityConfig,
+    StaticCapacityResult,
+    build_static_capacity_model,
+)
 from .store import InputModelStore
 from .types import (
     CandidateAssessment,
@@ -27,7 +37,13 @@ __all__ = [
     "InputModelStore",
     "IntegrationPolicy",
     "PolicyClassifier",
+    "ReviewQueueItem",
+    "ReviewQueuePage",
     "CompositionScorer",
     "SourceLexicon",
+    "StaticCapacityConfig",
+    "StaticCapacityResult",
+    "UnencodedCandidateReview",
     "build_input_model",
+    "build_static_capacity_model",
 ]

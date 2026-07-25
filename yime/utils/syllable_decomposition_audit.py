@@ -325,6 +325,7 @@ def build_source_filter_omission_rows(
             SELECT reading, reason, COUNT(*)
             FROM rejections
             WHERE length(text) = 1
+              AND trim(reading) <> ''
             GROUP BY reading, reason
             """
         ):

@@ -37470,7 +37470,7 @@ U+84D9	蓙	zuò	zuò	kMandarin	1
 U+84DA	蓚	tiáo	tiáo	kXHC1983	1
 U+84DB	蓛	cè	cè	kMandarin	1
 U+84DC	蓜	pèi	pèi	kMandarin	1
-U+84DD	蓝	lán	lán,la	kHanyuPinlu	0
+U+84DD	蓝	lán	lán	kHanyuPinlu	1
 U+84DE	蓞	dàn	dàn	kMandarin	1
 U+84DF	蓟	jì	jì	kTGHZ2013	1
 U+84E0	蓠	lí	lí	kTGHZ2013	1
@@ -44359,4 +44359,11 @@ U+9FFB	鿻	bù	bù	kMandarin	1
 U+9FFC	鿼	jiā	jiā	kMandarin	1
 U+9FFE	鿾	làng	làng	kMandarin	1
 U+9FFF	鿿	xìng	xìng	kMandarin	1
+U+F92C	郎	láng	láng,làng	compatibility_alias:U+90CE	0
+U+F979	凉	liáng	liáng,liàng	compatibility_alias:U+51C9	0
+U+F9E7	裏	lǐ	lǐ,li	compatibility_alias:U+88CF	0
+U+F9F1	隣	lín	lín	compatibility_alias:U+96A3	1
+U+FA0C	兀	wù	wù,wū	compatibility_alias:U+5140	0
+U+FA0D	嗀	hù	hù	compatibility_alias:U+55C0	1
 U+FA18	礼	lǐ	lǐ	kMandarin	1
+U+FA20	蘒	qiū	qiū	compatibility_alias:U+8612	1

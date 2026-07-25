@@ -16,7 +16,7 @@ from .types import (
 )
 
 
-SCHEMA_VERSION = "yime-input-candidate-model-v2"
+SCHEMA_VERSION = "yime-input-candidate-model-v8"
 
 
 SCHEMA = """
@@ -36,10 +36,19 @@ CREATE TABLE IF NOT EXISTS candidate_universe (
     baseline_class TEXT NOT NULL,
     baseline_policy TEXT NOT NULL,
     baseline_rule TEXT NOT NULL,
+    baseline_status TEXT NOT NULL DEFAULT 'proposed'
+        CHECK (baseline_status IN ('proposed', 'approved', 'rejected', 'deferred')),
+    dynamic_reachable INTEGER NOT NULL DEFAULT 0
+        CHECK (dynamic_reachable IN (0, 1)),
+    dynamic_reachability_rule TEXT NOT NULL DEFAULT '',
     last_seen_generation TEXT NOT NULL
 ) WITHOUT ROWID;
 CREATE INDEX IF NOT EXISTS candidate_universe_review_idx
     ON candidate_universe(bcc_frequency DESC, baseline_policy, baseline_class, text);
+CREATE INDEX IF NOT EXISTS candidate_universe_length_review_idx
+    ON candidate_universe(
+        has_gated_reading, text_length, bcc_frequency DESC, text
+    );
 CREATE TABLE IF NOT EXISTS assessments (
     text TEXT PRIMARY KEY,
     text_length INTEGER NOT NULL,
@@ -87,12 +96,73 @@ CREATE TABLE IF NOT EXISTS composition_patterns (
     rationale TEXT NOT NULL,
     evidence_json TEXT NOT NULL
 ) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS rule_families (
+    family_id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    pattern_description TEXT NOT NULL,
+    applicability_notes TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('registered', 'deferred', 'rejected')),
+    rationale TEXT NOT NULL,
+    assessor TEXT NOT NULL,
+    review_standard TEXT NOT NULL,
+    evidence_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    updated_at_utc TEXT NOT NULL
+) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS rule_family_examples (
+    family_id TEXT NOT NULL,
+    text TEXT NOT NULL,
+    example_role TEXT NOT NULL
+        CHECK (example_role IN ('representative', 'positive', 'negative')),
+    note TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    PRIMARY KEY (family_id, text),
+    FOREIGN KEY (family_id) REFERENCES rule_families(family_id) ON DELETE CASCADE
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS rule_family_examples_text_idx
+    ON rule_family_examples(text, example_role, family_id);
+CREATE TABLE IF NOT EXISTS rule_family_audit_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    family_id TEXT NOT NULL,
+    event_type TEXT NOT NULL,
+    assessor TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS rule_family_audit_idx
+    ON rule_family_audit_events(family_id, id DESC);
+CREATE TABLE IF NOT EXISTS tail_classifications (
+    text TEXT NOT NULL,
+    direction TEXT NOT NULL CHECK (direction IN ('prefix', 'suffix')),
+    root_anchor TEXT NOT NULL,
+    matched_anchor TEXT NOT NULL,
+    semantic_class TEXT NOT NULL CHECK (
+        semantic_class IN (
+            'person_name', 'business_name', 'product_name',
+            'currency_measurement', 'other_proper_name',
+            'fixed_lexical_item', 'noise', 'uncertain'
+        )
+    ),
+    note TEXT NOT NULL,
+    assessor TEXT NOT NULL,
+    created_at_utc TEXT NOT NULL,
+    updated_at_utc TEXT NOT NULL,
+    PRIMARY KEY (text, direction, root_anchor),
+    FOREIGN KEY (text) REFERENCES candidate_universe(text) ON DELETE CASCADE
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS tail_classification_review_idx
+    ON tail_classifications(
+        direction, root_anchor, semantic_class, updated_at_utc DESC, text
+    );
 DROP VIEW IF EXISTS v_review_queue;
 CREATE VIEW v_review_queue AS
 SELECT u.text, u.text_length, u.bcc_frequency,
        COALESCE(a.candidate_class, u.baseline_class) AS candidate_class,
        COALESCE(a.integration_policy, u.baseline_policy) AS integration_policy,
-       COALESCE(a.decision_status, 'proposed') AS decision_status,
+       CASE
+           WHEN u.baseline_policy = 'reject' THEN 'rejected'
+           ELSE COALESCE(a.decision_status, u.baseline_status)
+       END AS decision_status,
        a.confidence,
        COALESCE(a.rationale, u.baseline_rule) AS rationale,
        COALESCE(a.assessor, 'baseline:' || u.baseline_rule) AS assessor,
@@ -100,7 +170,12 @@ SELECT u.text, u.text_length, u.bcc_frequency,
        a.updated_at_utc
 FROM candidate_universe AS u
 LEFT JOIN assessments AS a USING (text)
-WHERE COALESCE(a.decision_status, 'proposed') IN ('proposed', 'deferred');
+WHERE (
+    CASE
+        WHEN u.baseline_policy = 'reject' THEN 'rejected'
+        ELSE COALESCE(a.decision_status, u.baseline_status)
+    END
+) IN ('proposed', 'deferred');
 """
 
 
@@ -116,7 +191,53 @@ class InputModelStore:
         self.database.parent.mkdir(parents=True, exist_ok=True)
         self.connection = sqlite3.connect(self.database)
         self.connection.row_factory = sqlite3.Row
+        self.connection.execute("PRAGMA foreign_keys = ON")
+        candidate_table_exists = self.connection.execute(
+            """
+            SELECT 1 FROM sqlite_master
+            WHERE type = 'table' AND name = 'candidate_universe'
+            """
+        ).fetchone()
+        if candidate_table_exists is not None:
+            columns = {
+                str(row[1])
+                for row in self.connection.execute(
+                    "PRAGMA table_info(candidate_universe)"
+                )
+            }
+            if "baseline_status" not in columns:
+                self.connection.execute(
+                    """
+                    ALTER TABLE candidate_universe
+                    ADD COLUMN baseline_status TEXT NOT NULL DEFAULT 'proposed'
+                    CHECK (
+                        baseline_status IN (
+                            'proposed', 'approved', 'rejected', 'deferred'
+                        )
+                    )
+                    """
+                )
+            if "dynamic_reachable" not in columns:
+                self.connection.execute(
+                    """
+                    ALTER TABLE candidate_universe
+                    ADD COLUMN dynamic_reachable INTEGER NOT NULL DEFAULT 0
+                    CHECK (dynamic_reachable IN (0, 1))
+                    """
+                )
+            if "dynamic_reachability_rule" not in columns:
+                self.connection.execute(
+                    """
+                    ALTER TABLE candidate_universe
+                    ADD COLUMN dynamic_reachability_rule TEXT NOT NULL DEFAULT ''
+                    """
+                )
         self.connection.executescript(SCHEMA)
+        self.connection.execute(
+            "UPDATE metadata SET value = ? WHERE key = 'schema_version'",
+            (SCHEMA_VERSION,),
+        )
+        self.connection.commit()
 
     def initialize(self, *, source_database: Path, policy_path: Path) -> None:
         source = str(source_database.resolve())
@@ -155,6 +276,16 @@ class InputModelStore:
                 "PRAGMA source_lexicon.table_info(canonical_readings)"
             )
         }
+        source_tables = {
+            str(row[0])
+            for row in self.connection.execute(
+                """
+                SELECT name
+                FROM source_lexicon.sqlite_master
+                WHERE type = 'table'
+                """
+            )
+        }
 
         def source_read_only(
             action_code: int,
@@ -187,7 +318,10 @@ class InputModelStore:
                     has_source_rejection = 0,
                     baseline_class = 'unknown',
                     baseline_policy = 'needs_review',
-                    baseline_rule = 'not_seen_in_current_source'
+                    baseline_rule = 'not_seen_in_current_source',
+                    baseline_status = 'proposed',
+                    dynamic_reachable = 0,
+                    dynamic_reachability_rule = ''
                 """
             )
             self.connection.execute(
@@ -267,6 +401,49 @@ class InputModelStore:
                 """,
                 (generation,),
             )
+            pending_source_table = (
+                "unencoded_pending_strings"
+                if "unencoded_pending_strings" in source_tables
+                else (
+                    "nonencoding_strings"
+                    if "nonencoding_strings" in source_tables
+                    else None
+                )
+            )
+            if pending_source_table is not None:
+                self.connection.execute(
+                    f"""
+                    INSERT INTO candidate_universe(
+                        text, text_length, bcc_frequency, has_bcc_evidence,
+                        has_gated_reading, has_source_rejection,
+                        baseline_class, baseline_policy, baseline_rule,
+                        baseline_status, last_seen_generation
+                    )
+                    SELECT text, text_length, bcc_frequency,
+                           CASE WHEN bcc_frequency > 0 THEN 1 ELSE 0 END,
+                           0, 0, 'unknown', 'needs_review',
+                           'missing_trusted_mandarin_reading', 'deferred', ?
+                    FROM source_lexicon.{pending_source_table}
+                    WHERE 1
+                    ON CONFLICT(text) DO UPDATE SET
+                        text_length = excluded.text_length,
+                        bcc_frequency = MAX(
+                            candidate_universe.bcc_frequency,
+                            excluded.bcc_frequency
+                        ),
+                        has_bcc_evidence = MAX(
+                            candidate_universe.has_bcc_evidence,
+                            excluded.has_bcc_evidence
+                        ),
+                        has_gated_reading = 0,
+                        baseline_class = 'unknown',
+                        baseline_policy = 'needs_review',
+                        baseline_rule = 'missing_trusted_mandarin_reading',
+                        baseline_status = 'deferred',
+                        last_seen_generation = excluded.last_seen_generation
+                    """,
+                    (generation,),
+                )
 
             hints = sorted(
                 policy.get("source_category_hints", {}).items(),
@@ -299,12 +476,84 @@ class InputModelStore:
                 "DELETE FROM candidate_universe WHERE last_seen_generation <> ?",
                 (generation,),
             )
+            builtin_rules = policy.get("builtin_candidate_rules", {})
+            two_character_rule = builtin_rules.get(
+                "two_character_dynamic_reachability", {}
+            )
+            if bool(two_character_rule.get("enabled", False)):
+                if (
+                    int(two_character_rule.get("text_length", 0)) != 2
+                    or bool(
+                        two_character_rule.get(
+                            "requires_whole_gated_reading", True
+                        )
+                    )
+                    or not bool(
+                        two_character_rule.get(
+                            "requires_each_single_character_gated_reading",
+                            False,
+                        )
+                    )
+                ):
+                    raise ValueError(
+                        "invalid two_character_dynamic_reachability policy"
+                    )
+                if bool(two_character_rule.get("changes_candidate_disposition", True)):
+                    raise ValueError(
+                        "two_character_dynamic_reachability must be evidence-only"
+                    )
+                self.connection.execute(
+                    """
+                    UPDATE candidate_universe AS candidate
+                    SET dynamic_reachable = 1,
+                        dynamic_reachability_rule =
+                            'two_character_dynamic_reachability'
+                    WHERE candidate.text_length = 2
+                      AND candidate.has_gated_reading = 0
+                      AND candidate.baseline_policy <> 'reject'
+                      AND EXISTS (
+                          SELECT 1
+                          FROM candidate_universe AS left_character
+                          WHERE left_character.text = substr(candidate.text, 1, 1)
+                            AND left_character.has_gated_reading = 1
+                      )
+                      AND EXISTS (
+                          SELECT 1
+                          FROM candidate_universe AS right_character
+                          WHERE right_character.text = substr(candidate.text, 2, 1)
+                            AND right_character.has_gated_reading = 1
+                      )
+                    """,
+                )
+            two_character_dynamic_reachability_count = int(
+                self.connection.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM candidate_universe
+                    WHERE dynamic_reachable = 1
+                      AND dynamic_reachability_rule =
+                          'two_character_dynamic_reachability'
+                    """
+                ).fetchone()[0]
+            )
             self.connection.execute(
                 """
                 INSERT INTO metadata(key, value) VALUES ('candidate_universe_generation', ?)
                 ON CONFLICT(key) DO UPDATE SET value = excluded.value
                 """,
                 (generation,),
+            )
+            self.connection.execute(
+                """
+                INSERT INTO metadata(key, value)
+                VALUES ('two_character_dynamic_reachability_count', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """,
+                (str(two_character_dynamic_reachability_count),),
+            )
+            self.connection.execute(
+                "DELETE FROM metadata "
+                "WHERE key = 'two_character_dynamic_composition_count'"
             )
             count = int(
                 self.connection.execute("SELECT COUNT(*) FROM candidate_universe").fetchone()[0]
@@ -360,7 +609,7 @@ class InputModelStore:
             text=str(universe_row["text"]),
             candidate_class=CandidateClass(universe_row["baseline_class"]),
             integration_policy=IntegrationPolicy(universe_row["baseline_policy"]),
-            status=DecisionStatus.PROPOSED,
+            status=DecisionStatus(universe_row["baseline_status"]),
             rationale=str(universe_row["baseline_rule"]),
             assessor=f"baseline:{universe_row['baseline_rule']}",
             evidence={
@@ -368,15 +617,45 @@ class InputModelStore:
                 "has_bcc_evidence": bool(universe_row["has_bcc_evidence"]),
                 "has_gated_reading": bool(universe_row["has_gated_reading"]),
                 "has_source_rejection": bool(universe_row["has_source_rejection"]),
+                "dynamic_reachable": bool(universe_row["dynamic_reachable"]),
+                "dynamic_reachability_rule": str(
+                    universe_row["dynamic_reachability_rule"]
+                ),
             },
         )
 
     def put(self, assessment: CandidateAssessment, *, overwrite: bool = True) -> bool:
-        if self.connection.execute(
-            "SELECT 1 FROM candidate_universe WHERE text = ?",
+        universe_row = self.connection.execute(
+            """
+            SELECT has_gated_reading
+            FROM candidate_universe
+            WHERE text = ?
+            """,
             (assessment.text,),
-        ).fetchone() is None:
+        ).fetchone()
+        if universe_row is None:
             raise ValueError(f"assessment text is outside the candidate universe: {assessment.text}")
+        if assessment.status is DecisionStatus.APPROVED and not bool(
+            universe_row["has_gated_reading"]
+        ):
+            is_lexical_only_admission = (
+                assessment.evidence.get("review_scope")
+                == "unencoded_candidate_admission"
+                and assessment.evidence.get("runtime_eligible") is False
+                and assessment.evidence.get("runtime_blocking_reason")
+                == "missing_gated_source_reading"
+                and not assessment.allowed_reading_ids
+                and assessment.integration_policy
+                in {
+                    IntegrationPolicy.STATIC_KEEP,
+                    IntegrationPolicy.MODEL_ONLY,
+                }
+            )
+            if not is_lexical_only_admission:
+                raise ValueError(
+                    "unencoded strings may only be approved as lexical-only "
+                    "admissions blocked on a gated source reading"
+                )
         current = self.get(assessment.text)
         if current is not None and not overwrite:
             return False
@@ -453,6 +732,12 @@ class InputModelStore:
     def approved_component(self, text: str) -> CandidateAssessment | None:
         assessment = self.get(text)
         if assessment is None or assessment.status is not DecisionStatus.APPROVED:
+            return None
+        universe_row = self.connection.execute(
+            "SELECT has_gated_reading FROM candidate_universe WHERE text = ?",
+            (text,),
+        ).fetchone()
+        if universe_row is None or not bool(universe_row["has_gated_reading"]):
             return None
         if assessment.integration_policy not in {
             IntegrationPolicy.STATIC_KEEP,

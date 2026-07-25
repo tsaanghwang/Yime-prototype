@@ -12,6 +12,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Iterator
 
+from yime.utils.dictionary_pinyin_compliance import (
+    DEFAULT_POLICY_PATH as DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
+    load_policy as load_source_compliance_policy,
+)
+
 from .gate import DEFAULT_NEUTRAL_SOURCE_POLICY_PATH, ReadingGate, is_han_text
 from .syllable_admission import DEFAULT_ADMISSION_PATH
 from .parsers import (
@@ -75,6 +80,7 @@ class BundleInputs:
     bcc_char_files: tuple[CategorizedPath, ...]
     wanxiang_files: tuple[Path, ...]
     decoder_inventory: Path
+    source_compliance_policy: Path = DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH
 
 
 @dataclass(frozen=True)
@@ -83,11 +89,13 @@ class BundleResult:
     database: Path
     entries: Path
     rejections: Path
+    unencoded_pending_strings: Path
     unresolved_bcc: Path
     conflicts: Path
     manifest: Path
     accepted_readings: int
     output_entries: int
+    unencoded_pending_string_count: int
     unresolved_bcc_count: int
 
 
@@ -108,6 +116,7 @@ def default_inputs(wanxiang_root: Path | None = None) -> BundleInputs:
         ),
         wanxiang_files=tuple(root / "dicts" / name for name in DEFAULT_WANXIANG_FILES),
         decoder_inventory=REPO_ROOT / "yime" / "pinyin_normalized.json",
+        source_compliance_policy=DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
     )
 
 
@@ -212,6 +221,14 @@ def _create_schema(conn: sqlite3.Connection) -> None:
             rule_ids TEXT NOT NULL,
             reason TEXT NOT NULL
         );
+        CREATE TABLE unencoded_pending_strings (
+            text TEXT PRIMARY KEY,
+            text_length INTEGER NOT NULL,
+            matched_codepoints TEXT NOT NULL,
+            rule_ids TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            bcc_frequency INTEGER NOT NULL DEFAULT 0
+        ) WITHOUT ROWID;
         CREATE VIEW v_bcc_frequency_by_category AS
         SELECT text, frequency AS aggregate_frequency,
                modern_chinese, news, dialogue, literature,
@@ -237,13 +254,97 @@ def _create_schema(conn: sqlite3.Connection) -> None:
     )
 
 
+def _load_unencoded_pending_characters(
+    policy_path: Path,
+) -> dict[str, tuple[str, str, str]]:
+    policy = load_source_compliance_policy(policy_path)
+    raw_entries = policy.get("unencoded_pending_codepoints", {})
+    if not isinstance(raw_entries, dict):
+        raise ValueError("unencoded_pending_codepoints must be an object")
+    result: dict[str, tuple[str, str, str]] = {}
+    for raw_codepoint, raw_record in raw_entries.items():
+        codepoint = str(raw_codepoint).upper()
+        record = dict(raw_record)
+        if not codepoint.startswith("U+"):
+            raise ValueError("unencoded pending codepoints must use U+ notation")
+        character = str(record.get("character", ""))
+        if len(character) != 1 or ord(character) != int(codepoint[2:], 16):
+            raise ValueError(
+                f"unencoded pending character does not match {codepoint}"
+            )
+        rule_id = str(record.get("rule_id", "")).strip()
+        reason = str(record.get("reason", "")).strip()
+        if not rule_id or not reason:
+            raise ValueError(
+                f"incomplete unencoded pending policy for {codepoint}"
+            )
+        result[character] = (codepoint, rule_id, reason)
+    return result
+
+
+def _record_unencoded_pending_string(
+    conn: sqlite3.Connection,
+    text: str,
+    pending_characters: dict[str, tuple[str, str, str]],
+) -> bool:
+    hits = [
+        pending_characters[character]
+        for character in dict.fromkeys(text)
+        if character in pending_characters
+    ]
+    if not hits:
+        return False
+    codepoints = ",".join(sorted({item[0] for item in hits}))
+    rule_ids = ",".join(sorted({item[1] for item in hits}))
+    reasons = "；".join(dict.fromkeys(item[2] for item in hits))
+    conn.execute(
+        """
+        INSERT INTO unencoded_pending_strings (
+            text, text_length, matched_codepoints, rule_ids, reason
+        ) VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(text) DO UPDATE SET
+            matched_codepoints = excluded.matched_codepoints,
+            rule_ids = excluded.rule_ids,
+            reason = excluded.reason
+        """,
+        (text, len(text), codepoints, rule_ids, reasons),
+    )
+    return True
+
+
 def _import_readings(
     conn: sqlite3.Connection,
     gate: ReadingGate,
     records: Iterable[ReadingRecord],
+    pending_characters: dict[str, tuple[str, str, str]],
 ) -> tuple[int, int]:
     accepted = rejected = 0
     for record in records:
+        if _record_unencoded_pending_string(
+            conn, record.text, pending_characters
+        ):
+            row = conn.execute(
+                """
+                SELECT rule_ids, reason
+                FROM unencoded_pending_strings
+                WHERE text = ?
+                """,
+                (record.text,),
+            ).fetchone()
+            conn.execute(
+                "INSERT INTO rejections VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    record.source,
+                    record.source_file,
+                    record.line_number,
+                    record.text,
+                    record.reading,
+                    str(row[0]),
+                    "deferred_missing_trusted_mandarin_reading:" + str(row[1]),
+                ),
+            )
+            rejected += 1
+            continue
         result = gate.admit(
             record.text,
             record.reading,
@@ -299,7 +400,11 @@ def _import_readings(
     return accepted, rejected
 
 
-def _import_frequencies(conn: sqlite3.Connection, records: Iterable[FrequencyRecord]) -> int:
+def _import_frequencies(
+    conn: sqlite3.Connection,
+    records: Iterable[FrequencyRecord],
+    pending_characters: dict[str, tuple[str, str, str]],
+) -> int:
     count = 0
     for record in records:
         if not is_han_text(record.text):
@@ -339,6 +444,9 @@ def _import_frequencies(conn: sqlite3.Connection, records: Iterable[FrequencyRec
                 END
             """,
             (record.text, record.frequency, record.frequency),
+        )
+        _record_unencoded_pending_string(
+            conn, record.text, pending_characters
         )
         count += 1
     conn.commit()
@@ -552,6 +660,56 @@ def _export_rejections(conn: sqlite3.Connection, output_dir: Path) -> int:
     return count
 
 
+def _finalize_unencoded_pending_strings(conn: sqlite3.Connection) -> int:
+    conn.execute(
+        """
+        UPDATE unencoded_pending_strings
+        SET bcc_frequency = COALESCE(
+            (
+                SELECT frequency
+                FROM bcc_frequency AS f
+                WHERE f.text = unencoded_pending_strings.text
+            ),
+            0
+        )
+        """
+    )
+    conn.commit()
+    return int(
+        conn.execute(
+            "SELECT COUNT(*) FROM unencoded_pending_strings"
+        ).fetchone()[0]
+    )
+
+
+def _export_unencoded_pending_strings(
+    conn: sqlite3.Connection,
+    output_dir: Path,
+) -> int:
+    path = output_dir / "unencoded_pending_strings.tsv"
+    fields = (
+        "text",
+        "text_length",
+        "matched_codepoints",
+        "bcc_frequency",
+        "rule_ids",
+        "reason",
+    )
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.writer(stream, delimiter="\t", lineterminator="\n")
+        writer.writerow(fields)
+        rows = conn.execute(
+            """
+            SELECT text, text_length, matched_codepoints, bcc_frequency,
+                   rule_ids, reason
+            FROM unencoded_pending_strings
+            ORDER BY bcc_frequency DESC, text
+            """
+        ).fetchall()
+        writer.writerows(rows)
+    return len(rows)
+
+
 def _export_unresolved_bcc(conn: sqlite3.Connection, output_dir: Path) -> int:
     path = output_dir / "unresolved_bcc.tsv"
     with path.open("w", encoding="utf-8", newline="") as stream:
@@ -564,6 +722,11 @@ def _export_unresolved_bcc(conn: sqlite3.Connection, output_dir: Path) -> int:
             FROM bcc_frequency AS f
             WHERE NOT EXISTS (
                 SELECT 1 FROM accepted_readings AS a WHERE a.text = f.text
+            )
+              AND NOT EXISTS (
+                SELECT 1
+                FROM unencoded_pending_strings AS n
+                WHERE n.text = f.text
             )
             ORDER BY f.frequency DESC, f.text
             """
@@ -596,6 +759,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     source_paths = (
         inputs.unihan,
         inputs.pypinyin_phrases,
+        inputs.source_compliance_policy,
         DEFAULT_ADMISSION_PATH,
         DEFAULT_NEUTRAL_SOURCE_POLICY_PATH,
         *bcc_files,
@@ -613,7 +777,13 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     conn = sqlite3.connect(database)
     conn.row_factory = sqlite3.Row
     _create_schema(conn)
-    gate = ReadingGate(inputs.decoder_inventory)
+    gate = ReadingGate(
+        inputs.decoder_inventory,
+        source_compliance_policy_path=inputs.source_compliance_policy,
+    )
+    pending_characters = _load_unencoded_pending_characters(
+        inputs.source_compliance_policy
+    )
 
     source_stats: dict[str, dict[str, int]] = {}
     accepted_total = 0
@@ -621,13 +791,20 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         ("unihan", iter_unihan_readings(inputs.unihan)),
         ("pypinyin", iter_pypinyin_phrase_readings(inputs.pypinyin_phrases)),
     ):
-        accepted, rejected = _import_readings(conn, gate, records)
+        accepted, rejected = _import_readings(
+            conn, gate, records, pending_characters
+        )
         source_stats[name] = {"accepted": accepted, "rejected": rejected}
         accepted_total += accepted
 
     wanxiang_accepted = wanxiang_rejected = 0
     for path in inputs.wanxiang_files:
-        accepted, rejected = _import_readings(conn, gate, iter_wanxiang_readings(path))
+        accepted, rejected = _import_readings(
+            conn,
+            gate,
+            iter_wanxiang_readings(path),
+            pending_characters,
+        )
         wanxiang_accepted += accepted
         wanxiang_rejected += rejected
     source_stats["wanxiang"] = {
@@ -645,10 +822,15 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
                 source_category=categorized.category,
                 source_kind=categorized.kind,
             ),
+            pending_characters,
         )
 
+    pending_count = _finalize_unencoded_pending_strings(conn)
     output_entries, conflict_rows = _export_entries(conn, output_dir)
     rejected_rows = _export_rejections(conn, output_dir)
+    exported_pending_count = _export_unencoded_pending_strings(conn, output_dir)
+    if exported_pending_count != pending_count:
+        raise RuntimeError("unencoded pending string export count mismatch")
     unresolved_count = _export_unresolved_bcc(conn, output_dir)
     unique_bcc = int(conn.execute("SELECT COUNT(*) FROM bcc_frequency").fetchone()[0])
     unique_texts = int(conn.execute("SELECT COUNT(DISTINCT text) FROM accepted_readings").fetchone()[0])
@@ -659,7 +841,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     conn.executemany(
         "INSERT INTO metadata (key, value) VALUES (?, ?)",
         (
-            ("schema_version", "yime-gated-source-lexicon-v2"),
+            ("schema_version", "yime-gated-source-lexicon-v4"),
             ("char_rows", str(conn.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0])),
             ("phrase_rows", str(conn.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0])),
             ("canonical_reading_rows", str(output_entries)),
@@ -671,7 +853,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
 
     manifest_path = output_dir / "manifest.json"
     manifest = {
-        "schema_version": "yime-gated-source-lexicon-v2",
+        "schema_version": "yime-gated-source-lexicon-v4",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "policy": {
             "frequency": "BCC integer counts are preserved; absent BCC evidence remains 0.",
@@ -687,6 +869,11 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
                 "source-specific unmarked-tone interpretation, and current decoder inventory."
             ),
             "unresolved": "No per-character pronunciation guessing for unmatched BCC terms.",
+            "unencoded_pending": (
+                "Strings containing a codepoint without a trusted Mandarin "
+                "reading source remain unencoded and deferred for expert or "
+                "future source review."
+            ),
             "excluded_wanxiang_files": ["cuoyin.dict.yaml", "mixed.dict.yaml"],
         },
         "counts": {
@@ -695,6 +882,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
             "output_text_readings": output_entries,
             "reading_conflict_rows": conflict_rows,
             "rejected_source_rows": rejected_rows,
+            "unencoded_pending_strings": pending_count,
             "bcc_input_rows": bcc_rows,
             "unique_bcc_texts": unique_bcc,
             "unresolved_bcc_texts": unresolved_count,
@@ -707,6 +895,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         "outputs": {
             "entries": "entries.tsv",
             "rejected_readings": "rejected_readings.tsv",
+            "unencoded_pending_strings": "unencoded_pending_strings.tsv",
             "unresolved_bcc": "unresolved_bcc.tsv",
             "reading_conflicts": "reading_conflicts.tsv",
             "database": "source_lexicon.sqlite3",
@@ -721,10 +910,12 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         database=database,
         entries=output_dir / "entries.tsv",
         rejections=output_dir / "rejected_readings.tsv",
+        unencoded_pending_strings=output_dir / "unencoded_pending_strings.tsv",
         unresolved_bcc=output_dir / "unresolved_bcc.tsv",
         conflicts=output_dir / "reading_conflicts.tsv",
         manifest=manifest_path,
         accepted_readings=accepted_total,
         output_entries=output_entries,
+        unencoded_pending_string_count=pending_count,
         unresolved_bcc_count=unresolved_count,
     )

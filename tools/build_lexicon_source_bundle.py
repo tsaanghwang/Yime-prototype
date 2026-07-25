@@ -24,6 +24,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--pypinyin-phrases", type=Path, default=defaults.pypinyin_phrases)
     parser.add_argument("--decoder-inventory", type=Path, default=defaults.decoder_inventory)
     parser.add_argument(
+        "--source-compliance-policy",
+        type=Path,
+        default=defaults.source_compliance_policy,
+    )
+    parser.add_argument(
         "--wanxiang-root",
         type=Path,
         default=ROOT.parent / "RIME-LMDG",
@@ -47,6 +52,7 @@ def main() -> int:
         bcc_char_files=wanxiang_defaults.bcc_char_files,
         wanxiang_files=wanxiang_defaults.wanxiang_files,
         decoder_inventory=args.decoder_inventory.resolve(),
+        source_compliance_policy=args.source_compliance_policy.resolve(),
     )
     result = build_bundle(inputs, args.output_dir.resolve())
     payload = json.loads(result.manifest.read_text(encoding="utf-8"))

@@ -30,7 +30,8 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
     phrases = _write(
         tmp_path / "phrases.tsv",
         "phrase\tphrase_len\tcommon_reading\treadings\n"
-        "翻页\t2\tfān yè\tfān yè\n",
+        "翻页\t2\tfān yè\tfān yè\n"
+        "含﨑字\t3\thán qí zì\thán qí zì\n",
     )
     wanxiang = _write(
         tmp_path / "jichu.dict.yaml",
@@ -38,13 +39,16 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
     )
     bcc_modern_words = _write(
         tmp_path / "modern_words.csv",
-        "word,freq\n翻页,99\n无拼音,7\n新词,0\n",
+        "word,freq\n翻页,99\n无拼音,7\n新词,0\n含﨑字,6\n",
     )
     bcc_classical_words = _write(
         tmp_path / "classical_words.csv",
         "word,freq\n翻页,120\n古词,8\n",
     )
-    bcc_chars = _write(tmp_path / "modern_chars.csv", "char,freq\n中,1000\n")
+    bcc_chars = _write(
+        tmp_path / "modern_chars.csv",
+        "char,freq\n中,1000\n﨑,50\n",
+    )
     inventory = Path(__file__).resolve().parents[2] / "yime" / "pinyin_normalized.json"
 
     result = build_bundle(
@@ -78,14 +82,21 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
     rejected = result.rejections.read_text(encoding="utf-8")
     assert "𱿅" in rejected
     assert "syllable_count_mismatch" in rejected
+    assert "含﨑字" in rejected
+    assert "deferred_missing_trusted_mandarin_reading" in rejected
+    pending = _rows(result.unencoded_pending_strings)
+    assert {row["text"] for row in pending} == {"﨑", "含﨑字"}
+    assert all(row["matched_codepoints"] == "U+FA11" for row in pending)
+    assert "含﨑字" not in result.unresolved_bcc.read_text(encoding="utf-8")
     review_summary = tmp_path / "review.md"
-    export_summary(result.output_dir, review_summary, limit=2)
+    export_summary(result.output_dir, review_summary, limit=3)
     review = review_summary.read_text(encoding="utf-8")
     assert "无拼音" in review
     assert "no_reading_source_record" in review
     assert "翻页" not in review
     manifest = json.loads(result.manifest.read_text(encoding="utf-8"))
-    assert manifest["schema_version"] == "yime-gated-source-lexicon-v2"
+    assert manifest["schema_version"] == "yime-gated-source-lexicon-v4"
+    assert manifest["counts"]["unencoded_pending_strings"] == 2
     with sqlite3.connect(result.database) as connection:
         assert connection.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0] == 2
         assert connection.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0] == 3
@@ -95,6 +106,12 @@ def test_build_bundle_keeps_frequency_semantics_and_reports_gates(tmp_path: Path
         assert connection.execute(
             "SELECT source_marked FROM accepted_readings WHERE text = '爱词'"
         ).fetchone()[0] == "aì cí"
+        assert connection.execute(
+            "SELECT COUNT(*) FROM accepted_readings WHERE text = '含﨑字'"
+        ).fetchone()[0] == 0
+        assert connection.execute(
+            "SELECT COUNT(*) FROM unencoded_pending_strings"
+        ).fetchone()[0] == 2
 
     runtime_db = tmp_path / "runtime.sqlite3"
     schema = (

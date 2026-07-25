@@ -1,6 +1,6 @@
 {
-  "schema_version": 1,
-  "model_name": "yime_input_candidate_model_v2",
+  "schema_version": 3,
+  "model_name": "yime_input_candidate_model_v4",
   "purpose": "Classify input materials and govern static retention, dynamic composition, review, and rejection without creating pronunciation or Yinyuan mappings.",
   "safeguards": {
     "source_lexicon_is_read_only": true,
@@ -32,6 +32,22 @@
     "reject",
     "needs_review"
   ],
+  "builtin_candidate_rules": {
+    "two_character_dynamic_reachability": {
+      "enabled": true,
+      "text_length": 2,
+      "requires_whole_gated_reading": false,
+      "requires_each_single_character_gated_reading": true,
+      "changes_candidate_disposition": false,
+      "evidence_kind": "dynamic_reachable",
+      "exceptions": [
+        "missing_trusted_mandarin_reading",
+        "missing_single_character_reading",
+        "manual_assessment"
+      ],
+      "reason": "整体没有静态词条读音而左右单字均已有来源门禁合格注音时，只证明技术上可由连续单字输入重建；不据此判断词汇性，不改变待审状态、静态编码资格或最终去留。"
+    }
+  },
   "source_category_hints": {
     "wanxiang:mingren": {
       "priority": 10,
