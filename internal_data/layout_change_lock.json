@@ -13,8 +13,8 @@
   ],
   "semantic_registry_sha256": "ba46591d6ade4045741b0f0a36a8b5a5f0669c5f3ced8345f488348f40a128e4",
   "pinyin_yinyuan_chain_sha256": "e52a5b55bee524bea2b200b0e9ffa9642ca5af3b8e1fcdd7df096a02a6e3fbff",
-  "syllable_rule_catalog_sha256": "487b27a4ea8d845d50ffc158fb3b48128102f90dafd4a7e81370e5167780ee43",
-  "syllable_provenance_sha256": "a9bebc02ff0ff11ca04840fc096a6d28067d9af7526bbd19c3ae18c5fbf7f809",
+  "syllable_rule_catalog_sha256": "f6094094fb4ded1b5caeba02158386f31f78559b11c48a08782866e5235fe27a",
+  "syllable_provenance_sha256": "20ebf904715cd9e1439d90429fe45e14498eb317e4d5f712ab05a9177ad1271c",
   "canonical_layout_source": "internal_data/manual_key_layout.json",
   "derived_layout_artifacts": [
     "internal_data/manual_key_layout.resolved.json",

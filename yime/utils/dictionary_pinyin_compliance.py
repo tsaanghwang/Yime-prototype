@@ -154,6 +154,22 @@ def review_syllable(
             "拼式不在第一轮已准入的声母—韵母结构中；须先补充来源证据和审查策略，不能直接进入解码。",
         )
 
+    source_alias = (
+        policy.get("source_aliases", {}).get(codepoint.upper())
+        if codepoint
+        else None
+    )
+    if source_alias:
+        return SyllableReview(
+            value,
+            marked,
+            numeric,
+            numeric,
+            "source_alias",
+            str(source_alias["rule_id"]),
+            str(source_alias["reason"]),
+        )
+
     return SyllableReview(
         value, marked, numeric, numeric, "dictionary_attested", "SRC-DICTIONARY-ATTESTED",
         "来源中实际出现且通过第一轮字符、声调和形态检查；未据此宣称属于封闭的核心规范音节表。",

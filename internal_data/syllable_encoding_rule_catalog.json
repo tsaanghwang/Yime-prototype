@@ -32,6 +32,18 @@
       "basis": "yime/utils/dictionary_pinyin_compliance.py 与 external_data 中的单字、词语来源。",
       "policy": "只表示来源实例通过字符、声调、形态和已准入声韵结构检查；不把所有字典读音宣称为普通话核心规范音节。"
     },
+    "SRC-CJK-COMPATIBILITY-READING-ALIAS": {
+      "layer": "source_normalization",
+      "title": "CJK 兼容码点继承规范统一字的来源读音",
+      "basis": "internal_data/pinyin_source_db/dictionary_pinyin_compliance_policy.json 的 source_aliases；映射必须与 Unicode 一对一 NFKC 规范分解完全一致，目标码点必须已有 Unihan 普通话读音。",
+      "policy": "只为经审查登记的兼容码点复制规范统一字已有的来源读音并保留原始 code point；不手写拼音，不扩展到无规范分解的独立表意文字，也不从相似字形猜读。"
+    },
+    "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING": {
+      "layer": "source_compliance",
+      "title": "暂无可信普通话读音来源的 CJK 码点暂未编码",
+      "basis": "internal_data/pinyin_source_db/dictionary_pinyin_compliance_policy.json 的 unencoded_pending_codepoints；依据 Unihan 普通话字段缺失、Unicode 规范分解情况和独立统一表意文字边界登记。",
+      "policy": "登记码点本身暂不标拼音、不进入音节编码；包含它们的来源字串进入 unencoded_pending_strings，保留原始证据并标为 deferred，等待专家或未来可信普通话来源复核。该状态不等同于噪声、永久拒绝或最终不予编码。"
+    },
     "SRC-REVIEWED-SYLLABLE-ADMISSION": {
       "layer": "source_compliance",
       "title": "有来源而未进入现行音节库的音节审查准入",

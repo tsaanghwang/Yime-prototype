@@ -8,6 +8,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from yime.utils.dictionary_pinyin_compliance import (
+    DEFAULT_POLICY_PATH as DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
     SyllableReview,
     load_policy,
     review_syllable,
@@ -82,13 +83,14 @@ class ReadingGate:
         inventory_path: Path,
         admission_path: Path | None = DEFAULT_ADMISSION_PATH,
         neutral_source_policy_path: Path = DEFAULT_NEUTRAL_SOURCE_POLICY_PATH,
+        source_compliance_policy_path: Path = DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
     ) -> None:
         payload = json.loads(inventory_path.read_text(encoding="utf-8"))
         self._decodable = frozenset(str(key) for key in payload)
         self._marked_by_numeric = {
             str(key): str(value) for key, value in payload.items()
         }
-        self._policy = load_policy()
+        self._policy = load_policy(source_compliance_policy_path)
         self._admissions = (
             load_syllable_admissions(admission_path) if admission_path is not None else {}
         )

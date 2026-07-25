@@ -50,6 +50,95 @@
       "reason": "Unihan 原始值 wòng 不符合 ong 的零声母拼写；多个现代字典旁证为 wèng。"
     }
   },
+  "source_aliases": {
+    "U+F9E7": {
+      "canonical_codepoint": "U+88CF",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+F9E7 映射到 U+88CF；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+F92C": {
+      "canonical_codepoint": "U+90CE",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+F92C 映射到 U+90CE；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+F979": {
+      "canonical_codepoint": "U+51C9",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+F979 映射到 U+51C9；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+F9F1": {
+      "canonical_codepoint": "U+96A3",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+F9F1 映射到 U+96A3；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+FA0C": {
+      "canonical_codepoint": "U+5140",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+FA0C 映射到 U+5140；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+FA0D": {
+      "canonical_codepoint": "U+55C0",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+FA0D 映射到 U+55C0；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    },
+    "U+FA20": {
+      "canonical_codepoint": "U+8612",
+      "rule_id": "SRC-CJK-COMPATIBILITY-READING-ALIAS",
+      "reason": "Unicode 规范分解将 U+FA20 映射到 U+8612；原码点只继承规范统一字已有的 Unihan 普通话读音，不另造读音。"
+    }
+  },
+  "unencoded_pending_codepoints": {
+    "U+3CC9": {
+      "character": "㳉",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unihan 仅有粤语和越南语字段，没有普通话读音，也没有可继承读音的 Unicode 规范分解；当前暂无可信普通话读音来源，故未予编码，保留待专家或未来来源复核。"
+    },
+    "U+FA0E": {
+      "character": "﨎",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA11": {
+      "character": "﨑",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA1F": {
+      "character": "﨟",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA21": {
+      "character": "﨡",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA23": {
+      "character": "﨣",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA24": {
+      "character": "﨤",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA27": {
+      "character": "﨧",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA28": {
+      "character": "﨨",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    },
+    "U+FA29": {
+      "character": "﨩",
+      "rule_id": "SRC-DEFER-MISSING-TRUSTED-MANDARIN-READING",
+      "reason": "Unicode 没有提供可直接继承读音的一对一规范分解，Unihan 也没有普通话字段；当前暂无可信普通话读音来源，故未予编码，不按相似字形猜读，保留待专家或未来来源复核。"
+    }
+  },
   "source_exclusions": {
     "U+84DD|la5": {
       "rule_id": "SRC-EXCLUDE-U84DD-LA5",

@@ -34,6 +34,8 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
 - 来源标调原写法保存在 SQLite 的 `accepted_readings.source_marked`；生产读音按现行解码清单统一
   标调位置。例如来源 `aì` 可保留为证据，但 `ai4` 的生产形式只能是规范 `ài`，不形成平行读音。
 - BCC 有频次但没有合规读音来源的词条进入 `unresolved_bcc.tsv`；不得用逐字常用音猜测多音词读音。
+- 包含暂无可信普通话读音来源码点的任意字串进入 `unencoded_pending_strings.tsv`，暂不进入正式
+  编码链，但保留为可逆的专家或未来来源复核项目，不判为噪声或永久拒绝。
 - 万象的 `cuoyin.dict.yaml` 是有意维护的错音错字资料，`mixed.dict.yaml` 含非纯汉字输入，两者默认
   不作为音元解码读音来源。
 
@@ -52,6 +54,7 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
 | `entries.tsv` | 一行一个“字词—合规读音”，带 BCC 分域 count、万象权重、分类和来源 |
 | `source_lexicon.sqlite3` | 字词、读音、来源证据、分类频次与编码输入的唯一生产真源 |
 | `rejected_readings.tsv` | 结构、拼音或当前解码清单门禁拒绝的来源记录 |
+| `unencoded_pending_strings.tsv` | 包含暂无可信普通话读音来源码点的全量来源字串、命中码点、BCC 频次、规则和暂缓理由 |
 | `unresolved_bcc.tsv` | 有 BCC 频次、尚无合规读音来源的字词 |
 | `reading_conflicts.tsv` | 同一字词有多个合规读音的审查表 |
 | `manifest.json` | 输入文件摘要、口径、数量和输出文件清单 |
@@ -71,6 +74,16 @@ SQLite 中的来源和拒绝原因，不补写读音或编码；可用 `--limit`
 
 当前规模、BCC 未解码分层、多读音现状以及从静态大词库转向动态组合的整理阶段，统一记录在
 [候选语料库整理路线图](CANDIDATE_CORPUS_ROADMAP.md)。
+
+要在不改动来源库的前提下估算适当的静态词库容量，可运行：
+
+```powershell
+.\venv312\Scripts\python.exe tools\plan_static_lexicon_capacity.py
+```
+
+该工具读取 `canonical_readings`，按完整数字调拼音验证更短组件的递归可达性，并输出静态硬底座、
+可调容量前沿和动态迁移候选。它不会把字面可切分当成词汇判决，也不会直接改写运行词库；实际迁移
+还必须通过真实输入回放、候选排序、歧义和延迟验证。
 
 SQLite 中的 `bcc_frequency_evidence` 保留每个 BCC 分域原始文件及 `word/char` 来源类型，
 `v_bcc_frequency_by_category` 提供分域查询，`v_reading_source_conflicts` 提供多来源读音冲突查询。
