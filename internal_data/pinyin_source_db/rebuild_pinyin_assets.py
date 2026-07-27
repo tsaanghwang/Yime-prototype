@@ -218,6 +218,14 @@ def main() -> int:
         ]
         run_step("apply-codebook", codebook_command)
 
+    character_tier_command = [
+        sys.executable,
+        str(WORKSPACE_ROOT / "tools" / "rebuild_character_tiers.py"),
+        "--source-db",
+        str(db_path),
+    ]
+    run_step("rebuild-character-tiers", character_tier_command)
+
     validate_yinyuan_command = [
         sys.executable,
         str(WORKSPACE_ROOT / "tools" / "validate_yinyuan_source_consistency.py"),

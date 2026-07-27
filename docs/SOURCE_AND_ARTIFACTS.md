@@ -382,9 +382,9 @@
 - `yime/import_8105_char_frequency.py`、`yime/utils/char_frequency_8105_import.py`
   - 分类：已删除的 8105.dict.yaml 字频导入脚本。
   - 原因：字频主链已改为 BCC（`import_blcu_word_frequency.py`）；
-    TGHZ2013 3500/6500/8105 分层改由
-    `external_data/unihan_readings/unihan_readings.db` 的
-    `view_tghz2013_frequency` 提供。
+    现行 `kTGH` 正式三级及后续六级统一物化在
+    `source_lexicon.sqlite3.character_tiers`，runtime 不再读取旧
+    `view_tghz2013_frequency`。
 
 - 已清退旧单字主表与频率表：`汉字`、`汉字频率`
   - 分类：已移除的旧数据库单字主表与频率表。
@@ -607,10 +607,10 @@ git show <commit> --stat
     runtime 层是否一致；它应作为检查输出保留，而不是被误当成新的配置面。
 
 - `external_data/unihan_readings/unihan_readings.db`
-  - 分类：Unihan 读音 + BCC 单字频 + TGHZ2013 分层视图（**本地构建产物，gitignore**）。
-  - 原因：`view_tghz2013_frequency` 供
-    `yime/refresh_runtime_yime_codes.py` 构建 `char_usage_profile`；
-    由 `external_data/unihan_readings/build_all.py` 构建。
+  - 分类：Unihan 读音、BCC单字频与字符全集的上游本地构建产物（**gitignore**）。
+  - 原因：由 `external_data/unihan_readings/build_all.py` 构建；旧分层视图只供检查。
+    生产九级分级由统一 `source_lexicon.sqlite3.character_tiers` 保存，
+    runtime 不再直接消费本库视图。
     同目录下的 `README.md`、构建脚本与
     `mandarin_readings_corrections.txt` **纳入 git**。
 

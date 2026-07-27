@@ -4,6 +4,11 @@ Yime 使用的汉字 **Unihan 普通话读音** SQLite 库，由 `external_data/
 
 数据来自 Unicode Unihan Database 的五列普通话字段，经 **全量合并**（各列有读音即并入选集）、少量 merge 后补充与人工校正，得到产品用的 `mandarin_readings_merged`。
 
+本目录保留 Unicode 17.0.0 原始数据文件：
+
+- `Unihan_Readings.txt`：普通话读音与辞书来源字段
+- `Unihan_OtherMappings.txt`：其它映射字段；其中 `kTGH` 是《通用规范汉字表》8,105 字的正式编号与分级依据
+
 ## 构建流水线
 
 `build_all.py` 按顺序执行：
@@ -42,6 +47,11 @@ python build_mandarin_readings_merged.py
 | `view_tghz2013_frequency` | TGHZ2013 字 + BCC 单字频；`yime/refresh_runtime_yime_codes.py` 据此构建 `char_usage_profile` 3500/6500/8105 分层 |
 
 `cleanup_unihan.py` 会重建上述视图。
+
+上表中的分层视图仅供旧库检查。当前生产分级由统一
+`.generated/lexicon_source_bundle/source_lexicon.sqlite3` 的
+`character_tiers` 表承担；构建器读取 `Unihan_OtherMappings.txt` 的正式
+`kTGH` 编号和 `Unihan_Readings.txt` 的辞书字段，runtime 不再直接消费这些旧视图。
 
 文本导出（非表）：**`external_data/hanzi_pinyin.txt`**，由 `export_hanzi_pinyin_txt.py` 在 `build_all.py` 末尾生成（制表符分隔，含 common_reading / readings 等列）。
 

@@ -368,7 +368,7 @@ def test_tail_semantic_classification_is_saved_then_programmatically_applied(
     with sqlite3.connect(review.input_model_database) as connection:
         assert connection.execute(
             "SELECT value FROM metadata WHERE key = 'schema_version'"
-        ).fetchone()[0] == "yime-input-candidate-model-v8"
+        ).fetchone()[0] == "yime-input-candidate-model-v11"
         assert connection.execute(
             """
             SELECT 1 FROM sqlite_master

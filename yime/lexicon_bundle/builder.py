@@ -19,6 +19,12 @@ from yime.utils.dictionary_pinyin_compliance import (
 
 from .gate import DEFAULT_NEUTRAL_SOURCE_POLICY_PATH, ReadingGate, is_han_text
 from .syllable_admission import DEFAULT_ADMISSION_PATH
+from .character_tiers import (
+    CharacterTierSources,
+    create_character_tier_schema,
+    export_character_tiers,
+    rebuild_character_tiers,
+)
 from .parsers import (
     FrequencyRecord,
     ReadingRecord,
@@ -81,6 +87,7 @@ class BundleInputs:
     wanxiang_files: tuple[Path, ...]
     decoder_inventory: Path
     source_compliance_policy: Path = DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH
+    character_tier_sources: CharacterTierSources | None = None
 
 
 @dataclass(frozen=True)
@@ -92,6 +99,7 @@ class BundleResult:
     unencoded_pending_strings: Path
     unresolved_bcc: Path
     conflicts: Path
+    character_tiers: Path
     manifest: Path
     accepted_readings: int
     output_entries: int
@@ -117,6 +125,27 @@ def default_inputs(wanxiang_root: Path | None = None) -> BundleInputs:
         wanxiang_files=tuple(root / "dicts" / name for name in DEFAULT_WANXIANG_FILES),
         decoder_inventory=REPO_ROOT / "yime" / "pinyin_normalized.json",
         source_compliance_policy=DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
+        character_tier_sources=CharacterTierSources(
+            other_mappings=(
+                REPO_ROOT
+                / "external_data"
+                / "unihan_readings"
+                / "Unihan_OtherMappings.txt"
+            ),
+            readings=(
+                REPO_ROOT
+                / "external_data"
+                / "unihan_readings"
+                / "Unihan_Readings.txt"
+            ),
+            character_catalog_db=(
+                REPO_ROOT
+                / "internal_data"
+                / "hanzi_pinyin"
+                / "hanzi_pinyin.db"
+            ),
+            yinjie_codebook=REPO_ROOT / "syllable" / "codec" / "yinjie_code.json",
+        ),
     )
 
 
@@ -252,6 +281,7 @@ def _create_schema(conn: sqlite3.Connection) -> None:
         WHERE text_length > 1 AND is_primary = 1;
         """
     )
+    create_character_tier_schema(conn)
 
 
 def _load_unencoded_pending_characters(
@@ -756,6 +786,11 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     if invalid_bcc_kinds:
         raise ValueError("invalid BCC source kinds: " + "; ".join(invalid_bcc_kinds))
     bcc_files = tuple(item.path for item in categorized_bcc)
+    tier_source_paths = (
+        inputs.character_tier_sources.paths()
+        if inputs.character_tier_sources is not None
+        else ()
+    )
     source_paths = (
         inputs.unihan,
         inputs.pypinyin_phrases,
@@ -765,6 +800,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         *bcc_files,
         inputs.decoder_inventory,
         *inputs.wanxiang_files,
+        *tier_source_paths,
     )
     missing = [str(path) for path in source_paths if not path.is_file()]
     if missing:
@@ -827,6 +863,18 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
 
     pending_count = _finalize_unencoded_pending_strings(conn)
     output_entries, conflict_rows = _export_entries(conn, output_dir)
+    character_tier_counts: dict[str, int] = {}
+    character_tier_rows = 0
+    character_tiers_path = output_dir / "character_tiers.tsv"
+    if inputs.character_tier_sources is not None:
+        character_tier_counts = rebuild_character_tiers(
+            conn,
+            inputs.character_tier_sources,
+        )
+    character_tier_rows = export_character_tiers(
+        conn,
+        character_tiers_path,
+    )
     rejected_rows = _export_rejections(conn, output_dir)
     exported_pending_count = _export_unencoded_pending_strings(conn, output_dir)
     if exported_pending_count != pending_count:
@@ -841,7 +889,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
     conn.executemany(
         "INSERT INTO metadata (key, value) VALUES (?, ?)",
         (
-            ("schema_version", "yime-gated-source-lexicon-v4"),
+            ("schema_version", "yime-gated-source-lexicon-v5"),
             ("char_rows", str(conn.execute("SELECT COUNT(*) FROM char_readings").fetchone()[0])),
             ("phrase_rows", str(conn.execute("SELECT COUNT(*) FROM phrase_readings").fetchone()[0])),
             ("canonical_reading_rows", str(output_entries)),
@@ -853,7 +901,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
 
     manifest_path = output_dir / "manifest.json"
     manifest = {
-        "schema_version": "yime-gated-source-lexicon-v4",
+        "schema_version": "yime-gated-source-lexicon-v5",
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
         "policy": {
             "frequency": "BCC integer counts are preserved; absent BCC evidence remains 0.",
@@ -886,6 +934,8 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
             "bcc_input_rows": bcc_rows,
             "unique_bcc_texts": unique_bcc,
             "unresolved_bcc_texts": unresolved_count,
+            "character_tier_rows": character_tier_rows,
+            "character_tiers": character_tier_counts,
         },
         "sources": [
             {"path": str(path), "sha256": _sha256(path), "bytes": path.stat().st_size}
@@ -898,6 +948,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
             "unencoded_pending_strings": "unencoded_pending_strings.tsv",
             "unresolved_bcc": "unresolved_bcc.tsv",
             "reading_conflicts": "reading_conflicts.tsv",
+            "character_tiers": "character_tiers.tsv",
             "database": "source_lexicon.sqlite3",
         },
     }
@@ -913,6 +964,7 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         unencoded_pending_strings=output_dir / "unencoded_pending_strings.tsv",
         unresolved_bcc=output_dir / "unresolved_bcc.tsv",
         conflicts=output_dir / "reading_conflicts.tsv",
+        character_tiers=character_tiers_path,
         manifest=manifest_path,
         accepted_readings=accepted_total,
         output_entries=output_entries,

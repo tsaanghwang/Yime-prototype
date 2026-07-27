@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "observed_at_local": "2026-07-27",
+  "runtime_schema": "yime_core_trial",
+  "runtime_entry_count": 1124631,
+  "test_kind": "manual_clean_cold_start_learning_restart",
+  "preconditions": {
+    "installed_runtime_verification": "complete",
+    "offline_only_leakage": 0,
+    "reverse_lookup_uses_compact_runtime": true,
+    "previous_user_state_backup": ".generated/user_state_backups/before_cold_start_20260727",
+    "backup_file_count": 162,
+    "backup_bytes": 813286025,
+    "active_core_userdb_removed_before_test": true,
+    "user_phrase_sources_removed_before_test": true,
+    "rime_build_recreated_from_installed_compact_runtime": true
+  },
+  "cold_start_observations": [
+    {
+      "text": "魔高一尺道高一丈",
+      "strict_cold_start": true,
+      "system_phrase_preinstalled": null,
+      "selection_count": 0,
+      "page_count": 0,
+      "result": "direct_top1"
+    },
+    {
+      "text": "维西傈僳族自治县",
+      "strict_cold_start": true,
+      "selection_count": 1,
+      "page_count": 0,
+      "selected_segments": ["维西"],
+      "remaining_direct": "傈僳族自治县",
+      "result": "constructed"
+    },
+    {
+      "text": "寻甸回族彝族自治县",
+      "strict_cold_start": true,
+      "selection_count": 2,
+      "page_count": 1,
+      "selected_segments": ["寻", "甸"],
+      "remaining_direct": "回族彝族自治县",
+      "result": "constructed"
+    },
+    {
+      "text": "蜀道之难难于上青天",
+      "strict_cold_start": true,
+      "selection_count": 2,
+      "page_count": 0,
+      "selected_segments": ["蜀道", "之难"],
+      "remaining_direct": "难于上青天",
+      "result": "constructed"
+    },
+    {
+      "text": "人民群众进行实验",
+      "strict_cold_start": false,
+      "selection_count": 0,
+      "result": "direct_top1",
+      "exclusion_reason": "The prefix 人民群众 was accidentally committed and deleted before the full-sentence attempt."
+    },
+    {
+      "text": "逼尿肌反射亢进",
+      "strict_cold_start": true,
+      "system_phrase_preinstalled": false,
+      "numeric_tone_pinyin": ["bi1", "niao4", "ji1", "fan3", "she4", "kang4", "jin4"],
+      "variable_codes": ["bj", "njdo", "3j", "[sz", "9rew", "qfd/", "3jcz"],
+      "selection_count": 0,
+      "page_count": 0,
+      "result": "dynamic_direct_top1"
+    }
+  ],
+  "learning_observations": [
+    {
+      "text": "维西傈僳族自治县",
+      "second_input": "direct_top1",
+      "after_restart": "direct_top1"
+    },
+    {
+      "text": "寻甸回族彝族自治县",
+      "second_input": "direct_top1",
+      "third_input": "direct_top1",
+      "after_restart": "direct_top1"
+    },
+    {
+      "text": "蜀道之难难于上青天",
+      "second_input": "direct_top1",
+      "after_restart": "direct_top1"
+    }
+  ],
+  "summary": {
+    "strict_cold_start_cases": 5,
+    "strict_cold_start_constructible": 5,
+    "strict_cold_start_constructible_rate": 1.0,
+    "strict_cold_start_direct_top1": 2,
+    "strict_cold_start_direct_top1_rate": 0.4,
+    "corrected_cases": 3,
+    "corrected_cases_second_input_top1": 3,
+    "corrected_cases_second_input_top1_rate": 1.0,
+    "corrected_cases_restart_retained": 3,
+    "corrected_cases_restart_retention_rate": 1.0
+  },
+  "interpretation": "This small manual run validates constructibility, one-correction learning, and restart persistence. It is not a standalone estimate of population-wide top-1 accuracy; the larger replay and accelerated drift tests remain the statistical evidence for the 99% target."
+}

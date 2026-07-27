@@ -1217,8 +1217,11 @@ class CandidateBoxActions:
         return "break"
 
     def on_candidate_click(self, index: int) -> None:
-        if self.select_candidate_by_index(index):
-            self.commit_output_text()
+        # Mouse selection is the correction path for sentences that must be
+        # assembled from several runtime candidates.  Keep the selected
+        # component in the pending commit buffer so subsequent clicks can add
+        # more components; an explicit Space/Enter commits the whole trace.
+        self.select_candidate_by_index(index)
 
     def on_move_selection_previous(self, event: Optional[tk.Event] = None) -> str:
         if not self.box.current_candidates:

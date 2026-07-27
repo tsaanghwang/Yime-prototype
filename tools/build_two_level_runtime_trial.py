@@ -1,0 +1,260 @@
+"""Build and materialize the replay-validated two-level runtime lexicon.
+
+This is the single experimental entry point for:
+
+1. rebuilding the B-lite source-backed selection;
+2. retaining tier-1..5 encoded 1-4 character components;
+3. retaining selected long bridges plus a bounded high-weight long cache;
+4. cloning the complete prototype database; and
+5. activating the selection only on its materialized runtime candidates.
+
+The source bundle and full inventory tables are never reduced.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.build_two_level_precomposition_lexicon import (
+    build as build_two_level_dictionary,
+)
+from tools.prepare_component_learning_trial import build_dictionary
+from yime.input_model.core_trial_export import export_core_trial_lexicons
+from yime.utils.rime_export import export_rime_files
+from yime.utils.runtime_lexicon_selection import (
+    apply_runtime_selection,
+    clone_database,
+)
+
+
+DEFAULT_POLICY = (
+    ROOT / "internal_data" / "runtime_lexicon_filter_policy.json"
+)
+DEFAULT_SOURCE = (
+    ROOT
+    / ".generated"
+    / "lexicon_source_bundle"
+    / "source_lexicon.sqlite3"
+)
+DEFAULT_CAPACITY = (
+    ROOT
+    / ".generated"
+    / "static_lexicon_capacity"
+    / "static_capacity.sqlite3"
+)
+DEFAULT_RUNTIME = ROOT / "yime" / "pinyin_hanzi.db"
+DEFAULT_OUTPUT = ROOT / ".generated" / "two_level_runtime_trial"
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _write_json(path: Path, payload: object) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def build_trial(
+    *,
+    policy_path: Path,
+    source_database: Path,
+    capacity_database: Path,
+    source_runtime_database: Path,
+    output_dir: Path,
+    reuse_runtime_database: bool = False,
+) -> dict[str, object]:
+    policy = json.loads(policy_path.read_text(encoding="utf-8"))
+    character_policy = policy["character_boundary"]
+    first_level_policy = policy["first_level"]
+    second_level_policy = policy["second_level"]
+    maximum_tier = int(character_policy["maximum_tier"])
+
+    core_output = output_dir / "core_selection"
+    core_result = export_core_trial_lexicons(
+        source_database=source_database,
+        capacity_database=capacity_database,
+        output_dir=core_output,
+        capacities=(int(first_level_policy["capacity_base"]),),
+        include_source_lengths={
+            str(source): tuple(int(item) for item in lengths)
+            for source, lengths in first_level_policy[
+                "included_source_lengths"
+            ].items()
+        },
+        include_wanxiang_category_lengths={
+            str(category): tuple(int(item) for item in lengths)
+            for category, lengths in first_level_policy[
+                "included_wanxiang_category_lengths"
+            ].items()
+        },
+        trial_label="tier5-two-level-runtime",
+        repo_root=ROOT,
+    )
+    core_dictionary = core_result.tiers[0].dictionary_path
+
+    first_level_dictionary = output_dir / "first_level.dict.yaml"
+    first_level_manifest = build_dictionary(
+        source=core_dictionary,
+        output=first_level_dictionary,
+        database=source_database,
+        maximum_tier=maximum_tier,
+        maximum_length=int(first_level_policy["maximum_text_length"]),
+    )
+    _write_json(
+        output_dir / "first_level.manifest.json",
+        first_level_manifest,
+    )
+
+    retained_dictionary = output_dir / "retained_long_bridges.dict.yaml"
+    retained_manifest = build_dictionary(
+        source=core_dictionary,
+        output=retained_dictionary,
+        database=source_database,
+        maximum_tier=maximum_tier,
+        maximum_length=64,
+    )
+    _write_json(
+        output_dir / "retained_long_bridges.manifest.json",
+        retained_manifest,
+    )
+
+    production_export = export_rime_files(
+        db_path=source_runtime_database,
+        output_dir=output_dir / "production_full",
+        mode="full",
+        code_form="layout-key",
+        schema_id="yime_full",
+        schema_name="Yime full source for two-level filtering",
+        repo_root=ROOT,
+    )
+
+    filtered_dictionary = output_dir / "two_level_full.dict.yaml"
+    selection_tsv = output_dir / "selection.tsv"
+    dictionary_manifest_path = output_dir / "dictionary.manifest.json"
+    dictionary_manifest = build_two_level_dictionary(
+        base=first_level_dictionary,
+        production=production_export.paths.dict_path,
+        output=filtered_dictionary,
+        manifest_path=dictionary_manifest_path,
+        database=source_database,
+        capacity=int(second_level_policy["frequency_cache_capacity"]),
+        maximum_tier=maximum_tier,
+        minimum_length=int(second_level_policy["minimum_text_length"]),
+        retained_long_dictionary=(
+            retained_dictionary
+            if bool(
+                second_level_policy["retain_selected_long_bridges"]
+            )
+            else None
+        ),
+        selection_path=selection_tsv,
+    )
+
+    filtered_runtime = output_dir / "runtime" / "pinyin_hanzi.db"
+    if filtered_runtime.exists():
+        if not reuse_runtime_database:
+            raise FileExistsError(
+                f"{filtered_runtime} already exists; pass "
+                "--reuse-runtime-database to reapply the selection "
+                "without replacing its complete inventories"
+            )
+    else:
+        clone_database(source_runtime_database, filtered_runtime)
+    runtime_manifest = apply_runtime_selection(
+        filtered_runtime,
+        selection_tsv,
+        manifest_path=output_dir / "runtime.manifest.json",
+        strict_unmatched=bool(
+            policy["safety"]["unmatched_selected_readings_are_errors"]
+        ),
+    )
+
+    payload = {
+        "schema_version": "yime-two-level-runtime-trial-v1",
+        "policy": {
+            "path": str(policy_path.resolve()),
+            "sha256": _sha256(policy_path),
+            "policy_id": policy["policy_id"],
+        },
+        "source_database": str(source_database.resolve()),
+        "capacity_database": str(capacity_database.resolve()),
+        "source_runtime_database": str(
+            source_runtime_database.resolve()
+        ),
+        "first_level": first_level_manifest,
+        "dictionary": dictionary_manifest,
+        "runtime": runtime_manifest,
+        "outputs": {
+            "filtered_dictionary": str(filtered_dictionary.resolve()),
+            "selection_tsv": str(selection_tsv.resolve()),
+            "filtered_runtime_database": str(
+                filtered_runtime.resolve()
+            ),
+        },
+        "run_prototype": {
+            "environment_variable": "YIME_RUNTIME_DB_PATH",
+            "value": str(filtered_runtime.resolve()),
+        },
+    }
+    _write_json(output_dir / "manifest.json", payload)
+    return payload
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--policy", type=Path, default=DEFAULT_POLICY)
+    parser.add_argument(
+        "--source-database",
+        type=Path,
+        default=DEFAULT_SOURCE,
+    )
+    parser.add_argument(
+        "--capacity-database",
+        type=Path,
+        default=DEFAULT_CAPACITY,
+    )
+    parser.add_argument(
+        "--source-runtime-database",
+        type=Path,
+        default=DEFAULT_RUNTIME,
+    )
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument(
+        "--reuse-runtime-database",
+        action="store_true",
+        help=(
+            "Reuse an existing cloned runtime database and reapply only "
+            "the materialized selection overlay."
+        ),
+    )
+    args = parser.parse_args()
+    payload = build_trial(
+        policy_path=args.policy,
+        source_database=args.source_database,
+        capacity_database=args.capacity_database,
+        source_runtime_database=args.source_runtime_database,
+        output_dir=args.output_dir,
+        reuse_runtime_database=args.reuse_runtime_database,
+    )
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

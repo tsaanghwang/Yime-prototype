@@ -82,9 +82,21 @@
     },
     "ORTH-SOURCE-ATTESTED-NEUTRAL": {
       "layer": "source_normalization",
-      "title": "有来源词语中的轻声音节",
+      "title": "有来源读音中的轻声音节",
       "basis": "GB/T 16159-2012《汉语拼音正词法基本规则》5.1规定轻声音节不标声调，变通规则3允许辞书以中圆点提示轻声；internal_data/pinyin_source_db/neutral_tone_source_policy.json 登记各来源的无调解释制度。",
-      "policy": "标调制度完整的来源在多字完整词音中明确给出无调音节时，按有来源的词内轻声进入正式音节链，不要求为无义或词汇性轻声音节虚构本调。孤立无调字音不得仅凭词境证据生成单字候选；来源标调制度不明时标记为未定无调。该规则不自动生成词语，也不补齐其他声调。"
+      "policy": "标调制度完整的来源明确给出无调音节时，先标记为有来源轻声，再由常规轻声派生或经审查的特殊例外进入正式编码链。孤立无调字音不得仅凭词境证据生成单字候选；来源标调制度不明时标记为未定无调。该规则不自动生成词语，也不补齐其他声调。"
+    },
+    "ENC-NEUTRAL-REGULAR-DERIVATION": {
+      "layer": "encoder_derivation",
+      "title": "有本调家族的常规轻声编码派生",
+      "basis": "syllable/codec/neutral_tone_encoding.py；同一表面音节在现行实例清单中至少有一个一至四声成员，并且当前来源实际给出该轻声实例。",
+      "policy": "只为来源中实际出现的轻声调用正式 SyllableEncodingPipeline / YinjieEncoder 生成编码；本调家族只证明声韵结构可按常规处理，不自动补齐未出现的轻声，也不生成轻声单字候选。"
+    },
+    "ENC-NEUTRAL-SPECIAL-EXCEPTION": {
+      "layer": "encoder_derivation",
+      "title": "无本调家族的有来源轻声特殊例外",
+      "basis": "internal_data/pinyin_source_db/neutral_tone_encoding_exceptions.json；每个例外必须记录真实来源、处理依据和批准状态。",
+      "policy": "仅允许登记的来源实例通过正式切分与编码器生成轻声编码；例外表不得保存 Yinyuan ID、码元或键位，不得据此生成同音节的一至四声或扩大到其他字词。"
     },
     "ORTH-REGULAR": {
       "layer": "orthography",

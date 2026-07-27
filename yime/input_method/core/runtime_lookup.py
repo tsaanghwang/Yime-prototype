@@ -9,6 +9,7 @@ RECENT_SYLLABLE_PREFIX_CANDIDATE_LIMIT = 64
 LONG_CONTEXT_PREFIX_1_CANDIDATE_LIMIT = 32
 LONG_CONTEXT_PREFIX_2_CANDIDATE_LIMIT = 24
 LONG_CONTEXT_PREFIX_3_CANDIDATE_LIMIT = 16
+MAX_DYNAMIC_COMPOSITION_SYLLABLES = 12
 
 
 @dataclass(frozen=True)
@@ -166,7 +167,7 @@ def build_runtime_lookup_plan(
             phrase_mode=False,
         )
 
-    recent_syllables = syllables[-4:]
+    recent_syllables = syllables[-MAX_DYNAMIC_COMPOSITION_SYLLABLES:]
     truncated_to_recent = len(syllables) > len(recent_syllables)
     phrase_mode = trailing_code_count == 0 and len(recent_syllables) >= 2
     if phrase_mode:

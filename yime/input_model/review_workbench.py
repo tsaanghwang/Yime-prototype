@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import base64
 import json
+import math
 import re
 import sqlite3
 from dataclasses import asdict, dataclass
@@ -18,6 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .recursive_composition import build_composition_tree
 from .source import SourceLexicon
 from .store import InputModelStore
 from .types import (
@@ -232,6 +234,30 @@ class UnencodedCandidateReview:
                     """
                 ).fetchone()[0]
             )
+            recursive_composition = dict(
+                connection.execute(
+                    """
+                    SELECT
+                        COUNT(*) AS analyzed,
+                        SUM(reachability_status = 'reachable') AS reachable,
+                        SUM(reachability_status = 'unreachable') AS unreachable,
+                        SUM(structural_ambiguous = 1)
+                            AS structurally_ambiguous,
+                        SUM(reading_ambiguous = 1) AS reading_ambiguous,
+                        SUM(
+                            reachability_status = 'reachable'
+                            AND encoded_multichar_component_count > 0
+                        ) AS uses_multichar_component,
+                        SUM(
+                            reachability_status = 'reachable'
+                            AND encoded_multichar_component_count = 0
+                        ) AS residual_blocks_only,
+                        SUM(single_exception_count > 0)
+                            AS single_exception_targets
+                    FROM recursive_composition_evidence
+                    """
+                ).fetchone()
+            )
             length_rows = connection.execute(
                 """
                 SELECT
@@ -278,6 +304,10 @@ class UnencodedCandidateReview:
             "two_character_dynamic_reachability": (
                 two_character_dynamic_reachability
             ),
+            "recursive_composition": {
+                key: int(value or 0)
+                for key, value in recursive_composition.items()
+            },
             "rule_family_count": self._rule_family_count(),
             "runtime_writes": False,
             "approval_requires_source_reading": True,
@@ -2518,9 +2548,95 @@ class UnencodedCandidateReview:
                 """,
                 (text,),
             ).fetchall()
+            recursive_row = connection.execute(
+                """
+                SELECT *
+                FROM recursive_composition_evidence
+                WHERE text = ?
+                """,
+                (text,),
+            ).fetchone()
+            maximum_parts_row = connection.execute(
+                """
+                SELECT value FROM metadata
+                WHERE key = 'recursive_composition_maximum_parts_per_step'
+                """
+            ).fetchone()
+            maximum_parts_per_step = (
+                int(maximum_parts_row[0]) if maximum_parts_row else 6
+            )
 
         with SourceLexicon(self.source_database) as source:
             source_candidate = source.candidate(text)
+            recursive_components: list[dict[str, Any]] = []
+            if recursive_row is not None:
+                segments = json.loads(
+                    recursive_row["preferred_segments_json"]
+                )
+                for segment in segments:
+                    part = str(segment["text"])
+                    if segment["kind"] == "encoded_multichar":
+                        part_readings = source.readings(part)
+                        if not part_readings:
+                            continue
+                        recursive_components.append(
+                            {
+                                **segment,
+                                "text_length": len(part),
+                                "reading_count": len(part_readings),
+                                "primary": asdict(part_readings[0]),
+                                "readings": [
+                                    asdict(reading)
+                                    for reading in part_readings[:4]
+                                ],
+                                "readings_truncated": (
+                                    len(part_readings) > 4
+                                ),
+                            }
+                        )
+                        continue
+                    internal_parts = [
+                        str(value)
+                        for value in segment.get("internal_parts", [])
+                    ]
+                    groups = [
+                        source.readings(value) for value in internal_parts
+                    ]
+                    if not groups or any(not group for group in groups):
+                        continue
+                    primary = [asdict(group[0]) for group in groups]
+                    recursive_components.append(
+                        {
+                            **segment,
+                            "text_length": len(part),
+                            "reading_count": math.prod(
+                                len(group) for group in groups
+                            ),
+                            "primary": {
+                                "reading_id": [
+                                    item["reading_id"] for item in primary
+                                ],
+                                "marked": " ".join(
+                                    str(item["marked"]) for item in primary
+                                ),
+                                "numeric": " ".join(
+                                    str(item["numeric"]) for item in primary
+                                ),
+                                "is_primary": all(
+                                    bool(item["is_primary"])
+                                    for item in primary
+                                ),
+                            },
+                            "readings": [],
+                            "readings_truncated": any(
+                                len(group) > 1 for group in groups
+                            ),
+                            "single_reading_groups": [
+                                [asdict(reading) for reading in group[:4]]
+                                for group in groups
+                            ],
+                        }
+                    )
 
         evidence = (
             json.loads(row["evidence_json"])
@@ -2540,6 +2656,76 @@ class UnencodedCandidateReview:
                 "changes_candidate_disposition": False,
                 "runtime_eligible": False,
             }
+        recursive_composition = None
+        if recursive_row is not None:
+            composition_tree: dict[str, Any] = {}
+            if recursive_components:
+                composition_tree, _depth = build_composition_tree(
+                    recursive_components,
+                    maximum_parts_per_step=maximum_parts_per_step,
+                )
+            recursive_composition = {
+                "reachability_status": str(
+                    recursive_row["reachability_status"]
+                ),
+                "preferred_parts": json.loads(
+                    recursive_row["preferred_parts_json"]
+                ),
+                "preferred_segments": json.loads(
+                    recursive_row["preferred_segments_json"]
+                ),
+                "alternative_parts": json.loads(
+                    recursive_row["alternative_parts_json"]
+                ),
+                "minimum_leaf_parts": recursive_row["minimum_leaf_parts"],
+                "minimum_segmentation_count": str(
+                    recursive_row["minimum_segmentation_count"]
+                ),
+                "alternatives_truncated": bool(
+                    recursive_row["alternatives_truncated"]
+                ),
+                "structural_ambiguous": bool(
+                    recursive_row["structural_ambiguous"]
+                ),
+                "reading_combination_count": str(
+                    recursive_row["reading_combination_count"]
+                ),
+                "reading_ambiguous": bool(
+                    recursive_row["reading_ambiguous"]
+                ),
+                "primary_marked_input": str(
+                    recursive_row["primary_marked_input"]
+                ),
+                "primary_numeric_input": str(
+                    recursive_row["primary_numeric_input"]
+                ),
+                "component_readings": recursive_components,
+                "composition_tree": composition_tree,
+                "recursive_depth": int(recursive_row["recursive_depth"]),
+                "encoded_multichar_coverage": int(
+                    recursive_row["encoded_multichar_coverage"]
+                ),
+                "encoded_multichar_component_count": int(
+                    recursive_row["encoded_multichar_component_count"]
+                ),
+                "dynamic_residual_blocks": json.loads(
+                    recursive_row["dynamic_residual_blocks_json"]
+                ),
+                "dynamic_residual_character_count": int(
+                    recursive_row["dynamic_residual_character_count"]
+                ),
+                "single_exception_count": int(
+                    recursive_row["single_exception_count"]
+                ),
+                "blocker": json.loads(recursive_row["blocker_json"]),
+                "evidence_rule": str(recursive_row["evidence_rule"]),
+                "changes_candidate_disposition": False,
+                "creates_whole_string_reading": False,
+            }
+            evidence = {
+                **evidence,
+                "recursive_composition": recursive_composition,
+            }
         return {
             "text": str(row["text"]),
             "text_length": int(row["text_length"]),
@@ -2552,6 +2738,7 @@ class UnencodedCandidateReview:
             "dynamic_reachability_rule": str(
                 row["dynamic_reachability_rule"]
             ),
+            "recursive_composition": recursive_composition,
             "candidate_class": str(row["effective_class"]),
             "integration_policy": str(row["effective_policy"]),
             "decision_status": str(row["effective_status"]),

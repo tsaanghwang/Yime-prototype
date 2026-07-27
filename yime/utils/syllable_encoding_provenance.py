@@ -13,6 +13,10 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Iterable, cast
 
+from syllable.codec.neutral_tone_encoding import (
+    NeutralToneEncodingPolicy,
+    NeutralToneException,
+)
 from syllable.codec.yinjie_encoder import YinjieEncoder
 from yime.utils.yinyuan_id_chain import REPO_ROOT, load_symbol_to_yinyuan_id
 from yime.asset_paths import resolve_lexicon_source_db_path
@@ -124,7 +128,7 @@ def source_rule_ids(attestation: SourceAttestation) -> tuple[str, ...]:
     return tuple(rules)
 
 
-def orthography_rule_ids(pinyin_tone: str) -> tuple[str, ...]:
+def _base_orthography_rule_ids(pinyin_tone: str) -> tuple[str, ...]:
     base = pinyin_tone[:-1].lower() if pinyin_tone[-1:].isdigit() else pinyin_tone.lower()
     if "v" in base:
         return ("TECH-V-ALIAS",)
@@ -157,6 +161,27 @@ def orthography_rule_ids(pinyin_tone: str) -> tuple[str, ...]:
     if final == "un":
         return ("ORTH-UN-TO-UEN",)
     return ("ORTH-REGULAR",)
+
+
+def orthography_rule_ids(pinyin_tone: str) -> tuple[str, ...]:
+    base_rules = _base_orthography_rule_ids(pinyin_tone)
+    if pinyin_tone.endswith("5"):
+        return ("ORTH-SOURCE-ATTESTED-NEUTRAL", *base_rules)
+    return base_rules
+
+
+def neutral_tone_encoding_rule_ids(
+    pinyin_tone: str,
+    inventory: Iterable[str],
+    *,
+    exceptions: dict[str, NeutralToneException] | None = None,
+) -> tuple[str, ...]:
+    if not pinyin_tone.endswith("5"):
+        return ()
+    resolution = NeutralToneEncodingPolicy(inventory, exceptions).require_admitted(
+        pinyin_tone
+    )
+    return (resolution.rule_id,)
 
 
 def encoder_alias_rule_ids(analyzed_ganyin: str, encoder_ganyin: str) -> tuple[str, ...]:
@@ -207,6 +232,10 @@ def build_syllable_encoding_provenance_rows(
         encoder_ids = encoder_alias_rule_ids(
             result.segments.ganyin_label,
             encoder_ganyin_label,
+        )
+        encoder_ids = (
+            *neutral_tone_encoding_rule_ids(pinyin_tone, inventory),
+            *encoder_ids,
         )
         all_rule_ids = (*source_ids, *orthography_ids, *encoder_ids)
         unknown = set(all_rule_ids) - set(resolved_catalog)

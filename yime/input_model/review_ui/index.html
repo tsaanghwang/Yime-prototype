@@ -143,6 +143,14 @@
           <strong id="metric-two-character-dynamic">—</strong>
         </article>
         <article>
+          <span>分层递归可达</span>
+          <strong id="metric-recursive-dynamic">—</strong>
+        </article>
+        <article>
+          <span>首选路径使用多字组件</span>
+          <strong id="metric-recursive-multichar">—</strong>
+        </article>
+        <article>
           <span>已拒绝 / 暂缓</span>
           <strong id="metric-closed">—</strong>
         </article>
@@ -157,8 +165,8 @@
           <span class="criteria-selection">只应用已登记规则的唯一无冲突命中</span>
         </div>
         <p class="form-help">
-          两字候选若左右单字均有合格注音，会先由内建动态组合规则移出静态待编码系列；
-          自动筛查再跳过已有人工判决，严格排除规则反例、缺音两字例外、多解和跨分类冲突。
+          两字及更长候选的动态可达性只作为证据，不改变待审状态；
+          自动筛查跳过已有人工判决，严格排除规则反例、缺音例外、多解和跨分类冲突。
           安全命中只写入 <code>model_only + unvalidated</code>，不会修改来源库或运行词库。
         </p>
         <div class="auto-screening-controls">

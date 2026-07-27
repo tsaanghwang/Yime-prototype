@@ -1,0 +1,111 @@
+{
+  "玉树藏族自治州曲麻莱县": {
+    "cold_start_observation": "按反查所得系统编码输入后整句上屏",
+    "correction_count": "0",
+    "second_input_ok": "是",
+    "notes": "连续两轮均能上屏；整句不在活动试验字典中"
+  },
+  "维西傈僳族自治县": {
+    "cold_start_observation": "第一轮分段选择",
+    "second_input_ok": "是",
+    "notes": "用户此前已验证第二轮可连续输入并回车上屏"
+  },
+  "国立西南联合大学": {
+    "cold_start_observation": "直接上屏",
+    "second_input_ok": "是",
+    "notes": "用户此前已验证"
+  },
+  "道高一尺魔高一丈": {
+    "cold_start_observation": "第一轮“髙”排在“高”前，点选“高”",
+    "correction_count": "1",
+    "second_input_ok": "是",
+    "notes": "第二轮正常"
+  },
+  "昆明市石林彝族自治县": {
+    "cold_start_observation": "直接上屏",
+    "second_input_ok": "是",
+    "notes": "用户此前已验证"
+  },
+  "寻甸回族彝族自治县": {
+    "cold_start_observation": "第一轮分段选择",
+    "second_input_ok": "是",
+    "notes": "用户此前已验证第二轮可连续输入并回车上屏"
+  },
+  "乌鲁木齐市水磨沟区": {
+    "cold_start_observation": "整句上屏",
+    "correction_count": "0",
+    "second_input_ok": "是",
+    "notes": "连续两轮均能上屏"
+  },
+  "蜀道之难难于上青天": {
+    "cold_start_observation": "第一轮分段为“蜀道+之难+难于上青天”",
+    "second_input_ok": "是",
+    "notes": "用户此前已验证再次输入可得全句"
+  },
+  "魔高一尺道高一丈": {
+    "cold_start_observation": "按正确变调编码输入后整句一次上屏",
+    "correction_count": "0",
+    "second_input_ok": "是",
+    "notes": "最终人工确认“魔高一尺道高一丈”和“道高一尺魔高一丈”均可一次上屏。高与髙在变长模式中共享 gfu；一尺用 yi4/yjkl，一丈按变调用 yi2/ylkj"
+  },
+  "人民": {
+    "cold_start_observation": "人民",
+    "after_learning_top": "仁民",
+    "interference_ok": "否",
+    "notes": "人工点选“仁民”后再次输入，“仁民”成为首选；“人民群众”可直接上屏，但该四字串本身在活动字典中，属于静态长候选保护，不能单独证明动态上下文恢复"
+  },
+  "进行": {
+    "cold_start_observation": "进行",
+    "after_learning_top": "尽行",
+    "interference_ok": "否",
+    "notes": "人工点选“尽行”后再次输入，“尽行”成为首选；“进行实验”不在活动字典中，首次动态组句需点选“进行”，纠正后再次输入整句可直接上屏，误伤可经一次纠正自愈"
+  },
+  "必须": {
+    "cold_start_observation": "必须",
+    "after_learning_top": "必需",
+    "interference_ok": "否",
+    "notes": "人工点选“必需”后再次输入，“必需”成为首选"
+  },
+  "实行": {
+    "cold_start_observation": "实行",
+    "after_learning_top": "时行",
+    "interference_ok": "否",
+    "notes": "人工点选“时行”后再次输入，“时行”成为首选"
+  },
+  "实验室": {
+    "cold_start_observation": "实验室",
+    "after_learning_top": "十堰市",
+    "interference_ok": "否",
+    "notes": "人工点选“十堰市”后再次输入，“十堰市”成为首选"
+  },
+  "一竿子插到底": {
+    "cold_start_observation": "一竿子插到底",
+    "after_learning_top": "一杆子插到底",
+    "interference_ok": "否",
+    "notes": "人工点选“一杆子插到底”后再次输入，新组合成为首选"
+  },
+  "解铃还须系铃人": {
+    "cold_start_observation": "当前得到“解铃还需系铃人”",
+    "after_learning_top": "解铃还需系铃人",
+    "interference_ok": "否",
+    "notes": "同码“需”形式连续成为首选"
+  },
+  "不是艺人": {
+    "cold_start_observation": "不是艺人",
+    "after_learning_top": "不视艺人",
+    "interference_ok": "否",
+    "notes": "人工点选“不视艺人”后再次输入，新组合成为首选"
+  },
+  "完全在线": {
+    "cold_start_observation": "完全在线",
+    "after_learning_top": "完全再现",
+    "interference_ok": "否",
+    "notes": "人工点选“完全再现”后再次输入，新组合成为首选"
+  },
+  "法治在线": {
+    "cold_start_observation": "法治在线",
+    "after_learning_top": "法治在线",
+    "interference_ok": "是",
+    "notes": "本轮人工复测未迁移到“法治再现”，原首选连续保持"
+  }
+}
