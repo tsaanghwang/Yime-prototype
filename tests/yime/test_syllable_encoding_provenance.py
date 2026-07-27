@@ -9,6 +9,7 @@ from yime.utils.syllable_encoding_provenance import (
     build_syllable_encoding_provenance_rows,
     encoder_alias_rule_ids,
     load_rule_catalog,
+    neutral_tone_encoding_rule_ids,
     orthography_rule_ids,
 )
 
@@ -44,6 +45,18 @@ def test_encoder_aliases_are_explicit_and_uncatalogued_aliases_fail() -> None:
     assert encoder_alias_rule_ids("ueng1", "uong1") == ("ENC-UENG-TO-UONG",)
     with pytest.raises(ValueError, match="Uncatalogued encoder alias"):
         encoder_alias_rule_ids("made1", "up1")
+
+
+def test_neutral_encoding_provenance_distinguishes_regular_and_special_routes() -> None:
+    inventory = {"lai2": "lái", "lai5": "lai", "lo5": "lo"}
+
+    assert neutral_tone_encoding_rule_ids("lai5", inventory) == (
+        "ENC-NEUTRAL-REGULAR-DERIVATION",
+    )
+    assert neutral_tone_encoding_rule_ids("lo5", inventory) == (
+        "ENC-NEUTRAL-SPECIAL-EXCEPTION",
+    )
+    assert orthography_rule_ids("lai5")[0] == "ORTH-SOURCE-ATTESTED-NEUTRAL"
 
 
 def test_canonical_encoding_without_source_basis_is_rejected() -> None:

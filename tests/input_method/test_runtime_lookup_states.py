@@ -86,6 +86,16 @@ def test_build_runtime_lookup_plan_supports_variable_length_primary_syllables() 
     assert plan_d.syllable_count == 2
 
 
+def test_complete_input_keeps_twelve_syllables_for_recursive_composition() -> None:
+    codes = [f"{index:04d}" for index in range(13)]
+    plan = build_runtime_lookup_plan("".join(codes))
+
+    assert plan.stage == "D"
+    assert plan.syllable_count == 12
+    assert plan.lookup_code == "".join(codes[-12:])
+    assert plan.truncated_to_recent
+
+
 def test_phrase_tree_lookup_uses_variable_length_inventory_boundaries() -> None:
     inventory = frozenset({"ab", "cde", "fg"})
 

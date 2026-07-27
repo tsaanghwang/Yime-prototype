@@ -57,6 +57,7 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
 | `unencoded_pending_strings.tsv` | 包含暂无可信普通话读音来源码点的全量来源字串、命中码点、BCC 频次、规则和暂缓理由 |
 | `unresolved_bcc.tsv` | 有 BCC 频次、尚无合规读音来源的字词 |
 | `reading_conflicts.tsv` | 同一字词有多个合规读音的审查表 |
+| `character_tiers.tsv` | 九级互斥汉字分级、来源、BCC频次及门禁/编码状态审计表 |
 | `manifest.json` | 输入文件摘要、口径、数量和输出文件清单 |
 
 需要提交小型审查快照而不是整个本地语料包时，运行：
@@ -72,6 +73,16 @@ SQLite 中的来源和拒绝原因，不补写读音或编码；可用 `--limit`
 `.generated/` 不纳入 Git。以后生成 Windows 码表时应读取完整语料包及 `manifest.json`，不得手工复制
 其中一列或绕开本仓库的“标准拼音 → 音元分解 → Yinyuan ID”正式链。
 
+统一库同时保存：
+
+- `unihan_character_inventory`：项目 Unihan 字符全集及不可分级结构符号标记；
+- `unihan_mandarin_evidence`：`kTGH`、`kXHC1983`、`kHanyuPinyin`、`kMandarin` 证据；
+- `character_tiers`：按首次命中形成的九级互斥成员表；
+- `v_character_tier_summary`：逐级数量和BCC范围摘要。
+
+`yime/refresh_runtime_yime_codes.py` 只复制这张分级表中已有正式音元编码的字符，
+不再从旧Unihan数据库、外部XHC文本或运行库频率临时重算成员。
+
 当前规模、BCC 未解码分层、多读音现状以及从静态大词库转向动态组合的整理阶段，统一记录在
 [候选语料库整理路线图](CANDIDATE_CORPUS_ROADMAP.md)。
 
@@ -84,6 +95,18 @@ SQLite 中的来源和拒绝原因，不补写读音或编码；可用 `--limit`
 该工具读取 `canonical_readings`，按完整数字调拼音验证更短组件的递归可达性，并输出静态硬底座、
 可调容量前沿和动态迁移候选。它不会把字面可切分当成词汇判决，也不会直接改写运行词库；实际迁移
 还必须通过真实输入回放、候选排序、歧义和延迟验证。
+
+要使用现有合格短串为未编码长串建立递归输入证据，可运行：
+
+```powershell
+.\venv312\Scripts\python.exe tools\build_recursive_composition_model.py
+```
+
+该模型优先复用已有多字编码组件；连续未覆盖区默认作为二字动态块，必要时扩大到三字或四字以避免
+顶层单字兜底。单字读音只在块内验证，缺失时形成显式例外，不会被提前选成顶层组件。
+
+该模型只读取 `canonical_readings` 作为已编码组件事实，把结果写入候选模型的独立证据表；较短组件
+无需先作人工词汇分类。组件读音的串接结果不写回本来源包，也不构成目标长串的新词音来源。
 
 SQLite 中的 `bcc_frequency_evidence` 保留每个 BCC 分域原始文件及 `word/char` 来源类型，
 `v_bcc_frequency_by_category` 提供分域查询，`v_reading_source_conflicts` 提供多来源读音冲突查询。

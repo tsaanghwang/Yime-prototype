@@ -44,7 +44,7 @@ Windows Yime/Weasel/PIME 等消费者的可复核资产。
 - 音元等长 / 省键 / 标准拼音的结构码长可以在同语料上并列比较。
 - 单字排序与首屏命中率仍是当前优化重点；当前单字需求权重来自统一
     `source_lexicon.sqlite3` 中保留的 BCC 原始分域字频证据，并在
-    runtime 中先经动态定标的 5 档分层骨架，再叠加真单字频率与轻量
+    runtime 中先经统一库生成的九级分层骨架，再叠加真单字频率与轻量
     修正项。
 
 数据 rebuild 与运行时消费见 [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)。

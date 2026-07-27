@@ -16,7 +16,7 @@ from .types import (
 )
 
 
-SCHEMA_VERSION = "yime-input-candidate-model-v8"
+SCHEMA_VERSION = "yime-input-candidate-model-v11"
 
 
 SCHEMA = """
@@ -48,6 +48,45 @@ CREATE INDEX IF NOT EXISTS candidate_universe_review_idx
 CREATE INDEX IF NOT EXISTS candidate_universe_length_review_idx
     ON candidate_universe(
         has_gated_reading, text_length, bcc_frequency DESC, text
+    );
+CREATE TABLE IF NOT EXISTS recursive_composition_evidence (
+    text TEXT PRIMARY KEY,
+    text_length INTEGER NOT NULL,
+    bcc_frequency INTEGER NOT NULL,
+    reachability_status TEXT NOT NULL
+        CHECK (reachability_status IN ('reachable', 'unreachable')),
+    preferred_parts_json TEXT NOT NULL,
+    preferred_segments_json TEXT NOT NULL,
+    alternative_parts_json TEXT NOT NULL,
+    minimum_leaf_parts INTEGER,
+    minimum_segmentation_count TEXT NOT NULL,
+    alternatives_truncated INTEGER NOT NULL
+        CHECK (alternatives_truncated IN (0, 1)),
+    structural_ambiguous INTEGER NOT NULL
+        CHECK (structural_ambiguous IN (0, 1)),
+    reading_combination_count TEXT NOT NULL,
+    reading_ambiguous INTEGER NOT NULL
+        CHECK (reading_ambiguous IN (0, 1)),
+    primary_marked_input TEXT NOT NULL,
+    primary_numeric_input TEXT NOT NULL,
+    recursive_depth INTEGER NOT NULL,
+    maximum_component_length INTEGER NOT NULL,
+    single_character_leaf_count INTEGER NOT NULL,
+    encoded_multichar_coverage INTEGER NOT NULL,
+    encoded_multichar_component_count INTEGER NOT NULL,
+    dynamic_residual_blocks_json TEXT NOT NULL,
+    dynamic_residual_character_count INTEGER NOT NULL,
+    single_exception_count INTEGER NOT NULL,
+    blocker_json TEXT NOT NULL,
+    evidence_rule TEXT NOT NULL,
+    changes_candidate_disposition INTEGER NOT NULL DEFAULT 0
+        CHECK (changes_candidate_disposition IN (0, 1)),
+    generation TEXT NOT NULL,
+    FOREIGN KEY (text) REFERENCES candidate_universe(text) ON DELETE CASCADE
+) WITHOUT ROWID;
+CREATE INDEX IF NOT EXISTS recursive_composition_review_idx
+    ON recursive_composition_evidence(
+        reachability_status, text_length DESC, bcc_frequency DESC, text
     );
 CREATE TABLE IF NOT EXISTS assessments (
     text TEXT PRIMARY KEY,
@@ -232,6 +271,31 @@ class InputModelStore:
                     ADD COLUMN dynamic_reachability_rule TEXT NOT NULL DEFAULT ''
                     """
                 )
+        recursive_table_exists = self.connection.execute(
+            """
+            SELECT 1 FROM sqlite_master
+            WHERE type = 'table'
+              AND name = 'recursive_composition_evidence'
+            """
+        ).fetchone()
+        if recursive_table_exists is not None:
+            recursive_columns = {
+                str(row[1])
+                for row in self.connection.execute(
+                    "PRAGMA table_info(recursive_composition_evidence)"
+                )
+            }
+            if (
+                {
+                "component_readings_json",
+                "composition_tree_json",
+                }
+                & recursive_columns
+                or "preferred_segments_json" not in recursive_columns
+            ):
+                self.connection.execute(
+                    "DROP TABLE recursive_composition_evidence"
+                )
         self.connection.executescript(SCHEMA)
         self.connection.execute(
             "UPDATE metadata SET value = ? WHERE key = 'schema_version'",
@@ -304,6 +368,10 @@ class InputModelStore:
 
         self.connection.set_authorizer(source_read_only)
         try:
+            self.connection.execute("DELETE FROM recursive_composition_evidence")
+            self.connection.execute(
+                "DELETE FROM metadata WHERE key LIKE 'recursive_composition_%'"
+            )
             scope_filter = (
                 "WHERE LENGTH(text) > 1 OR pronunciation_scope = 'standalone'"
                 if "pronunciation_scope" in canonical_columns

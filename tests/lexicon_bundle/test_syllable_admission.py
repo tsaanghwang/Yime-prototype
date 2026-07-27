@@ -69,7 +69,7 @@ def test_source_attested_neutral_uses_orthographic_rule_without_enumeration(
 ) -> None:
     inventory = _write_json(
         tmp_path / "inventory.json",
-        {"qi1": "qī"},
+        {"qi1": "qī", "qiao1": "qiāo"},
     )
     gate = ReadingGate(inventory, admission_path=None)
 
@@ -77,6 +77,7 @@ def test_source_attested_neutral_uses_orthographic_rule_without_enumeration(
 
     assert phrase.accepted and phrase.numeric == "qi1 qiao5"
     assert "ORTH-SOURCE-ATTESTED-NEUTRAL" in phrase.rule_ids
+    assert "ENC-NEUTRAL-REGULAR-DERIVATION" in phrase.rule_ids
     assert phrase.neutral_tone_positions == (2,)
     assert phrase.neutral_tone_status == "attested_neutral"
 
@@ -91,6 +92,30 @@ def test_isolated_neutral_evidence_can_be_kept_word_context_only(tmp_path: Path)
     assert result.pronunciation_scope == "word_context_only"
     assert result.neutral_tone_positions == (1,)
     assert result.neutral_tone_status == "attested_neutral"
+
+
+def test_source_attested_neutral_only_exception_is_explicitly_admitted(
+    tmp_path: Path,
+) -> None:
+    inventory = _write_json(tmp_path / "inventory.json", {"qi1": "qī"})
+    gate = ReadingGate(inventory, admission_path=None)
+
+    result = gate.admit("咯", "lo", codepoint_context=True, source="unihan")
+
+    assert result.accepted and result.numeric == "lo5"
+    assert "ENC-NEUTRAL-SPECIAL-EXCEPTION" in result.rule_ids
+
+
+def test_unregistered_neutral_only_syllable_fails_before_encoding(
+    tmp_path: Path,
+) -> None:
+    inventory = _write_json(tmp_path / "inventory.json", {"qi1": "qī"})
+    gate = ReadingGate(inventory, admission_path=None)
+
+    result = gate.admit("啵啵", "bo bo", source="wanxiang")
+
+    assert not result.accepted
+    assert result.reason == "neutral_tone_encoding_unhandled:bo5"
 
 
 def test_unknown_source_unmarked_syllable_is_not_bootstrapped_as_neutral(

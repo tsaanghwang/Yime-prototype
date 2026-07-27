@@ -7,6 +7,11 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from syllable.codec.neutral_tone_encoding import (
+    DEFAULT_NEUTRAL_EXCEPTION_PATH,
+    NeutralToneEncodingPolicy,
+    load_neutral_tone_exceptions,
+)
 from yime.utils.dictionary_pinyin_compliance import (
     DEFAULT_POLICY_PATH as DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
     SyllableReview,
@@ -83,6 +88,7 @@ class ReadingGate:
         inventory_path: Path,
         admission_path: Path | None = DEFAULT_ADMISSION_PATH,
         neutral_source_policy_path: Path = DEFAULT_NEUTRAL_SOURCE_POLICY_PATH,
+        neutral_encoding_exception_path: Path = DEFAULT_NEUTRAL_EXCEPTION_PATH,
         source_compliance_policy_path: Path = DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH,
     ) -> None:
         payload = json.loads(inventory_path.read_text(encoding="utf-8"))
@@ -96,6 +102,10 @@ class ReadingGate:
         )
         self._neutral_source_policy = load_neutral_source_policy(
             neutral_source_policy_path
+        )
+        self._neutral_encoding_policy = NeutralToneEncodingPolicy(
+            self._decodable,
+            load_neutral_tone_exceptions(neutral_encoding_exception_path),
         )
 
     @lru_cache(maxsize=8192)
@@ -157,6 +167,28 @@ class ReadingGate:
             if neutral_positions
             else "none"
         )
+        neutral_encoding_resolutions = {
+            item.canonical_numeric: self._neutral_encoding_policy.resolve(
+                item.canonical_numeric
+            )
+            for item in reviews
+            if item.canonical_numeric.endswith("5")
+            and source_marks_tone_completely
+        }
+        unhandled_neutral = tuple(
+            numeric
+            for numeric, resolution in neutral_encoding_resolutions.items()
+            if not resolution.admitted
+        )
+        if unhandled_neutral:
+            return GateResult(
+                False,
+                rule_ids=tuple(dict.fromkeys(item.rule_id for item in reviews)),
+                reason="neutral_tone_encoding_unhandled:"
+                + ",".join(unhandled_neutral),
+                neutral_tone_positions=neutral_positions,
+                neutral_tone_status=neutral_status,
+            )
 
         scope_excluded = tuple(
             item.canonical_numeric
@@ -181,9 +213,9 @@ class ReadingGate:
             for item in reviews
             if item.canonical_numeric not in self._decodable
             and not (
-                len(text) > 1
-                and source_marks_tone_completely
-                and item.canonical_numeric.endswith("5")
+                source_marks_tone_completely
+                and item.canonical_numeric in neutral_encoding_resolutions
+                and neutral_encoding_resolutions[item.canonical_numeric].admitted
             )
             and not (
                 item.canonical_numeric in self._admissions
@@ -210,6 +242,11 @@ class ReadingGate:
             if item.canonical_numeric.endswith("5")
             and source_marks_tone_completely
         )
+        neutral_encoding_rules = tuple(
+            resolution.rule_id
+            for resolution in neutral_encoding_resolutions.values()
+            if resolution.admitted
+        )
         return GateResult(
             True,
             marked=" ".join(
@@ -228,6 +265,7 @@ class ReadingGate:
                     [item.rule_id for item in reviews]
                     + list(admission_rules)
                     + list(neutral_rules)
+                    + list(neutral_encoding_rules)
                 )
             ),
             pronunciation_scope=pronunciation_scope,

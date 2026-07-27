@@ -200,6 +200,12 @@ async function loadSummary() {
   $("#metric-two-character-dynamic").textContent = number(
     summary.two_character_dynamic_reachability,
   );
+  $("#metric-recursive-dynamic").textContent = number(
+    summary.recursive_composition.reachable,
+  );
+  $("#metric-recursive-multichar").textContent = number(
+    summary.recursive_composition.uses_multichar_component,
+  );
   $("#metric-closed").textContent = number(
     summary.status_counts.rejected + summary.status_counts.deferred,
   );
@@ -358,6 +364,19 @@ async function selectCandidate(text) {
     addBadge(classLabels[detail.candidate_class] || detail.candidate_class);
     if (detail.dynamic_reachable) {
       addBadge("动态可达证据 · 未判去留");
+    }
+    if (detail.recursive_composition?.reachability_status === "reachable") {
+      const parts = detail.recursive_composition.preferred_parts.join(" + ");
+      addBadge(`递归可达：${parts}`);
+      if (detail.recursive_composition.single_exception_count > 0) {
+        addBadge(
+          `缺失单字根基：${number(detail.recursive_composition.single_exception_count)}`,
+        );
+      }
+    } else if (
+      detail.recursive_composition?.reachability_status === "unreachable"
+    ) {
+      addBadge("递归组合仍有缺口");
     }
     if (detail.blocking_reason === "missing_trusted_mandarin_reading") {
       addBadge("暂无可信普通话读音来源 · 未予编码");

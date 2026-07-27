@@ -23,9 +23,10 @@ source_lexicon.sqlite3
   -> 四个 Yinyuan ID
   -> 等长 / 变长 / 省键三模式
   -> manual_key_layout.json 布局投影
-  -> Python 运行库与 Windows Yime 交接包
-  -> Windows Yime 导入器
-  -> Weasel / PIME 等系统前端
+  -> 完整离线真源
+  -> runtime_lexicon_filter_policy.json
+  -> yime_core_trial 核心运行词典
+  -> Windows Yime / PIME / Rime
 ```
 
 Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统级 IME。与此同时，系统级前端消费路径
@@ -42,13 +43,13 @@ Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统�
 - 从同一音元序列派生等长、变长和省键编码；
 - 从 `internal_data/manual_key_layout.json` 生成唯一键位投影；
 - 构建 `yime/pinyin_hanzi.db` 和候选质量报告；
-- 准备 Windows Yime 所需的等长系统词典与拼音审查资产。
+- 准备 Windows Yime 所需的核心运行词典、manifest、runtime profile 与拼音审查资产。
 
 ### Windows 消费仓库负责
 
-- 接收原型导出的 `yime_full.dict.yaml`；
-- 用正式导入器确定性派生三模式词典；
-- 生成或部署 Rime schema/dict；
+- 接收原型筛选并验证的 `yime_core_trial.dict.yaml`；
+- 只把 `yime_core_trial` 作为安装默认方案，完整大词库及三模式派生产物留在离线链；
+- 生成、部署并核验核心 Rime schema/dict、manifest 和 runtime profile；
 - 处理 Windows 前端构建、安装、候选 UI、崩溃和系统集成；
 - 在用户环境中管理部署与回滚。
 
@@ -115,13 +116,16 @@ Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统�
 原型侧入口：
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass `
-  -File tools\prepare_windows_yime_lexicon.ps1
+.\venv312\Scripts\python.exe tools\build_two_level_runtime_trial.py
+
+.\venv312\Scripts\python.exe tools\verify_default_runtime_handoff.py `
+  --windows-repo C:\dev\Yime `
+  --output .generated\default_runtime_handoff.json
 ```
 
-默认生成 `.generated/windows_yime_import/`。其中 `yime_full.dict.yaml` 是跨仓库唯一系统词典输入；
-Windows Yime 再从它派生等长、变长和省键词典。manifest、拼音显示映射和音节分解审计用于核对键集、
-条目数、来源与 SHA-256。
+完整 `yime_full.dict.yaml` 仍是离线来源和三模式派生真源，但不再是 Windows 安装运行输入。
+Windows 默认交接物是两级筛选后的核心词典、筛选策略、manifest 和 runtime profile；校验器核对
+默认 schema、条目数、SHA-256、99%验收下界及旧大词库的 offline-only 边界。
 
 准备脚本不写入外部仓库，也不部署用户的 PIME/Rime 目录。真实部署必须在消费者仓库中显式执行。
 完整边界见 [新版词库交接到 Windows Yime](WINDOWS_YIME_LEXICON_HANDOFF.md)。
@@ -134,7 +138,8 @@ Windows Yime 再从它派生等长、变长和省键词典。manifest、拼音�
 - 在独立 `input_model.sqlite3` 中保存建议、批准、拒绝和暂缓决策；
 - 优先审查高频未解码字串和多读音冲突；
 - 通过上下文证据和动态组合回放验证候选价值；
-- 在有对照报告前不直接清洗生产真源或整体削减运行词库。
+- 保持已落地的核心运行词库，用安装泄漏门禁防止旧大词库重新进入默认运行链；
+- 用纯净用户态回放和高频晋升扫描发现真实缺口，不把个人误选直接提升为系统词。
 
 具体路线见 [候选语料库整理路线图](../CANDIDATE_CORPUS_ROADMAP.md)。
 
@@ -157,9 +162,9 @@ Windows Yime 再从它派生等长、变长和省键词典。manifest、拼音�
 
 近期工作不再是“新增 N/M 真源”或“证明系统前端可消费”，而是：
 
-1. 完成候选质检只读工作流并开始高频候选审查；
-2. 固定原型到 Windows Yime 的版本化交接协议；
-3. 补齐三模式跨仓库烟测和真实应用稳定性回归；
-4. 继续清理仍以 4 月 Python 原型状态概括全项目的入口文档。
+1. 长期积累纯净 Windows 用户态的纠正、重复首选、重启保持和用户库增长数据；
+2. 审核高频晋升扫描结果，形成可解释的公共词条提升流程；
+3. 扩充专业、专名、古籍及罕见字硬失败回归；
+4. 持续执行核心词典哈希、99%下界、安装泄漏和全新用户目录部署门禁。
 
-**最后更新：2026-07-24**
+**最后更新：2026-07-27**

@@ -18,6 +18,7 @@ from yime.canonical_yime_mapping import convert_legacy_code_to_primary
 from yime.utils.code_modes import YimeCodeMode, lookup_code_column, normalize_code_mode
 from ...asset_paths import resolve_runtime_candidates_json_path
 from .char_code_index import CharCodeCandidate
+from .layered_candidate_pipeline import DynamicCandidateProvider
 from .runtime_decoder_base import (
     RuntimeDecoderBase as _RuntimeDecoderBase,
     build_pinyin_to_canonical_code_map as _build_pinyin_to_canonical_code_map,
@@ -215,6 +216,7 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
         self._phrase_prefix_index = self._json_store.phrase_prefix_index
         self.char_code_index = self._json_store.char_code_index
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+        self._install_builtin_dynamic_candidate_providers()
 
     def _load_runtime_candidates(
         self, path: Path
@@ -285,6 +287,7 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
         self._phrase_prefix_index = self._json_store.phrase_prefix_index
         self.char_code_index = self._json_store.char_code_index
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+        self._refresh_layered_pipeline_learning()
 
     def _load_phrase_prefix_candidates(
         self,
@@ -342,6 +345,37 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
             return json_store.get_char_candidates(code)
         return self.char_code_index.get_exact(code)
 
+    def get_precomposition_candidates(
+        self,
+        code: str,
+        syllable_count: int,
+    ) -> List[JSONDict]:
+        normalized_code = str(code or "").strip()
+        width = max(int(syllable_count), 0)
+        if not normalized_code or width < 1:
+            return []
+        json_store = getattr(self, "_json_store", None)
+        candidates = (
+            json_store.by_code.get(normalized_code, [])
+            if json_store is not None
+            else self.by_code.get(normalized_code, [])
+        )
+        return [
+            cast(JSONDict, candidate)
+            for candidate in candidates
+            if isinstance(candidate, dict)
+            and len(str(candidate.get("text", "") or "").strip())
+            == width
+            and (
+                width <= 4
+                or bool(candidate.get("_precomposition_atom", False))
+                or str(
+                    candidate.get("entry_type", "") or ""
+                ).strip()
+                == "precomposition_atom"
+            )
+        ]
+
     def get_char_candidates_by_prefix(
         self,
         prefix: str,
@@ -356,12 +390,34 @@ class RuntimeCandidateDecoder(_RuntimeDecoderBase):
 class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
     """直接从 SQLite runtime_candidates 视图读取候选。"""
 
-    def __init__(self, app_dir: Path, user_db_path: Path | None = None) -> None:
-        self.db_path = app_dir / "pinyin_hanzi.db"
+    def __init__(
+        self,
+        app_dir: Path,
+        user_db_path: Path | None = None,
+        runtime_db_path: Path | None = None,
+    ) -> None:
+        self.db_path = (
+            Path(runtime_db_path)
+            if runtime_db_path is not None
+            else app_dir / "pinyin_hanzi.db"
+        )
         self.runtime_source_label = "数据库候选视图"
         self._init_runtime_decoder_common(app_dir, user_db_path)
         self._sqlite_runtime_source = SQLiteRuntimeSource(self.db_path)
         self.runtime_table_name = self._sqlite_runtime_source.detect_runtime_candidate_table()
+        with self._sqlite_runtime_source.connect() as connection:
+            selection_row = connection.execute(
+                """
+                SELECT value
+                FROM prototype_metadata
+                WHERE key = 'runtime_lexicon_selection_active'
+                """
+            ).fetchone()
+        self._two_level_selection_active = (
+            selection_row is not None
+            and str(selection_row[0] or "").strip().lower()
+            in {"1", "true", "yes", "on"}
+        )
         self._char_store = SQLiteCharCandidateStore(
             self._sqlite_runtime_source,
             self.runtime_table_name,
@@ -377,6 +433,7 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         )
         self._char_sort_weight_by_text = self._char_store.load_char_sort_weight_index()
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+        self._install_builtin_dynamic_candidate_providers()
 
     def _lookup_runtime_candidates_for_decode(
         self,
@@ -420,6 +477,58 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
     def get_char_candidates(self, code: str) -> List[CharCodeCandidate]:
         """按完整音元编码读取单字候选。"""
         return self._char_store.get_char_candidates(code)
+
+    def get_precomposition_candidates(
+        self,
+        code: str,
+        syllable_count: int,
+    ) -> List[JSONDict]:
+        normalized_code = str(code or "").strip()
+        width = max(int(syllable_count), 0)
+        if not normalized_code or width < 1:
+            return []
+        candidates = self._phrase_store.load_runtime_candidates_for_code(
+            normalized_code,
+            self._phrase_candidate_overlays,
+        )
+        result: List[JSONDict] = []
+        for candidate in candidates:
+            if len(str(candidate.get("text", "") or "").strip()) != width:
+                continue
+            normalized_candidate = cast(JSONDict, dict(candidate))
+            is_selected_long = (
+                width > 4
+                and bool(
+                    getattr(
+                        self,
+                        "_two_level_selection_active",
+                        False,
+                    )
+                )
+            )
+            if is_selected_long:
+                normalized_candidate[
+                    "_precomposition_atom"
+                ] = True
+                normalized_candidate[
+                    "entry_type"
+                ] = "precomposition_atom"
+            if (
+                width <= 4
+                or is_selected_long
+                or bool(
+                    normalized_candidate.get(
+                        "_precomposition_atom",
+                        False,
+                    )
+                )
+                or str(
+                    normalized_candidate.get("entry_type", "") or ""
+                ).strip()
+                == "precomposition_atom"
+            ):
+                result.append(normalized_candidate)
+        return result
 
     def get_char_candidates_by_prefix(
         self,
@@ -503,12 +612,18 @@ class SQLiteRuntimeCandidateDecoder(_RuntimeDecoderBase):
         self._char_store.clear_caches()
         self._phrase_store.clear_caches()
         self._user_freq_by_candidate = self.user_lexicon.load_candidate_frequency()
+        self._refresh_layered_pipeline_learning()
 
 
 class CompositeCandidateDecoder:
     """组合候选词解码器（优先运行时，回退静态）"""
 
-    def __init__(self, app_dir: Path, user_db_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        app_dir: Path,
+        user_db_path: Path | None = None,
+        runtime_db_path: Path | None = None,
+    ) -> None:
         """
         初始化组合解码器
 
@@ -521,7 +636,11 @@ class CompositeCandidateDecoder:
         self.runtime_load_error = ""
         self.runtime_source = ""
         try:
-            self.runtime_decoder = SQLiteRuntimeCandidateDecoder(app_dir, user_db_path=user_db_path)
+            self.runtime_decoder = SQLiteRuntimeCandidateDecoder(
+                app_dir,
+                user_db_path=user_db_path,
+                runtime_db_path=runtime_db_path,
+            )
             self.runtime_source = "sqlite"
         except (FileNotFoundError, ValueError) as exc:
             self.runtime_load_error = str(exc)
@@ -576,11 +695,48 @@ class CompositeCandidateDecoder:
             return int(self.runtime_decoder.record_selection(text, candidate_text) or 0)
         return 0
 
+    def record_sentence_commit(self, committed_text: str) -> bool:
+        if self.runtime_decoder is None:
+            return False
+        recorder = getattr(
+            self.runtime_decoder,
+            "record_sentence_commit",
+            None,
+        )
+        if not callable(recorder):
+            return False
+        return bool(recorder(committed_text))
+
     def reload_user_lexicon(self) -> None:
         if self.runtime_decoder is None:
             return
         if hasattr(self.runtime_decoder, "reload_user_lexicon"):
             self.runtime_decoder.reload_user_lexicon()
+
+    def set_semantic_context(
+        self,
+        left_text: str = "",
+        *,
+        right_text: str = "",
+        application: str = "",
+    ) -> None:
+        if self.runtime_decoder is not None:
+            self.runtime_decoder.set_semantic_context(
+                left_text,
+                right_text=right_text,
+                application=application,
+            )
+
+    def clear_semantic_context(self) -> None:
+        if self.runtime_decoder is not None:
+            self.runtime_decoder.clear_semantic_context()
+
+    def register_dynamic_candidate_provider(
+        self,
+        provider: DynamicCandidateProvider,
+    ) -> None:
+        if self.runtime_decoder is not None:
+            self.runtime_decoder.register_dynamic_candidate_provider(provider)
 
     def decode_text(
         self, text: str

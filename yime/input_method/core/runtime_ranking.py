@@ -53,6 +53,9 @@ class RuntimeCandidateRecord:
     local_phrase_priority_boost: float = 0.0
     debug_tag: str = "normal"
     usage_tier: str = ""
+    candidate_layer: str = "static_lexicon"
+    semantic_score: float = 0.0
+    semantic_reason: str = ""
 
 
 _PHRASE_PREFIX_CANDIDATE_LIMIT = 64
@@ -178,10 +181,18 @@ def format_runtime_debug_summary(
     visible = candidates[:limit]
     if not visible:
         return ""
-    return ", ".join(
-        f"{candidate.text}[{candidate.candidate_source_tag}/{candidate.debug_tag}]"
-        for candidate in visible
-    )
+    summaries: list[str] = []
+    for candidate in visible:
+        semantic = (
+            f"/semantic:{candidate.semantic_reason}"
+            if candidate.semantic_score > 0.0
+            else ""
+        )
+        summaries.append(
+            f"{candidate.text}[{candidate.candidate_source_tag}/"
+            f"{candidate.debug_tag}{semantic}]"
+        )
+    return ", ".join(summaries)
 
 
 def annotate_candidate_source(
@@ -257,19 +268,24 @@ def runtime_candidate_priority(candidate: RuntimeCandidateRecord) -> int:
 def runtime_candidate_sort_key(
     candidate: RuntimeCandidateRecord,
     user_freq: int,
-) -> tuple[int, int, int, float, float, int, str, str]:
+) -> tuple[int, int, int, int, int, float, float, str, str]:
     is_partial_phrase = (
         candidate.entry_type == "phrase"
         and candidate.matched_code_length > 0
         and candidate.full_code_length > candidate.matched_code_length
     )
+    has_user_priority = (
+        user_freq > 0
+        or candidate.candidate_layer == "user_learning"
+    )
     return (
+        0 if has_user_priority else 1,
+        -max(int(user_freq), 0),
         runtime_candidate_priority(candidate),
         0 if is_partial_phrase else 1,
         candidate.phrase_priority_tier,
         -candidate.local_phrase_priority_boost,
         -candidate.sort_weight,
-        -user_freq,
         candidate.text,
         candidate.pinyin_tone,
     )
@@ -406,11 +422,21 @@ def build_runtime_candidate_records(
             local_rules,
             continuous_rules,
         )
+        source_tag = resolve_candidate_source_tag(candidate)
+        entry_type = str(candidate.get("entry_type", "")).strip()
+        if source_tag in {"overlay", "prefix-overlay"}:
+            candidate_layer = "user_learning"
+        elif source_tag == "dynamic-composition":
+            candidate_layer = "dynamic_composition"
+        elif entry_type == "char":
+            candidate_layer = "foundation_decode"
+        else:
+            candidate_layer = "static_lexicon"
         records.append(
             RuntimeCandidateRecord(
                 lookup_code=lookup_code,
                 text=text,
-                entry_type=str(candidate.get("entry_type", "")).strip(),
+                entry_type=entry_type,
                 pinyin_tone=str(candidate.get("pinyin_tone", "")).strip(),
                 sort_weight=_as_float_value(candidate.get("sort_weight", 0.0)),
                 text_length=text_length,
@@ -423,11 +449,12 @@ def build_runtime_candidate_records(
                 first_char_sort_weight=float(first_char_weight_map.get(text[:1], 0.0)),
                 short_prefix_template_bonus=compute_short_prefix_template_bonus(text),
                 head_char_cluster_weight=float(head_char_cluster_weight_by_text.get(text[:1], 0.0)),
-                candidate_source_tag=resolve_candidate_source_tag(candidate),
+                candidate_source_tag=source_tag,
                 phrase_priority_tier=phrase_priority_tier,
                 local_phrase_priority_boost=local_phrase_priority_boost,
                 debug_tag=debug_tag,
                 usage_tier=str(candidate.get("usage_tier", "") or "").strip(),
+                candidate_layer=candidate_layer,
             )
         )
     return records
@@ -451,8 +478,17 @@ def apply_stage_b_rare_representative_guardrail(
     if len(exact_char_candidates) < max(int(min_exact_char_count or 0), 0):
         return list(candidates)
 
+    rare_usage_tiers = {
+        "hanyu_dazidian",
+        "mandarin_regional",
+        "project_encoded",
+        "unencoded_unihan",
+        "rare",  # Compatibility with runtime snapshots generated before the nine-tier migration.
+    }
+
     if any(
-        candidate.entry_type == "char" and candidate.usage_tier == "rare"
+        candidate.entry_type == "char"
+        and candidate.usage_tier in rare_usage_tiers
         for candidate in candidates[:normalized_target_rank]
     ):
         return list(candidates)
@@ -461,7 +497,8 @@ def apply_stage_b_rare_representative_guardrail(
         (
             index
             for index, candidate in enumerate(candidates)
-            if candidate.entry_type == "char" and candidate.usage_tier == "rare"
+            if candidate.entry_type == "char"
+            and candidate.usage_tier in rare_usage_tiers
         ),
         -1,
     )
@@ -482,8 +519,13 @@ def rank_runtime_candidates(
 ) -> List[RuntimeCandidateRecord]:
     best_by_text: dict[str, RuntimeCandidateRecord] = {}
     for candidate in candidates:
-        if candidate.entry_type == "phrase" and not (2 <= candidate.text_length <= 4):
-            continue
+        if candidate.entry_type == "phrase":
+            if candidate.candidate_layer == "dynamic_composition":
+                if not (2 <= candidate.text_length <= 12):
+                    continue
+            elif candidate.candidate_layer != "user_learning":
+                if not (2 <= candidate.text_length <= 4):
+                    continue
         existing = best_by_text.get(candidate.text)
         candidate_freq = user_freq_by_candidate.get((candidate.lookup_code, candidate.text), 0)
         if existing is None:

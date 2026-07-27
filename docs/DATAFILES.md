@@ -54,11 +54,12 @@
 
 ### 可下载外部频率资源
 
-- `external_data/unihan_readings/unihan_readings.db`：
-  `view_tghz2013_frequency` 提供《通用规范汉字表》8105 字 +
-  BCC 单字频；`yime/refresh_runtime_yime_codes.py` 据此构建
-  `char_usage_profile` 的 3500/6500/8105 分层边界，不再依赖
-  `8105.dict.yaml`。
+- `external_data/unihan_readings/Unihan_OtherMappings.txt`、
+  `Unihan_Readings.txt` 与 `internal_data/hanzi_pinyin/hanzi_pinyin.db`
+  为统一来源库九级单字分级提供 `kTGH` 正式编号、`kXHC1983`、
+  `kHanyuPinyin`、`kMandarin` 和项目 Unihan 字符全集。分级结果物化到
+  `source_lexicon.sqlite3.character_tiers`，不再由 runtime 从旧
+  `unihan_readings.db` 或仓库外 `kXHC1983.txt` 重新计算。
 - `external_data/word_freq/`、`external_data/char_freq/`：
   BCC 合并词频目录；见
   [external_data/word_freq_README.md](../external_data/word_freq_README.md)。
@@ -67,9 +68,9 @@
   `char_inventory.char_frequency_abs`；
   `yime/refresh_runtime_yime_codes.py` 读取
   统一 `source_lexicon.sqlite3` 的 `bcc_modern_chinese` 构建 `char_modern_common_profile`（BCC 序位），
-  并按当前字频量级为 `char_usage_profile` 动态定标 5 档
-  `tier_sort_weight`，TGHZ 分层与非 TGHZ 辅助排序分别来自
-  `unihan_readings.db` 与 `char_inventory`。
+  并按当前字频量级为 `char_usage_profile` 动态定标 9 档
+  `tier_sort_weight`；成员、来源证据和级内序位统一复制自
+  `source_lexicon.sqlite3.character_tiers`。
 - 边界：它们属于可重新下载的外部公开资源，不属于仓库当前必须跟踪的 `internal_data` 真源或派生产物。
 
 ### 单字动态分档设计
@@ -82,11 +83,14 @@
   `count`；只有 BCC 未命中的长尾字才回退到 Unihan `5..1/0`
   合成序位。因为这套真实字频量级已经明显高于旧原型时期的样本基数，
   固定 `4000万/3000万/2000万/1000万/0` 骨架不再可靠。
-- 当前 `char_usage_profile` 仍保留 3500 / 6500 / 8105 / 13000 /
-  其余 的 5 档边界，但 `tier_sort_weight` 不再写死旧量级，而是先估算
+- 当前 `character_tiers` 使用 9 个互斥层级：
+  `kTGH` 正式三级（3500/3000/1605）、`kXHC1983` 新增3486字、
+  从 `kHanyuPinyin ∪ kMandarin` 按BCC补到累计14000字、
+  剩余 `kHanyuPinyin`、剩余 `kMandarin`、项目门禁且已编码字符、
+  以及未编码Unihan字符。`tier_sort_weight` 不再写死旧量级，而是先估算
   “真频率 + 现代常用轻量约束 + 读音先验 + 读音权重”的当前非分档上界，
   再按 `1000万` 粒度向上取整，得到动态 `tier_step`。
-- 运行时排序语义因此变成：先用动态 5 档骨架稳定隔开层级，再在层内叠加 BCC 原始单字频率与轻量修正项。这样既保留 TGHZ 分层的可解释性，也避免旧骨架被新频率量级直接穿透。
+- 运行时排序语义因此变成：先用动态 9 档骨架稳定隔开层级，再在层内叠加 BCC 原始单字频率与轻量修正项。第九级没有正式编码，不进入运行时候选，但仍完整保留在统一来源库供审查。
 - JSON 导出层会把 `sort_weight` 量化到固定小数位，
   只是为了消除 `3.7152000000000003` 这类二进制尾差显示；
   SQLite 内部排序与 runtime 决策仍按原始数值和 SQL 顺序执行。

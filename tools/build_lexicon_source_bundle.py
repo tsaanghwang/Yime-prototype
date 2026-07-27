@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from yime.lexicon_bundle.builder import BundleInputs, build_bundle, default_inputs
+from yime.lexicon_bundle.character_tiers import CharacterTierSources
 
 
 def parse_args() -> argparse.Namespace:
@@ -23,6 +24,27 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--unihan", type=Path, default=defaults.unihan)
     parser.add_argument("--pypinyin-phrases", type=Path, default=defaults.pypinyin_phrases)
     parser.add_argument("--decoder-inventory", type=Path, default=defaults.decoder_inventory)
+    assert defaults.character_tier_sources is not None
+    parser.add_argument(
+        "--unihan-other-mappings",
+        type=Path,
+        default=defaults.character_tier_sources.other_mappings,
+    )
+    parser.add_argument(
+        "--unihan-readings",
+        type=Path,
+        default=defaults.character_tier_sources.readings,
+    )
+    parser.add_argument(
+        "--unihan-character-db",
+        type=Path,
+        default=defaults.character_tier_sources.character_catalog_db,
+    )
+    parser.add_argument(
+        "--yinjie-codebook",
+        type=Path,
+        default=defaults.character_tier_sources.yinjie_codebook,
+    )
     parser.add_argument(
         "--source-compliance-policy",
         type=Path,
@@ -53,6 +75,12 @@ def main() -> int:
         wanxiang_files=wanxiang_defaults.wanxiang_files,
         decoder_inventory=args.decoder_inventory.resolve(),
         source_compliance_policy=args.source_compliance_policy.resolve(),
+        character_tier_sources=CharacterTierSources(
+            other_mappings=args.unihan_other_mappings.resolve(),
+            readings=args.unihan_readings.resolve(),
+            character_catalog_db=args.unihan_character_db.resolve(),
+            yinjie_codebook=args.yinjie_codebook.resolve(),
+        ),
     )
     result = build_bundle(inputs, args.output_dir.resolve())
     payload = json.loads(result.manifest.read_text(encoding="utf-8"))

@@ -17,6 +17,15 @@ Unihan / pypinyin / 万象 / BCC 原始来源
 真源。旧 `source_pinyin.db` 已退出默认解析、导入和回退链；生产导入器遇到旧
 schema 会直接失败。环境覆盖只接受 `YIME_LEXICON_SOURCE_DB`。
 
+单字九级分级也物化在该统一库的 `character_tiers` 表中。构建器从同版本
+Unihan伴生文件和 `hanzi_pinyin.db` 字符全集生成它；运行库只消费结果，不再
+自行读取 `unihan_readings.db` 或仓库外的 `kXHC1983.txt`。只需重算分级而不
+重建整个大语料包时，可运行：
+
+```powershell
+.\venv312\Scripts\python.exe tools\rebuild_character_tiers.py
+```
+
 ## 完整重建
 
 ```powershell
