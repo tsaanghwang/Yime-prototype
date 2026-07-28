@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "policy_id": "tier5_two_level_runtime_v1",
+  "policy_id": "tier5_two_level_runtime_v2",
   "purpose": "Keep complete source evidence while materializing a compact two-level runtime lexicon.",
   "character_boundary": {
     "maximum_tier": 5,
@@ -26,6 +26,36 @@
     "minimum_text_length": 5,
     "frequency_cache_capacity": 5000,
     "retain_selected_long_bridges": true
+  },
+  "long_form_core_migration": {
+    "minimum_text_length": 5,
+    "eligible_candidate_classes": [
+      "lexical_candidate",
+      "productive_phrase"
+    ],
+    "protected_candidate_classes": [
+      "domain_term",
+      "place_name",
+      "person_name"
+    ],
+    "required_evidence": {
+      "bcc_frequency": 0,
+      "dependent_reading_count": 0,
+      "mandatory_static": false,
+      "all_readings_dynamically_recoverable": true
+    },
+    "action": "exclude_from_static_core_keep_dynamic_recoverable",
+    "source_mutation": false,
+    "noise_label": false,
+    "selected_runtime_violation_limit": 0
+  },
+  "dynamic_coverage_gate": {
+    "policy": "internal_data/dynamic_candidate_coverage_policy.json",
+    "require_complete": true
+  },
+  "candidate_ranking_evidence_gate": {
+    "policy": "internal_data/candidate_ranking_evidence_policy.json",
+    "require_complete": true
   },
   "safety": {
     "require_formal_existing_encoding": true,

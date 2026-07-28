@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import sqlite3
+from collections import Counter
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -20,6 +21,12 @@ from typing import Iterable, Mapping
 from yime.canonical_yime_mapping import load_canonical_code_map
 from yime.input_method.utils.user_lexicon import (
     resolve_canonical_code_from_numeric_pinyin,
+)
+from yime.input_model.ranking_evidence import (
+    DEFAULT_POLICY_PATH as DEFAULT_RANKING_POLICY_PATH,
+    build_ranking_calibration,
+    calibration_summary,
+    resolve_ranking_evidence,
 )
 from yime.utils.rime_export import (
     convert_runtime_code_to_layout_keys,
@@ -239,13 +246,6 @@ def _selected_readings(
         connection.close()
 
 
-def _weight(row: Mapping[str, object]) -> int:
-    bcc = max(int(row["bcc_frequency"] or 0), 0)
-    wanxiang = max(int(row["wanxiang_weight"] or 0), 0)
-    primary_bonus = 1 if int(row["is_primary"] or 0) else 0
-    return bcc + wanxiang + primary_bonus
-
-
 def _dictionary_text(
     *,
     dictionary_name: str,
@@ -281,6 +281,7 @@ def export_core_trial_lexicons(
     ) = None,
     trial_label: str = "",
     repo_root: Path,
+    ranking_policy_path: Path = DEFAULT_RANKING_POLICY_PATH,
 ) -> CoreTrialExportResult:
     """Export fixed-length canonical dictionaries for selected capacity tiers."""
 
@@ -396,6 +397,11 @@ def export_core_trial_lexicons(
         raise ValueError(f"Invalid trial label: {normalized_label}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    ranking_calibration = build_ranking_calibration(
+        source_database=source_database,
+        capacity_database=capacity_database,
+        policy_path=ranking_policy_path,
+    )
     pinyin_to_runtime_code = load_canonical_code_map(repo_root)
     symbol_to_key = load_runtime_symbol_to_layout_key(repo_root)
     layout_digest = layout_projection_digest(repo_root)
@@ -427,6 +433,8 @@ def export_core_trial_lexicons(
 
         entries: list[tuple[str, str, int]] = []
         selected_texts: set[str] = set()
+        ranking_evidence_readings: Counter[str] = Counter()
+        ranking_evidence_texts: dict[str, set[str]] = {}
         with selection_path.open(
             "w",
             encoding="utf-8",
@@ -443,6 +451,14 @@ def export_core_trial_lexicons(
                     "numeric_pinyin",
                     "full_layout_code",
                     "weight",
+                    "bcc_frequency",
+                    "wanxiang_weight",
+                    "ranking_evidence_source",
+                    "ranking_evidence_status",
+                    "normalized_fallback_percentile",
+                    "normalized_structural_percentile",
+                    "ranking_evidence_provisional",
+                    "requires_independent_corpus",
                     "mandatory_static",
                     "selection_rank",
                     "mandatory_reasons",
@@ -473,9 +489,18 @@ def export_core_trial_lexicons(
                         f"{row['text']} / {numeric_pinyin} / "
                         f"{full_layout_code}"
                     )
-                weight = _weight(row)
+                ranking = resolve_ranking_evidence(
+                    row,
+                    ranking_calibration,
+                )
+                weight = ranking.effective_weight
                 text = str(row["text"])
                 selected_texts.add(text)
+                ranking_evidence_readings[ranking.evidence_source] += 1
+                ranking_evidence_texts.setdefault(
+                    ranking.evidence_source,
+                    set(),
+                ).add(text)
                 entries.append((text, full_layout_code, weight))
                 selection_reasons: list[str] = []
                 if int(row["mandatory_static"]):
@@ -517,6 +542,18 @@ def export_core_trial_lexicons(
                         numeric_pinyin,
                         full_layout_code,
                         weight,
+                        ranking.bcc_frequency,
+                        ranking.wanxiang_weight,
+                        ranking.evidence_source,
+                        ranking.evidence_status,
+                        (
+                            f"{ranking.normalized_fallback_percentile:.9f}"
+                        ),
+                        (
+                            f"{ranking.normalized_structural_percentile:.9f}"
+                        ),
+                        int(ranking.provisional),
+                        int(ranking.requires_independent_corpus),
                         int(row["mandatory_static"]),
                         int(row["selection_rank"]),
                         str(row["mandatory_reasons"]),
@@ -573,6 +610,20 @@ def export_core_trial_lexicons(
             },
             "trial_label": normalized_label,
             "recommended_capacity": recommended,
+            "ranking_evidence": {
+                **calibration_summary(ranking_calibration),
+                "policy_sha256": _small_file_sha256(ranking_policy_path),
+                "reading_entries_by_source": dict(
+                    sorted(ranking_evidence_readings.items())
+                ),
+                "distinct_texts_by_source": {
+                    source: len(texts)
+                    for source, texts in sorted(
+                        ranking_evidence_texts.items()
+                    )
+                },
+                "raw_bcc_and_lmdg_values_added": False,
+            },
             "full_code_form": "canonical_layout_key",
             "layout_projection_sha256": layout_digest,
             "source_database": _file_identity(source_database),
@@ -620,6 +671,11 @@ def export_core_trial_lexicons(
             for category, lengths in included_wanxiang_categories.items()
         },
         "trial_label": normalized_label,
+        "ranking_evidence": {
+            **calibration_summary(ranking_calibration),
+            "policy_sha256": _small_file_sha256(ranking_policy_path),
+            "raw_bcc_and_lmdg_values_added": False,
+        },
         "layout_projection_sha256": layout_digest,
         "capacity_model_manifest_sha256": (
             _small_file_sha256(capacity_manifest)

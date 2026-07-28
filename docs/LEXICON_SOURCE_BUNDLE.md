@@ -18,6 +18,8 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
   `merged_word_freq.txt`、`merged_char_freq.txt` 和 `word_freq_merged_single_char_freq.txt` 都是本仓库
   生成的二手数据，禁止作为统一语料包的来源证据；配置误用时构建会直接失败。
 - 万象的权重经过其自身语料和排序流程处理，只保存在 `wanxiang_weight`，不得冒充 BCC count。
+- 运行候选采用 BCC 直接证据、RIME-LMDG 缺失补充和结构保底三层隔离排序；原值永不相加，
+  详见[候选排序证据与长尾结构](CANDIDATE_RANKING_EVIDENCE.md)。
 - 万象来源同时保留 `jichu`、`lianxiang`、`diming`、`shici`、`yixue` 等原始文件分类，供以后构建
   基础、联想、地名、诗词和专业分类词库。
 - 同一字词允许保留多个读音。Unihan 是单字首选来源，pypinyin 是词语首选来源，万象用于补充、交叉
@@ -35,7 +37,7 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
   标调位置。例如来源 `aì` 可保留为证据，但 `ai4` 的生产形式只能是规范 `ài`，不形成平行读音。
 - BCC 有频次但没有合规读音来源的词条进入 `unresolved_bcc.tsv`；不得用逐字常用音猜测多音词读音。
 - 包含暂无可信普通话读音来源码点的任意字串进入 `unencoded_pending_strings.tsv`，暂不进入正式
-  编码链，但保留为可逆的专家或未来来源复核项目，不判为噪声或永久拒绝。
+  编码链，但保留为可逆的专家或未来来源复核项目，不判为无效或永久拒绝。
 - 万象的 `cuoyin.dict.yaml` 是有意维护的错音错字资料，`mixed.dict.yaml` 含非纯汉字输入，两者默认
   不作为音元解码读音来源。
 

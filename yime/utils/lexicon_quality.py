@@ -7,11 +7,17 @@ from pathlib import Path
 from typing import Any, Iterable
 from urllib.parse import quote
 
+from yime.input_model.particle_constructions import review_particle_construction
+
 # 助词 / 语气词尾字及其当前数字标调读音。只按字形会把“目的 di4”“花呢 ni2”
 # “爪哇 wa1”等词误报；运行扫描必须同时命中末字和末音节读音。
 PARTICLE_SUFFIX_PINYIN = {
     "的": frozenset({"de5"}),
+    "地": frozenset({"de5"}),
+    "得": frozenset({"de5"}),
+    "着": frozenset({"zhe5"}),
     "了": frozenset({"le5"}),
+    "过": frozenset({"guo4"}),
     "吗": frozenset({"ma5"}),
     "呢": frozenset({"ne5"}),
     "吧": frozenset({"ba5"}),
@@ -82,6 +88,32 @@ RUNTIME_TABLE_PREFERENCE = (
     "runtime_candidates",
 )
 
+CORE_COMPONENT_MAXIMUM_LENGTH = 4
+
+
+def particle_suffix_review_role(
+    text: str,
+    *,
+    numeric_pinyin: str | None = None,
+    maximum_component_length: int = CORE_COMPONENT_MAXIMUM_LENGTH,
+) -> str:
+    """Route a suffix signal to role review without deciding lexical status."""
+
+    stripped = str(text or "").strip()
+    if not stripped:
+        raise ValueError("text must be non-empty")
+    if maximum_component_length < 1:
+        raise ValueError("maximum_component_length must be positive")
+    if numeric_pinyin:
+        return review_particle_construction(
+            stripped,
+            numeric_pinyin,
+            maximum_component_length=maximum_component_length,
+        ).suggested_role
+    if len(stripped) <= maximum_component_length:
+        return "core_component_candidate"
+    return "dynamic_sentence_candidate"
+
 
 def make_report(*, sample_limit: int, inputs: dict[str, str]) -> dict[str, Any]:
     return {
@@ -102,7 +134,10 @@ def make_report(*, sample_limit: int, inputs: dict[str, str]) -> dict[str, Any]:
         "warnings": defaultdict(list),
         "sample_limit": sample_limit,
         "notes": [
-            "suffix_particle 规则仅作审阅提示，当前不会自动清理词库。",
+            (
+                "suffix_particle 是候选角色审阅信号：1–4 字项优先审查其"
+                "核心组件价值，更长项优先审查动态句子恢复；不会自动清理词库。"
+            ),
             "请配合 docs/LEXICON_LINT.md 使用；人工决定应进入独立候选整理覆盖层。",
         ],
     }
@@ -244,6 +279,17 @@ def lint_candidate_row(
             "text": text,
             "suffix_char": text[-1],
             "pinyin_tone": pinyin_tone,
+            "suggested_role": particle_suffix_review_role(
+                text,
+                numeric_pinyin=pinyin_tone,
+            ),
+            "construction_evidence": [
+                item.to_dict()
+                for item in review_particle_construction(
+                    text,
+                    pinyin_tone,
+                ).evidence
+            ],
             "sort_weight": sort_weight,
             "entry_id": candidate.get("entry_id"),
         })
@@ -392,6 +438,17 @@ def lint_source_db_file(path: Path, report: dict[str, Any]) -> None:
                     "marked_pinyin": marked_pinyin,
                     "numeric_pinyin": numeric_pinyin,
                     "reading_rank": reading_rank,
+                    "suggested_role": particle_suffix_review_role(
+                        phrase_text,
+                        numeric_pinyin=str(numeric_pinyin or ""),
+                    ),
+                    "construction_evidence": [
+                        item.to_dict()
+                        for item in review_particle_construction(
+                            phrase_text,
+                            str(numeric_pinyin or ""),
+                        ).evidence
+                    ],
                 })
     except sqlite3.Error as exc:
         record_issue(report, "errors", "source_db_read_error", {

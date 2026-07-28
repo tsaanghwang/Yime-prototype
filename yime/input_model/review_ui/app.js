@@ -45,7 +45,7 @@ const classLabels = {
   semi_fixed_construction: "半固定构式",
   productive_phrase: "能产短语",
   syntactic_fragment: "句法片段",
-  noise: "噪声",
+  noise: "明确无效（R0）",
   context_dependent: "依赖语境",
   unknown: "未知材料",
 };
@@ -83,7 +83,7 @@ const tailSemanticLabels = {
   currency_measurement: "货币计量",
   other_proper_name: "其他专名",
   fixed_lexical_item: "固定词 · 保留待编码",
-  noise: "噪声 · 不予编码",
+  noise: "明确无效（R0）· 修复或隔离",
   uncertain: "无法判定 · 保留人工审查",
 };
 

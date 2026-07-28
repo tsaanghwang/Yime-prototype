@@ -116,6 +116,20 @@ def test_export_preserves_all_readings_of_selected_texts(
     assert manifest["reading_entries"] == 5
     assert manifest["trial_only"] is True
     assert manifest["runtime_replay_required"] is True
+    assert (
+        manifest["ranking_evidence"]["policy_id"]
+        == "bcc-primary-lmdg-fallback-structural-floor-v1"
+    )
+    assert manifest["ranking_evidence"][
+        "raw_bcc_and_lmdg_values_added"
+    ] is False
+    selection_header = tier.selection_path.read_text(
+        encoding="utf-8"
+    ).splitlines()[0]
+    assert "bcc_frequency" in selection_header
+    assert "wanxiang_weight" in selection_header
+    assert "ranking_evidence_source" in selection_header
+    assert "normalized_structural_percentile" in selection_header
     assert len(manifest["outputs"]["dictionary_sha256"]) == 64
     assert len(manifest["outputs"]["selection_sha256"]) == 64
 
