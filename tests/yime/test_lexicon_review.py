@@ -102,6 +102,9 @@ def test_export_review_queue_joins_overlay_without_writing_decisions(tmp_path) -
     assert [row["text"] for row in rows] == ["高优吧", "待审吗", "低频呢"]
     assert rows[1]["decision_status"] == "deferred"
     assert rows[1]["has_context_evidence"] == "1"
+    assert rows[1]["suggested_role"] == "modal_component_candidate"
+    assert rows[1]["construction_systems"] == "modal_particles"
+    assert rows[1]["construction_ids"] == "interrogative_ma"
     assert rows[2]["policy_lane"] == "source_classified"
     assert "目的" not in {row["text"] for row in rows}
     assert "好的" not in {row["text"] for row in rows}
@@ -109,7 +112,13 @@ def test_export_review_queue_joins_overlay_without_writing_decisions(tmp_path) -
     manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
     assert manifest["policy"]["writes_assessments"] is False
     assert manifest["counts"]["queue"] == 3
-    assert "词库尾助词观察审阅摘要" in result.summary_path.read_text(
+    assert manifest["counts"]["suggested_roles"] == {
+        "modal_component_candidate": 3
+    }
+    assert manifest["counts"]["construction_systems"] == {
+        "modal_particles": 3
+    }
+    assert "助词构式部件审阅摘要" in result.summary_path.read_text(
         encoding="utf-8"
     )
 

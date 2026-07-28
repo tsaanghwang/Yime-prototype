@@ -16,6 +16,9 @@ from .lexicon_quality import (
     PARTICLE_SUFFIX_WHITELIST,
     RUNTIME_TABLE_PREFERENCE,
 )
+from yime.input_model.particle_constructions import (
+    review_particle_construction_readings,
+)
 
 
 REVIEW_TIER_ORDER = {
@@ -31,6 +34,11 @@ QUEUE_FIELDS = (
     "rank",
     "review_tier",
     "policy_lane",
+    "suggested_role",
+    "construction_systems",
+    "construction_ids",
+    "construction_interfaces",
+    "theoretical_basis",
     "text",
     "pinyin_tones",
     "suffix_char",
@@ -51,6 +59,11 @@ class ReviewQueueRow:
     rank: int
     review_tier: str
     policy_lane: str
+    suggested_role: str
+    construction_systems: str
+    construction_ids: str
+    construction_interfaces: str
+    theoretical_basis: str
     text: str
     pinyin_tones: str
     suffix_char: str
@@ -74,6 +87,7 @@ class ReviewExportResult:
     excluded_decided_count: int
     tier_counts: dict[str, int]
     suffix_counts: dict[str, int]
+    role_counts: dict[str, int]
 
 
 def _readonly_uri(path: Path) -> str:
@@ -247,6 +261,10 @@ def collect_review_queue(
         pinyin_tones = "; ".join(
             sorted(set(str(row["pinyin_tones"] or "").split(",")))
         )
+        construction_review = review_particle_construction_readings(
+            str(row["text"]),
+            pinyin_tones.split("; "),
+        )
         queue.append(
             ReviewQueueRow(
                 rank=rank,
@@ -256,6 +274,11 @@ def collect_review_queue(
                     if integration_policy == "needs_review"
                     else "source_classified"
                 ),
+                suggested_role=construction_review.suggested_role,
+                construction_systems="; ".join(construction_review.systems),
+                construction_ids="; ".join(construction_review.construction_ids),
+                construction_interfaces="; ".join(construction_review.interfaces),
+                theoretical_basis=construction_review.theoretical_basis,
                 text=str(row["text"]),
                 pinyin_tones=pinyin_tones,
                 suffix_char=str(row["suffix_char"]),
@@ -313,6 +336,12 @@ def _summary_lines(
     tier_counts = Counter(row.review_tier for row in queue)
     suffix_counts = Counter(row.suffix_char for row in queue)
     lane_counts = Counter(row.policy_lane for row in queue)
+    role_counts = Counter(row.suggested_role for row in queue)
+    system_counts: Counter[str] = Counter()
+    for row in queue:
+        system_counts.update(
+            item for item in row.construction_systems.split("; ") if item
+        )
     context_count = sum(row.has_context_evidence for row in queue)
     high_frequency_count = sum(
         tier_counts.get(tier, 0)
@@ -335,7 +364,7 @@ def _summary_lines(
         for row in queue[:summary_limit]
     ]
     lines = [
-        "# 词库尾助词观察审阅摘要",
+        "# 助词构式部件审阅摘要",
         "",
         "本文件由 `tools/export_lexicon_quality_review.py` 机械导出。命中项只是待审信号，",
         "不会自动写入 `assessments`，也不是删除清单。排序优先使用 BCC 频次，再使用运行权重。",
@@ -347,10 +376,26 @@ def _summary_lines(
         f"- 未分类通道：`{lane_counts.get('unclassified', 0)}`",
         f"- 来源已分类通道：`{lane_counts.get('source_classified', 0)}`",
         (
+            "- 长串动态句子角色候选："
+            f"`{role_counts.get('dynamic_sentence_candidate', 0)}`"
+        ),
+        (
             "- 上下文证据缺口：当前队列没有 KWIC；本地 BCC 输入是频次表，"
             "不能从计数反向重建原句。"
             if context_count == 0 and queue
             else f"- 仍缺上下文证据：`{len(queue) - context_count}`"
+        ),
+        "",
+        "## 构式系统与建议角色",
+        "",
+        *_table(
+            ("构式系统", "数量"),
+            sorted(system_counts.items(), key=lambda item: (-item[1], item[0])),
+        ),
+        "",
+        *_table(
+            ("建议角色", "数量"),
+            sorted(role_counts.items(), key=lambda item: (-item[1], item[0])),
         ),
         "",
         "## BCC 分层",
@@ -463,6 +508,12 @@ def export_review_queue(
 
     tier_counts = dict(Counter(row.review_tier for row in queue))
     suffix_counts = dict(Counter(row.suffix_char for row in queue))
+    role_counts = dict(Counter(row.suggested_role for row in queue))
+    construction_system_counts: Counter[str] = Counter()
+    for row in queue:
+        construction_system_counts.update(
+            item for item in row.construction_systems.split("; ") if item
+        )
     manifest = {
         "schema_version": 1,
         "tool": "export_lexicon_quality_review",
@@ -480,9 +531,15 @@ def export_review_queue(
             "excluded_decided": excluded_decided_count,
             "tiers": tier_counts,
             "suffixes": suffix_counts,
+            "suggested_roles": role_counts,
+            "construction_systems": dict(construction_system_counts),
         },
         "policy": {
             "writes_assessments": False,
+            "construction_policy": (
+                "internal_data/particle_construction_policy.json"
+            ),
+            "construction_evidence_is_not_noise_decision": True,
             "frequency_tiers": list(REVIEW_TIER_ORDER),
         },
     }
@@ -498,4 +555,5 @@ def export_review_queue(
         excluded_decided_count=excluded_decided_count,
         tier_counts=tier_counts,
         suffix_counts=suffix_counts,
+        role_counts=role_counts,
     )

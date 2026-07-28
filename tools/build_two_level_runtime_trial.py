@@ -17,6 +17,7 @@ import argparse
 import hashlib
 import json
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,15 @@ from tools.build_two_level_precomposition_lexicon import (
 )
 from tools.prepare_component_learning_trial import build_dictionary
 from yime.input_model.core_trial_export import export_core_trial_lexicons
+from yime.input_model.dynamic_coverage import (
+    evaluate_dynamic_candidate_coverage,
+)
+from yime.input_model.long_form_migration import (
+    audit_long_form_core_migration,
+)
+from yime.input_model.ranking_evidence import (
+    audit_runtime_ranking_evidence,
+)
 from yime.utils.rime_export import export_rime_files
 from yime.utils.runtime_lexicon_selection import (
     apply_runtime_selection,
@@ -51,6 +61,9 @@ DEFAULT_CAPACITY = (
     / "static_capacity.sqlite3"
 )
 DEFAULT_RUNTIME = ROOT / "yime" / "pinyin_hanzi.db"
+DEFAULT_INPUT_MODEL = (
+    ROOT / ".generated" / "input_candidate_model" / "input_model.sqlite3"
+)
 DEFAULT_OUTPUT = ROOT / ".generated" / "two_level_runtime_trial"
 
 
@@ -75,6 +88,7 @@ def build_trial(
     policy_path: Path,
     source_database: Path,
     capacity_database: Path,
+    input_model_database: Path,
     source_runtime_database: Path,
     output_dir: Path,
     reuse_runtime_database: bool = False,
@@ -83,6 +97,8 @@ def build_trial(
     character_policy = policy["character_boundary"]
     first_level_policy = policy["first_level"]
     second_level_policy = policy["second_level"]
+    ranking_gate = policy["candidate_ranking_evidence_gate"]
+    ranking_policy_path = ROOT / str(ranking_gate["policy"])
     maximum_tier = int(character_policy["maximum_tier"])
 
     core_output = output_dir / "core_selection"
@@ -105,6 +121,7 @@ def build_trial(
         },
         trial_label="tier5-two-level-runtime",
         repo_root=ROOT,
+        ranking_policy_path=ranking_policy_path,
     )
     core_dictionary = core_result.tiers[0].dictionary_path
 
@@ -164,7 +181,51 @@ def build_trial(
             else None
         ),
         selection_path=selection_tsv,
+        ranking_policy_path=ranking_policy_path,
+        ranking_capacity_database=capacity_database,
     )
+    ranking_audit = audit_runtime_ranking_evidence(
+        source_database=source_database,
+        selection_path=selection_tsv,
+        capacity_database=capacity_database,
+        policy_path=ranking_policy_path,
+    )
+    if bool(ranking_gate["require_complete"]) and not (
+        ranking_audit.completion_passed
+    ):
+        raise ValueError(
+            "source-separated candidate ranking evidence gate did not pass"
+        )
+    migration_audit = audit_long_form_core_migration(
+        capacity_database=capacity_database,
+        input_model_database=input_model_database,
+        selection_path=selection_tsv,
+        policy_path=policy_path,
+    )
+    violation_limit = int(
+        policy["long_form_core_migration"][
+            "selected_runtime_violation_limit"
+        ]
+    )
+    if migration_audit.selected_violations > violation_limit:
+        raise ValueError(
+            "Two-level selection contains long-form migration candidates: "
+            f"{migration_audit.selected_violations} > {violation_limit}"
+        )
+    coverage_gate = policy["dynamic_coverage_gate"]
+    coverage_policy_path = ROOT / str(coverage_gate["policy"])
+    dynamic_coverage = evaluate_dynamic_candidate_coverage(
+        capacity_database=capacity_database,
+        input_model_database=input_model_database,
+        selection_path=selection_tsv,
+        policy_path=coverage_policy_path,
+    )
+    if bool(coverage_gate["require_complete"]) and not (
+        dynamic_coverage.completion_passed
+    ):
+        raise ValueError(
+            "R0-R5 dynamic candidate coverage gate did not pass"
+        )
 
     filtered_runtime = output_dir / "runtime" / "pinyin_hanzi.db"
     if filtered_runtime.exists():
@@ -194,6 +255,22 @@ def build_trial(
         },
         "source_database": str(source_database.resolve()),
         "capacity_database": str(capacity_database.resolve()),
+        "input_model_database": str(input_model_database.resolve()),
+        "candidate_ranking_evidence": {
+            **asdict(ranking_audit),
+            "policy": str(ranking_policy_path.resolve()),
+            "decision": "pass",
+        },
+        "long_form_core_migration": {
+            **asdict(migration_audit),
+            "violation_limit": violation_limit,
+            "decision": "pass",
+        },
+        "dynamic_candidate_coverage": {
+            **asdict(dynamic_coverage),
+            "policy": str(coverage_policy_path.resolve()),
+            "decision": "pass",
+        },
         "source_runtime_database": str(
             source_runtime_database.resolve()
         ),
@@ -234,6 +311,11 @@ def main() -> int:
         type=Path,
         default=DEFAULT_RUNTIME,
     )
+    parser.add_argument(
+        "--input-model-database",
+        type=Path,
+        default=DEFAULT_INPUT_MODEL,
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument(
         "--reuse-runtime-database",
@@ -248,11 +330,12 @@ def main() -> int:
         policy_path=args.policy,
         source_database=args.source_database,
         capacity_database=args.capacity_database,
+        input_model_database=args.input_model_database,
         source_runtime_database=args.source_runtime_database,
         output_dir=args.output_dir,
         reuse_runtime_database=args.reuse_runtime_database,
     )
-    print(json.dumps(payload, ensure_ascii=False))
+    print(json.dumps(payload, ensure_ascii=True))
     return 0
 
 

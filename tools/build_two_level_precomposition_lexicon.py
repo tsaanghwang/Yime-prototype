@@ -19,9 +19,17 @@ import hashlib
 import heapq
 import json
 import sqlite3
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
+
+from yime.input_model.ranking_evidence import (
+    DEFAULT_POLICY_PATH as DEFAULT_RANKING_POLICY_PATH,
+    build_ranking_calibration,
+    calibration_summary,
+    resolve_text_ranking_evidence,
+)
 
 
 @dataclass(frozen=True)
@@ -165,6 +173,8 @@ def build(
     minimum_length: int,
     retained_long_dictionary: Path | None,
     selection_path: Path | None = None,
+    ranking_policy_path: Path = DEFAULT_RANKING_POLICY_PATH,
+    ranking_capacity_database: Path | None = None,
 ) -> dict[str, object]:
     allowed = _allowed_hanzi(database, maximum_tier)
     selected: dict[tuple[str, str], DictionaryEntry] = {}
@@ -217,6 +227,33 @@ def build(
     frequency_added_keys = (
         set(selected) - base_keys - retained_added_keys
     )
+    ranking_calibration = build_ranking_calibration(
+        source_database=database,
+        capacity_database=ranking_capacity_database,
+        policy_path=ranking_policy_path,
+    )
+    ranking_by_text = resolve_text_ranking_evidence(
+        source_database=database,
+        texts={text for text, _code in selected},
+        calibration=ranking_calibration,
+        capacity_database=ranking_capacity_database,
+    )
+    missing_ranking_texts = sorted(
+        {text for text, _code in selected} - set(ranking_by_text)
+    )
+    if missing_ranking_texts:
+        raise ValueError(
+            "Selected texts are missing canonical ranking evidence: "
+            + ", ".join(missing_ranking_texts[:10])
+        )
+    selected = {
+        key: DictionaryEntry(
+            text=entry.text,
+            code=entry.code,
+            weight=ranking_by_text[entry.text].effective_weight,
+        )
+        for key, entry in selected.items()
+    }
 
     entries = sorted(
         selected.values(),
@@ -253,11 +290,20 @@ def build(
                     "text",
                     "full_layout_code",
                     "weight",
+                    "bcc_frequency",
+                    "wanxiang_weight",
+                    "ranking_evidence_source",
+                    "ranking_evidence_status",
+                    "normalized_fallback_percentile",
+                    "normalized_structural_percentile",
+                    "ranking_evidence_provisional",
+                    "requires_independent_corpus",
                     "selection_level",
                     "selection_reason",
                 )
             )
             for entry in entries:
+                ranking = ranking_by_text[entry.text]
                 key = (entry.text, entry.code)
                 if key in base_keys:
                     level = "first_level"
@@ -273,6 +319,18 @@ def build(
                         entry.text,
                         entry.code,
                         entry.weight,
+                        ranking.bcc_frequency,
+                        ranking.wanxiang_weight,
+                        ranking.evidence_source,
+                        ranking.evidence_status,
+                        (
+                            f"{ranking.normalized_fallback_percentile:.9f}"
+                        ),
+                        (
+                            f"{ranking.normalized_structural_percentile:.9f}"
+                        ),
+                        int(ranking.provisional),
+                        int(ranking.requires_independent_corpus),
                         level,
                         reason,
                     )
@@ -311,6 +369,20 @@ def build(
         "frequency_cache_capacity": capacity,
         "minimum_long_length": minimum_length,
         "maximum_character_tier": maximum_tier,
+        "ranking_evidence": {
+            **calibration_summary(ranking_calibration),
+            "policy_sha256": _sha256(ranking_policy_path),
+            "distinct_texts_by_source": dict(
+                sorted(
+                    Counter(
+                        evidence.evidence_source
+                        for evidence in ranking_by_text.values()
+                    ).items()
+                )
+            ),
+            "raw_bcc_and_lmdg_values_added": False,
+            "missing_selected_source_texts": 0,
+        },
         "source_scan_counts": source_counts,
         "production_intersection": {
             "requested_base_readings": len(requested_base_keys),
@@ -393,6 +465,12 @@ def main() -> int:
     parser.add_argument("--minimum-length", type=int, default=5)
     parser.add_argument("--retained-long-dictionary", type=Path)
     parser.add_argument(
+        "--ranking-policy",
+        type=Path,
+        default=DEFAULT_RANKING_POLICY_PATH,
+    )
+    parser.add_argument("--ranking-capacity-database", type=Path)
+    parser.add_argument(
         "--selection",
         type=Path,
         help=(
@@ -412,6 +490,8 @@ def main() -> int:
         minimum_length=args.minimum_length,
         retained_long_dictionary=args.retained_long_dictionary,
         selection_path=args.selection,
+        ranking_policy_path=args.ranking_policy,
+        ranking_capacity_database=args.ranking_capacity_database,
     )
     print(json.dumps(payload, ensure_ascii=False))
     return 0

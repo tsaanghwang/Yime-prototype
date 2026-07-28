@@ -12,6 +12,7 @@ from yime.utils.lexicon_quality import (
     ends_with_particle,
     is_placeholder_phrase,
     is_whitelisted_phrase,
+    particle_suffix_review_role,
 )
 
 
@@ -33,6 +34,13 @@ def test_suffix_particle_requires_particle_reading_when_pinyin_is_available() ->
 def test_suffix_particle_whitelist_skips_common_phrase() -> None:
     assert ends_with_particle("你的")
     assert is_whitelisted_phrase("你的")
+
+
+def test_suffix_particle_review_role_separates_core_and_dynamic_candidates() -> None:
+    assert particle_suffix_review_role("小小的") == "core_component_candidate"
+    assert particle_suffix_review_role("你到底去了哪里呢") == (
+        "dynamic_sentence_candidate"
+    )
 
 
 def test_placeholder_phrase_detection() -> None:
@@ -80,6 +88,15 @@ def test_lint_runtime_json_flags_suffix_and_placeholder() -> None:
     assert finalized["summary"]["suffix_particle_count"] == 1
     assert finalized["summary"]["placeholder_phrase_count"] == 1
     assert "suffix_particle" in finalized["warnings"]
+    assert finalized["warnings"]["suffix_particle"][0]["suggested_role"] == (
+        "polyfunctional_particle_candidate"
+    )
+    assert {
+        item["system"]
+        for item in finalized["warnings"]["suffix_particle"][0][
+            "construction_evidence"
+        ]
+    } == {"aspectual_particles", "modal_particles"}
     assert "placeholder_phrase_code" in finalized["warnings"]
 
 

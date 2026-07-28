@@ -952,7 +952,10 @@ class UnencodedCandidateReview:
                     policy = IntegrationPolicy.REJECT
                     status = DecisionStatus.REJECTED
                     disposition = "reject"
-                    rationale = "人工分类为噪声材料，程序将其移出待编码系列。"
+                    rationale = (
+                        "人工确认该材料属于 R0 确定性无效项；"
+                        "程序将其移出待编码系列并保留审计证据。"
+                    )
                 elif semantic_class == "fixed_lexical_item":
                     candidate_class = CandidateClass.LEXICAL_CANDIDATE
                     policy = IntegrationPolicy.STATIC_KEEP

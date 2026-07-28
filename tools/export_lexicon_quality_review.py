@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export a ranked, read-only review queue for lexicon-quality signals."""
+"""Export a ranked, read-only review queue for particle constructions."""
 
 from __future__ import annotations
 
@@ -31,7 +31,7 @@ def configure_utf8_stdio() -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "把词库尾助词质检信号与 input_model 覆盖层合并成只读审阅队列；"
+            "把有类型的助词构式证据与 input_model 覆盖层合并成只读审阅队列；"
             "不会写 assessments 或生产词库。"
         ),
     )
@@ -64,6 +64,7 @@ def main() -> int:
     print(f"excluded_decided_count: {result.excluded_decided_count}")
     print(f"tier_counts: {result.tier_counts}")
     print(f"suffix_counts: {result.suffix_counts}")
+    print(f"role_counts: {result.role_counts}")
     return 0
 
 
