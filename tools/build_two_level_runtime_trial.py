@@ -3,7 +3,8 @@
 This is the single experimental entry point for:
 
 1. rebuilding the B-lite source-backed selection;
-2. retaining tier-1..5 encoded 1-4 character components;
+2. retaining every tier-1..8 formally encoded single character and the
+   source-backed 1-4 character components built from them;
 3. retaining selected long bridges plus a bounded high-weight long cache;
 4. cloning the complete prototype database; and
 5. activating the selection only on its materialized runtime candidates.
@@ -19,6 +20,7 @@ import json
 import sys
 from dataclasses import asdict
 from pathlib import Path
+from typing import Mapping
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -83,6 +85,53 @@ def _write_json(path: Path, payload: object) -> None:
     )
 
 
+def _assert_character_boundary(
+    manifest: Mapping[str, object],
+    character_policy: Mapping[str, object],
+    *,
+    label: str,
+    expected_readings_field: str,
+) -> dict[str, int]:
+    expected_characters = int(
+        character_policy["expected_distinct_characters"]
+    )
+    expected_readings = int(
+        character_policy[expected_readings_field]
+    )
+    distinct_by_length = manifest.get("distinct_texts_by_length")
+    readings_by_length = manifest.get("reading_entries_by_length")
+    if not isinstance(distinct_by_length, Mapping) or not isinstance(
+        readings_by_length, Mapping
+    ):
+        raise ValueError(
+            f"{label} manifest has no per-length completeness counts"
+        )
+    actual_characters = int(distinct_by_length.get("1", 0))
+    actual_readings = int(readings_by_length.get("1", 0))
+    if actual_characters != expected_characters:
+        raise ValueError(
+            f"{label} single-character coverage mismatch: expected "
+            f"{expected_characters}, got {actual_characters}"
+        )
+    if actual_readings != expected_readings:
+        raise ValueError(
+            f"{label} single-character reading coverage mismatch: expected "
+            f"{expected_readings}, got {actual_readings}"
+        )
+    allowed_characters = manifest.get("allowed_encoded_hanzi")
+    if allowed_characters is not None and (
+        int(allowed_characters) != expected_characters
+    ):
+        raise ValueError(
+            f"{label} allowed-character inventory mismatch: expected "
+            f"{expected_characters}, got {allowed_characters}"
+        )
+    return {
+        "distinct_characters": actual_characters,
+        "reading_entries": actual_readings,
+    }
+
+
 def build_trial(
     *,
     policy_path: Path,
@@ -92,11 +141,13 @@ def build_trial(
     source_runtime_database: Path,
     output_dir: Path,
     reuse_runtime_database: bool = False,
+    materialize_runtime_database: bool = True,
 ) -> dict[str, object]:
     policy = json.loads(policy_path.read_text(encoding="utf-8"))
     character_policy = policy["character_boundary"]
     first_level_policy = policy["first_level"]
     second_level_policy = policy["second_level"]
+    character_ranking_policy = policy["single_character_ranking"]
     ranking_gate = policy["candidate_ranking_evidence_gate"]
     ranking_policy_path = ROOT / str(ranking_gate["policy"])
     maximum_tier = int(character_policy["maximum_tier"])
@@ -119,7 +170,7 @@ def build_trial(
                 "included_wanxiang_category_lengths"
             ].items()
         },
-        trial_label="tier5-two-level-runtime",
+        trial_label="all-encoded-characters-two-level-runtime",
         repo_root=ROOT,
         ranking_policy_path=ranking_policy_path,
     )
@@ -132,6 +183,12 @@ def build_trial(
         database=source_database,
         maximum_tier=maximum_tier,
         maximum_length=int(first_level_policy["maximum_text_length"]),
+    )
+    first_level_character_coverage = _assert_character_boundary(
+        first_level_manifest,
+        character_policy,
+        label="first-level dictionary",
+        expected_readings_field="expected_source_reading_entries",
     )
     _write_json(
         output_dir / "first_level.manifest.json",
@@ -183,6 +240,22 @@ def build_trial(
         selection_path=selection_tsv,
         ranking_policy_path=ranking_policy_path,
         ranking_capacity_database=capacity_database,
+        core_maximum_tier=int(character_policy["core_maximum_tier"]),
+        core_weight_offset=int(
+            character_ranking_policy["core_weight_offset"]
+        ),
+        peripheral_weight_offset=int(
+            character_ranking_policy["peripheral_weight_offset"]
+        ),
+        require_core_above_peripheral=bool(
+            character_ranking_policy["require_core_above_peripheral"]
+        ),
+    )
+    runtime_character_coverage = _assert_character_boundary(
+        dictionary_manifest,
+        character_policy,
+        label="final two-level dictionary",
+        expected_readings_field="expected_runtime_mapping_entries",
     )
     ranking_audit = audit_runtime_ranking_evidence(
         source_database=source_database,
@@ -228,23 +301,32 @@ def build_trial(
         )
 
     filtered_runtime = output_dir / "runtime" / "pinyin_hanzi.db"
-    if filtered_runtime.exists():
-        if not reuse_runtime_database:
-            raise FileExistsError(
-                f"{filtered_runtime} already exists; pass "
-                "--reuse-runtime-database to reapply the selection "
-                "without replacing its complete inventories"
-            )
+    if materialize_runtime_database:
+        if filtered_runtime.exists():
+            if not reuse_runtime_database:
+                raise FileExistsError(
+                    f"{filtered_runtime} already exists; pass "
+                    "--reuse-runtime-database to reapply the selection "
+                    "without replacing its complete inventories"
+                )
+        else:
+            clone_database(source_runtime_database, filtered_runtime)
+        runtime_manifest = apply_runtime_selection(
+            filtered_runtime,
+            selection_tsv,
+            manifest_path=output_dir / "runtime.manifest.json",
+            strict_unmatched=bool(
+                policy["safety"]["unmatched_selected_readings_are_errors"]
+            ),
+        )
     else:
-        clone_database(source_runtime_database, filtered_runtime)
-    runtime_manifest = apply_runtime_selection(
-        filtered_runtime,
-        selection_tsv,
-        manifest_path=output_dir / "runtime.manifest.json",
-        strict_unmatched=bool(
-            policy["safety"]["unmatched_selected_readings_are_errors"]
-        ),
-    )
+        runtime_manifest = {
+            "status": "skipped",
+            "reason": (
+                "Windows dictionary handoff does not require a cloned "
+                "prototype runtime database"
+            ),
+        }
 
     payload = {
         "schema_version": "yime-two-level-runtime-trial-v1",
@@ -274,19 +356,39 @@ def build_trial(
         "source_runtime_database": str(
             source_runtime_database.resolve()
         ),
+        "character_coverage": {
+            "maximum_tier": maximum_tier,
+            "core_distinct_characters": int(
+                character_policy["core_distinct_characters"]
+            ),
+            "peripheral_distinct_characters": int(
+                character_policy["peripheral_distinct_characters"]
+            ),
+            "first_level": first_level_character_coverage,
+            "runtime": runtime_character_coverage,
+            "ranking": dictionary_manifest["single_character_ranking"],
+            "decision": "pass",
+        },
         "first_level": first_level_manifest,
         "dictionary": dictionary_manifest,
         "runtime": runtime_manifest,
         "outputs": {
             "filtered_dictionary": str(filtered_dictionary.resolve()),
             "selection_tsv": str(selection_tsv.resolve()),
-            "filtered_runtime_database": str(
-                filtered_runtime.resolve()
+            "filtered_runtime_database": (
+                str(filtered_runtime.resolve())
+                if materialize_runtime_database
+                else ""
             ),
         },
         "run_prototype": {
             "environment_variable": "YIME_RUNTIME_DB_PATH",
-            "value": str(filtered_runtime.resolve()),
+            "value": (
+                str(filtered_runtime.resolve())
+                if materialize_runtime_database
+                else ""
+            ),
+            "available": materialize_runtime_database,
         },
     }
     _write_json(output_dir / "manifest.json", payload)
@@ -325,6 +427,14 @@ def main() -> int:
             "the materialized selection overlay."
         ),
     )
+    parser.add_argument(
+        "--skip-runtime-database",
+        action="store_true",
+        help=(
+            "Build and validate the Windows handoff dictionary without "
+            "cloning or mutating a prototype runtime database."
+        ),
+    )
     args = parser.parse_args()
     payload = build_trial(
         policy_path=args.policy,
@@ -334,6 +444,7 @@ def main() -> int:
         source_runtime_database=args.source_runtime_database,
         output_dir=args.output_dir,
         reuse_runtime_database=args.reuse_runtime_database,
+        materialize_runtime_database=not args.skip_runtime_database,
     )
     print(json.dumps(payload, ensure_ascii=True))
     return 0

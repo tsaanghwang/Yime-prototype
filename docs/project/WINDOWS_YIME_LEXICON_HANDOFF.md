@@ -7,8 +7,8 @@
 
 | 交接物 | 职责 |
 | --- | --- |
-| `internal_data/runtime_lexicon_filter_policy.json` | 前五级单字、一级组件、二级预组合及门禁策略 |
-| `yime_core_trial.dict.yaml` | 1,124,631 条已编码运行记录 |
+| `internal_data/runtime_lexicon_filter_policy.json` | 全部已编码单字、一级组件、二级预组合及门禁策略 |
+| `yime_core_trial.dict.yaml` | 1,167,057 条已编码运行映射 |
 | `yime_core_trial_manifest.json` | 来源、布局、转换版本、条目数和输出 SHA-256 |
 | `yime_runtime_profile.json` | Windows 默认 schema、离线文件边界和验收摘要 |
 | 拼音显示与音节分解资产 | 反查、显示和正式编码审计 |
@@ -31,7 +31,9 @@
 1. 原型策略与 Windows 默认 schema 均为 `yime_core_trial`；
 2. Windows 核心词典 SHA-256 与 manifest 一致；
 3. 固定回放的95% Wilson 下界不低于99%；
-4. 旧三套大词库均声明为 offline-only。
+4. 46,095个已编码单字及60,996条正式读音全部通过门禁，并形成
+   60,995条不重复的“单字+编码”运行映射；
+5. 旧三套大词库均声明为 offline-only。
 
 Windows `build.bat` 复制共享数据后删除旧 dict、schema 和 manifest；发现任何残留即失败。安装后用
 `tools/verify-installed-runtime.ps1` 检查源码/安装哈希、核心 profile 和 `runtime-leak`。
@@ -39,6 +41,8 @@ Windows `build.bat` 复制共享数据后删除旧 dict、schema 和 manifest；
 ## 发布语义
 
 - “完整长词未预装”不表示“未编码”：只要组件已有正式编码，就由动态组句恢复；
+- 第1–5级14,000字保持常用核心排序，第6–8级32,095字作为低频外围，
+  但全部可以单字输入并参与动态组句；
 - 来源库允许保留未决、古旧和动态残差材料，运行库只接受通过来源与 R0–R5 覆盖门禁的组件；
 - 用户实际选择进入个人学习库，不自动反写公共系统库；
 - 高频晋升扫描只产生待审建议，不能绕过拼音和编码门禁；
