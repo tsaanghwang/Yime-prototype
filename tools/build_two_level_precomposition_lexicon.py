@@ -107,14 +107,17 @@ def _header(path: Path) -> list[str]:
     return result
 
 
-def _allowed_hanzi(database: Path, maximum_tier: int) -> set[str]:
+def _character_tiers(
+    database: Path,
+    maximum_tier: int,
+) -> dict[str, int]:
     connection = sqlite3.connect(database)
     try:
         return {
-            str(row[0])
+            str(row[0]): int(row[1])
             for row in connection.execute(
                 """
-                SELECT hanzi
+                SELECT hanzi, tier_number
                 FROM character_tiers
                 WHERE tier_number <= ?
                   AND encoded_reading_count > 0
@@ -175,8 +178,19 @@ def build(
     selection_path: Path | None = None,
     ranking_policy_path: Path = DEFAULT_RANKING_POLICY_PATH,
     ranking_capacity_database: Path | None = None,
+    core_maximum_tier: int | None = None,
+    core_weight_offset: int = 0,
+    peripheral_weight_offset: int = 0,
+    require_core_above_peripheral: bool = False,
 ) -> dict[str, object]:
-    allowed = _allowed_hanzi(database, maximum_tier)
+    character_tiers = _character_tiers(database, maximum_tier)
+    allowed = set(character_tiers)
+    if core_maximum_tier is None:
+        core_maximum_tier = maximum_tier
+    if core_maximum_tier > maximum_tier:
+        raise ValueError(
+            "Core character tier cannot exceed the runtime character tier"
+        )
     selected: dict[tuple[str, str], DictionaryEntry] = {}
     source_counts = {
         "base": 0,
@@ -209,12 +223,21 @@ def build(
         capacity=capacity,
         minimum_length=minimum_length,
     )
+    # Single-character entries came directly from the unified source bundle
+    # and formal encoder.  They are the atomic input foundation, so an older
+    # production runtime export must not veto a newly admitted reading.
+    formally_encoded_single_keys = {
+        key for key in requested_base_keys if len(key[0]) == 1
+    }
+    retained_requested = (
+        matched_requested | formally_encoded_single_keys
+    )
     selected = {
         key: entry
         for key, entry in selected.items()
-        if key in matched_requested
+        if key in retained_requested
     }
-    base_keys = requested_base_keys & matched_requested
+    base_keys = requested_base_keys & retained_requested
     retained_added_keys = (
         requested_retained_keys & matched_requested
     )
@@ -246,11 +269,30 @@ def build(
             "Selected texts are missing canonical ranking evidence: "
             + ", ".join(missing_ranking_texts[:10])
         )
+    base_ranking_weights = {
+        text: ranking.effective_weight
+        for text, ranking in ranking_by_text.items()
+    }
+    character_segments: dict[str, str] = {}
+    character_offsets: dict[str, int] = {}
+    for text in ranking_by_text:
+        if len(text) != 1:
+            continue
+        tier = character_tiers[text]
+        if tier <= core_maximum_tier:
+            character_segments[text] = "core"
+            character_offsets[text] = core_weight_offset
+        else:
+            character_segments[text] = "peripheral"
+            character_offsets[text] = peripheral_weight_offset
     selected = {
         key: DictionaryEntry(
             text=entry.text,
             code=entry.code,
-            weight=ranking_by_text[entry.text].effective_weight,
+            weight=(
+                base_ranking_weights[entry.text]
+                + character_offsets.get(entry.text, 0)
+            ),
         )
         for key, entry in selected.items()
     }
@@ -290,6 +332,10 @@ def build(
                     "text",
                     "full_layout_code",
                     "weight",
+                    "ranking_weight_before_character_segment",
+                    "character_tier",
+                    "single_character_segment",
+                    "character_segment_weight_offset",
                     "bcc_frequency",
                     "wanxiang_weight",
                     "ranking_evidence_source",
@@ -319,6 +365,10 @@ def build(
                         entry.text,
                         entry.code,
                         entry.weight,
+                        base_ranking_weights[entry.text],
+                        character_tiers.get(entry.text, ""),
+                        character_segments.get(entry.text, ""),
+                        character_offsets.get(entry.text, 0),
                         ranking.bcc_frequency,
                         ranking.wanxiang_weight,
                         ranking.evidence_source,
@@ -343,6 +393,41 @@ def build(
         texts_by_length.setdefault(length, set()).add(entry.text)
         readings_by_length[length] = (
             readings_by_length.get(length, 0) + 1
+        )
+    character_segment_texts: dict[str, set[str]] = {
+        "core": set(),
+        "peripheral": set(),
+    }
+    character_segment_readings: Counter[str] = Counter()
+    character_segment_weights: dict[str, list[int]] = {
+        "core": [],
+        "peripheral": [],
+    }
+    for entry in entries:
+        segment = character_segments.get(entry.text)
+        if segment is None:
+            continue
+        character_segment_texts[segment].add(entry.text)
+        character_segment_readings[segment] += 1
+        character_segment_weights[segment].append(entry.weight)
+    minimum_core_weight = min(
+        character_segment_weights["core"],
+        default=0,
+    )
+    maximum_peripheral_weight = max(
+        character_segment_weights["peripheral"],
+        default=0,
+    )
+    core_above_peripheral = (
+        not character_segment_weights["core"]
+        or not character_segment_weights["peripheral"]
+        or minimum_core_weight > maximum_peripheral_weight
+    )
+    if require_core_above_peripheral and not core_above_peripheral:
+        raise ValueError(
+            "Core single-character weight range overlaps the peripheral "
+            f"range: core minimum {minimum_core_weight}, peripheral "
+            f"maximum {maximum_peripheral_weight}"
         )
     payload = {
         "schema_version": "yime-two-level-precomposition-lexicon-v1",
@@ -369,6 +454,28 @@ def build(
         "frequency_cache_capacity": capacity,
         "minimum_long_length": minimum_length,
         "maximum_character_tier": maximum_tier,
+        "allowed_encoded_hanzi": len(allowed),
+        "single_character_ranking": {
+            "core_maximum_tier": core_maximum_tier,
+            "core_weight_offset": core_weight_offset,
+            "peripheral_weight_offset": peripheral_weight_offset,
+            "require_core_above_peripheral": (
+                require_core_above_peripheral
+            ),
+            "core_distinct_characters": len(
+                character_segment_texts["core"]
+            ),
+            "core_reading_entries": character_segment_readings["core"],
+            "peripheral_distinct_characters": len(
+                character_segment_texts["peripheral"]
+            ),
+            "peripheral_reading_entries": (
+                character_segment_readings["peripheral"]
+            ),
+            "minimum_core_weight": minimum_core_weight,
+            "maximum_peripheral_weight": maximum_peripheral_weight,
+            "core_above_peripheral": core_above_peripheral,
+        },
         "ranking_evidence": {
             **calibration_summary(ranking_calibration),
             "policy_sha256": _sha256(ranking_policy_path),
@@ -389,6 +496,9 @@ def build(
             "matched_base_readings": len(base_keys),
             "dropped_base_readings": (
                 len(requested_base_keys) - len(base_keys)
+            ),
+            "retained_formal_single_readings_without_production_match": (
+                len(formally_encoded_single_keys - matched_requested)
             ),
             "requested_retained_long_readings": len(
                 requested_retained_keys
@@ -462,6 +572,13 @@ def main() -> int:
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--capacity", type=int, required=True)
     parser.add_argument("--maximum-tier", type=int, default=5)
+    parser.add_argument("--core-maximum-tier", type=int)
+    parser.add_argument("--core-weight-offset", type=int, default=0)
+    parser.add_argument("--peripheral-weight-offset", type=int, default=0)
+    parser.add_argument(
+        "--require-core-above-peripheral",
+        action="store_true",
+    )
     parser.add_argument("--minimum-length", type=int, default=5)
     parser.add_argument("--retained-long-dictionary", type=Path)
     parser.add_argument(
@@ -492,6 +609,12 @@ def main() -> int:
         selection_path=args.selection,
         ranking_policy_path=args.ranking_policy,
         ranking_capacity_database=args.ranking_capacity_database,
+        core_maximum_tier=args.core_maximum_tier,
+        core_weight_offset=args.core_weight_offset,
+        peripheral_weight_offset=args.peripheral_weight_offset,
+        require_core_above_peripheral=(
+            args.require_core_above_peripheral
+        ),
     )
     print(json.dumps(payload, ensure_ascii=False))
     return 0

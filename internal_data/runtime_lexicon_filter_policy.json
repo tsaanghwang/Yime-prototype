@@ -1,10 +1,22 @@
 {
   "schema_version": 1,
-  "policy_id": "tier5_two_level_runtime_v2",
-  "purpose": "Keep complete source evidence while materializing a compact two-level runtime lexicon.",
+  "policy_id": "all_encoded_characters_two_level_runtime_v3",
+  "purpose": "Keep every formally encoded single character reachable while materializing a two-level phrase runtime lexicon.",
   "character_boundary": {
-    "maximum_tier": 5,
-    "expected_distinct_characters": 14000
+    "maximum_tier": 8,
+    "expected_distinct_characters": 46095,
+    "expected_source_reading_entries": 60996,
+    "expected_runtime_mapping_entries": 60995,
+    "core_maximum_tier": 5,
+    "core_distinct_characters": 14000,
+    "peripheral_minimum_tier": 6,
+    "peripheral_maximum_tier": 8,
+    "peripheral_distinct_characters": 32095
+  },
+  "single_character_ranking": {
+    "core_weight_offset": 100000000,
+    "peripheral_weight_offset": 0,
+    "require_core_above_peripheral": true
   },
   "first_level": {
     "maximum_text_length": 4,
