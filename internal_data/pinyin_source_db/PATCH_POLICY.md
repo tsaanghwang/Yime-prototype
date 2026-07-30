@@ -1,39 +1,15 @@
-# 单字拼音补丁文件使用说明
+# 数字标调拼音补丁使用规则
 
-本文档只说明两个受控补丁文件的分工：
+本目录只保留 `numeric_pinyin_patch.csv` 一种补丁。它只补充上游缺失的
+“数字标调拼音事实”，不能直接指定音元编码、Yinyuan ID 或键位。
 
-- `numeric_pinyin_patch.csv`
-- `canonical_yime_patch.csv`
+## 允许补的层
 
-它们都用于补齐上游 `../pinyin-data/pinyin.txt` 与仓库内音节编码资产之间的缺口，但补的层不同，不应混用。
+仅当上游单字源缺少某条 `pinyin_tone`，导致它无法进入
+`numeric_pinyin_inventory`，并且刷新程序报告 `<missing pinyin_tone>` 时，才可补
+`numeric_pinyin_patch.csv`。
 
-## 1. 先判断缺口在哪一层
-
-重建或校验后，先运行：
-
-```bash
-c:/dev/Yime/.venv/Scripts/python.exe yime/refresh_runtime_yime_codes.py
-```
-
-按输出判定：
-
-- 如果样例是 `<missing pinyin_tone>`，说明缺的是
-  `char_readings -> numeric_pinyin_inventory` 这一层，应补
-  `numeric_pinyin_patch.csv`。
-- 如果样例是 `<missing in code map>`，说明数字调拼音已经进库，
-  但 `syllable/codec/yinjie_code.json` 没有对应 canonical 码，应补
-  `canonical_yime_patch.csv`。
-- 如果两者都不是，而是 `单字受旧表唯一约束阻塞行`，这不是补丁文件要解决的问题，而是旧 schema 残留问题（旧 `音元拼音.全拼 UNIQUE` 表已退役）。
-
-## 2. 什么时候补 `numeric_pinyin_patch.csv`
-
-补这个文件的条件是：
-
-- 上游单字源没有某条 `pinyin_tone`，导致它根本进不了 `char_readings`。
-- 导入脚本跑完后，`numeric_pinyin_inventory` 缺这条 `pinyin_tone + mapping_id`。
-- `refresh_runtime_yime_codes.py` 报的是 `<missing pinyin_tone>`。
-
-这个文件表达的是“数字调拼音事实缺失”，字段是：
+字段为：
 
 - `pinyin_tone`
 - `initial`
@@ -42,55 +18,36 @@ c:/dev/Yime/.venv/Scripts/python.exe yime/refresh_runtime_yime_codes.py
 - `mapping_id`
 - `legacy_numeric_pinyin_id`
 
-它由
+补丁由
 [import_danzi_into_prototype_tables.py](../../yime/import_danzi_into_prototype_tables.py)
-消费，用来补齐 `numeric_pinyin_inventory`。
+消费。补完后必须重新导入并验证。
 
-简单说：
+## 禁止从编码中间层补丁直入
 
-- 缺的是“这条数字调拼音事实本身”时，补 `numeric_pinyin_patch.csv`。
-- 先补这一层，再谈后面的 canonical 码。
+`canonical_yime_patch.csv` 已退役并禁止恢复。遇到 `<missing in code map>` 时，
+不得手写“拼音 → 四音元码”兜底；必须回到正式链查明缺口：
 
-## 3. 什么时候补 `canonical_yime_patch.csv`
+```text
+数字标调拼音
+  -> SyllableEncodingPipeline / YinjieEncoder
+  -> 首音段 + 第2至第4音元
+  -> 4 个 Yinyuan ID
+  -> runtime / canonical symbol
+```
 
-补这个文件的条件是：
+需要修复的是这条链上的真源或编码规则，并重新生成
+`syllable/codec/yinjie_code.json`。布局修改不能改动这条语义链。
 
-- 该 `pinyin_tone` 已经存在于 `numeric_pinyin_inventory`。
-- 但 `load_canonical_code_map()` 从 `syllable/codec/yinjie_code.json` 里拿不到对应码。
-- `refresh_runtime_yime_codes.py` 报的是 `<missing in code map>`。
+## 最短判断顺序
 
-这个文件表达的是“canonical 音节码缺失”，字段是：
+1. 运行 `yime/refresh_runtime_yime_codes.py`。
+2. 如果是 `<missing pinyin_tone>`，核实上游后补 `numeric_pinyin_patch.csv`。
+3. 重新导入单字并再次验证。
+4. 如果是 `<missing in code map>`，停止补丁操作，修复正式音节编码链。
+5. 最后运行 `yime/refresh_runtime_yime_codes.py --apply` 同步数据库。
 
-- `pinyin_tone`
-- `mapping_id`
-- `yime_code`
+布局改动另受 [布局改动锁](../../docs/LAYOUT_CHANGE_LOCK.md) 约束，必须运行：
 
-它由
-[canonical_yime_mapping.py](../../yime/canonical_yime_mapping.py)
-消费，用来补齐 canonical 码面，并同步到 `pinyin_yime_code`；
-`mapping_yime_code` 只作为兼容映射面保留。
-
-简单说：
-
-- 数字调拼音已经有了，只是没有 canonical 编码时，补 `canonical_yime_patch.csv`，主线最终会反映到 `pinyin_yime_code`。
-- 不要把纯编码问题写进 `numeric_pinyin_patch.csv`。
-
-## 4. 一个最短决策顺序
-
-1. 跑一次 `yime/refresh_runtime_yime_codes.py`。
-2. 看到 `<missing pinyin_tone>`：先补 `numeric_pinyin_patch.csv`。
-3. 重新导入单字，再跑一次校验。
-4. 如果错误变成 `<missing in code map>`：再补 `canonical_yime_patch.csv`。
-5. 最后再跑一次 `yime/refresh_runtime_yime_codes.py --apply` 同步数据库。
-
-## 5. 不要这样用
-
-- 不要用 `canonical_yime_patch.csv` 去补一个根本不存在于 `numeric_pinyin_inventory` 的拼音。
-- 不要把旧表唯一约束冲突写进任一补丁文件。
-- 不要把这两个补丁文件当成长期替代上游真源；它们只是当前仓库内可复现的受控兜底层。
-
-## 6. 当前维护原则
-
-- 能修上游 `pinyin-data` 或主线 `yinjie_code.json` 时，优先修真源。
-- 真源暂时不能改、但仓库必须可重建时，才补这里的 CSV。
-- 每次补完后，都要重新运行 `yime/refresh_runtime_yime_codes.py` 验证缺口是否按预期从上一层推进到下一层，或直接归零。
+```bash
+python tools/run_locked_layout_pipeline.py
+```

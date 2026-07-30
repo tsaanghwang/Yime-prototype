@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import json
 import sqlite3
 from functools import lru_cache
@@ -18,9 +17,6 @@ from yime.utils.yinjie_slot_decomposition import sync_yinjie_slot_decomposition
 
 
 WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
-CANONICAL_PATCH_PATH = WORKSPACE_ROOT / "internal_data" / "pinyin_source_db" / "canonical_yime_patch.csv"
-
-
 def load_json(path: Path) -> dict[str, Any]:
     return cast(dict[str, Any], json.loads(path.read_text(encoding="utf-8")))
 
@@ -67,39 +63,26 @@ def convert_legacy_code_to_primary(code: str, *, virtual_initial: str | None = N
     normalized_code = str(code or "").strip()
     if not normalized_code:
         return ""
-    resolved_virtual_initial = (
-        virtual_initial if virtual_initial is not None else load_virtual_initial_symbol()
-    )
-
+    _ = virtual_initial  # Compatibility argument; the initial is no longer omitted.
     if len(normalized_code) < 4:
-        merged: list[str] = []
-        for symbol in normalized_code:
-            if not merged or merged[-1] != symbol:
-                merged.append(symbol)
-        if resolved_virtual_initial and merged and merged[0] == resolved_virtual_initial:
-            merged = merged[1:]
-        return "".join(merged)
+        initial = normalized_code[:1]
+        merged_ganyin: list[str] = []
+        for symbol in normalized_code[1:]:
+            if not merged_ganyin or merged_ganyin[-1] != symbol:
+                merged_ganyin.append(symbol)
+        return initial + "".join(merged_ganyin)
 
     if len(normalized_code) == 4:
-        return to_variable_length_yinyuan_code(
-            normalized_code,
-            virtual_initial=resolved_virtual_initial or None,
-        )
+        return to_variable_length_yinyuan_code(normalized_code)
 
     complete_length = (len(normalized_code) // 4) * 4
     primary_parts = [
-        to_variable_length_yinyuan_code(
-            normalized_code[index:index + 4],
-            virtual_initial=resolved_virtual_initial or None,
-        )
+        to_variable_length_yinyuan_code(normalized_code[index:index + 4])
         for index in range(0, complete_length, 4)
     ]
     trailing = normalized_code[complete_length:]
     if trailing:
-        primary_parts.append(convert_legacy_code_to_primary(
-            trailing,
-            virtual_initial=resolved_virtual_initial,
-        ))
+        primary_parts.append(convert_legacy_code_to_primary(trailing))
     return "".join(primary_parts)
 
 
@@ -113,17 +96,13 @@ def load_canonical_code_map(repo_root: Path | None = None) -> dict[str, str]:
         for pinyin, code in code_map.items()
     }
 
-    for pinyin_tone, (patched_code, _) in load_canonical_patch_map(resolved_root).items():
-        canonical_code_map.setdefault(pinyin_tone, patched_code)
-
     return canonical_code_map
 
 
 def load_primary_code_map(repo_root: Path | None = None) -> dict[str, str]:
     primary_code_map: dict[str, str] = {}
-    virtual_initial = load_virtual_initial_symbol(repo_root)
     for pinyin_tone, code in load_canonical_code_map(repo_root).items():
-        primary_code = convert_legacy_code_to_primary(code, virtual_initial=virtual_initial)
+        primary_code = convert_legacy_code_to_primary(code)
         if primary_code:
             primary_code_map[pinyin_tone] = primary_code
     return primary_code_map
@@ -133,31 +112,8 @@ def load_code_mode_map(repo_root: Path | None = None) -> dict[str, CodeModeRecor
     resolved_root = repo_root or WORKSPACE_ROOT
     return build_code_mode_map(
         load_canonical_code_map(resolved_root),
-        virtual_initial=load_virtual_initial_symbol(resolved_root),
         ganyin_symbol_metadata=load_ganyin_symbol_metadata(resolved_root),
     )
-
-
-def load_canonical_patch_map(repo_root: Path | None = None) -> dict[str, tuple[str, int | None]]:
-    resolved_root = repo_root or WORKSPACE_ROOT
-    if not CANONICAL_PATCH_PATH.exists():
-        return {}
-
-    bmp_to_canonical = build_bmp_to_canonical_map(resolved_root)
-    patch_map: dict[str, tuple[str, int | None]] = {}
-    with CANONICAL_PATCH_PATH.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            pinyin_tone = standardize_numeric_pinyin(str(row.get("pinyin_tone") or "").strip())
-            raw_code = str(row.get("yime_code") or "")
-            mapping_id_raw = str(row.get("mapping_id") or "").strip()
-            if not pinyin_tone or not raw_code:
-                continue
-            patch_map[pinyin_tone] = (
-                canonicalize_code(raw_code, bmp_to_canonical),
-                int(mapping_id_raw) if mapping_id_raw else None,
-            )
-    return patch_map
 
 
 def build_canonical_pinyin_rows(
@@ -165,7 +121,6 @@ def build_canonical_pinyin_rows(
     repo_root: Path | None = None,
 ) -> list[tuple[str, str, str]]:
     canonical_code_map = load_canonical_code_map(repo_root)
-    canonical_patch_map = load_canonical_patch_map(repo_root)
     rows = conn.execute(
         '''
         SELECT DISTINCT pinyin_tone
@@ -186,8 +141,7 @@ def build_canonical_pinyin_rows(
         canonical_code = canonical_code_map.get(pinyin_tone, '')
         if not canonical_code:
             continue
-        source_name = 'canonical_patch' if pinyin_tone in canonical_patch_map else 'yinjie_code'
-        pinyin_rows.append((pinyin_tone, canonical_code, source_name))
+        pinyin_rows.append((pinyin_tone, canonical_code, 'yinjie_code'))
         seen_pinyin.add(pinyin_tone)
 
     return pinyin_rows
@@ -204,7 +158,6 @@ def build_canonical_mapping_rows(
         tones: list[str]
 
     canonical_code_map = load_canonical_code_map(repo_root)
-    canonical_patch_map = load_canonical_patch_map(repo_root)
     rows = conn.execute(
         '''
         SELECT mapping_id, pinyin_tone
@@ -223,12 +176,6 @@ def build_canonical_mapping_rows(
         if not pinyin_tone:
             continue
         canonical_code = canonical_code_map.get(pinyin_tone, "")
-        if not canonical_code:
-            patch_payload = canonical_patch_map.get(pinyin_tone)
-            if patch_payload is not None:
-                patched_code, patched_mapping_id = patch_payload
-                if patched_mapping_id is None or patched_mapping_id == mapping_id:
-                    canonical_code = patched_code
         if not canonical_code:
             continue
         grouped[mapping_id]["codes"].add(canonical_code)

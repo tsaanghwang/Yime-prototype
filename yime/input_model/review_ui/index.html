@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#17211d">
+    <title>Yime 候选与规则族审查工作台</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Yime · 候选整理覆盖层</p>
+        <h1>候选与规则族审查工作台</h1>
+      </div>
+      <div class="safety-note">
+        <span class="safety-dot"></span>
+        只写人工判决，不写拼音、编码或运行词库
+      </div>
+    </header>
+
+    <main>
+      <section id="connection-panel" class="connection-panel" aria-live="polite">
+        <div>
+          <p class="eyebrow">数据连接</p>
+          <strong id="connection-title">正在连接本地审查数据…</strong>
+          <p id="connection-detail">页面读取候选覆盖库与统一来源库，不会把浏览器文件猜作生产数据。</p>
+        </div>
+        <div class="connection-actions">
+          <button id="retry-connection" type="button">重新连接</button>
+          <button id="copy-launch-command" type="button">复制启动命令</button>
+        </div>
+      </section>
+
+      <section class="criteria-panel" aria-labelledby="criteria-title">
+        <div class="criteria-heading">
+          <div>
+            <p class="eyebrow">先定口径，再作判决</p>
+            <h2 id="criteria-title">判决标准</h2>
+          </div>
+          <span id="criteria-selection" class="criteria-selection">当前：国家 / 国际基本规范</span>
+        </div>
+
+        <nav class="criteria-tabs" role="tablist" aria-label="判决标准类型">
+          <button id="criteria-tab-standard" class="criteria-tab active" type="button"
+                  role="tab" aria-selected="true" aria-controls="criteria-standard"
+                  data-criteria="standard">国家 / 国际基本规范</button>
+          <button id="criteria-tab-academic" class="criteria-tab" type="button"
+                  role="tab" aria-selected="false" aria-controls="criteria-academic"
+                  data-criteria="academic">学界语料标注准则</button>
+          <button id="criteria-tab-reviewer" class="criteria-tab" type="button"
+                  role="tab" aria-selected="false" aria-controls="criteria-reviewer"
+                  data-criteria="reviewer">审查者自定标准</button>
+        </nav>
+
+        <div id="criteria-standard" class="criteria-content" role="tabpanel"
+             aria-labelledby="criteria-tab-standard">
+          <div class="criteria-summary">
+            <strong>适合做默认底线</strong>
+            <p>把“可复现的切分单位”与“是否已经是词典词条”分开判断；先确认边界、语法功能和材料类型，再决定准入、拒绝或暂缓。</p>
+          </div>
+          <ul class="criteria-checklist">
+            <li>边界在相同上下文中应能由不同审查者稳定复现。</li>
+            <li>材料可归为词、固定表达、专名或其他明确切分单位，而非偶然语料截片。</li>
+            <li>频次只决定审查优先级；可由基本单位按语境能产组合的材料，无论频次多高都不静态收录。</li>
+            <li>优先审查组合规则及其反例；规则覆盖的同族字串批量退出逐条人工队列。</li>
+            <li>缺乏上下文或存在多种合理粒度时，优先暂缓并补证据。</li>
+          </ul>
+          <p class="criteria-sources">
+            依据：
+            <a href="https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=B48FFFB924DF90488FEBCB89B91C8869" target="_blank" rel="noreferrer">GB/T 13715-1992</a>
+            ·
+            <a href="https://www.iso.org/standard/41665.html" target="_blank" rel="noreferrer">ISO 24614-1</a>
+            ·
+            <a href="https://www.iso.org/standard/41666.html" target="_blank" rel="noreferrer">ISO 24614-2</a>
+          </p>
+        </div>
+
+        <div id="criteria-academic" class="criteria-content" role="tabpanel"
+             aria-labelledby="criteria-tab-academic" hidden>
+          <div class="criteria-summary">
+            <strong>适合语料标注与模型评测</strong>
+            <p>采用一套声明过的粒度与词性/内部结构口径，重视跨样例一致性；不要把某一语料库的切分答案冒充唯一语言事实。</p>
+          </div>
+          <ul class="criteria-checklist">
+            <li>先检查组合是否有稳定整体功能，再检查内部结构是否仍可自由替换或扩展。</li>
+            <li>同类结构沿用同一粒度；遇到规范间均合理的多粒度分析时记录分歧。</li>
+            <li>专名、缩略语、惯用搭配和能产构式分别分类，不用一个“成词/不成词”标签压平。</li>
+            <li>能产构式以规则族为标注和评测单位，不把每个表面实例重复提升为静态词条。</li>
+            <li>有争议项保留原始证据、审查者与改判历史，必要时交由第二审查者复核。</li>
+          </ul>
+          <p class="criteria-sources">
+            参考：
+            <a href="https://verbs.colorado.edu/chinese/ctb.html" target="_blank" rel="noreferrer">Penn Chinese Treebank 切分准则</a>
+            ·
+            <a href="https://aclanthology.org/L00-1217/" target="_blank" rel="noreferrer">中文标注一致性方法</a>
+            ·
+            <a href="https://aclanthology.org/D17-1072/" target="_blank" rel="noreferrer">多粒度中文分词</a>
+          </p>
+        </div>
+
+        <div id="criteria-reviewer" class="criteria-content" role="tabpanel"
+             aria-labelledby="criteria-tab-reviewer" hidden>
+          <div class="reviewer-criteria-grid">
+            <label>
+              <span>标准名称</span>
+              <input id="custom-criteria-name" type="text" value="本轮审查口径"
+                     placeholder="例如：高频输入候选第一轮">
+            </label>
+            <label>
+              <span>审查目标</span>
+              <select id="custom-criteria-goal">
+                <option value="runtime">补齐来源后进入静态候选</option>
+                <option value="evaluation">只用于模型与评测</option>
+                <option value="discovery">词汇发现与后续核验</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            <span>自定判据（每行一条）</span>
+            <textarea id="custom-criteria-rules" rows="4"
+                      placeholder="例如：至少出现于两个相互独立的上下文&#10;不能只是完整句中的偶然连续片段"></textarea>
+          </label>
+          <p class="criteria-hint">自定标准只随本浏览器保存，并会作为本次判决的审查口径写入审计证据；它不能绕过真实读音来源与正式编码门禁。</p>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="审查进度">
+        <article>
+          <span>未编码字串</span>
+          <strong id="metric-total">—</strong>
+        </article>
+        <article>
+          <span>待审</span>
+          <strong id="metric-proposed">—</strong>
+        </article>
+        <article>
+          <span>已登记规则族</span>
+          <strong id="metric-families">—</strong>
+        </article>
+        <article>
+          <span>两字动态可达证据</span>
+          <strong id="metric-two-character-dynamic">—</strong>
+        </article>
+        <article>
+          <span>分层递归可达</span>
+          <strong id="metric-recursive-dynamic">—</strong>
+        </article>
+        <article>
+          <span>首选路径使用多字组件</span>
+          <strong id="metric-recursive-multichar">—</strong>
+        </article>
+        <article>
+          <span>已拒绝 / 暂缓</span>
+          <strong id="metric-closed">—</strong>
+        </article>
+      </section>
+
+      <section class="auto-screening-panel">
+        <div class="criteria-heading">
+          <div>
+            <p class="eyebrow">规则优先 · 剩余项最小化</p>
+            <h2>自动筛查</h2>
+          </div>
+          <span class="criteria-selection">只应用已登记规则的唯一无冲突命中</span>
+        </div>
+        <p class="form-help">
+          两字及更长候选的动态可达性只作为证据，不改变待审状态；
+          自动筛查跳过已有人工判决，严格排除规则反例、缺音例外、多解和跨分类冲突。
+          安全命中只写入 <code>model_only + unvalidated</code>，不会修改来源库或运行词库。
+        </p>
+        <div class="auto-screening-controls">
+          <label>
+            <span>最低 BCC 频次</span>
+            <select id="auto-minimum-frequency">
+              <option value="10000">10,000+</option>
+              <option value="1000" selected>1,000+</option>
+              <option value="100">100+</option>
+              <option value="10">10+</option>
+              <option value="1">1+</option>
+              <option value="0">全部</option>
+            </select>
+          </label>
+          <label>
+            <span>单次最多应用</span>
+            <select id="auto-maximum-items">
+              <option value="100">100</option>
+              <option value="500" selected>500</option>
+              <option value="1000">1,000</option>
+              <option value="5000">5,000</option>
+            </select>
+          </label>
+          <label>
+            <span>审查者</span>
+            <input id="auto-assessor-input" type="text" value="human:local-auto-screening">
+          </label>
+          <button id="preview-auto-screening" class="primary-action" type="button">预览自动筛查</button>
+          <button id="apply-auto-screening" class="secondary-action" type="button" disabled>应用安全命中</button>
+        </div>
+        <p id="auto-screening-message" class="action-message" role="status"></p>
+        <div id="auto-screening-summary" class="auto-screening-summary" hidden></div>
+        <div id="auto-screening-results" class="affix-results" hidden>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>候选</th>
+                  <th>BCC</th>
+                  <th>筛查结果</th>
+                  <th>规则族</th>
+                  <th>拟分类</th>
+                </tr>
+              </thead>
+              <tbody id="auto-screening-result-body"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="residual-clusters" class="residual-clusters" hidden>
+          <h3>剩余项的候选规则聚类</h3>
+          <p>这些聚类只提示可能需要补充的正序或逆序规则，不会自动创建规则。</p>
+          <div id="residual-cluster-list"></div>
+        </div>
+      </section>
+
+      <section class="affix-explorer">
+        <div class="criteria-heading">
+          <div>
+            <p class="eyebrow">构式发现 · 只读筛选</p>
+            <h2>正序 / 逆序 / 框式构式分析</h2>
+          </div>
+          <span class="criteria-selection">先核验拆分两侧，再登记规则族</span>
+        </div>
+        <p class="form-help">
+          逆序按后缀筛选，例如先找所有以“路”结尾的字串，再细分“马路 / 铁路 / 公路”；
+          正序按前缀做完全镜像的处理。框式使用“以{依据}为{目标}”一类受控模板。
+          系统采用最长细分项或槽位递归拆分，并核验所有最终组件是否都有来源门禁合格注音。
+        </p>
+        <div class="affix-controls">
+          <label>
+            <span>方向</span>
+            <select id="affix-direction">
+              <option value="suffix">逆序 · 后缀</option>
+              <option value="prefix">正序 · 前缀</option>
+              <option value="frame">框式 · 可替换槽位</option>
+            </select>
+          </label>
+          <label id="affix-root-field">
+            <span>第一层筛选项</span>
+            <input id="affix-root" type="text" value="路" placeholder="例如：路">
+          </label>
+          <label id="affix-refinement-field" class="affix-refinements">
+            <span>下一层细分项（逗号、顿号或换行分隔）</span>
+            <textarea id="affix-refinement-input" rows="2" placeholder="例如：马路、铁路、公路"></textarea>
+          </label>
+          <label id="construction-template-field" class="affix-refinements" hidden>
+            <span>框式模板：{槽位}、{可空槽位?}、(固定|选项)</span>
+            <textarea id="construction-template-input" rows="2"
+                      placeholder="例如：以{依据}为{目标} 或 在{处所}(中|上|下){后续?}"></textarea>
+          </label>
+          <label>
+            <span>拟归属</span>
+            <select id="affix-class-select">
+              <option value="productive_phrase">动态组合候选</option>
+              <option value="semi_fixed_construction">半固定构式</option>
+              <option value="place_name">地名 / 道路专名</option>
+              <option value="person_name">人名</option>
+              <option value="organization_name">机构名</option>
+              <option value="domain_term">领域规则</option>
+            </select>
+          </label>
+          <label>
+            <span>最低 BCC 频次</span>
+            <select id="affix-minimum-frequency">
+              <option value="1000">1,000+</option>
+              <option value="100">100+</option>
+              <option value="10">10+</option>
+              <option value="1">1+</option>
+              <option value="0" selected>全部</option>
+            </select>
+          </label>
+          <label class="checkbox-field">
+            <input id="affix-only-unencoded" type="checkbox" checked>
+            <span>只看整体尚未注音的候选</span>
+          </label>
+          <button id="run-affix-analysis" class="primary-action" type="button">开始筛选</button>
+        </div>
+        <p id="affix-message" class="action-message" role="status"></p>
+        <div id="affix-summary" class="affix-summary" hidden></div>
+        <div id="affix-results" class="affix-results" hidden>
+          <div class="affix-result-actions">
+            <span>勾选结果后，可直接带入下方规则族的正例或反例。</span>
+            <div>
+              <button id="affix-to-positive" type="button">加入规则族正例</button>
+              <button id="affix-to-negative" type="button">加入规则族反例</button>
+            </div>
+          </div>
+          <div id="tail-classification-actions" class="affix-result-actions">
+            <span>
+              为各候选选择人名、商号、品名、货币计量等类别；先保存分类，
+              再由程序结合组件注音和结构门禁决定移出、拒绝或保留待审。
+            </span>
+            <div>
+              <label>
+                <span>分类审查者</span>
+                <input id="tail-assessor-input" type="text"
+                       value="human:local-tail-classification">
+              </label>
+              <button id="save-tail-classifications" type="button">保存已选分类</button>
+              <button id="apply-tail-classifications" type="button">运行分类去留</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th aria-label="选择"></th>
+                  <th>候选</th>
+                  <th id="analysis-match-heading">层级命中</th>
+                  <th id="analysis-left-heading">左部</th>
+                  <th id="analysis-right-heading">右部</th>
+                  <th id="analysis-status-heading">两侧核验</th>
+                  <th>BCC</th>
+                  <th>建议</th>
+                  <th id="tail-classification-heading">语义分类</th>
+                </tr>
+              </thead>
+              <tbody id="affix-result-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="workbench">
+        <aside class="queue-panel">
+          <div class="panel-title">
+            <div>
+              <p class="eyebrow">按 BCC 频次排序</p>
+              <h2>审查队列</h2>
+            </div>
+            <button id="refresh-button" class="icon-button" type="button" title="刷新">↻</button>
+          </div>
+
+          <nav class="status-tabs" aria-label="判决状态">
+            <button class="status-tab active" data-status="proposed" type="button">待审</button>
+            <button class="status-tab" data-status="approved" type="button">已准入</button>
+            <button class="status-tab" data-status="rejected" type="button">已拒绝</button>
+            <button class="status-tab" data-status="deferred" type="button">暂缓</button>
+          </nav>
+
+          <div class="filters">
+            <label class="search-field">
+              <span>搜索字串</span>
+              <input id="search-input" type="search" placeholder="输入文字筛选…" autocomplete="off">
+            </label>
+            <label>
+              <span>按字数分组</span>
+              <select id="length-filter">
+                <option value="">全部字数</option>
+              </select>
+            </label>
+            <label>
+              <span>最低 BCC 频次</span>
+              <select id="frequency-filter">
+                <option value="10000" selected>10,000+</option>
+                <option value="1000">1,000+</option>
+                <option value="100">100+</option>
+                <option value="10">10+</option>
+                <option value="1">1+</option>
+                <option value="0">全部</option>
+              </select>
+            </label>
+          </div>
+
+          <div id="queue" class="queue" aria-live="polite"></div>
+          <button id="load-more" class="load-more" type="button" hidden>加载下一批</button>
+        </aside>
+
+        <section id="detail-panel" class="detail-panel">
+          <div id="empty-state" class="empty-state">
+            <div class="empty-mark">审</div>
+            <h2>从左侧选择一个字串</h2>
+            <p>建议先处理高频项。每次点击判决都会记录审查者、理由和完整改判历史。</p>
+          </div>
+
+          <div id="candidate-detail" hidden>
+            <div class="candidate-header">
+              <div>
+                <p id="candidate-kicker" class="eyebrow"></p>
+                <h2 id="candidate-text"></h2>
+                <div id="candidate-badges" class="badges"></div>
+              </div>
+              <div class="frequency-card">
+                <span>BCC 汇总频次</span>
+                <strong id="candidate-frequency">0</strong>
+              </div>
+            </div>
+
+            <div class="gate-banner">
+              <span class="gate-icon">!</span>
+              <div>
+                <strong id="gate-title">当前不能进入已编码运行候选</strong>
+                <p id="gate-detail">缺少通过来源门禁的完整注音（拼音）。其中一部分只有汉字字串与 BCC 频次，另一部分可能有被门禁拒绝的来源注音。准入只确认候选价值，后续仍须补充真实注音来源并走正式编码链。</p>
+              </div>
+            </div>
+
+            <section class="evidence-grid">
+              <article>
+                <span>来源分类</span>
+                <strong id="source-categories">无</strong>
+              </article>
+              <article>
+                <span>上下文证据</span>
+                <strong id="context-count">0 条</strong>
+              </article>
+              <article>
+                <span>来源拒绝记录</span>
+                <strong id="rejection-count">0 条</strong>
+              </article>
+            </section>
+
+            <section class="decision-card rule-family-card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">优先路径 · 规则族登记</p>
+                  <h3>用代表例、同族正例和反例登记一个组合规则假设</h3>
+                </div>
+                <span class="status-pill deferred">不直接进入运行时</span>
+              </div>
+              <p class="form-help">登记会把代表例和同族正例归为 <code>model_only</code>，从逐条待审队列退出；反例只约束规则边界，不会被批量判决。规则仍须通过组件真实读音与回放验证后，才能另行提升为 <code>dynamic_recoverable</code>。</p>
+
+              <div class="rule-family-grid">
+                <label>
+                  <span>规则族 ID <em>必填</em></span>
+                  <input id="family-id-input" type="text" placeholder="例如 modifier-head" pattern="[a-z0-9][a-z0-9._-]{2,63}">
+                </label>
+                <label>
+                  <span>规则族名称 <em>必填</em></span>
+                  <input id="family-title-input" type="text" placeholder="例如：程度副词 + 形容词">
+                </label>
+                <label>
+                  <span>材料分类</span>
+                  <select id="family-class-select">
+                    <option value="productive_phrase">能产短语</option>
+                    <option value="semi_fixed_construction">半固定构式</option>
+                    <option value="place_name">地名 / 道路专名</option>
+                    <option value="person_name">人名</option>
+                    <option value="organization_name">机构名</option>
+                    <option value="domain_term">领域规则</option>
+                  </select>
+                </label>
+                <label>
+                  <span>审查者</span>
+                  <input id="family-assessor-input" type="text" value="human:local-reviewer">
+                </label>
+              </div>
+              <label>
+                <span>结构规则 <em>必填</em></span>
+                <textarea id="family-pattern-input" rows="2" placeholder="说明槽位、可替换成分和组合边界；不要填写拼音、音元 ID、码元或键位。"></textarea>
+              </label>
+              <label>
+                <span>适用范围与排除条件</span>
+                <textarea id="family-scope-input" rows="2" placeholder="例如：仅限谓语位置；专名内部连续字串不适用。"></textarea>
+              </label>
+              <div class="example-grid">
+                <label>
+                  <span>同族正例（每行一个，可空）</span>
+                  <textarea id="family-positive-input" rows="3" placeholder="当前字串会自动作为代表例"></textarea>
+                </label>
+                <label>
+                  <span>反例（每行一个，至少一个） <em>必填</em></span>
+                  <textarea id="family-negative-input" rows="3" placeholder="必须来自当前候选全集，用于限定规则不能覆盖什么"></textarea>
+                </label>
+              </div>
+              <label>
+                <span>登记依据 <em>必填</em></span>
+                <textarea id="family-rationale-input" rows="2" placeholder="说明正反例为何支持这个有限规则假设。"></textarea>
+              </label>
+              <div class="family-actions">
+                <button id="register-family-button" class="decision family-register" type="button">
+                  <span>＋</span>
+                  <b>登记规则族</b>
+                  <small>正例退出逐条队列，运行词库不变</small>
+                </button>
+                <p id="family-message" class="action-message" role="status"></p>
+              </div>
+            </section>
+
+            <section class="decision-card">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">人工判决</p>
+                  <h3>这个字串应静态保留、交给组合规则，还是排除？</h3>
+                </div>
+                <span id="current-status" class="status-pill"></span>
+              </div>
+
+              <div class="quick-reasons" aria-label="常用理由">
+                <button type="button" data-class="lexical_candidate" data-reason="高频、边界明确，值得补充可靠读音来源。">高频且边界明确</button>
+                <button type="button" data-class="domain_term" data-reason="疑似专名或领域词，值得进入来源核验队列。">专名 / 领域词</button>
+                <button type="button" data-open-family="1"
+                        data-reason="结构与边界明确，但可由基本单位按语境能产组合；应归入组合规则候选，不静态收录。">能产组合 → 动态规则</button>
+                <button type="button" data-class="syntactic_fragment" data-reason="更像连续语料截片，不宜作为静态候选。">语料截片</button>
+                <button type="button" data-class="context_dependent" data-reason="证据不足，需要真实上下文后再判。">缺少上下文</button>
+              </div>
+
+              <label class="rationale-field">
+                <span>判决理由 <em>必填</em></span>
+                <textarea id="rationale-input" rows="3" placeholder="点击上方常用理由，或在这里补充判断依据。"></textarea>
+              </label>
+
+              <div class="decision-settings">
+                <label>
+                  <span>材料分类</span>
+                  <select id="class-select"></select>
+                </label>
+                <label>
+                  <span>准入后的用途</span>
+                  <select id="policy-select">
+                    <option value="static_keep">补齐来源后静态保留</option>
+                    <option value="model_only">仅个体模型评测（规则族请用上方登记）</option>
+                  </select>
+                </label>
+                <label>
+                  <span>审查者</span>
+                  <input id="assessor-input" type="text" value="human:local-reviewer">
+                </label>
+              </div>
+
+              <div class="decision-actions">
+                <button id="approve-button" class="decision approve" type="button">
+                  <span>✓</span>
+                  <b>准入</b>
+                  <small>待读音来源与编码门禁</small>
+                </button>
+                <button id="reject-button" class="decision reject" type="button">
+                  <span>×</span>
+                  <b>拒绝</b>
+                  <small>不进入候选生产链</small>
+                </button>
+                <button id="defer-button" class="decision defer" type="button">
+                  <span>…</span>
+                  <b>暂缓</b>
+                  <small>等待更多上下文证据</small>
+                </button>
+              </div>
+              <p id="action-message" class="action-message" role="status"></p>
+            </section>
+
+            <details class="history-card">
+              <summary>查看来源拒绝与改判历史</summary>
+              <div id="history-content"></div>
+            </details>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

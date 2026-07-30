@@ -17,7 +17,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Union, Literal
-from .yinyuan_categories import YinyuanCategory, infer_category_from_pitch
+from .yinyuan_categories import YinyuanCategory
 
 # 类型别名定义
 DurationType = Literal['short', 'neutral', 'long']
@@ -33,9 +33,10 @@ class YinyuanBase(ABC):
     loudness: LoudnessType = 'neutral'
 
     @property
+    @abstractmethod
     def category(self) -> YinyuanCategory:
-        """返回跨层共享的噪音 / 乐音类别。"""
-        return infer_category_from_pitch(self.pitch)
+        """返回显式的 zaoyin / yueyin 类别。"""
+        pass
 
     @property
     @abstractmethod
@@ -69,6 +70,10 @@ class UncertainPitchYinyuan(YinyuanBase, ABC):
     音调不定的音元(UncertainPitchYinyuan)基类
     包含无调音元和不稳定音高音元的共同特性
     """
+    @property
+    def category(self) -> YinyuanCategory:
+        return YinyuanCategory.ZAOYIN
+
     @property
     def type(self) -> str:
         return "noise"
@@ -121,6 +126,10 @@ class PitchedYinyuan(YinyuanBase):
     quality: str
     duration: DurationType = 'neutral'
     loudness: LoudnessType = 'neutral'
+
+    @property
+    def category(self) -> YinyuanCategory:
+        return YinyuanCategory.YUEYIN
 
     @property
     def pitch(self) -> str:

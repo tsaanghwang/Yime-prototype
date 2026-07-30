@@ -12,6 +12,11 @@ from pathlib import Path
 from typing import Any
 
 try:
+    from .neutral_tone_encoding import (
+        NeutralToneEncodingPolicy,
+        NeutralToneResolution,
+        load_neutral_tone_exceptions,
+    )
     from .yinjie_api_manifest import YINJIE_IMPLEMENTATION_EXPORTS
     from .yinjie import Yinjie
     from ..analysis.ganyin_encoder import GanyinEncoder
@@ -20,6 +25,11 @@ try:
     from ..analysis.shouyin_encoder import ShouyinEncoder
     from ..analysis.syllable_encoding_pipeline import SyllableEncodingPipeline
 except ImportError:
+    from neutral_tone_encoding import (
+        NeutralToneEncodingPolicy,
+        NeutralToneResolution,
+        load_neutral_tone_exceptions,
+    )
     from yinjie_api_manifest import YINJIE_IMPLEMENTATION_EXPORTS
     from yinjie import Yinjie
     from syllable.analysis.ganyin_encoder import GanyinEncoder
@@ -530,6 +540,7 @@ class YinjieEncoder:
         self.json_repository = JsonFileRepository()
         self.shouyin_encoder = ShouyinEncoder()
         self.ganyin_encoder = GanyinEncoder()
+        self.neutral_tone_exceptions = load_neutral_tone_exceptions()
         self.reporting_policy = yinjie_reporting_policy
         self.path_stage = YinjiePathStage(
             self._validate_path,
@@ -562,6 +573,34 @@ class YinjieEncoder:
     def encode_single_yinjie(self, syllable: object) -> str:
         """编码单个音节（返回四字符音元串，与 ``yinjie_code.json`` 一致）。"""
         return self.encode_yinjie_structured(syllable).code
+
+    def resolve_neutral_tone(
+        self,
+        syllable: str,
+        inventory: list[str] | tuple[str, ...] | set[str] | frozenset[str],
+    ) -> NeutralToneResolution:
+        """Classify a source-attested neutral form without assigning a code."""
+        return NeutralToneEncodingPolicy(
+            inventory,
+            self.neutral_tone_exceptions,
+        ).resolve(syllable)
+
+    def validate_neutral_tone_inventory(self, syllables: list[str]) -> None:
+        """Require every materialized neutral form to have a declared route."""
+        policy = NeutralToneEncodingPolicy(
+            syllables,
+            self.neutral_tone_exceptions,
+        )
+        for syllable in syllables:
+            if not syllable.endswith("5"):
+                continue
+            resolution = policy.resolve(syllable)
+            if not resolution.admitted:
+                raise yinjie_error_policy.syllable_failure(
+                    "neutral_tone_policy",
+                    syllable,
+                    "有来源轻声既无一至四声常规家族，也未登记为特殊例外",
+                )
 
     def encode_yinjie_structured(self, syllable: object) -> EncodedYinjieResult:
         """编码单个音节并返回音段切分、干音三音元与 ``Yinjie`` 视图。"""
@@ -606,6 +645,7 @@ class YinjieEncoder:
             path_context.output_path,
             self._load_json,
         )
+        self.validate_neutral_tone_inventory(input_result.yinjie_list)
         encoded_data = self.batch_encode_stage.run(input_result.yinjie_list)
         return self.batch_output_stage.run(
             input_result.output_path,

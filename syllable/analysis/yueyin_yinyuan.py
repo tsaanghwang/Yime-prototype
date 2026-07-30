@@ -1,14 +1,15 @@
 """乐音类音元对象。"""
 
 from typing import Literal
-from .pitched_yinyuan import MusicalYinyuan, DurationType
-from syllable.pianyin import PitchedPianyin
+from .pitched_yinyuan import YueyinYinyuanBase, DurationType
+from .yinyuan_categories import YinyuanCategory
+from syllable.pianyin import YueyinPianyin
 
 PitchStyle = Literal['number', 'mark']
 LoudnessType = Literal['weak', 'neutral', 'strong']
 
 
-class YueyinYinyuan(MusicalYinyuan):
+class YueyinYinyuan(YueyinYinyuanBase):
     """
     乐音类音元(YueyinYinyuan) - MusicalYinyuan 的中文别名类。
 
@@ -38,10 +39,10 @@ class YueyinYinyuan(MusicalYinyuan):
         }
 
     @classmethod
-    def from_pianyin(cls, pianyin: PitchedPianyin) -> 'YueyinYinyuan':
+    def from_pianyin(cls, pianyin: YueyinPianyin) -> 'YueyinYinyuan':
         """从乐音片音对象创建乐音音元对象。"""
-        if pianyin.pitch is None:
-            raise ValueError("YueyinYinyuan 只能由带音高的乐音片音创建")
+        if pianyin.category is not YinyuanCategory.YUEYIN or pianyin.pitch is None:
+            raise ValueError("YueyinYinyuan 只能由乐音类片音创建")
 
         return cls(
             quality=pianyin.quality,

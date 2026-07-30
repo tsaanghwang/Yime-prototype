@@ -55,11 +55,15 @@ class Pianyin(ABC):
                 f"{f', loudness={repr(self.loudness)}' if self.loudness else ''})")
 
 
-class UnpitchedPianyin(Pianyin):
-    """噪音类片音，音调为空，音质为噪音"""
+class ZaoyinPianyin(Pianyin):
+    """噪音类片音。
 
-    def __init__(self, quality: str, duration: str = 'neutral', loudness: str = 'neutral'):
-        super().__init__(quality=quality, pitch=None, duration=duration, loudness=loudness)
+    ``pitch`` 可为空，也可记录非辨义的音高现象；类别不由该字段反推。
+    """
+
+    def __init__(self, quality: str, pitch: Optional[str] = None,
+                 duration: str = 'neutral', loudness: str = 'neutral'):
+        super().__init__(quality=quality, pitch=pitch, duration=duration, loudness=loudness)
 
     def is_valid(self) -> bool:
         """噪音只需要有音质即可有效"""
@@ -70,8 +74,8 @@ class UnpitchedPianyin(Pianyin):
         return YinyuanCategory.ZAOYIN
 
 
-class PitchedPianyin(Pianyin):
-    """乐音类片音，音调非空，音质和音调构成乐音"""
+class YueyinPianyin(Pianyin):
+    """乐音类片音：音质和指定音高共同参与区别。"""
 
     def __init__(self, quality: str, pitch: str, duration: str = 'neutral', loudness: str = 'neutral'):
         super().__init__(quality=quality, pitch=pitch, duration=duration, loudness=loudness)
@@ -83,3 +87,8 @@ class PitchedPianyin(Pianyin):
     @property
     def category(self) -> YinyuanCategory:
         return YinyuanCategory.YUEYIN
+
+
+# 兼容旧调用。新代码只使用 ZaoyinPianyin / YueyinPianyin。
+UnpitchedPianyin = ZaoyinPianyin
+PitchedPianyin = YueyinPianyin

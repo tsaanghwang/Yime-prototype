@@ -9,17 +9,42 @@
 
 音元输入法编辑器(YIME)，简称音元输入法，是以音元为码元的
 汉语音码输入系统。当前仓库的重点不是完整展开这套理论，而是维护
-Windows 桌面输入法原型、相关生成链，以及一组已经可重复生成的
-效率基线。
+字典驱动的音元编码与候选生产链、Python 桌面交互原型，以及交接给
+Windows Yime/Weasel/PIME 等消费者的可复核资产。
+
+## 当前核心能力：由带调拼音字典生成音元编码
+
+给项目提供一套格式合格、带明确声调的标准拼音字典后，当前主线可以自动完成：
+
+```text
+带调拼音字典
+  → 来源校验与规范音节清单
+  → 拼写规范化和音节分解
+  → 4 个 Yinyuan ID
+  → 三模式编码
+  → 布局投影与词库编码
+```
+
+这项能力采用“实例驱动、有据才扩展”的原则：现有规则覆盖的音节自动编码；遇到真实但尚未登记的
+新音节或新表示形式时，工具链停止并报告来源或规则缺口，不让 AI 或程序临时猜一个编码。不得通过
+手写 `yinjie_code.json`、四音元码、Yinyuan ID 或键位绕过正式链路。
+
+目前1732个规范音节均有来源或经审查补丁依据，并全部通过正式编码器。字典进入解码前先经过
+[字典拼音第一轮合规审查](docs/DICTIONARY_PINYIN_COMPLIANCE.md)：原始证据可以保留，只有合规实例或
+有据校正后的形式才进入解码；详细编码规则、历史形式与逐项审计入口见
+[音节编码规则与依据](docs/SYLLABLE_ENCODING_RULES.md)。
+
+当前分支的数据链、真源、三张审计表和键盘布局重构总览见
+[当前实现总览](docs/CURRENT_ARCHITECTURE.md)。
 
 当前主线已经能稳定给出几类可验证结果：
 
 - 带调全拼音节在当前主线下统一为 4 码编码。
 - 运行时候选以 SQLite `pinyin_hanzi.db` 为主路径查词。
-- 音元全拼 / 简拼 / 标准全拼的结构码长可以在同语料上并列比较。
-- 单字排序与首屏命中率仍是当前优化重点；当前单字需求权重真源是
-    BCC 字频频道 `external_data/char_freq/merged_char_freq.txt`，并在
-    runtime 中先经动态定标的 5 档分层骨架，再叠加真单字频率与轻量
+- 音元等长 / 省键 / 标准拼音的结构码长可以在同语料上并列比较。
+- 单字排序与首屏命中率仍是当前优化重点；当前单字需求权重来自统一
+    `source_lexicon.sqlite3` 中保留的 BCC 原始分域字频证据，并在
+    runtime 中先经统一库生成的九级分层骨架，再叠加真单字频率与轻量
     修正项。
 
 数据 rebuild 与运行时消费见 [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)。
@@ -28,11 +53,12 @@ Windows 桌面输入法原型、相关生成链，以及一组已经可重复生
 
 ## 实现范围说明
 
-README 中提到的简拼、双拼、并击、动态组词和更强的编码转换能力，
-很多仍属于理论能力、设计方向或长期可能性，不应默认理解为当前
-仓库都已实现。
+当前已经实现等长、变长和省键三种音元编码模式。双拼、并击、动态组词和
+更强的编码转换能力仍有不少属于理论能力、设计方向或长期可能性，不应默认
+理解为当前仓库都已实现。
 
-当前实际主线仍是 Windows 桌面输入法原型，优先处理全拼输入、候选显示、选字回贴、手动输入路径和基础稳定性。
+当前仓库同时维护数据生产主线和 Python 桌面交互原型。系统级 Windows 前端由外部 Windows Yime、
+Weasel/Rime 与 PIME 消费同一批导出资产；前端仓库不得另建拼音到音元或键位的平行映射。
 
 ## 重要设计约束
 
@@ -55,9 +81,10 @@ README 中提到的简拼、双拼、并击、动态组词和更强的编码转�
 
 当前真正可运行、可验证的主线主要包括：
 
-- 全拼输入、候选显示、选字回贴和基础交互
-- 运行时数据导出与效率基线统计
-- 键盘布局生成、MSKLC 打包与安装链
+- 来源校验、1732项音节编码、三模式派生和唯一布局投影
+- SQLite 运行候选、候选质量报告与效率基线统计
+- Python 原型的全拼输入、候选显示、选字回贴和基础交互
+- Windows Yime 词库交接，以及 Weasel/PIME 消费验证
 
 更完整的理论背景、术语和桥接说明请从
 [docs/README.md](docs/README.md) 进入；当前实现边界与指标则分别看
@@ -71,7 +98,8 @@ README 中提到的简拼、双拼、并击、动态组词和更强的编码转�
 1. 安装环境与依赖：看
     [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)
     或 [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)。
-2. 启动当前原型：使用 `python -m yime.input_method.app` 或 `python run_input_method.py`。
+2. 启动当前原型：使用
+    `.\venv312\Scripts\python.exe -m yime.input_method.app`。
 3. 了解边界与细分文档：先读
     [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)，
     再进 [docs/README.md](docs/README.md)。
@@ -101,9 +129,15 @@ YIME/
     [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)、
     [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)
 - 当前实现边界：
+    [docs/CURRENT_ARCHITECTURE.md](docs/CURRENT_ARCHITECTURE.md)、
     [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)
+- 当前优先级：
+    [docs/project/ROADMAP.md](docs/project/ROADMAP.md)、
+    [docs/CANDIDATE_CORPUS_ROADMAP.md](docs/CANDIDATE_CORPUS_ROADMAP.md)
 - 文档入口： [docs/README.md](docs/README.md)、
     [docs/TERMINOLOGY_INDEX.md](docs/TERMINOLOGY_INDEX.md)、
+    [docs/DICTIONARY_PINYIN_COMPLIANCE.md](docs/DICTIONARY_PINYIN_COMPLIANCE.md)、
+    [docs/SYLLABLE_ENCODING_RULES.md](docs/SYLLABLE_ENCODING_RULES.md)、
     [docs/CODEPOINT_POLICY.md](docs/CODEPOINT_POLICY.md)、
     [docs/SOURCE_AND_ARTIFACTS.md](docs/SOURCE_AND_ARTIFACTS.md)、
     [docs/project/PINYIN_DATA_MIGRATION.md](docs/project/PINYIN_DATA_MIGRATION.md)

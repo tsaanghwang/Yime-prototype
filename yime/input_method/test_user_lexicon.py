@@ -286,8 +286,12 @@ def test_sqlite_runtime_decoder_persists_user_frequency_across_instances(tmp_pat
     user_db_path = tmp_path / "user_lexicon.db"
 
     decoder = SQLiteRuntimeCandidateDecoder(app_dir, user_db_path=user_db_path)
+    lookup_code = (
+        decoder.pinyin_to_canonical["an1"]
+        + decoder.pinyin_to_canonical["quan2"]
+    )
     cast(Any, decoder).by_code = {
-        "abcdefgh": [
+        lookup_code: [
             {
                 "text": "安全",
                 "entry_type": "phrase",
@@ -308,14 +312,14 @@ def test_sqlite_runtime_decoder_persists_user_frequency_across_instances(tmp_pat
     }
     setattr(decoder, "_user_freq_by_candidate", decoder.user_lexicon.load_candidate_frequency())
 
-    _canonical, _active, _pinyin, candidates, _status = decoder.decode_text("abcdefgh")
+    _canonical, _active, _pinyin, candidates, _status = decoder.decode_text(lookup_code)
     assert candidates[:2] == ["安全", "安权"]
 
-    decoder.record_selection("abcdefgh", "安权")
+    decoder.record_selection(lookup_code, "安权")
 
     reloaded = SQLiteRuntimeCandidateDecoder(app_dir, user_db_path=user_db_path)
     cast(Any, reloaded).by_code = cast(Any, decoder).by_code
     setattr(reloaded, "_user_freq_by_candidate", reloaded.user_lexicon.load_candidate_frequency())
 
-    _canonical, _active, _pinyin, promoted, _status = reloaded.decode_text("abcdefgh")
+    _canonical, _active, _pinyin, promoted, _status = reloaded.decode_text(lookup_code)
     assert promoted[:2] == ["安权", "安全"]

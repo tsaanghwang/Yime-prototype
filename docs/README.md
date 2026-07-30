@@ -2,8 +2,8 @@
 
 欢迎来到 YIME（音元输入法编辑器）文档中心！
 
-说明：本文档中心优先组织当前 Windows
-桌面输入法原型直接相关的主线材料；理论、术语和音系分析类文档
+说明：本文档中心优先组织当前字典驱动编码、候选生产、Python
+桌面交互原型和 Windows 消费交接相关的主线材料；理论、术语和音系分析类文档
 主要作为背景与长期参考，不等于当前仓库均已实现。
 
 补充说明：仓库内旧的 `docs/*.html` 静态文档站已外置到单独的
@@ -14,7 +14,9 @@
 
 ## 📚 文档导航
 
-建议阅读顺序：先看 [../README.md](../README.md) 了解项目边界，
+建议阅读顺序：先看 [../README.md](../README.md) 了解项目边界，再看
+[CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md) 掌握当前已实现的数据链、
+真源和键盘布局，
 **改 `syllable/` 或用 AI 前读
 [TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md)**，再看
 [project/INPUT_METHOD_SOLUTION.md](project/INPUT_METHOD_SOLUTION.md)
@@ -22,6 +24,22 @@
 
 ### 重要设计约束
 
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支已经实现的字典驱动编码链、真源、审计表和键盘布局重构；
+  判断“现在到底是什么状态”时优先看这里
+- **[音节编码规则与依据](SYLLABLE_ENCODING_RULES.md)** -
+  1732项现行编码的来源原则、拼写形式族、历史五声穷举和修改入口
+- **[字典拼音第一轮合规审查](DICTIONARY_PINYIN_COMPLIANCE.md)** -
+  两个外部字典共用的前置审查、特殊读音登记、来源别名规范化和独立报告
+- **[候选语料库整理路线图](CANDIDATE_CORPUS_ROADMAP.md)** -
+  统一候选语料库的当前规模、BCC 未解码与多读音现状、整理优先级和动态精简路线
+- **[片音分析与音元表示：工程阅读概要](PIANYIN_ANALYSIS_OVERVIEW.md)** -
+  片音、音元和 Yinyuan ID 的工程解释优先级；明确四元位置不是等长时间窗，
+  当前代码也没有实现波形切分或插值合成
+- **[噪音类与乐音类：分类说明](ZAOYIN_YUEYIN_CLASSIFICATION.md)** -
+  `zaoyin/yueyin` 的唯一双语名称、区别特征分类依据、共享类别轴和代码约束
+- **[布局改动锁](LAYOUT_CHANGE_LOCK.md)** -
+  锁住拼音到 Yinyuan ID 的语义链，并规定唯一布局真源与生成入口
 - **[术语总入口（请先读）](TERMINOLOGY_INDEX.md)** -
   音元/片音/干音/乐音命名索引、常见误解、AI 提醒；
   链到中英文专题文档与 [syllable/NAMING.md](../syllable/NAMING.md)
@@ -36,9 +54,6 @@
   English counterpart
 - **[片音与语音技术单位的对应关系](PIANYIN_TECH_BRIDGE.md)** -
   片音与 ASR/TTS 技术单位的衔接
-- **[Correspondence Between Pianyin and
-  Speech-Technology Units](PIANYIN_TECH_BRIDGE_EN.md)** -
-  English bridge note
 
 ### 快速开始
 
@@ -96,8 +111,12 @@ KLC 文档分工：
 
 ### 核心文档
 
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支的工程事实入口；理论稿和历史记录不得覆盖其现状结论
 - **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** -
-  当前 Windows 桌面输入法原型的实现状态、边界和后续方向
+  原型仓库、Python 桌面交互原型与 Windows 系统前端消费者的实现分工
+- **[Windows 前端状态](install/WINDOWS_FRONTENDS_STATUS.md)** -
+  Windows Yime、Weasel/Rime 和 PIME 的消费边界与验收基线
 - **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** -
   rebuild 链、SQLite 主路径、已删除 legacy 脚本
 - **[连续输入候选组织草案](project/CONTINUOUS_INPUT_CANDIDATE_ORGANIZATION_DRAFT.md)** -
@@ -117,14 +136,21 @@ KLC 文档分工：
   当前主线的结构边界、生成链分层与关键资产归属
 - **[数据文件结构说明](DATAFILES.md)** -
   数据文件、导入产物与目录层次说明
-- **[系统词库质检与清洗（占位）](LEXICON_LINT.md)** -
-  `lexicon_lint` / `lexicon_clean` 只读报告与发版前审阅流程；当前不自动清理词库
+- **[系统候选完整性质检](LEXICON_LINT.md)** -
+  `lexicon_lint` 与 R0–R5 动态覆盖报告；来源全集只读，发布层由可重建门禁筛选
+- **[动态候选覆盖与核心提升闭环](DYNAMIC_CANDIDATE_COVERAGE.md)** -
+  原 Phase 4.3 的完成证据、全量统计与持续改进队列
+- **[候选排序证据与长尾结构](CANDIDATE_RANKING_EVIDENCE.md)** -
+  BCC 主排序、RIME-LMDG 补充和非频次结构保底的完整门禁
 - **[syllable 包说明](../syllable/README.md)** -
   音节分析、编解码目录、CLI 与 Phase 1/2 rebuild 边界
 
 ### 项目管理
 
-- **[路线图](project/ROADMAP.md)** - 项目发展路线图
+- **[路线图](project/ROADMAP.md)** -
+  生产链闭合后的候选质量、Windows 交接和稳定性优先级
+- **[Wiki 连续语音与离散分析修订预案](project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md)** -
+  暂缓实施的理论文档整理留痕；当前不修改 Wiki 正文，也不作为现行定义
 - **[更新日志](../CHANGELOG.md)** - 版本更新历史
 - **[贡献指南](../CONTRIBUTING.md)** - 如何贡献代码
 - **[授权文档索引](LICENSING_INDEX.md)** -
@@ -151,9 +177,11 @@ KLC 文档分工：
 
 ### 2. 我想理解文件和生成链
 
-1. 先看 [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md)
-2. 再看 [KEYBOARD_LAYOUT_PIPELINE.md](KEYBOARD_LAYOUT_PIPELINE.md)
-3. 需要术语背景时，再看
+1. 先看 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)
+2. 再看 [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md) 与
+   [SYLLABLE_ENCODING_RULES.md](SYLLABLE_ENCODING_RULES.md)
+3. 布局相关再看 [KEYBOARD_LAYOUT_PIPELINE.md](KEYBOARD_LAYOUT_PIPELINE.md)
+4. 需要术语背景时，再看
    [YINYUAN_TERMINOLOGY.md](YINYUAN_TERMINOLOGY.md) 与
    [THEORY_INDEX.md](THEORY_INDEX.md)
 
@@ -164,11 +192,11 @@ KLC 文档分工：
 2. 不要把这类文档直接当成当前操作手册
 3. 当前流程仍以本页“快速开始”和上面的 KLC 主入口说明为准
 
-## 2026-06 主线更新（维护摘要）
+## 2026-07 主线更新（维护摘要）
 
 近期仓库清理与文档对齐要点：
 
-- **数据 rebuild**：`source_pinyin.db` → prototype 导入 →
+- **数据 rebuild**：`source_lexicon.sqlite3`（统一真源）→ prototype 导入 →
   `refresh_runtime_yime_codes`
 - **运行时查词**：**SQLite** `pinyin_hanzi.db` /
   `runtime_candidates` 为主；JSON 导出可选
@@ -179,6 +207,11 @@ KLC 文档分工：
   （旧 import 路径；结构真源在 `syllable/codec/yinjie.py`）
 - **静态兜底**：`pinyin_hanzi.json` 已 gitignore，缺失不影响主链
 - **本地验证**：`scripts/run_tests.cmd`
+- **字典驱动编码**：1732项现行音节全部具有来源/补丁依据并通过正式编码器；
+  规则目录和逐项依据受布局锁校验
+- **布局重构**：57个 Yinyuan ID 已统一进入 Base/Shift 两层；AltGr 留空，
+  取消数字/标点搬键兜底，`manual_key_layout.json` 成为唯一布局真源
+- **审计可视数据**：分解、逐项依据和历史差集三张 TSV 可由统一命令重建
   （unittest + pytest input_method）
 
 细节与历史删除清单见
@@ -195,5 +228,5 @@ KLC 文档分工：
 
 ---
 
-**最后更新**: 2026-06-17
-**文档版本**: 1.1.0
+**最后更新**: 2026-07-24
+**文档版本**: 1.2.0

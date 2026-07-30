@@ -1,153 +1,73 @@
-# Pinyin Source DB
+# 统一词库与音节编码入口
 
-This folder contains the source-of-truth SQLite workspace for pinyin
-imports.
+当前生产真源是：
 
-## Why it lives here
-
-- `internal_data/hanzi_pinyin/pinyin.txt` and
-  `internal_data/phrase_pinyin/phrase_pinyin.txt` are the curated exports
-  after Unihan / phrase-pinyin-data pipelines.
-- `source_pinyin.db` consolidates those TSV files into one SQLite database
-  for prototype import, syllable export, and debugging.
-- Keeping schema, builder, and exports together avoids scattering mutable
-  artifacts.
-
-## Default generated location
-
-- `c:/dev/Yime/.generated/source_pinyin.db` (preferred)
-- synced copy: `internal_data/pinyin_source_db/source_pinyin.db`
-
-Override: set `YIME_SOURCE_PINYIN_DB`.
-
-## Upstream inputs (v2)
-
-| Kind | Default path                                      |
-| ---- | ------------------------------------------------- |
-| 单字 | `internal_data/hanzi_pinyin/pinyin.txt`           |
-| 词语 | `internal_data/phrase_pinyin/phrase_pinyin.txt`   |
-
-Run `internal_data/hanzi_pinyin/build_valid_pinyin.py` and
-`internal_data/phrase_pinyin/build_valid_pinyin.py` first if these files are
-missing.
-
-## One-click rebuild (phase 1 — lexicon + syllable table, no codebook)
-
-Default rebuild **does not** touch `syllable/codec/yinjie_code.json`.
-Marked forms that the source DB cannot supply are filled from
-`pinyin_normalized_patch.json`.
-
-```bash
-python internal_data/pinyin_source_db/rebuild_pinyin_assets.py
+```text
+.generated/lexicon_source_bundle/source_lexicon.sqlite3
 ```
 
-Steps: `build_source_pinyin_db.py` → `validate_source_pinyin_db.py` →
-`refresh_materialized_syllable_inventory.py` → `export_pinyin_normalized.py` →
-copy to `yime/pinyin_normalized.json` → yinyuan consistency check.
+它由 `tools/build_lexicon_source_bundle.py` 从 Unihan、pypinyin、万象和 BCC
+的原始来源重建，集中保存字词、合规读音、来源证据、来源分类、BCC 分域频次和
+万象权重。只有其中通过门禁的规范读音才能进入正式音节分解与音元编码链。
 
-Gate before runtime or codebook replacement:
+旧 `.generated/source_pinyin.db`、仓库内旧同步副本及环境变量
+`YIME_SOURCE_PINYIN_DB` 已退出生产链。旧构建器只保留历史格式解析、审计和
+少量兼容测试用途；不得把它重新接到 prototype 或 runtime 的默认入口。
 
-```bash
-scripts/run_tests.cmd
-```
-
-### Supplemental patch (`pinyin_normalized_patch.json`)
-
-Use this JSON when:
-
-- the lexicon has a numeric syllable (`guai2`) but the auto
-  `numeric_to_marked_syllable()` form is wrong; or
-- a syllable must appear in `pinyin_normalized.json` before the codebook is
-  updated.
-
-Format: `"numeric_key": "marked_form"`.
-Keys must stay numeric; do **not** add marked-form aliases to
-`yinjie_code.json`.
-
-Standalone 儿化韵单写 `r` is normalized to numeric `er5` at import
-(`marked_syllable_to_numeric`); upstream marked spelling may stay `r`.
-
-Export domain = distinct numeric syllables from
-`m_distinct_syllable_inventory` ∪ patch keys (inventory-first; only
-lexicon-attested syllables, including neutral tone). Use
-`--export-domain codebook` for the legacy codebook-only domain.
-Non-numeric codebook keys are ignored with a warning when loading the codebook
-reference.
-
-`rebuild_pinyin_assets.py` refreshes the syllable inventory automatically.
-To rebuild it alone:
-
-```bash
-python tools/refresh_materialized_syllable_inventory.py
-```
-
-This materializes `m_distinct_syllable_inventory` directly from
-`char_readings` and `phrase_readings` (no intermediate view), then rebuilds
-analysis views. Inspect `v_numeric_syllable_marked_conflicts` for
-numeric→marked conflicts before patching.
-
-## Phase 2 — replace codebook (explicit, after tests pass)
-
-When export + unittest are green and you intend to refresh encoding artifacts:
-
-```bash
-python internal_data/pinyin_source_db/rebuild_pinyin_assets.py --apply-codebook
-```
-
-or:
-
-```bash
-scripts/apply_syllable_codebook.cmd
-```
-
-This runs `tools/rebuild_encoding_assets.py` (首音 → 干音 →
-`yinjie_code.json` → `code_pinyin.json`), not the lexicon-local encoder
-shortcut.
-
-## Schema (v2)
-
-| Table             | Purpose                                     |
-| ----------------- | ------------------------------------------- |
-| `source_files`    | import path per `char` / `phrase` kind      |
-| `char_readings`   | single-syllable readings per codepoint      |
-| `phrase_readings` | phrase readings; ranked `\|` variants       |
-| `metadata`        | schema version and row counts               |
-
-Removed from v1: per-row `source_name`, `raw_line`, `comment` (structured TSV
-replaces raw-line audit; comment was only used for legacy `#` notes in
-colon-format phrase files).
-
-## Downstream
-
-- `yime/utils/prototype_single_char_import.py` /
-  `prototype_phrase_import.py` clone into `pinyin_hanzi.db`
-- `lexicon_exports/pinyin_normalized.json` — syllable codebook export
-  (canonical rebuild output)
-- `yime/pinyin_normalized.json` — runtime copy synced by
-  `rebuild_pinyin_assets.py` for IME/static decoder
-
-See also `docs/project/PINYIN_DATA_MIGRATION.md`.
-
-## Trial lexicon integration (safe path)
-
-To integrate a new `source_pinyin.db` without touching the encoding layer
-(`yinjie_code.json`), use:
+## 一键重建
 
 ```powershell
-.\scripts\integrate_lexicon_trial.ps1  # build/validate/export only
-.\scripts\integrate_lexicon_trial.ps1 -ApplyRuntime  # refresh runtime DB
+.\venv312\Scripts\python.exe internal_data\pinyin_source_db\rebuild_pinyin_assets.py
+.\venv312\Scripts\python.exe -m yime.import_danzi_into_prototype_tables
+.\venv312\Scripts\python.exe -m yime.import_duozi_into_prototype_tables
+.\venv312\Scripts\python.exe -m yime.refresh_runtime_yime_codes --apply --skip-runtime-export
 ```
 
-The script writes `.generated/integrate_lexicon_trial_report.json` for
-baseline comparison, including:
+第一条命令执行以下生产链：
 
-- row counts
-- SHA256
+```text
+原始来源
+  -> 统一合规门禁
+  -> source_lexicon.sqlite3
+  -> 物化音节清单
+  -> pinyin_normalized.json
+  -> 正式音节编码器与一致性检查
+```
 
-If `refresh_runtime_yime_codes.py` reports missing mappings, follow
-`PATCH_POLICY.md`.
+若来源中出现结构合法、已有明确注音、但尚未存在于当前物化音节表的拼音，运行
+`tools/audit_missing_source_syllables.py` 生成按 BCC 频次排列的审查报告。只有登记在
+`syllable_admission_reviews.json` 且状态为 `approved` 的项目才可临时跨过旧音节表门禁；
+重建后即由正式音节编码链生成。登记文件不得保存音元 ID、码元或键位，也不得补齐未出现的声调。
+轻声不逐项登记：标调制度完整的上游在多字完整词音中实际给出的无调音节，按 GB/T 16159-2012
+的轻声标写规则准入，不要求为词汇性轻声虚构本调。孤立无调记录可保存为词境证据，但只有
+`pronunciation_scope=standalone` 才进入单字候选；标调制度不明的来源标为 `unmarked_ambiguous`。
+这里只接纳来源实例，不从本调自动生成任何词语轻声。
+各来源“无调是否明确表示轻声”的制度集中登记在 `neutral_tone_source_policy.json`；未登记来源默认
+按未定无调处理，不能借用其他来源的约定。
 
-Related orchestrators:
+指定另一份统一库时，只接受新变量 `YIME_LEXICON_SOURCE_DB`。
 
-- `tools/update_phrase_lexicon_from_large_pinyin.py` — external sources
-- `scripts/restore_full_pipeline.ps1 -Mode forward` — forward, no report
+## 数据库接口
+
+- `accepted_readings`：通过门禁的逐来源证据，保留来源标调原貌。
+- `canonical_readings`：供生产消费的规范读音、来源汇总、分类和频次。
+- `char_readings`：兼容读取视图，包含全部单字读音。
+- `phrase_readings`：兼容读取视图，只暴露每个多字条目的首选生产读音。
+- `bcc_frequency_evidence`：BCC 原始分域、字频/词频频道证据。
+- `metadata`、`source_files`：构建角色、计数和逐文件溯源。
+
+`char_readings` 与 `phrase_readings` 是统一库内部的消费视图，不表示旧
+`source_pinyin.db` 重新成为了一层真源。
+
+## 补充清单的边界
+
+`pinyin_normalized_patch.json` 和 `numeric_pinyin_patch.csv` 只能登记已经审查的
+数字调/标调表现形式，不能写入四个 Yinyuan ID、键位或手工音元码。发现新读音时，
+应先补上游来源和合规规则，再重建统一库；不得从中间码表修补。
+
+编码规则与布局约束另见：
+
+- `docs/SYLLABLE_ENCODING_RULES.md`
+- `docs/LAYOUT_CHANGE_LOCK.md`
+- `PATCH_POLICY.md`
+- `docs/LEXICON_SOURCE_BUNDLE.md`

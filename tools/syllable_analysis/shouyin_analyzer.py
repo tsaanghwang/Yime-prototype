@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, cast
 
-from syllable.analysis.zaoyin_yinyuan import ClearNoise, VoicedNoise
+from syllable.analysis.zaoyin_yinyuan import ClearZaoyin, VoicedZaoyin
 from syllable.analysis.syllable_splitter import SyllableSplitter
 
 
@@ -80,12 +80,12 @@ def create_uncertain_pitch_pianyin() -> dict[str, dict[str, list[str]]]:
         ipa_list = initial_ipa_mapping.get(initial, [])
         # 判断是否为浊音
         if initial in VOICED_INITIALS:
-            uncertain_pitch_pianyin = VoicedNoise(quality=initial)
-            if uncertain_pitch_pianyin.is_valid():
+            zaoyin = VoicedZaoyin(quality=initial)
+            if zaoyin.is_valid():
                 voiced[initial] = ipa_list
         else:
-            uncertain_pitch_pianyin = ClearNoise(quality=initial)
-            if uncertain_pitch_pianyin.is_valid():
+            zaoyin = ClearZaoyin(quality=initial)
+            if zaoyin.is_valid():
                 voiceless[initial] = ipa_list
 
     return {"unpitched_pianyin": voiceless, "unstable_pitch_pianyin": voiced}
@@ -119,8 +119,8 @@ def main():
         # 1. 生成并合并首音数据
         merge_shouyin_data()
 
-        # 2. 使用UnpitchedPianyin类验证噪音数据并分类
-        classified_noise = create_uncertain_pitch_pianyin()
+        # 2. 验证噪音类数据并写入兼容旧格式的字段
+        classified_zaoyin = create_uncertain_pitch_pianyin()
 
         # 3. 读取现有的噪音声母文件
 
@@ -138,7 +138,7 @@ def main():
             "name": name,
             "description": description,
             "note": note,
-            "uncertain_pitch_pianyin": classified_noise
+            "uncertain_pitch_pianyin": classified_zaoyin
         }
 
         # 5. 保存结果

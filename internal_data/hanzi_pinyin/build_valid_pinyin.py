@@ -1,8 +1,10 @@
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 SCRIPTS_DIR = Path(__file__).parent
+WORKSPACE_ROOT = SCRIPTS_DIR.parents[1]
 
 
 def run(script_name: str, args: list[str] | None = None) -> None:
@@ -13,7 +15,11 @@ def run(script_name: str, args: list[str] | None = None) -> None:
     print(f"\n{'='*60}")
     print(f"  执行: {script_name} {' '.join(args) if args else ''}")
     print(f"{'='*60}")
-    result = subprocess.run(cmd, cwd=str(SCRIPTS_DIR))
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(WORKSPACE_ROOT), env.get("PYTHONPATH", "")) if part
+    )
+    result = subprocess.run(cmd, cwd=str(SCRIPTS_DIR), env=env)
     if result.returncode != 0:
         print(f"\n[错误] {script_name} 返回码: {result.returncode}")
         raise SystemExit(result.returncode)

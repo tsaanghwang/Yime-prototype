@@ -12,6 +12,7 @@ YIME（音元输入法编辑器）提供了一套完整的 Python API，用于�
 
 - [音元系统术语说明](YINYUAN_TERMINOLOGY.md)
 - [Terminology of the Yinyuan System](YINYUAN_TERMINOLOGY_EN.md)
+- [噪音类与乐音类：分类说明](ZAOYIN_YUEYIN_CLASSIFICATION.md)
 
 对 API 文档而言，至少应先接受以下术语前提：
 
@@ -32,6 +33,8 @@ YIME（音元输入法编辑器）提供了一套完整的 Python API，用于�
 - 音元对象：`syllable.analysis.yinyuan.*`、`syllable.analysis.yueyin_yinyuan.YueyinYinyuan`
 - 共享类别轴：`syllable.analysis.yinyuan_categories.YinyuanCategory`
 - 乐音归并器：`syllable.analysis.yueyin_mapper.YueyinMapper`
+
+新 API 使用 `ZaoyinPianyin`、`YueyinPianyin`、`ZaoyinYinyuan` 和 `YueyinYinyuan`。`UnpitchedPianyin`、`PitchedPianyin`、`NoiseYinyuan`、`MusicalYinyuan` 仅是兼容旧调用的名称。
 
 流程图见 [project/YINYUAN_REFACTOR_FLOW.md](project/YINYUAN_REFACTOR_FLOW.md)。
 
@@ -194,7 +197,7 @@ print(f"乐音: {musical}")  # ['A', 'B', 'C']
 该模块已于 2026-06 Phase E 删除。
 如果你的目标是重建当前拼音数据链，请优先使用：
 
-- `internal_data/pinyin_source_db/build_source_pinyin_db.py`
+- `tools/build_lexicon_source_bundle.py`
 - `internal_data/pinyin_source_db/validate_source_pinyin_db.py`
 - `yime/import_danzi_into_prototype_tables.py`
     （兼容入口；真实实现位于

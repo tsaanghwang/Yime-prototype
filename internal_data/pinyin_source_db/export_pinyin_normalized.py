@@ -7,7 +7,6 @@ from collections import defaultdict, OrderedDict
 from pathlib import Path
 from typing import Any
 
-from build_source_pinyin_db import DEFAULT_DB_PATH
 from validate_source_pinyin_db import (
     finalize_report,
     make_report,
@@ -18,6 +17,9 @@ from validate_source_pinyin_db import (
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 WORKSPACE_ROOT = SCRIPT_DIR.parent.parent
+DEFAULT_DB_PATH = (
+    WORKSPACE_ROOT / ".generated" / "lexicon_source_bundle" / "source_lexicon.sqlite3"
+)
 DEFAULT_OUTPUT_PATH = SCRIPT_DIR / "lexicon_exports" / "pinyin_normalized.json"
 DEFAULT_CODEBOOK_PATH = WORKSPACE_ROOT / "syllable" / "codec" / "yinjie_code.json"
 DEFAULT_SUPPLEMENTAL_PATCH_PATH = SCRIPT_DIR / "pinyin_normalized_patch.json"

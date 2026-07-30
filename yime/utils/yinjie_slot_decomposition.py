@@ -74,17 +74,12 @@ def build_decomposition_row(
     code_source: str,
 ) -> YinjieSlotDecompositionRow:
     """Derive position columns from a canonical four-character yime code."""
-    from yime.canonical_yime_mapping import load_virtual_initial_symbol
-
     normalized_code = str(yime_code or "").strip()
     if len(normalized_code) != 4:
         raise ValueError(f"yime_code 长度应为 4，实际为 {len(normalized_code)}: {normalized_code!r}")
 
     yinjie = Yinjie.from_code(normalized_code)
-    variable_length_code = to_variable_length_yinyuan_code(
-        normalized_code,
-        virtual_initial=load_virtual_initial_symbol() or None,
-    )
+    variable_length_code = to_variable_length_yinyuan_code(normalized_code)
     return YinjieSlotDecompositionRow(
         pinyin_tone=str(pinyin_tone or "").strip(),
         yime_code=normalized_code,

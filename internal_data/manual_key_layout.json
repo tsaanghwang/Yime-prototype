@@ -1,18 +1,18 @@
 {
   "metadata": {
     "name": "Yime manual key layout",
-    "version": "2026-07-17",
-    "layout_status": "yime_two_layer_alignment_v1",
+    "version": "2026-07-18",
+    "layout_status": "canonical_yinyuan_vk_layout_v1",
     "symbol_source": "internal_data/key_to_symbol.json",
-    "ergonomic_strategy": "High-frequency musical groups center on f/j and expand outward; initials use g/h as anchors; low-frequency Yinyuan IDs use the shifted number row so all Yinyuan IDs remain on base and shift layers.",
-    "design_warning": "Temporarily aligned with the Windows Yime two-layer layout-key mapping. Windows Yime now handles punctuation and other non-Yinyuan input through candidates, so this mapping does not relocate displaced ASCII digits or punctuation. No Yinyuan ID is assigned to AltGr.",
+    "ergonomic_strategy": "Yinyuan semantics are encoded upstream; this file is the sole final Yinyuan-ID-to-physical-key projection.",
+    "design_warning": "Canonical final projection. Do not create a parallel compact layout or a direct Pinyin-to-key map; regenerate all layout artifacts through the layout change lock.",
     "yinyuan_id_format": {
       "noise": "N01-N24",
       "musical": "M01-M33"
     },
     "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char is allowed only for a key's native ASCII output. The early relocation fallback for digits and punctuation was retired after Windows Yime candidate input took responsibility for punctuation and other non-Yinyuan content. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
     "template_scope": "94 printable ASCII key slots in keyboard order plus optional space and selected AltGr slots",
-    "total_slots": 103
+    "total_slots": 104
   },
   "layers": [
     {
@@ -51,7 +51,7 @@
       "physical_key": "1",
       "output_layer": "shift",
       "display_label": "!",
-      "yinyuan_id": "M25",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -71,7 +71,7 @@
       "physical_key": "2",
       "output_layer": "shift",
       "display_label": "@",
-      "yinyuan_id": "M26",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -91,7 +91,7 @@
       "physical_key": "3",
       "output_layer": "shift",
       "display_label": "#",
-      "yinyuan_id": "M27",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -111,7 +111,7 @@
       "physical_key": "4",
       "output_layer": "shift",
       "display_label": "$",
-      "yinyuan_id": "N23",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -131,7 +131,7 @@
       "physical_key": "5",
       "output_layer": "shift",
       "display_label": "%",
-      "yinyuan_id": "N24",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -241,8 +241,8 @@
       "physical_key": "-",
       "output_layer": "base",
       "display_label": "-",
-      "yinyuan_id": null,
-      "literal_char": "-",
+      "yinyuan_id": "N04",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -261,8 +261,8 @@
       "physical_key": "=",
       "output_layer": "base",
       "display_label": "=",
-      "yinyuan_id": null,
-      "literal_char": "=",
+      "yinyuan_id": "N24",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -281,7 +281,7 @@
       "physical_key": "q",
       "output_layer": "base",
       "display_label": "q",
-      "yinyuan_id": "N01",
+      "yinyuan_id": "N10",
       "literal_char": null,
       "notes": ""
     },
@@ -301,7 +301,7 @@
       "physical_key": "w",
       "output_layer": "base",
       "display_label": "w",
-      "yinyuan_id": "N05",
+      "yinyuan_id": "M15",
       "literal_char": null,
       "notes": ""
     },
@@ -321,7 +321,7 @@
       "physical_key": "e",
       "output_layer": "base",
       "display_label": "e",
-      "yinyuan_id": "M18",
+      "yinyuan_id": "M14",
       "literal_char": null,
       "notes": ""
     },
@@ -341,7 +341,7 @@
       "physical_key": "r",
       "output_layer": "base",
       "display_label": "r",
-      "yinyuan_id": "M17",
+      "yinyuan_id": "M13",
       "literal_char": null,
       "notes": ""
     },
@@ -361,7 +361,7 @@
       "physical_key": "t",
       "output_layer": "base",
       "display_label": "t",
-      "yinyuan_id": "M16",
+      "yinyuan_id": "N06",
       "literal_char": null,
       "notes": ""
     },
@@ -381,7 +381,7 @@
       "physical_key": "y",
       "output_layer": "base",
       "display_label": "y",
-      "yinyuan_id": "N08",
+      "yinyuan_id": "N23",
       "literal_char": null,
       "notes": ""
     },
@@ -401,7 +401,7 @@
       "physical_key": "u",
       "output_layer": "base",
       "display_label": "u",
-      "yinyuan_id": "M01",
+      "yinyuan_id": "M04",
       "literal_char": null,
       "notes": ""
     },
@@ -411,7 +411,7 @@
       "physical_key": "u",
       "output_layer": "shift",
       "display_label": "U",
-      "yinyuan_id": null,
+      "yinyuan_id": "M22",
       "literal_char": null,
       "notes": ""
     },
@@ -421,7 +421,7 @@
       "physical_key": "i",
       "output_layer": "base",
       "display_label": "i",
-      "yinyuan_id": "M31",
+      "yinyuan_id": "M05",
       "literal_char": null,
       "notes": ""
     },
@@ -431,7 +431,7 @@
       "physical_key": "i",
       "output_layer": "shift",
       "display_label": "I",
-      "yinyuan_id": null,
+      "yinyuan_id": "M23",
       "literal_char": null,
       "notes": ""
     },
@@ -441,7 +441,7 @@
       "physical_key": "o",
       "output_layer": "base",
       "display_label": "o",
-      "yinyuan_id": "M03",
+      "yinyuan_id": "M06",
       "literal_char": null,
       "notes": ""
     },
@@ -451,7 +451,7 @@
       "physical_key": "o",
       "output_layer": "shift",
       "display_label": "O",
-      "yinyuan_id": null,
+      "yinyuan_id": "M24",
       "literal_char": null,
       "notes": ""
     },
@@ -501,7 +501,7 @@
       "physical_key": "]",
       "output_layer": "base",
       "display_label": "]",
-      "yinyuan_id": "N09",
+      "yinyuan_id": "N05",
       "literal_char": null,
       "notes": ""
     },
@@ -521,8 +521,8 @@
       "physical_key": "\\",
       "output_layer": "base",
       "display_label": "\\",
-      "yinyuan_id": null,
-      "literal_char": "\\",
+      "yinyuan_id": "N07",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -551,7 +551,7 @@
       "physical_key": "a",
       "output_layer": "shift",
       "display_label": "A",
-      "yinyuan_id": "M22",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -571,7 +571,7 @@
       "physical_key": "s",
       "output_layer": "shift",
       "display_label": "S",
-      "yinyuan_id": "M23",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -591,7 +591,7 @@
       "physical_key": "d",
       "output_layer": "shift",
       "display_label": "D",
-      "yinyuan_id": "M24",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -621,7 +621,7 @@
       "physical_key": "g",
       "output_layer": "base",
       "display_label": "g",
-      "yinyuan_id": "M05",
+      "yinyuan_id": "N09",
       "literal_char": null,
       "notes": ""
     },
@@ -631,7 +631,7 @@
       "physical_key": "g",
       "output_layer": "shift",
       "display_label": "G",
-      "yinyuan_id": null,
+      "yinyuan_id": "M32",
       "literal_char": null,
       "notes": ""
     },
@@ -641,7 +641,7 @@
       "physical_key": "h",
       "output_layer": "base",
       "display_label": "h",
-      "yinyuan_id": "N04",
+      "yinyuan_id": "N11",
       "literal_char": null,
       "notes": ""
     },
@@ -651,7 +651,7 @@
       "physical_key": "h",
       "output_layer": "shift",
       "display_label": "H",
-      "yinyuan_id": "N12",
+      "yinyuan_id": null,
       "literal_char": null,
       "notes": ""
     },
@@ -661,7 +661,7 @@
       "physical_key": "j",
       "output_layer": "base",
       "display_label": "j",
-      "yinyuan_id": "M13",
+      "yinyuan_id": "M01",
       "literal_char": null,
       "notes": ""
     },
@@ -691,7 +691,7 @@
       "physical_key": "k",
       "output_layer": "base",
       "display_label": "k",
-      "yinyuan_id": "M14",
+      "yinyuan_id": "M02",
       "literal_char": null,
       "notes": ""
     },
@@ -721,7 +721,7 @@
       "physical_key": "l",
       "output_layer": "base",
       "display_label": "l",
-      "yinyuan_id": "M15",
+      "yinyuan_id": "M03",
       "literal_char": null,
       "notes": ""
     },
@@ -751,7 +751,7 @@
       "physical_key": ";",
       "output_layer": "base",
       "display_label": ";",
-      "yinyuan_id": "M02",
+      "yinyuan_id": "M31",
       "literal_char": null,
       "notes": ""
     },
@@ -771,7 +771,7 @@
       "physical_key": "'",
       "output_layer": "base",
       "display_label": "'",
-      "yinyuan_id": "N10",
+      "yinyuan_id": "N12",
       "literal_char": null,
       "notes": ""
     },
@@ -791,7 +791,7 @@
       "physical_key": "z",
       "output_layer": "base",
       "display_label": "z",
-      "yinyuan_id": "M08",
+      "yinyuan_id": "M30",
       "literal_char": null,
       "notes": ""
     },
@@ -811,7 +811,7 @@
       "physical_key": "x",
       "output_layer": "base",
       "display_label": "x",
-      "yinyuan_id": "M06",
+      "yinyuan_id": "M18",
       "literal_char": null,
       "notes": ""
     },
@@ -831,7 +831,7 @@
       "physical_key": "c",
       "output_layer": "base",
       "display_label": "c",
-      "yinyuan_id": "M33",
+      "yinyuan_id": "M17",
       "literal_char": null,
       "notes": ""
     },
@@ -851,7 +851,7 @@
       "physical_key": "v",
       "output_layer": "base",
       "display_label": "v",
-      "yinyuan_id": "M04",
+      "yinyuan_id": "M16",
       "literal_char": null,
       "notes": ""
     },
@@ -871,7 +871,7 @@
       "physical_key": "b",
       "output_layer": "base",
       "display_label": "b",
-      "yinyuan_id": "N07",
+      "yinyuan_id": "N01",
       "literal_char": null,
       "notes": ""
     },
@@ -891,7 +891,7 @@
       "physical_key": "n",
       "output_layer": "base",
       "display_label": "n",
-      "yinyuan_id": "N11",
+      "yinyuan_id": "N08",
       "literal_char": null,
       "notes": ""
     },
@@ -911,7 +911,7 @@
       "physical_key": "m",
       "output_layer": "base",
       "display_label": "m",
-      "yinyuan_id": "M30",
+      "yinyuan_id": "M07",
       "literal_char": null,
       "notes": ""
     },
@@ -921,7 +921,7 @@
       "physical_key": "m",
       "output_layer": "shift",
       "display_label": "M",
-      "yinyuan_id": "M32",
+      "yinyuan_id": "M25",
       "literal_char": null,
       "notes": ""
     },
@@ -931,7 +931,7 @@
       "physical_key": ",",
       "output_layer": "base",
       "display_label": ",",
-      "yinyuan_id": "M09",
+      "yinyuan_id": "M08",
       "literal_char": null,
       "notes": ""
     },
@@ -941,8 +941,8 @@
       "physical_key": ",",
       "output_layer": "shift",
       "display_label": "<",
-      "yinyuan_id": null,
-      "literal_char": "<",
+      "yinyuan_id": "M26",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -951,7 +951,7 @@
       "physical_key": ".",
       "output_layer": "base",
       "display_label": ".",
-      "yinyuan_id": "N06",
+      "yinyuan_id": "M09",
       "literal_char": null,
       "notes": ""
     },
@@ -961,8 +961,8 @@
       "physical_key": ".",
       "output_layer": "shift",
       "display_label": ">",
-      "yinyuan_id": null,
-      "literal_char": ">",
+      "yinyuan_id": "M27",
+      "literal_char": null,
       "notes": ""
     },
     {
@@ -971,7 +971,7 @@
       "physical_key": "/",
       "output_layer": "base",
       "display_label": "/",
-      "yinyuan_id": "M07",
+      "yinyuan_id": "M33",
       "literal_char": null,
       "notes": ""
     },

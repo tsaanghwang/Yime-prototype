@@ -8,7 +8,13 @@ from datetime import date
 from pathlib import Path
 from typing import Iterable, Mapping
 
+from yime.canonical_yime_mapping import build_canonical_pinyin_rows
 from yime.utils.code_modes import YimeCodeMode, code_mode_label, lookup_code_column, normalize_code_mode
+from yime.utils.yinyuan_id_chain import (
+    layout_projection_digest,
+    load_symbol_to_yinyuan_id,
+    load_yinyuan_id_to_layout_key,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -49,6 +55,24 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--db", default=str(DEFAULT_DB_PATH), help="SQLite runtime database path.")
     parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR), help="Directory for generated Rime files.")
     parser.add_argument(
+        "--layout",
+        default="",
+        help=(
+            "Compatibility argument. Only the repository canonical layout is accepted; "
+            "alternate layout files are rejected."
+        ),
+    )
+    parser.add_argument(
+        "--pinyin-codes-output",
+        default="",
+        help="Optionally export the numeric-tone-pinyin to fixed-length layout-key TSV.",
+    )
+    parser.add_argument(
+        "--pinyin-codes-inventory",
+        default="",
+        help="Optional existing TSV whose first column fixes the exported pinyin inventory and order.",
+    )
+    parser.add_argument(
         "--mode",
         default=YimeCodeMode.VARIABLE.value,
         choices=[mode.value for mode in YimeCodeMode],
@@ -70,34 +94,13 @@ def _json_load(path: Path) -> dict[str, object]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def load_runtime_symbol_to_layout_key(repo_root: Path = REPO_ROOT) -> dict[str, str]:
-    key_to_symbol = _json_load(repo_root / "internal_data" / "key_to_symbol.json")
-    layout = _json_load(repo_root / "internal_data" / "manual_key_layout.json")
-
-    yinyuan_id_to_key: dict[str, str] = {}
-    for raw_entry in layout.get("layers", []):
-        if not isinstance(raw_entry, dict):
-            continue
-        yinyuan_id = str(raw_entry.get("yinyuan_id") or "").strip()
-        if not yinyuan_id:
-            continue
-        display_label = str(raw_entry.get("display_label") or "").strip()
-        output_layer = str(raw_entry.get("output_layer") or "").strip()
-        if output_layer == "altgr":
-            raise ValueError(
-                "Yinyuan IDs must use the base or shift layer; "
-                f"AltGr assignment found for {yinyuan_id}."
-            )
-        if len(display_label) == 1:
-            yinyuan_id_to_key[yinyuan_id] = display_label
-
-    symbol_to_key: dict[str, str] = {}
-    for yinyuan_id, raw_symbol in key_to_symbol.items():
-        key = yinyuan_id_to_key.get(str(yinyuan_id))
-        symbol = str(raw_symbol or "")
-        if key and symbol:
-            symbol_to_key[symbol] = key
-    return symbol_to_key
+def load_runtime_symbol_to_layout_key(
+    repo_root: Path = REPO_ROOT,
+    layout_path: Path | None = None,
+) -> dict[str, str]:
+    symbol_to_id = load_symbol_to_yinyuan_id(repo_root)
+    id_to_key = load_yinyuan_id_to_layout_key(repo_root, layout_path)
+    return {symbol: id_to_key[yinyuan_id] for symbol, yinyuan_id in symbol_to_id.items()}
 
 
 def convert_runtime_code_to_layout_keys(code: str, symbol_to_key: Mapping[str, str]) -> str:
@@ -108,6 +111,39 @@ def convert_runtime_code_to_layout_keys(code: str, symbol_to_key: Mapping[str, s
         except KeyError as exc:
             raise ValueError(f"Runtime symbol has no Rime layout-key mapping: U+{ord(char):04X}") from exc
     return "".join(converted)
+
+
+def export_pinyin_codes_tsv(
+    output_path: Path,
+    *,
+    db_path: Path = DEFAULT_DB_PATH,
+    repo_root: Path = REPO_ROOT,
+    layout_path: Path | None = None,
+    inventory_path: Path | None = None,
+) -> int:
+    symbol_to_key = load_runtime_symbol_to_layout_key(repo_root, layout_path)
+    conn = sqlite3.connect(db_path)
+    try:
+        canonical_rows = build_canonical_pinyin_rows(conn, repo_root)
+    finally:
+        conn.close()
+    canonical_by_pinyin = {pinyin_tone: code for pinyin_tone, code, _ in canonical_rows}
+    if inventory_path:
+        inventory_lines = inventory_path.read_text(encoding="utf-8-sig").splitlines()
+        inventory = [line.split("\t", 1)[0].strip() for line in inventory_lines[1:] if line.strip()]
+    else:
+        inventory = [pinyin_tone for pinyin_tone, _, _ in canonical_rows]
+
+    lines = ["pinyin_tone\tfull"]
+    for pinyin_tone in inventory:
+        canonical_code = canonical_by_pinyin.get(pinyin_tone)
+        if not canonical_code:
+            raise ValueError(f"Pinyin inventory entry has no canonical Yime code: {pinyin_tone}")
+        code = convert_runtime_code_to_layout_keys(canonical_code, symbol_to_key)
+        lines.append(f"{pinyin_tone}\t{code}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return len(lines) - 1
 
 
 def _table_columns(conn: sqlite3.Connection, table_name: str) -> set[str]:
@@ -160,8 +196,8 @@ def _rime_weight(value: object) -> int:
     try:
         weight = int(round(float(value or 0)))
     except (TypeError, ValueError):
-        return 1
-    return max(weight, 1)
+        return 0
+    return max(weight, 0)
 
 
 def _schema_id_for(mode: YimeCodeMode, schema_id: str = "") -> str:
@@ -219,6 +255,7 @@ def build_rime_schema_text(
     schema_id: str,
     schema_name: str,
     dictionary_name: str,
+    user_dict_name: str,
     alphabet: str,
 ) -> str:
     today = date.today().isoformat()
@@ -259,6 +296,7 @@ def build_rime_schema_text(
             "",
             "translator:",
             f"  dictionary: {dictionary_name}",
+            f"  user_dict: {user_dict_name}",
             "  enable_user_dict: true",
             "  enable_sentence: false",
             "  enable_completion: true",
@@ -287,6 +325,7 @@ def export_rime_files(
     schema_name: str = "",
     limit: int = 0,
     repo_root: Path = REPO_ROOT,
+    layout_path: Path | None = None,
 ) -> RimeExportResult:
     normalized_mode = normalize_code_mode(mode)
     normalized_code_form = str(code_form or "layout-key").strip()
@@ -298,7 +337,7 @@ def export_rime_files(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     symbol_to_key = (
-        load_runtime_symbol_to_layout_key(repo_root)
+        load_runtime_symbol_to_layout_key(repo_root, layout_path)
         if normalized_code_form == "layout-key"
         else {}
     )
@@ -326,6 +365,8 @@ def export_rime_files(
         entries.append((text, code, _rime_weight(row["sort_weight"])))
 
     alphabet = _alphabet_from_codes(code for _, code, _ in entries)
+    layout_digest = layout_projection_digest(repo_root)
+    user_dict_name = f"{resolved_schema_id}_layout_{layout_digest[:12]}"
     paths = RimeExportPaths(
         schema_path=output_dir / f"{resolved_schema_id}.schema.yaml",
         dict_path=output_dir / f"{resolved_schema_id}.dict.yaml",
@@ -345,6 +386,7 @@ def export_rime_files(
             schema_id=resolved_schema_id,
             schema_name=resolved_schema_name,
             dictionary_name=resolved_schema_id,
+            user_dict_name=user_dict_name,
             alphabet=alphabet,
         ),
         encoding="utf-8",
@@ -358,7 +400,10 @@ def export_rime_files(
         "row_count": len(entries),
         "code_count": len({code for _, code, _ in entries}),
         "alphabet": alphabet,
+        "layout_projection_sha256": layout_digest,
+        "user_dict_name": user_dict_name,
         "limit": limit,
+        "layout_path": str(layout_path) if layout_path else "",
     }
     paths.metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2), encoding="utf-8")
 
@@ -382,11 +427,21 @@ def main() -> None:
         schema_id=args.schema_id,
         schema_name=args.schema_name,
         limit=args.limit,
+        layout_path=Path(args.layout) if args.layout else None,
     )
     print(f"Exported {result.row_count} rows / {result.code_count} codes")
     print(f"schema: {result.paths.schema_path}")
     print(f"dict: {result.paths.dict_path}")
     print(f"metadata: {result.paths.metadata_path}")
+    if args.pinyin_codes_output:
+        output_path = Path(args.pinyin_codes_output)
+        row_count = export_pinyin_codes_tsv(
+            output_path,
+            db_path=Path(args.db),
+            layout_path=Path(args.layout) if args.layout else None,
+            inventory_path=Path(args.pinyin_codes_inventory) if args.pinyin_codes_inventory else None,
+        )
+        print(f"pinyin codes: {output_path} ({row_count} rows)")
 
 
 if __name__ == "__main__":
