@@ -18,6 +18,7 @@ if str(ROOT) not in sys.path:
 
 from syllable.codec.yinjie_encoder import YinjieEncoder
 from tools.resolve_manual_key_layout import build_resolved_layout
+from yime.asset_paths import resolve_lexicon_source_db_path
 from yime.utils.yinyuan_id_chain import (
     encode_numeric_pinyin_to_yinyuan_ids,
     load_semantic_yinyuan_registry,
@@ -26,6 +27,7 @@ from yime.utils.yinyuan_id_chain import (
     symbol_code_to_yinyuan_ids,
 )
 from yime.utils.syllable_encoding_provenance import (
+    SyllableEncodingProvenanceRow,
     build_syllable_encoding_provenance_rows,
     load_rule_catalog,
     load_source_attestations,
@@ -103,7 +105,44 @@ def syllable_rule_catalog_digest(repo_root: Path = ROOT) -> str:
     return hashlib.sha256(serialized).hexdigest()
 
 
+def _load_committed_syllable_provenance_rows(
+    repo_root: Path,
+) -> list[dict[str, Any]]:
+    """Load the locked audit artifact without treating it as a production source."""
+    path = repo_root / SYLLABLE_PROVENANCE_PATH
+    expected_fields = list(SyllableEncodingProvenanceRow.__dataclass_fields__)
+    with path.open("r", encoding="utf-8", newline="") as file:
+        reader = csv.DictReader(file, delimiter="\t")
+        if reader.fieldnames != expected_fields:
+            raise ValueError(
+                "syllable provenance audit has unexpected columns: "
+                f"expected {expected_fields}, got {reader.fieldnames}"
+            )
+        rows: list[dict[str, Any]] = []
+        for line_number, raw in enumerate(reader, start=2):
+            reviewed_patch = raw["reviewed_patch"]
+            if reviewed_patch not in {"True", "False"}:
+                raise ValueError(
+                    "syllable provenance audit has invalid reviewed_patch "
+                    f"at line {line_number}: {reviewed_patch!r}"
+                )
+            parsed = dict(raw)
+            parsed["char_occurrences"] = int(raw["char_occurrences"])
+            parsed["phrase_occurrences"] = int(raw["phrase_occurrences"])
+            parsed["reviewed_patch"] = reviewed_patch == "True"
+            rows.append(asdict(SyllableEncodingProvenanceRow(**parsed)))
+    return rows
+
+
 def _syllable_provenance_rows(repo_root: Path) -> list[dict[str, Any]]:
+    source_db = resolve_lexicon_source_db_path(repo_root)
+    if not source_db.is_file():
+        # A clean checkout intentionally has no multi-gigabyte generated source
+        # database. In that environment, verify the committed audit through its
+        # locked digest. When the production database exists, the branch below
+        # still regenerates every row from the canonical source.
+        return _load_committed_syllable_provenance_rows(repo_root)
+
     inventory = cast(
         dict[str, str],
         _load_json(repo_root / PINYIN_INVENTORY_PATH),

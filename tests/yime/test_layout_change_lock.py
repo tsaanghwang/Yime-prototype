@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import tools.check_layout_change_lock as layout_change_lock
 from tools.check_layout_change_lock import (
     check_layout_change_lock,
     compare_pinyin_chain_entry,
@@ -22,7 +23,9 @@ def test_numeric_pinyin_reaches_ids_before_any_keyboard_projection() -> None:
 
 
 def test_semantic_registry_matches_reviewed_layout_lock() -> None:
-    lock = json.loads((ROOT / "internal_data" / "layout_change_lock.json").read_text(encoding="utf-8"))
+    lock = json.loads(
+        (ROOT / "internal_data" / "layout_change_lock.json").read_text(encoding="utf-8")
+    )
     assert semantic_registry_digest(ROOT) == lock["semantic_registry_sha256"]
     assert pinyin_yinyuan_chain_digest(ROOT) == lock["pinyin_yinyuan_chain_sha256"]
     assert syllable_rule_catalog_digest(ROOT) == lock["syllable_rule_catalog_sha256"]
@@ -39,4 +42,21 @@ def test_middle_entry_is_rejected() -> None:
 
 
 def test_repository_layout_change_lock_is_closed() -> None:
+    assert check_layout_change_lock(ROOT) == []
+
+
+def test_clean_checkout_uses_locked_provenance_audit(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    missing_source_db = tmp_path / "source_lexicon.sqlite3"
+    monkeypatch.setattr(
+        layout_change_lock,
+        "resolve_lexicon_source_db_path",
+        lambda _repo_root: missing_source_db,
+    )
+
+    lock = json.loads((ROOT / "internal_data" / "layout_change_lock.json").read_text(encoding="utf-8"))
+    assert not missing_source_db.exists()
+    assert syllable_provenance_digest(ROOT) == lock["syllable_provenance_sha256"]
     assert check_layout_change_lock(ROOT) == []
