@@ -3,6 +3,9 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
+import pytest
+
+from yime.asset_paths import resolve_lexicon_source_db_path
 from yime.utils.syllable_decomposition_audit import (
     build_encoder_failure_rows,
     build_syllable_decomposition_rows,
@@ -75,13 +78,21 @@ def test_encoder_failure_points_to_the_failed_semantic_stage() -> None:
     assert rows[0].source_rule.endswith("ganyin_encoder.py")
 
 
-def test_checked_in_omission_audit_matches_current_sources() -> None:
-    output = Path("internal_data/yime_syllable_omissions.tsv")
+def test_checked_in_omission_audit_matches_current_sources(tmp_path: Path) -> None:
+    if not resolve_lexicon_source_db_path(Path.cwd()).is_file():
+        pytest.skip("requires unified source_lexicon.sqlite3")
+
+    output = tmp_path / "yime_syllable_omissions.tsv"
     rows = export_syllable_omissions_tsv(output)
     with output.open(encoding="utf-8", newline="") as file:
         actual = list(csv.DictReader(file, delimiter="\t"))
+    with Path("internal_data/yime_syllable_omissions.tsv").open(
+        encoding="utf-8", newline=""
+    ) as file:
+        checked_in = list(csv.DictReader(file, delimiter="\t"))
 
     assert actual == [asdict(row) | {"occurrences": str(row.occurrences)} for row in rows]
+    assert checked_in == actual
     filtered_rows = [row for row in rows if row.status == "filtered_before_inventory"]
     assert all(row.candidate.strip() for row in filtered_rows)
     assert {

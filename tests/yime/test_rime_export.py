@@ -71,6 +71,26 @@ def _create_runtime_db(path: Path, repo_root: Path) -> None:
         conn.close()
 
 
+def _create_numeric_pinyin_inventory_db(path: Path, repo_root: Path) -> None:
+    inventory = json.loads(
+        (
+            repo_root
+            / "internal_data"
+            / "pinyin_source_db"
+            / "lexicon_exports"
+            / "pinyin_normalized.json"
+        ).read_text(encoding="utf-8")
+    )
+    with sqlite3.connect(path) as conn:
+        conn.execute(
+            "CREATE TABLE numeric_pinyin_inventory (pinyin_tone TEXT NOT NULL)"
+        )
+        conn.executemany(
+            "INSERT INTO numeric_pinyin_inventory (pinyin_tone) VALUES (?)",
+            ((pinyin_tone,) for pinyin_tone in inventory),
+        )
+
+
 def test_load_runtime_symbol_to_layout_key_uses_two_layer_manual_layout(tmp_path: Path) -> None:
     _write_minimal_mapping_files(tmp_path)
 
@@ -165,10 +185,12 @@ def test_repo_layout_matches_windows_yime_two_layer_keys() -> None:
 def test_export_canonical_pinyin_codes_uses_fixed_length_layout_keys(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[2]
     output_path = tmp_path / "yime_pinyin_codes.tsv"
+    db_path = tmp_path / "runtime.db"
+    _create_numeric_pinyin_inventory_db(db_path, repo_root)
 
     row_count = export_pinyin_codes_tsv(
         output_path,
-        db_path=repo_root / "yime" / "pinyin_hanzi.db",
+        db_path=db_path,
         repo_root=repo_root,
     )
 
