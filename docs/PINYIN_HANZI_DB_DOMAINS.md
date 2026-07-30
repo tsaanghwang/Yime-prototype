@@ -136,7 +136,9 @@
 
 ### 表（排序与频率增强层）
 
-- `char_usage_profile`：单字使用档位与层级排序权重。
+- `char_usage_profile`：单字使用档位与层级排序权重。当前成员来自统一
+  `source_lexicon.sqlite3.character_tiers` 九级分级；runtime 不再独立重算
+  TGH/XHC/字频成员。
 - `char_modern_common_profile`：现代常用字增强信息。
 - `char_reading_prior`：单字读音先验权重。
 

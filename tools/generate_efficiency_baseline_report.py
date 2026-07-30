@@ -366,23 +366,45 @@ def load_runtime_symbol_metadata(path: Path) -> dict[str, Any]:
     }
 
 
-def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: dict[str, Any]) -> int:
+def simplify_yime_syllable_code(full_code: str, runtime_symbol_metadata: dict[str, Any]) -> str:
     symbols = list(full_code)
     if not symbols:
-        return 0
+        return ""
 
-    virtual_initial_symbol = str(runtime_symbol_metadata.get("virtual_initial_symbol", ""))
     ganyin_metadata = runtime_symbol_metadata.get("ganyin_symbols", {})
-
-    shouyin_length = 1
-    if virtual_initial_symbol and symbols[0] == virtual_initial_symbol:
-        shouyin_length = 0
 
     ganyin_symbols = symbols[1:]
     compressed, _ = merge_adjacent_equal_yinyuan(ganyin_symbols)
     compressed, _ = omit_middle_tone_if_same_quality_run(compressed, ganyin_metadata)
 
-    return shouyin_length + len(compressed)
+    return "".join([symbols[0], *compressed])
+
+
+def simplify_yime_syllable_code_length(full_code: str, runtime_symbol_metadata: dict[str, Any]) -> int:
+    return len(simplify_yime_syllable_code(full_code, runtime_symbol_metadata))
+
+
+def regroup_by_current_shorthand(
+    by_code: Mapping[str, list[dict[str, Any]]],
+    yinjie_codebook: Mapping[str, str],
+    runtime_symbol_metadata: dict[str, Any],
+) -> dict[str, list[dict[str, Any]]]:
+    """Regroup a candidate snapshot with the current full-to-shorthand rules."""
+    regrouped: dict[str, list[dict[str, Any]]] = {}
+    for entries in by_code.values():
+        for entry in entries:
+            pinyin_segments = str(entry.get("pinyin_tone", "") or "").split()
+            full_codes = [str(yinjie_codebook.get(segment, "") or "") for segment in pinyin_segments]
+            if pinyin_segments and all(full_codes):
+                code = "".join(
+                    simplify_yime_syllable_code(full_code, runtime_symbol_metadata)
+                    for full_code in full_codes
+                )
+            else:
+                code = str(entry.get("input_shorthand_code") or entry.get("yime_code") or "").strip()
+            if code:
+                regrouped.setdefault(code, []).append(entry)
+    return regrouped
 
 
 def yime_jianpin_key_length(
@@ -407,7 +429,7 @@ def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dic
     virtual_initial_symbol = str(runtime_symbol_metadata.get("virtual_initial_symbol", ""))
     ganyin_metadata = runtime_symbol_metadata.get("ganyin_symbols", {})
 
-    omitted_virtual_initial = bool(symbols and virtual_initial_symbol and symbols[0] == virtual_initial_symbol)
+    has_virtual_initial = bool(symbols and virtual_initial_symbol and symbols[0] == virtual_initial_symbol)
     original_ganyin = symbols[1:]
     deduped_ganyin, merged_repeat_count = merge_adjacent_equal_yinyuan(original_ganyin)
 
@@ -416,12 +438,12 @@ def analyze_syllable_simplification(full_code: str, runtime_symbol_metadata: dic
         ganyin_metadata,
     )
 
-    simplified_length = (0 if omitted_virtual_initial else 1) + len(deduped_ganyin)
+    simplified_length = (1 if symbols else 0) + len(deduped_ganyin)
     return {
         "full_length": len(symbols),
         "jianpin_length": simplified_length,
         "saved_keys": len(symbols) - simplified_length,
-        "omitted_virtual_initial": omitted_virtual_initial,
+        "has_virtual_initial": has_virtual_initial,
         "merged_repeat_count": merged_repeat_count,
         "omitted_middle_tone": omitted_middle_tone,
     }
@@ -437,8 +459,6 @@ def build_syllable_jianpin_examples(
     for syllable, full_code in yinjie_codebook.items():
         analysis = analyze_syllable_simplification(str(full_code), runtime_symbol_metadata)
         reasons: list[str] = []
-        if analysis["omitted_virtual_initial"]:
-            reasons.append("省略虚首音")
         if int(analysis["merged_repeat_count"]) > 0:
             reasons.append(f"合并连续相同音元 {analysis['merged_repeat_count']} 次")
         if analysis["omitted_middle_tone"]:
@@ -479,7 +499,7 @@ def build_syllable_jianpin_rule_stats(
     no_compression_count = 0
     total_saved_keys = 0
 
-    omitted_virtual_initial_count = 0
+    preserved_virtual_initial_count = 0
     merged_repeat_count = 0
     omitted_middle_tone_count = 0
 
@@ -492,9 +512,8 @@ def build_syllable_jianpin_rule_stats(
         total_saved_keys += saved_keys
 
         combo_parts: list[str] = []
-        if analysis["omitted_virtual_initial"]:
-            omitted_virtual_initial_count += 1
-            combo_parts.append("省略虚首音")
+        if analysis["has_virtual_initial"]:
+            preserved_virtual_initial_count += 1
         if int(analysis["merged_repeat_count"]) > 0:
             merged_repeat_count += 1
             combo_parts.append("合并重复")
@@ -529,9 +548,9 @@ def build_syllable_jianpin_rule_stats(
         "avg_saved_keys_per_syllable": (total_saved_keys / total_syllable_count) if total_syllable_count else 0.0,
         "rule_rows": [
             {
-                "label": "靠省略虚首音获益",
-                "count": omitted_virtual_initial_count,
-                "share": share(omitted_virtual_initial_count),
+                "label": "含保留的虚首音（边界，不计省键收益）",
+                "count": preserved_virtual_initial_count,
+                "share": share(preserved_virtual_initial_count),
             },
             {
                 "label": "靠合并重复获益",
@@ -544,7 +563,7 @@ def build_syllable_jianpin_rule_stats(
                 "share": share(omitted_middle_tone_count),
             },
             {
-                "label": "至少触发一条简拼规则",
+                "label": "至少触发一条省键规则",
                 "count": compressed_syllable_count,
                 "share": share(compressed_syllable_count),
             },
@@ -863,9 +882,14 @@ def build_top_examples(
 
 def build_payload(report: dict[str, Any], page_size: int, db_path: Path) -> dict[str, Any]:
     metadata: dict[str, Any] = report.get("metadata", {})
-    by_code: dict[str, list[dict[str, Any]]] = report.get("by_code", {})
     yinjie_codebook = load_json(DEFAULT_YINJIE_CODEBOOK)
     runtime_symbol_metadata = load_runtime_symbol_metadata(DEFAULT_RUNTIME_SYMBOL_MAPPING)
+    source_by_code: dict[str, list[dict[str, Any]]] = report.pop("by_code", {})
+    by_code = regroup_by_current_shorthand(
+        source_by_code,
+        yinjie_codebook,
+        runtime_symbol_metadata,
+    )
 
     char_counts: list[int] = []
     phrase_counts: list[int] = []
@@ -971,10 +995,11 @@ def build_payload(report: dict[str, Any], page_size: int, db_path: Path) -> dict
         "source": {
             "runtime_report": str(DEFAULT_INPUT.relative_to(ROOT)).replace("\\", "/"),
             "db_path": metadata.get("db_path"),
+            "candidate_code_regrouping": "current shorthand derived from pinyin_tone",
         },
         "headline": {
-            "runtime_code_bucket_count": metadata.get("code_count", len(by_code)),
-            "candidate_row_count": metadata.get("candidate_row_count", 0),
+            "runtime_code_bucket_count": len(by_code),
+            "candidate_row_count": sum(len(entries) for entries in by_code.values()),
             "page_thresholds": page_thresholds,
             "max_phrase_collision": max(phrase_counts) if phrase_counts else 0,
             "max_char_collision": max(char_counts) if char_counts else 0,
@@ -1088,12 +1113,15 @@ def build_markdown(payload: dict[str, Any]) -> str:
     bcc_char_count = int(bcc_source_rows[0].get("count", 0) or 0) if bcc_source_rows else 0
 
     lines = [
+        "<!-- markdownlint-disable-file MD013 -->",
+        "",
         "# 效率基线报告",
         "",
         "这份报告只使用仓库当前已有的运行时候选导出数据生成，目标是先建立一版可重复验证的效率基线，而不是直接给出跨输入法优劣结论。",
         "",
         f"- 生成时间：`{generated_at}`",
         f"- 数据来源：`{payload['source']['runtime_report']}`",
+        "- 编码分桶：忽略快照中的旧派生码，按每条 `pinyin_tone` 重新执行当前等长→变长→省键规则。",
         f"- 当前候选窗默认每页候选数：`{page_size}`",
         f"- 当前 1-9 选择窗口阈值：`{headline['page_thresholds']['selection_window_size']}`",
         "",
@@ -1105,15 +1133,15 @@ def build_markdown(payload: dict[str, Any]) -> str:
         f"- 以当前 `sort_weight` 作为频率代理时，词语加权首选命中率为 `{format_pct(float(weighted_visibility['phrases']['weighted_top1_share']))}`，单字加权首选命中率为 `{format_pct(float(weighted_visibility['chars']['weighted_top1_share']))}`。",
         f"- 以当前 `sort_weight` 作为频率代理时，词语加权首屏可见率为 `{format_pct(float(weighted_visibility['phrases']['weighted_first_page_share']))}`，单字加权首屏可见率为 `{format_pct(float(weighted_visibility['chars']['weighted_first_page_share']))}`。",
         f"- 单字按《通用规范汉字表》同等数量对齐后，一级字（前 3500）加权首屏可见率为 `{format_pct(float(char_tiers['level_1']['weighted_visibility']['weighted_first_page_share']))}`，二级前字（前 6500）为 `{format_pct(float(char_tiers['level_2']['weighted_visibility']['weighted_first_page_share']))}`，三级前字（前 8105）为 `{format_pct(float(char_tiers['level_3']['weighted_visibility']['weighted_first_page_share']))}`。",
-        f"- 当前单字先用按新频率量级动态定标的 5 档分层骨架分桶（当前档间步长 `{format_float(tier_step)}`），但不接入真单字频率时，按同一份真单字频率做需求加权的单字首屏可见率为 `{format_pct(float(char_ordering_comparison['tier_only']['weighted_first_page_share']))}`；接入真单字频率后为 `{format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_first_page_share']))}`；再叠加现代常用轻量约束后为 `{format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_first_page_share']))}`；继续接入读音纠偏与词语先验后的当前 runtime 为 `{format_pct(float(char_ordering_comparison['current_runtime']['weighted_first_page_share']))}`。",
+        f"- 当前单字先用按新频率量级动态定标的 9 档分层骨架分桶（当前档间步长 `{format_float(tier_step)}`），但不接入真单字频率时，按同一份真单字频率做需求加权的单字首屏可见率为 `{format_pct(float(char_ordering_comparison['tier_only']['weighted_first_page_share']))}`；接入真单字频率后为 `{format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_first_page_share']))}`；再叠加现代常用轻量约束后为 `{format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_first_page_share']))}`；继续接入读音纠偏与词语先验后的当前 runtime 为 `{format_pct(float(char_ordering_comparison['current_runtime']['weighted_first_page_share']))}`。",
         f"- 上述“真单字频率”需求权重直接来自 BCC 字频频道 `external_data/char_freq/merged_char_freq.txt` 写入的原始整数 count，并由 `char_frequency_policy.py` 对未命中字做 Unihan 5..1/0 合成兜底；当前 BCC 直命中单字 `{bcc_char_count}` 个，而合成兜底虽然覆盖大量长尾字形，但累计需求权重只占 `{format_pct(synthetic_share)}`。",
-        f"- 因为这份 BCC 单字频本身高度偏斜，前 `100` 个单字已经占全部单字需求权重的 `{format_pct(top100_share)}`，所以这里的 `93.04%` 更接近“高需求单字被放进首屏”的结论，而不是“全体单字整体都容易选中”。",
+        f"- 因为这份 BCC 单字频本身高度偏斜，前 `100` 个单字已经占全部单字需求权重的 `{format_pct(top100_share)}`，所以这里的 `{format_pct(float(char_ordering_comparison['current_runtime']['weighted_first_page_share']))}` 更接近“高需求单字被放进首屏”的结论，而不是“全体单字整体都容易选中”。",
         (
             f"- 当前默认弱先验配置取更保守档：`cw={format_float(float(runtime_tuning_summary['common_reading_weight']))}`、`uw={format_float(float(runtime_tuning_summary['uncommon_reading_weight']))}`、`scale={format_float(float(runtime_tuning_summary['phrase_reading_prior_scale']))}`、`share>={runtime_tuning_summary['phrase_reading_prior_min_share']:.3f}`、`count>={int(round(float(runtime_tuning_summary['phrase_reading_prior_min_phrase_count'])))}`、`evidence>={format_float(float(runtime_tuning_summary['phrase_reading_prior_min_evidence_weight']))}`；最近窄扫描显示 `scale=0.25/0.50` 都能守住全局与高碰撞桶基线，因此当前默认采用更保守的 `0.25`。"
             if runtime_tuning_summary
             else "- 当前默认弱先验配置摘要不可用：数据库中未找到 runtime_tuning_parameters。"
         ),
-        f"- 同语料总体上，音元简拼平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元全拼平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
+        f"- 同语料总体上，音元省键模式平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元等长模式平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
         "",
         "## 指标表",
         "",
@@ -1144,31 +1172,31 @@ def build_markdown(payload: dict[str, Any]) -> str:
         "",
         "## 单字排序策略对比",
         "",
-        f"这组对比固定使用同一份单字真实频率作为需求权重，只替换单字桶内的排序策略：`tier_only` 表示只按当前按新频率量级动态定标的 5 档分层骨架排序（当前档间步长 `{format_float(tier_step)}`），`tier_plus_frequency` 表示在同样 5 档骨架上继续叠加单字真频率，`tier_plus_frequency_plus_modern_common` 表示在此基础上再叠加“现代常用单字优先”的轻量约束，`current_runtime` 表示继续叠加读音纠偏与词语读音先验后的当前排序。",
+        f"这组对比固定使用同一份单字真实频率作为需求权重，只替换单字桶内的排序策略：`tier_only` 表示只按当前按新频率量级动态定标的 9 档分层骨架排序（当前档间步长 `{format_float(tier_step)}`），`tier_plus_frequency` 表示在同样 9 档骨架上继续叠加单字真频率，`tier_plus_frequency_plus_modern_common` 表示在此基础上再叠加“现代常用单字优先”的轻量约束，`current_runtime` 表示继续叠加读音纠偏与词语读音先验后的当前排序。",
         "",
         "| 策略 | 有效编码桶数 | 真实频率加权首选命中率 | 真实频率加权首屏可见率 |",
         "| --- | ---: | ---: | ---: |",
-        f"| 仅 5 档分层 | {char_ordering_comparison['tier_only']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_only']['weighted_first_page_share']))} |",
-        f"| 5 档 + 真单字频率 | {char_ordering_comparison['tier_plus_frequency']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_first_page_share']))} |",
-        f"| 5 档 + 真单字频率 + 现代常用轻量约束 | {char_ordering_comparison['tier_plus_frequency_plus_modern_common']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_first_page_share']))} |",
+        f"| 仅 9 档分层 | {char_ordering_comparison['tier_only']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_only']['weighted_first_page_share']))} |",
+        f"| 9 档 + 真单字频率 | {char_ordering_comparison['tier_plus_frequency']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_plus_frequency']['weighted_first_page_share']))} |",
+        f"| 9 档 + 真单字频率 + 现代常用轻量约束 | {char_ordering_comparison['tier_plus_frequency_plus_modern_common']['bucket_count']} | {format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['tier_plus_frequency_plus_modern_common']['weighted_first_page_share']))} |",
         f"| 当前 runtime（再加读音纠偏 + 词语读音先验） | {char_ordering_comparison['current_runtime']['bucket_count']} | {format_pct(float(char_ordering_comparison['current_runtime']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['current_runtime']['weighted_first_page_share']))} |",
-        f"| 真频率相对仅 5 档改善 | - | {format_pct(float(char_ordering_comparison['delta_tier_plus_frequency_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_tier_plus_frequency_vs_tier_only']['weighted_first_page_share']))} |",
+        f"| 真频率相对仅 9 档改善 | - | {format_pct(float(char_ordering_comparison['delta_tier_plus_frequency_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_tier_plus_frequency_vs_tier_only']['weighted_first_page_share']))} |",
         f"| 现代常用轻量约束相对真频率改善 | - | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_plus_frequency']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_plus_frequency']['weighted_first_page_share']))} |",
         f"| 读音纠偏 + 词语先验相对现代常用改善 | - | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_modern_common']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_modern_common']['weighted_first_page_share']))} |",
-        f"| 现代常用轻量约束相对仅 5 档总改善 | - | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_only']['weighted_first_page_share']))} |",
-        f"| 当前 runtime 相对仅 5 档总改善 | - | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_tier_only']['weighted_first_page_share']))} |",
+        f"| 现代常用轻量约束相对仅 9 档总改善 | - | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_modern_common_vs_tier_only']['weighted_first_page_share']))} |",
+        f"| 当前 runtime 相对仅 9 档总改善 | - | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_tier_only']['weighted_top1_share']))} | {format_pct(float(char_ordering_comparison['delta_current_runtime_vs_tier_only']['weighted_first_page_share']))} |",
         "",
         "## 同语料码长对照基准",
         "",
         "这部分不是第三方输入法实测，而是同一批运行时语料上的结构码长基线。它只回答“同一批条目如果按不同编码长度模型输入，理论键数大约是多少”。",
         "",
-        "比较口径：`音元全拼`每个音节固定 4 键；`音元简拼`按音元全拼进一步压缩，规则是省略虚首音、把构成干音的两个或三个连续存在的相同音元合并成一个、并在同音质的 `高-中-低` 或 `低-中-高` 三音序列中省略中间的中调乐音；`标准全拼`按无调拼音字母数累计；`带数字调号标准全拼`在无调字母数基础上为每个带调音节再计 1 个数字键；`抽象双拼`每个音节固定 2 键。",
+        "比较口径：`音元等长模式`每个音节固定 4 键；`音元变长模式`保留实首音或虚首音，并合并组成干音的相邻相同音元；`音元省键模式`从变长结果继续派生，并在同音质的 `高-中-低` 或 `低-中-高` 三音序列中省略中间的中调乐音；`标准全拼`按无调拼音字母数累计；`带数字调号标准全拼`在无调字母数基础上为每个带调音节再计 1 个数字键；`抽象双拼`每个音节固定 2 键。",
         "",
-        f"- 同语料总体上，音元简拼平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元全拼平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
-        f"- 但在本报告当前采用的省调 `标准全拼` 口径下，音元简拼总体平均仍比标准全拼约多 `{format_float(float(code_length_baseline['overall']['jianpin_vs_full_pinyin']))}` 键，因此这张表不能用来支持“已经比省调现行拼音平均码长更短”的说法。",
-        f"- 若把对照口径换成 `带数字调号标准全拼`，则同语料总体上音元简拼平均约少 `{format_float(abs(float(code_length_baseline['overall']['jianpin_vs_full_pinyin_with_tone_number'])))}` 键；这可以支持“音元简拼相对带数字调号全拼更短”的表述。",
+        f"- 同语料总体上，音元省键模式平均码长为 `{format_float(float(code_length_baseline['overall']['avg_yime_jianpin']))}` 键，较音元等长模式平均减少 `{format_float(float(code_length_baseline['overall']['jianpin_saved_vs_full']))}` 键。",
+        f"- 但在本报告当前采用的省调 `标准全拼` 口径下，音元省键模式总体平均仍比标准全拼约多 `{format_float(float(code_length_baseline['overall']['jianpin_vs_full_pinyin']))}` 键，因此这张表不能用来支持“已经比省调现行拼音平均码长更短”的说法。",
+        f"- 若把对照口径换成 `带数字调号标准全拼`，则同语料上音元省键模式平均约少 `{format_float(abs(float(code_length_baseline['overall']['jianpin_vs_full_pinyin_with_tone_number'])))}` 键；这可以支持“音元省键模式相对带数字调号全拼更短”的表述。",
         "",
-        "| 语料层级 | 条目数 | 平均音节数 | 音元全拼平均码长 | 音元简拼平均码长 | 标准全拼平均码长 | 带数字调号标准全拼平均码长 | 抽象双拼平均码长 | 简拼较全拼减少 | 简拼-标准全拼差值 | 简拼-带调全拼差值 | 简拼-双拼差值 |",
+        "| 语料层级 | 条目数 | 平均音节数 | 音元等长平均码长 | 音元省键平均码长 | 标准全拼平均码长 | 带数字调号标准全拼平均码长 | 抽象双拼平均码长 | 省键较等长减少 | 省键-标准全拼差值 | 省键-带调全拼差值 | 省键-双拼差值 |",
         "| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
         make_code_length_row("一级字（前 3500）", code_length_baseline["chars_level_1"]),
         make_code_length_row("二级前字（前 6500）", code_length_baseline["chars_level_2"]),
@@ -1181,10 +1209,10 @@ def build_markdown(payload: dict[str, Any]) -> str:
 
     lines.extend(
         [
-            "## 简拼样本分析",
+            "## 省键模式样本分析",
             "",
-            "下面只看单个音节的结构压缩效果。这里的‘压缩最明显’与‘几乎压不动’都只依据三条简拼规则对四码全拼做机械压缩，不涉及候选排序或学习成本。",
-            f"按全部音节库存统计，至少触发一条简拼规则的音节占 `{format_pct(float(syllable_jianpin_rule_stats['rule_rows'][3]['share']))}`，平均每个音节可比四码全拼少 `{format_float(float(syllable_jianpin_rule_stats['avg_saved_keys_per_syllable']))}` 键。",
+            "下面只看单个音节的结构压缩效果。这里的‘压缩最明显’与‘几乎压不动’只依据两条压缩规则：合并组成干音的相邻相同音元，以及省略符合条件的干音中调；实首音和虚首音都固定保留。分析不涉及候选排序或学习成本。",
+            f"按全部音节库存统计，至少触发一条省键规则的音节占 `{format_pct(float(syllable_jianpin_rule_stats['rule_rows'][3]['share']))}`，平均每个音节可比四码等长编码少 `{format_float(float(syllable_jianpin_rule_stats['avg_saved_keys_per_syllable']))}` 键。",
             "",
             "### 按规则类型分组统计",
             "",
@@ -1214,7 +1242,7 @@ def build_markdown(payload: dict[str, Any]) -> str:
             "",
             "### 压缩最明显的音节样本",
             "",
-            "| 音节 | 全拼码长 | 简拼码长 | 减少键数 | 主要原因 |",
+            "| 音节 | 等长码长 | 省键码长 | 减少键数 | 主要原因 |",
             "| --- | ---: | ---: | ---: | --- |",
         ]
     )
@@ -1229,7 +1257,7 @@ def build_markdown(payload: dict[str, Any]) -> str:
             "",
             "### 几乎压不动的音节样本",
             "",
-            "| 音节 | 全拼码长 | 简拼码长 | 减少键数 | 主要原因 |",
+            "| 音节 | 等长码长 | 省键码长 | 减少键数 | 主要原因 |",
             "| --- | ---: | ---: | ---: | --- |",
         ]
     )

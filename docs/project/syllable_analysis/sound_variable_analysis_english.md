@@ -19,19 +19,19 @@
     - Prior to yinyuan analysis, the Initial Sound is defined as the sound segment composed of the Initial Tonal Segment and the Initial Consonant.
       - The Initial Consonant is the consonantal element located at the beginning of the syllable.
       - The Initial Tonal Segment is the tonal segment associated with the Initial Consonant.
-    - After yinyuan analysis, the Initial Sound is realized by Unpitched Sound.
+    - After yinyuan analysis, the Initial Sound position is filled by `zaoyin` units.
   - **Subsequent Sound**
     - Prior to yinyuan analysis, the Subsequent Sound is defined as the sound segment composed of the Subsequent Tonal Segment and the Final.
       - The Final is the sequence of qualities that follows the Initial Consonant.
       - The Subsequent Tonal Segment is the tonal segment associated with the Final.
-    - After yinyuan analysis, the Subsequent Sound is constituted by Pitched Sounds.
+    - After yinyuan analysis, the Subsequent Sound positions are filled by `yueyin` units.
 
 ### Initial Sound Analysis
 
 - The Initial Sound is divided into two types: Substantial Initial Sound and Insubstantial Initial Sound.
 - Whether substantial or insubstantial, the Initial Sound may be further analyzed in terms of pitch and quality.
 - The pitch of the Initial Sound exhibits no stable pitch and therefore constitutes a non-distinctive feature, whereas the quality of the Initial Sound remains stable and functions as a distinctive feature.
-- Accordingly, in yinyuan analysis, the Initial Sound is represented by Unpitched Sound.
+- Accordingly, in yinyuan analysis, the Initial Sound position is filled by `zaoyin` units.
 
 ### Subsequent Sound Analysis
 
@@ -101,7 +101,7 @@ Yinyuan analysis is a method by which a syllable is analyzed into a set of yinyu
 
 Within this framework, the syllable is first divided into the Initial Sound and the Subsequent Sound. The Initial Sound occupies the initial portion of the syllable and consists of the Initial Tonal Segment and the Initial Consonant. The Initial Tonal Segment is the tonal segment associated with the Initial Consonant, while the Initial Consonant constitutes the qualitative component of the Initial Sound. The Subsequent Sound follows the Initial Sound and consists of the Subsequent Tonal Segment and the Final. The Subsequent Tonal Segment is the tonal segment associated with the Final, while the Final constitutes the qualitative component of the Subsequent Sound.
 
-Yinyuan are divided into two categories, namely Unpitched Sound and Pitched Sound. At the yinyuan level, the Initial Sound is realized as Unpitched Sound, because its distinctive function is primarily carried by stable quality rather than by stable pitch. The Subsequent Sound is realized as Pitched Sounds, because it may be further decomposed into the Second Sound, the Main Sound, and the Last Sound, all of which participate in the internal prosodic organization of the syllable.
+Yinyuan use two project-specific categories: `zaoyin` and `yueyin`. In `zaoyin`, quality carries the contrast used by the current encoding, while pitch may be absent, indeterminate, unstable, or present without carrying that contrast. In `yueyin`, quality and a specified pitch jointly carry the contrast. In the current Mandarin model, Initial Sound positions are filled by `zaoyin` units, while the three positions inside the Subsequent Sound are filled by `yueyin` units. This is a mapping between a structural axis and a category axis, not synonymy. See [Zaoyin and Yueyin: Classification Specification](../../ZAOYIN_YUEYIN_CLASSIFICATION_EN.md).
 
 ### The Structural Logic of the Four Types of Subsequent Sound
 
@@ -292,37 +292,37 @@ graph TB
   M12 --> |Rename as|M18[Last Quality]
 
   subgraph YinyuanAnalysis["Yinyuan Analysis"]
-    subgraph UnpitchedAnalysis["Analysis of Unpitched Sound"]
-      H11 --> |Form|N1[Unpitched Sound]
+    subgraph UnpitchedAnalysis["Analysis of zaoyin"]
+      H11 --> |Form|N1[zaoyin]
       H12 --> |Form|N1
     end
-    subgraph PitchedAnalysis["Analysis of Pitched Sound"]
-      J11 --> |Form|N2[Pitched Sound]
+    subgraph PitchedAnalysis["Analysis of yueyin"]
+      J11 --> |Form|N2[yueyin]
       J14 --> |Form|N2
-      J12 --> |Form|N3[Pitched Sound]
+      J12 --> |Form|N3[yueyin]
       J15 --> |Form|N3
-      J13 --> |Form|N4[Pitched Sound]
+      J13 --> |Form|N4[yueyin]
       J16 --> |Form|N4
 
-      K13 --> |Form|O1[Pitched Sound]
+      K13 --> |Form|O1[yueyin]
       K16 --> |Form|O1
-      K14 --> |Form|O2[Pitched Sound]
+      K14 --> |Form|O2[yueyin]
       K17 --> |Form|O2
-      K15 --> |Form|O3[Pitched Sound]
+      K15 --> |Form|O3[yueyin]
       K18 --> |Form|O3
 
-      L13 --> |Form|P1[Pitched Sound]
+      L13 --> |Form|P1[yueyin]
       L16 --> |Form|P1
-      L14 --> |Form|P2[Pitched Sound]
+      L14 --> |Form|P2[yueyin]
       L17 --> |Form|P2
-      L15 --> |Form|P3[Pitched Sound]
+      L15 --> |Form|P3[yueyin]
       L18 --> |Form|P3
 
-      M13 --> |Form|Q1[Pitched Sound]
+      M13 --> |Form|Q1[yueyin]
       M16 --> |Form|Q1
-      M14 --> |Form|Q2[Pitched Sound]
+      M14 --> |Form|Q2[yueyin]
       M17 --> |Form|Q2
-      M15 --> |Form|Q3[Pitched Sound]
+      M15 --> |Form|Q3[yueyin]
       M18 --> |Form|Q3
     end
   end

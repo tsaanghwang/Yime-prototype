@@ -12,7 +12,7 @@ if exist "venv312\Scripts\python.exe" (
 )
 
 echo Using Python: %PYTHON%
-echo Rebuilding source pinyin assets...
+echo Rebuilding unified lexicon source and pinyin assets...
 
 "%PYTHON%" internal_data\pinyin_source_db\rebuild_pinyin_assets.py
 if errorlevel 1 (
@@ -22,6 +22,13 @@ if errorlevel 1 (
 )
 
 echo Running focused validation suite...
+
+"%PYTHON%" tools\check_layout_change_lock.py
+if errorlevel 1 (
+  echo.
+  echo Layout change lock failed with exit code %ERRORLEVEL%.
+  exit /b %ERRORLEVEL%
+)
 
 "%PYTHON%" tools\validate_yinyuan_source_consistency.py
 if errorlevel 1 (

@@ -18,10 +18,7 @@
 1. 运行：
 
    ```bash
-   python tools/run_layout_pipeline.py \
-     --on-warning continue \
-     --open-msklc never \
-     --export-visual-table
+   python tools/run_locked_layout_pipeline.py
    ```
 
 2. 运行 `python tools/run_msklc_packaging_pipeline.py`
@@ -148,7 +145,7 @@ $klcRepo = if ($env:YIME_KEYBOARD_LAYOUT_REPO) {
 
 ## 一句话顺序
 
-- `run_layout_pipeline.py`：先把 `.klc` 生对
+- `run_locked_layout_pipeline.py`：先锁定语义链并把 `.klc` 生对
 - `run_msklc_packaging_pipeline.py`：再把 MSKLC 打包产物整理好
 - `run_msklc_install_pipeline.py`：最后再装进系统
 - `reset_msklc_install_state.py`：需要重来时，把机器状态清干净

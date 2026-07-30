@@ -2,9 +2,12 @@
 
 `syllable/` 是 Yime 仓库中的 **汉语音节音系分析与音元编解码** Python 子包（与 `yime*` 一起在 `pyproject.toml` 中打包）。它覆盖从「带调拼音 → 音节结构分解 → 4 码音元编码 → 解码还原」的技术链，**不包含**输入法运行时（`yime/`）与词库 rebuild（`internal_data/pinyin_source_db/`）。
 
-**命名与概念请先读：** [docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)、[NAMING.md](NAMING.md)（含 **干音 ≠ 乐音** 等易混说明）。
+**命名与概念请先读：** [片音分析与音元表示：工程阅读概要](../docs/PIANYIN_ANALYSIS_OVERVIEW.md)、[docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md)、[NAMING.md](NAMING.md)（含 **片音 ≠ 等长平顶音段**、**Yinyuan ID ≠ 实际音值**、**干音 ≠ 乐音** 等易混说明）。
 
-更上层的码点/语义分层约束见 [docs/CODEPOINT_POLICY.md](../docs/CODEPOINT_POLICY.md)；生成物归属见 [docs/SOURCE_AND_ARTIFACTS.md](../docs/SOURCE_AND_ARTIFACTS.md)。
+当前整条工程链见 [docs/CURRENT_ARCHITECTURE.md](../docs/CURRENT_ARCHITECTURE.md)，
+音节规则依据见 [docs/SYLLABLE_ENCODING_RULES.md](../docs/SYLLABLE_ENCODING_RULES.md)。
+码点/语义分层约束见 [docs/CODEPOINT_POLICY.md](../docs/CODEPOINT_POLICY.md)；
+生成物归属见 [docs/SOURCE_AND_ARTIFACTS.md](../docs/SOURCE_AND_ARTIFACTS.md)。
 
 ---
 
@@ -18,6 +21,9 @@ syllable/
 ├── pianyin/        片音模型与调值/statistics 试验（偏理论，非 IME 主链）
 └── README.md       本文件
 ```
+
+进入 `analysis/` 前请读 [`analysis/README.md`](analysis/README.md)。该目录当前处理符号化音节分析，
+没有实现从语音波形自动切分片音或通过插值合成连续语音。
 
 ### 职责边界
 
@@ -39,14 +45,14 @@ syllable/
     │
     ▼
 analysis: SyllableEncodingPipeline 切分 → 首音段 / 干音段标签
-    ├── ShouyinEncoder  → 首音码元
-    └── GanyinEncoder   → 干音三乐音码元
+    ├── ShouyinEncoder  → 首音 Yinyuan ID
+    └── GanyinEncoder   → 干音三个乐音 Yinyuan ID
     │
     ▼
 codec: YinjieEncoder.encode_single_yinjie()
     │
     ▼
-syllable/codec/yinjie_code.json    （numeric_syllable → 4 码音元串）
+syllable/codec/yinjie_code.json    （numeric_syllable → 4 个 ID 的字符投影）
 
 音元串 / 编码键
     │
@@ -57,6 +63,7 @@ codec: YinjieDecoder
 ```
 
 运行时输入法默认 **读取** 已生成的 `yinjie_code.json`；`python run_input_method.py` **不会**自动重建码表。
+该文件是正式编码器的生成产物，不得用手工补码或布局试验直接修改。
 
 ---
 
@@ -88,7 +95,7 @@ python syllable/codec/yinjie_decoder.py
 
 | Phase                           | 做什么                                                                         | 典型命令                                                                                             |
 | ------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------- |
-| **Phase 1 — 词库 + 音节表导出** | `source_pinyin.db` → `pinyin_normalized.json`；**默认不**改 `yinjie_code.json` | `python internal_data/pinyin_source_db/rebuild_pinyin_assets.py` 或 `scripts/run_tests.cmd` 前置步骤 |
+| **Phase 1 — 词库 + 音节表导出** | `source_lexicon.sqlite3` → `pinyin_normalized.json`；**默认不**改 `yinjie_code.json` | `python internal_data/pinyin_source_db/rebuild_pinyin_assets.py` 或 `scripts/run_tests.cmd` 前置步骤 |
 | **Phase 2 — 编码表**            | 首音/干音 JSON → `yinjie_code.json` → `yime/code_pinyin.json`                  | `python tools/rebuild_encoding_assets.py` 或 `scripts/apply_syllable_codebook.cmd`                   |
 
 Phase 2 仅在 Phase 1 测试通过、且你 **有意刷新编码层** 时执行。详见 [internal_data/pinyin_source_db/README.md](../internal_data/pinyin_source_db/README.md) 与 [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md)「编码资产重建」一节。
@@ -127,7 +134,24 @@ python tools/rebuild_encoding_assets.py --skip-code-pinyin
 | `ganyin_to_fixed_length_yinyuan_sequence.json` | 干音定长音元序列（由 `GanyinEncoder` 生成）       |
 | `yinyuan_codepoint.json`                       | 音元码点表                                        |
 
-部分 JSON 仍偏「字符层/runtime 投影」；长期目标是从 `internal_data/` 语义真源生成，见 [docs/SOURCE_AND_ARTIFACTS.md](../docs/SOURCE_AND_ARTIFACTS.md) 与 [docs/CODEPOINT_POLICY.md](../docs/CODEPOINT_POLICY.md)。
+两份 `*_enhanced.json` 是当前音元语义来源；其余码点、定长序列和运行时 JSON
+属于受控生成物。完整归属见 [docs/SOURCE_AND_ARTIFACTS.md](../docs/SOURCE_AND_ARTIFACTS.md)
+与 [docs/CODEPOINT_POLICY.md](../docs/CODEPOINT_POLICY.md)。
+
+## 分解与遗漏审计
+
+```bash
+python tools/export_syllable_decomposition.py
+```
+
+该入口生成三张便于逐项观察的表：
+
+- `internal_data/yime_syllable_decomposition.tsv`：1725 个规范带调音节的分解与编码；
+- `internal_data/yime_syllable_encoding_provenance.tsv`：每条编码的来源和规则依据；
+- `internal_data/yime_syllable_omissions.tsv`：理论集合、技术拼写与当前字典清单的差异。
+
+遗漏表中的条目不能直接补入 `yinjie_code.json`；先确认它是表层拼写差异、
+技术别名、未见字典实例的理论形式，还是编码器故障，再从对应上游规则修复。
 
 ---
 
@@ -154,7 +178,12 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 **旧 import 路径：** `yime/syllable_decoder.py`（``SyllableDecoder``，继承 ``YinjieDecoder``）。
 
-已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和简拼草稿兼容入口也已清退。
+已删除：`yime/syllable_structure.py`、`yime/utils/syllable_compat/`；早期宽松切分和
+独立的缩写草稿兼容入口也已清退。当前变长/省键模式由正式三模式编码链实现，
+不依赖这些旧入口。正式链从四元等长码出发，保留首音边界，并通过合并组成干音的相邻相同音元生成
+变长码。等长模式下，首音后的干音固定由呼音、主音、末音三个音元组成：三者不同时保持不变；只有
+前两者相同时合并前两者；只有后两者相同时合并后两者；三者相同时合并为一个音元。随后再从变长码
+省略符合高—中—低或低—中—高条件的干音中调生成省键码；虚首音不再省略。
 
 ---
 
@@ -162,9 +191,9 @@ from syllable import Syllable, SyllableCategorizer, YinjieAnalyzer
 
 完整约定见 **[NAMING.md](NAMING.md)**。摘要：
 
-- **`syllable/pianyin/`**：片音 canonical 模块；主链 `from_pianyin` 使用 `PitchedPianyin` / `UnpitchedPianyin`。
+- **`syllable/pianyin/`**：片音 canonical 模块；主链使用 `YueyinPianyin` / `ZaoyinPianyin`。
 - **已删除 `syllable/analysis/pianyin.py`**：原为与 `pianyin/pianyin.py` 重复的旧副本；请统一使用 canonical 的 `syllable/pianyin/`。
-- **`syllable/analysis/pitched_pianyin.py`**：`YueyinPianyin` 仅试验链；≠ `pianyin.PitchedPianyin`。
+- **`syllable/analysis/pitched_pianyin.py`**：历史试验模块；公共类型以 `syllable.pianyin` 为准。
 
 ## 测试
 
@@ -191,7 +220,10 @@ python -m pytest tests/yinjie/test_yinjie_encoder.py tests/yinjie/test_yinjie_ro
 
 ## 进一步阅读
 
+- [docs/PIANYIN_ANALYSIS_OVERVIEW.md](../docs/PIANYIN_ANALYSIS_OVERVIEW.md) — 片音/音元代码阅读约束与实验边界
 - [docs/TERMINOLOGY_INDEX.md](../docs/TERMINOLOGY_INDEX.md) — 术语总入口
+- [docs/CURRENT_ARCHITECTURE.md](../docs/CURRENT_ARCHITECTURE.md) — 当前能力、真源和改动边界
+- [docs/SYLLABLE_ENCODING_RULES.md](../docs/SYLLABLE_ENCODING_RULES.md) — 音节规则来源与遗漏分类
 - [docs/DEVELOPMENT.md](../docs/DEVELOPMENT.md) — 编码资产重建与 pytest 门禁
 - [docs/DATAFILES.md](../docs/DATAFILES.md) — `key_to_code.json` 等数据文件说明
 - [docs/project/PINYIN_DATA_MIGRATION.md](../docs/project/PINYIN_DATA_MIGRATION.md) — 词库/runtime 与编码层边界

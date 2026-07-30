@@ -376,12 +376,29 @@ ON runtime_candidates_materialized(input_shorthand_code, entry_type, sort_weight
 CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_char_prefix
 ON runtime_candidates_materialized(entry_type, yime_code, sort_weight DESC, text);
 
+-- Optional runtime selection overlay. Complete source and inventory tables
+-- remain intact; when enabled, only these attested readings are materialized.
+CREATE TABLE IF NOT EXISTS runtime_lexicon_selection (
+    entry_type TEXT NOT NULL CHECK (entry_type IN ('char', 'phrase')),
+    text TEXT NOT NULL,
+    pinyin_tone TEXT NOT NULL,
+    selection_level TEXT NOT NULL,
+    selection_reason TEXT NOT NULL,
+    source_full_layout_code TEXT NOT NULL,
+    source_weight INTEGER NOT NULL DEFAULT 0,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (entry_type, text, pinyin_tone)
+);
+
+CREATE INDEX IF NOT EXISTS idx_runtime_lexicon_selection_text
+ON runtime_lexicon_selection(entry_type, text, pinyin_tone);
+
 -- 写入原型元数据标记。
 INSERT OR REPLACE INTO prototype_metadata (key, value, note, updated_at)
 VALUES
     ('prototype_schema', 'v4', '测试原型附加表结构版本', CURRENT_TIMESTAMP),
     ('char_inventory_table', 'char_inventory', '当前原型单字主表（英文隔离表）', CURRENT_TIMESTAMP),
-    ('char_usage_profile_table', 'char_usage_profile', '当前单字分层表：通用/专用/罕用分层用于常用单字兜底排序', CURRENT_TIMESTAMP),
+    ('char_usage_profile_table', 'char_usage_profile', '当前单字分层表：从统一 source_lexicon.sqlite3.character_tiers 复制九级已编码成员，用于单字兜底排序', CURRENT_TIMESTAMP),
     ('char_modern_common_profile_table', 'char_modern_common_profile', '现代常用单字序位表：仅对常用读音提供轻量排序加成', CURRENT_TIMESTAMP),
     ('char_reading_prior_table', 'char_reading_prior', '单字读音先验表：基于词语频率累积的字-读音先验', CURRENT_TIMESTAMP),
     ('runtime_tuning_parameters_table', 'runtime_tuning_parameters', '运行时调参表：读音权重与先验系数的可调入口', CURRENT_TIMESTAMP),
@@ -392,5 +409,5 @@ VALUES
     ('phrase_inventory_table', 'phrase_inventory', '当前原型词语主表（英文隔离表）', CURRENT_TIMESTAMP),
     ('runtime_candidates_materialized_table', 'runtime_candidates_materialized', '当前运行时按码查询使用的物化候选表', CURRENT_TIMESTAMP),
     ('phrase_reading_preference_table', 'phrase_reading_preference', '歧义词显式默认读音表；runtime 仅暴露默认读音', CURRENT_TIMESTAMP),
-    ('char_source_strategy', 'clone_source_char_readings', '单字相关先复制 source_pinyin.db.char_readings，再派生 char_lexicon', CURRENT_TIMESTAMP),
-    ('phrase_source_strategy', 'clone_source_phrase_readings', '词语相关先复制 source_pinyin.db.phrase_readings，再派生 phrase_lexicon_view', CURRENT_TIMESTAMP);
+    ('char_source_strategy', 'clone_unified_lexicon_char_readings', '单字只从 source_lexicon.sqlite3.char_readings 消费视图派生', CURRENT_TIMESTAMP),
+    ('phrase_source_strategy', 'clone_unified_lexicon_primary_phrase_readings', '词语只从 source_lexicon.sqlite3.phrase_readings 消费视图派生', CURRENT_TIMESTAMP);

@@ -12,7 +12,7 @@
 | 词频中的单字 | `external_data/char_freq/word_freq_merged_single_char_freq.txt` | `tools/merge_word_freq.py`（同上） | 词频频道里 **`len(word) == 1`** 的条目；反映「语料词表统计里出现的单字频」，与专用字频频道不是同一文件 |
 | 字频频道单字 | `external_data/char_freq/merged_char_freq.txt`                  | `tools/merge_char_freq.py`         | `char_freq/` 下各频道 `*.txt`（专用字频下载），各频道取 **max(freq)**                                  |
 
-**Yime 写库与 runtime 字频导入统一使用 `merged_char_freq.txt`**（专用字频频道 + `char_frequency_policy` 合成兜底）。`word_freq_merged_single_char_freq.txt` 仍保留，用于对照词频派生单字与专用字频频道的差异，或离线分析；二者键集与 count 可能不一致（词频单字 ⊂ 或 ≠ 字频频道，且同字 max 值可能不同）。
+**当前生产写库与 runtime 不再读取这些 merged 二手文件。** 构建器直接读取各 BCC 原始分域频道，将证据写入统一 `source_lexicon.sqlite3`；本页列出的 merged 文件只供历史对照和离线分析。
 
 原始频道文件示例：`modern_chinese_word_freq.txt`、`news_total_word_freq.txt`、`literature_word_freq.txt`、`dialogue_word_freq.txt`、`classical_chinese_word_freq.txt`、`multi_domain_total_word_freq.txt`。
 
@@ -27,7 +27,7 @@ BCC 在线语料库：<https://bcc.blcu.edu.cn/>
 ## 口径
 
 - `freq` 按原始整数 **count** 理解，不是归一化权重。
-- 单字频写库真源：`external_data/char_freq/merged_char_freq.txt`（BCC **字频频道**）。
+- 单字频生产真源：统一 `source_lexicon.sqlite3` 中逐文件保留的 BCC **字频频道原始证据**。
 - 词频派生单字：`external_data/char_freq/word_freq_merged_single_char_freq.txt`（BCC **词频频道**里的单字行，由 `tools/merge_word_freq.py` 分出，不用于写库）。
 - BCC 未命中的单字，各导入脚本按同一 **Unihan 合成序位** 写入有效频率（严格小于 BCC 最小正值 6）：
   - `kTGHZ2013` → 5
@@ -37,7 +37,8 @@ BCC 在线语料库：<https://bcc.blcu.edu.cn/>
   - `kMandarin` → 1
   - 五列皆无 → 0
 - 多列并存取 **max**；BCC 命中时 **只用 BCC**，`frequency_source = external_data/BCC-word-freq`。
-- 导入 Yime 后，`phrase_inventory.phrase_frequency` 为 **BCC 原始整数 count**（命中时），否则 **词库默认 1**（表示词条在 curated 词库中至少有一次收录）。
+- 导入 Yime 后，`phrase_inventory.phrase_frequency` 为 **BCC 原始整数 count**；BCC 未命中时保持为
+  **0**。词典收录只证明词条存在，不再伪装成一次语料命中。
 - `char_inventory.char_frequency_abs` 写入 **有效频率**（BCC 或合成值）；`frequency_source` 标记来源。历史列 `char_frequency_rel` 已废弃，不再写入。
 - 运行时排序对缺失值仍可用 `COALESCE(..., 0)`；词库导入后短语频率不再留 `NULL`。
 
@@ -63,7 +64,7 @@ scripts/import_blcu_word_frequency.cmd
 
 行为说明：
 
-- 多字词频按 `phrase_inventory.phrase` 文本 join；BCC 未命中时写入 **1**。
+- 多字词频按 `phrase_inventory.phrase` 文本 join；BCC 未命中时写入 **0**。
 - 单字频按 `char_inventory.hanzi` join；BCC 未命中时使用 Unihan 合成序位（见上）。
 - 写库前会清空原有 `phrase_frequency` / `char_frequency_*`，并清空 `char_pinyin_map.reading_weight`。
 - 若历史库中 `phrase_inventory.phrase_frequency` 仍为 `REAL`，导入时会自动迁移为 `INTEGER` 并写入 BCC 原始 count。

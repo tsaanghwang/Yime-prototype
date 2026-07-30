@@ -25,14 +25,29 @@ class TestCodecLayerPackages(unittest.TestCase):
         self.assertEqual(result.merged_code, "ABC")
         self.assertEqual(result.variable_code, "ABC")
         self.assertEqual(result.merged_adjacent_count, 1)
+
+    def test_variable_length_merges_adjacent_equal_yinyuan_composing_ganyin(self):
+        result = transform_full_code("XAAB")
+        self.assertEqual(result.merged_code, "XAB")
+        self.assertEqual(result.variable_code, "XAB")
+        self.assertEqual(result.merged_adjacent_count, 1)
         self.assertFalse(result.omitted_virtual_initial)
 
-    def test_variable_length_yinyuan_merges_before_omitting_virtual_initial(self):
-        result = transform_full_code("XAAB", virtual_initial="X")
-        self.assertEqual(result.merged_code, "XAB")
-        self.assertEqual(result.variable_code, "AB")
-        self.assertEqual(result.merged_adjacent_count, 1)
-        self.assertTrue(result.omitted_virtual_initial)
+    def test_variable_length_covers_four_three_yinyuan_ganyin_structures(self):
+        cases = {
+            "XABC": "XABC",  # 呼音、主音、末音三者不同
+            "XAAC": "XAC",   # 只合并相同的呼音、主音
+            "XABB": "XAB",   # 只合并相同的主音、末音
+            "XAAA": "XA",    # 呼音、主音、末音三者合并
+        }
+        for full_code, variable_code in cases.items():
+            with self.subTest(full_code=full_code):
+                self.assertEqual(transform_full_code(full_code).variable_code, variable_code)
+
+    def test_variable_length_yinyuan_never_merges_initial_with_ganyin(self):
+        result = transform_full_code("AAAA")
+        self.assertEqual(result.variable_code, "AA")
+        self.assertEqual(result.merged_adjacent_count, 2)
 
     def test_variable_length_yinyuan_rejects_non_four_code(self):
         for code in ("", "ABC", "ABCDE"):
@@ -41,7 +56,7 @@ class TestCodecLayerPackages(unittest.TestCase):
                     transform_full_code(code)
 
     def test_variable_length_yinyuan_code_helper(self):
-        self.assertEqual(to_variable_length_yinyuan_code("XAAA", virtual_initial="X"), "A")
+        self.assertEqual(to_variable_length_yinyuan_code("XAAA"), "XA")
 
     def test_input_shorthand_omits_middle_tone_for_same_quality_run(self):
         metadata = {

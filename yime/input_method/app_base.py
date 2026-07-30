@@ -181,7 +181,20 @@ class BaseInputMethodApp:
         self.user_lexicon_seed_path = app_dir / "user_lexicon_seed.json"
         self.user_lexicon_store = UserLexiconStore(user_db_path)
         self.seed_import_result = self._maybe_import_seed_user_lexicon()
-        self.decoder = CompositeCandidateDecoder(app_dir, user_db_path=user_db_path)
+        runtime_db_override = os.environ.get(
+            "YIME_RUNTIME_DB_PATH",
+            "",
+        ).strip()
+        self.runtime_db_path = (
+            Path(runtime_db_override).expanduser().resolve()
+            if runtime_db_override
+            else app_dir / "pinyin_hanzi.db"
+        )
+        self.decoder = CompositeCandidateDecoder(
+            app_dir,
+            user_db_path=user_db_path,
+            runtime_db_path=self.runtime_db_path,
+        )
         self.decoder.set_code_mode(self.code_mode)
         self.input_visual_map = build_input_visual_map(app_dir.parent)
         self.manual_key_output_map = build_manual_key_output_map(app_dir.parent)
@@ -194,7 +207,7 @@ class BaseInputMethodApp:
         self.runtime_decoder_warning = self.decoder.get_runtime_warning()
         self.runtime_decoder_source = self.decoder.get_runtime_source()
         self.runtime_reverse_lookup = RuntimeReverseLookup(
-            app_dir / "pinyin_hanzi.db",
+            self.runtime_db_path,
             user_db_path=user_db_path,
         )
         self.clipboard = ClipboardManager()
@@ -1969,6 +1982,17 @@ class BaseInputMethodApp:
             refocus()
 
     def _commit_candidate_box_text(self, text: str) -> None:
+        sentence_recorder = getattr(
+            self.decoder,
+            "record_sentence_commit",
+            None,
+        )
+        if callable(sentence_recorder):
+            try:
+                sentence_recorder(text)
+            except Exception as exc:
+                # Optional learning must never block the user's actual commit.
+                print(f"[YIME] 整句自动学习失败，已继续上屏: {exc}")
         self.clipboard.copy(text)
 
         if self._current_external_target_hwnd():

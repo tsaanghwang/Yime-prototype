@@ -159,6 +159,22 @@ class UserLexiconStore:
                 CREATE INDEX IF NOT EXISTS idx_user_candidate_frequency_last_used
                 ON user_candidate_frequency(last_used_at);
 
+                CREATE TABLE IF NOT EXISTS user_candidate_transitions (
+                    previous_text TEXT NOT NULL,
+                    lookup_code TEXT NOT NULL,
+                    candidate_text TEXT NOT NULL,
+                    freq INTEGER NOT NULL DEFAULT 0,
+                    last_used_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (
+                        previous_text,
+                        lookup_code,
+                        candidate_text
+                    )
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_user_candidate_transitions_lookup
+                ON user_candidate_transitions(previous_text, lookup_code);
+
                 CREATE TABLE IF NOT EXISTS user_lexicon_meta (
                     meta_key TEXT PRIMARY KEY,
                     meta_value TEXT NOT NULL DEFAULT ''
@@ -204,7 +220,12 @@ class UserLexiconStore:
             frequency_row = connection.execute(
                 "SELECT 1 FROM user_candidate_frequency LIMIT 1"
             ).fetchone()
-        return frequency_row is not None
+            if frequency_row is not None:
+                return True
+            transition_row = connection.execute(
+                "SELECT 1 FROM user_candidate_transitions LIMIT 1"
+            ).fetchone()
+        return transition_row is not None
 
     def list_recent_phrase_entries(self, limit: int = 20) -> list[UserPhraseEntryDetail]:
         return self.list_phrase_entries(limit=limit)
@@ -313,6 +334,76 @@ class UserLexiconStore:
             for row in rows
             if str(row["lookup_code"] or "").strip() and str(row["text"] or "").strip()
         }
+
+    def load_candidate_transition_frequency(
+        self,
+    ) -> dict[tuple[str, str, str], int]:
+        with self._connect(readonly=True) as connection:
+            rows = connection.execute(
+                """
+                SELECT previous_text, lookup_code, candidate_text, freq
+                FROM user_candidate_transitions
+                WHERE freq > 0
+                """
+            ).fetchall()
+        return {
+            (
+                str(row["previous_text"] or "").strip(),
+                str(row["lookup_code"] or "").strip(),
+                str(row["candidate_text"] or "").strip(),
+            ): int(row["freq"] or 0)
+            for row in rows
+            if str(row["previous_text"] or "").strip()
+            and str(row["lookup_code"] or "").strip()
+            and str(row["candidate_text"] or "").strip()
+        }
+
+    def record_candidate_transition(
+        self,
+        previous_text: str,
+        lookup_code: str,
+        candidate_text: str,
+    ) -> int:
+        normalized_previous = previous_text.strip()
+        normalized_lookup = lookup_code.strip()
+        normalized_candidate = candidate_text.strip()
+        if not normalized_previous or not normalized_lookup or not normalized_candidate:
+            return 0
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO user_candidate_transitions (
+                    previous_text,
+                    lookup_code,
+                    candidate_text,
+                    freq
+                ) VALUES (?, ?, ?, 1)
+                ON CONFLICT(previous_text, lookup_code, candidate_text)
+                DO UPDATE SET
+                    freq = user_candidate_transitions.freq + 1,
+                    last_used_at = CURRENT_TIMESTAMP
+                """,
+                (
+                    normalized_previous,
+                    normalized_lookup,
+                    normalized_candidate,
+                ),
+            )
+            row = connection.execute(
+                """
+                SELECT freq
+                FROM user_candidate_transitions
+                WHERE previous_text = ?
+                  AND lookup_code = ?
+                  AND candidate_text = ?
+                """,
+                (
+                    normalized_previous,
+                    normalized_lookup,
+                    normalized_candidate,
+                ),
+            ).fetchone()
+        return int(row["freq"] or 0) if row is not None else 0
 
     def list_phrase_entries(
         self,
@@ -454,7 +545,7 @@ class UserLexiconStore:
             for row in self.list_phrase_entries(limit=1_000_000)
         ]
         payload: dict[str, Any] = {
-            "schema_version": 1,
+            "schema_version": 2,
             "exported_at": datetime.now(timezone.utc).isoformat(),
             "phrase_entries": phrase_entries,
         }
@@ -467,6 +558,21 @@ class UserLexiconStore:
                     "last_used_at": row.last_used_at,
                 }
                 for row in self.list_candidate_frequency_entries(limit=1_000_000)
+            ]
+            payload["candidate_transitions"] = [
+                {
+                    "previous_text": previous_text,
+                    "lookup_code": lookup_code,
+                    "candidate_text": candidate_text,
+                    "freq": frequency,
+                }
+                for (
+                    previous_text,
+                    lookup_code,
+                    candidate_text,
+                ), frequency in sorted(
+                    self.load_candidate_transition_frequency().items()
+                )
             ]
         return payload
 
@@ -564,6 +670,7 @@ class UserLexiconStore:
         imported_frequency_rows = 0
         with self._connect() as connection:
             if replace_existing:
+                connection.execute("DELETE FROM user_candidate_transitions")
                 connection.execute("DELETE FROM user_candidate_frequency")
                 connection.execute("DELETE FROM user_phrase_entries")
 
@@ -630,12 +737,17 @@ class UserLexiconStore:
             list[Mapping[str, Any]],
             payload.get("candidate_frequency") or [],
         )
+        candidate_transitions = cast(
+            list[Mapping[str, Any]],
+            payload.get("candidate_transitions") or [],
+        )
 
         imported_phrases = 0
         imported_frequency_rows = 0
 
         with self._connect() as connection:
             if replace_existing:
+                connection.execute("DELETE FROM user_candidate_transitions")
                 connection.execute("DELETE FROM user_candidate_frequency")
                 connection.execute("DELETE FROM user_phrase_entries")
 
@@ -706,6 +818,48 @@ class UserLexiconStore:
                         ),
                     )
                     imported_frequency_rows += 1
+
+                for raw_entry in candidate_transitions:
+                    previous_text = str(
+                        raw_entry.get("previous_text") or ""
+                    ).strip()
+                    lookup_code = str(
+                        raw_entry.get("lookup_code") or ""
+                    ).strip()
+                    candidate_text = str(
+                        raw_entry.get("candidate_text") or ""
+                    ).strip()
+                    frequency = int(raw_entry.get("freq") or 0)
+                    if (
+                        not previous_text
+                        or not lookup_code
+                        or not candidate_text
+                        or frequency <= 0
+                    ):
+                        continue
+                    connection.execute(
+                        """
+                        INSERT INTO user_candidate_transitions (
+                            previous_text,
+                            lookup_code,
+                            candidate_text,
+                            freq
+                        ) VALUES (?, ?, ?, ?)
+                        ON CONFLICT(
+                            previous_text,
+                            lookup_code,
+                            candidate_text
+                        ) DO UPDATE SET
+                            freq = excluded.freq,
+                            last_used_at = CURRENT_TIMESTAMP
+                        """,
+                        (
+                            previous_text,
+                            lookup_code,
+                            candidate_text,
+                            frequency,
+                        ),
+                    )
 
         return {
             "phrase_entries": imported_phrases,

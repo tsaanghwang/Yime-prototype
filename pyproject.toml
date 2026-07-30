@@ -39,6 +39,7 @@ exclude = ["tests*", "tools*"]
 "syllable" = ["yinyuan/*.json"]
 "syllable.codec" = ["*.json"]
 "yime" = ["*.json", "*.sql", "*.txt", "*.csv"]
+"yime.input_model" = ["review_ui/*.html", "review_ui/*.css", "review_ui/*.js"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

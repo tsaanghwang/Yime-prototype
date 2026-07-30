@@ -50,13 +50,22 @@ class TestCharFrequencyPolicy(unittest.TestCase):
         self.assertEqual(resolved.frequency, 0)
         self.assertEqual(resolved.source, SYNTHETIC_NONE_SOURCE)
 
-    def test_phrase_lexicon_default_is_one_without_bcc(self) -> None:
+    def test_explicit_bcc_zero_is_not_replaced_by_unihan_prior(self) -> None:
+        resolved = resolve_char_frequency(
+            bcc_frequency=0,
+            unihan_columns={"kTGHZ2013": "zhong1"},
+        )
+        self.assertEqual(resolved.frequency, 0)
+        self.assertEqual(resolved.source, BCC_SOURCE)
+
+    def test_phrase_without_bcc_keeps_zero_weight(self) -> None:
         from yime.utils.char_frequency_policy import (
             PHRASE_LEXICON_DEFAULT_FREQUENCY,
             resolve_phrase_frequency,
         )
 
         self.assertEqual(resolve_phrase_frequency(None), PHRASE_LEXICON_DEFAULT_FREQUENCY)
+        self.assertEqual(resolve_phrase_frequency(0), 0)
         self.assertEqual(resolve_phrase_frequency(120), 120)
 
     def test_import_hanzi_frequency_rows_writes_effective_values(self) -> None:

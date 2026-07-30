@@ -1,8 +1,13 @@
-import json
-import re
 import sqlite3
 import sys
+from dataclasses import replace
 from pathlib import Path
+
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
+if str(WORKSPACE_ROOT) not in sys.path:
+    sys.path.insert(0, str(WORKSPACE_ROOT))
+
+from yime.utils.dictionary_pinyin_compliance import load_policy, review_syllable
 
 from hanzi_pinyin_source_io import (
     DEFAULT_SOURCE_FILE,
@@ -11,49 +16,12 @@ from hanzi_pinyin_source_io import (
 )
 
 DB_FILE = str(Path(__file__).parent / "hanzi_pinyin.db")
-VALID_MARKED_PINYIN_PATH = (
-    Path(__file__).resolve().parents[1] / "pinyin_source_db" / "lexicon_exports" / "pinyin_normalized.json"
-)
-
-TONE_CHAR_MAP = {
-    "ā": "a1",
-    "á": "a2",
-    "ǎ": "a3",
-    "à": "a4",
-    "ē": "e1",
-    "é": "e2",
-    "ě": "e3",
-    "è": "e4",
-    "ế": "ê2",
-    "ề": "ê4",
-    "ī": "i1",
-    "í": "i2",
-    "ǐ": "i3",
-    "ì": "i4",
-    "ō": "o1",
-    "ó": "o2",
-    "ǒ": "o3",
-    "ò": "o4",
-    "ū": "u1",
-    "ú": "u2",
-    "ǔ": "u3",
-    "ù": "u4",
-    "ǖ": "ü1",
-    "ǘ": "ü2",
-    "ǚ": "ü3",
-    "ǜ": "ü4",
-    "ń": "n2",
-    "ň": "n3",
-    "ǹ": "n4",
-    "ḿ": "m2",
-}
-NUMERIC_SYLLABLE_RE = re.compile(r"^[a-zêü]+[1-5]$")
-TONE_MARK_CHARS = "āáǎàēéěèếềīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ̄́̌̀"
 
 
 def import_to_staging(source_path: str | Path) -> None:
     path = Path(source_path)
     parsed_rows = parse_hanzi_pinyin_txt(path)
+    policy = load_policy()
 
     conn = sqlite3.connect(DB_FILE)
     conn.execute("PRAGMA foreign_keys = ON")
@@ -64,7 +32,50 @@ def import_to_staging(source_path: str | Path) -> None:
 
     inserted = 0
     skipped = 0
+    excluded = 0
+    retained_without_reading = 0
     for row in parsed_rows:
+        canonical_candidates: list[str] = []
+        seen: set[str] = set()
+        for candidate in (part.strip() for part in row.readings.split(",")):
+            if not candidate:
+                continue
+            review = review_syllable(candidate, policy, codepoint=row.codepoint)
+            if review.known_exclusion:
+                excluded += 1
+                continue
+            if not review.accepted:
+                raise ValueError(
+                    f"{row.codepoint} {row.hanzi} {candidate}: {review.reason}"
+                )
+            canonical = review.canonical_marked
+            if canonical not in seen:
+                seen.add(canonical)
+                canonical_candidates.append(canonical)
+        canonical_common = ""
+        if canonical_candidates:
+            if row.common_reading:
+                common_review = review_syllable(
+                    row.common_reading,
+                    policy,
+                    codepoint=row.codepoint,
+                )
+                if common_review.accepted:
+                    canonical_common = common_review.canonical_marked
+            if not canonical_common or canonical_common not in canonical_candidates:
+                canonical_common = canonical_candidates[0]
+        else:
+            # The character remains part of the character/source inventory even
+            # when every recorded reading is deliberately barred from decoding.
+            # Empty normalized readings prevent it from entering the syllable
+            # pipeline without erasing the codepoint or its source provenance.
+            retained_without_reading += 1
+        row = replace(
+            row,
+            common_reading=canonical_common,
+            readings=",".join(canonical_candidates),
+            is_single=1 if len(canonical_candidates) == 1 else 0,
+        )
         known = cur.execute(
             "SELECT hanzi FROM hanzi WHERE codepoint = ?",
             (row.codepoint,),
@@ -80,7 +91,7 @@ def import_to_staging(source_path: str | Path) -> None:
             (
                 row.codepoint,
                 hanzi,
-                row.common_reading or None,
+                row.common_reading,
                 row.readings,
                 row.common_reading_source or None,
                 row.is_single,
@@ -94,6 +105,10 @@ def import_to_staging(source_path: str | Path) -> None:
     print(f"staging 导入完成: {inserted:,} 条 (来源: {path})")
     if skipped:
         print(f"跳过: {skipped:,} 条（码点不在 hanzi 主表）")
+    if excluded:
+        print(f"已知且有意排除的来源读音: {excluded:,} 条")
+    if retained_without_reading:
+        print(f"保留字形但不送入音节分解: {retained_without_reading:,} 条")
 
 
 def console_print(message: str) -> None:
@@ -103,65 +118,7 @@ def console_print(message: str) -> None:
         sys.stdout.buffer.write((message + "\n").encode(sys.stdout.encoding or "utf-8", errors="backslashreplace"))
 
 
-def marked_syllable_to_numeric(marked: str) -> str:
-    special_combining = {
-        "ê̄": "ê1",
-        "ê̌": "ê3",
-        "ề": "ê4",
-        "m̄": "m1",
-        "m̌": "m3",
-        "m̀": "m4",
-        "n̄": "n1",
-        "ň": "n3",
-        "ǹ": "n4",
-        "n̄g": "ng1",
-        "ňg": "ng3",
-        "ǹg": "ng4",
-        "hm̄": "hm1",
-        "hm̌": "hm3",
-        "hm̀": "hm4",
-        "hn̄": "hn1",
-        "hň": "hn3",
-        "hǹ": "hn4",
-        "hn̄g": "hng1",
-        "hňg": "hng3",
-        "hǹg": "hng4",
-    }
-    if marked in special_combining:
-        return special_combining[marked]
-
-    numeric = marked + "5"
-    for char in marked:
-        if char in TONE_CHAR_MAP:
-            replacement = TONE_CHAR_MAP[char]
-            numeric = marked.replace(char, replacement[0]) + replacement[1]
-            break
-    return numeric
-
-
-def load_valid_numeric_pinyin() -> list[str]:
-    payload = json.loads(VALID_MARKED_PINYIN_PATH.read_text(encoding="utf-8"))
-    return sorted(str(key).strip() for key in payload.keys() if str(key).strip())
-
-
-def load_valid_plain_untoned_pinyin() -> set[str]:
-    valid_numeric = getattr(load_valid_plain_untoned_pinyin, "_valid_plain_untoned", None)
-    if valid_numeric is None:
-        valid_numeric = {
-            key[:-1]
-            for key in load_valid_numeric_pinyin()
-            if key and key[-1] in "12345"
-        }
-        setattr(load_valid_plain_untoned_pinyin, "_valid_plain_untoned", valid_numeric)
-    return valid_numeric
-
-
 def build_invalid_pinyin_rows(pinyin_candidates_str: str) -> list[tuple[str, str, str]]:
-    valid_numeric = getattr(build_invalid_pinyin_rows, "_valid_numeric", None)
-    if valid_numeric is None:
-        valid_numeric = set(load_valid_numeric_pinyin())
-        setattr(build_invalid_pinyin_rows, "_valid_numeric", valid_numeric)
-
     raw_candidates: list[str] = [c.strip() for c in pinyin_candidates_str.split(',') if c.strip()] if pinyin_candidates_str else []
 
     invalid_rows: list[tuple[str, str, str]] = []
@@ -169,33 +126,19 @@ def build_invalid_pinyin_rows(pinyin_candidates_str: str) -> list[tuple[str, str
     for marked in raw_candidates:
         if not marked:
             continue
-        numeric = marked_syllable_to_numeric(marked)
-        row = (marked, numeric, "")
-        if row in seen:
+        review = review_syllable(marked)
+        if review.accepted:
             continue
-        if not NUMERIC_SYLLABLE_RE.match(numeric):
-            invalid_row = (marked, numeric, "invalid_numeric_shape")
-            if invalid_row not in seen:
-                seen.add(invalid_row)
-                invalid_rows.append(invalid_row)
-        elif numeric not in valid_numeric:
-            invalid_row = (marked, numeric, "not_in_yinjie_codebook")
-            if invalid_row not in seen:
-                seen.add(invalid_row)
-                invalid_rows.append(invalid_row)
+        invalid_row = (marked, review.canonical_numeric, review.rule_id)
+        if invalid_row not in seen:
+            seen.add(invalid_row)
+            invalid_rows.append(invalid_row)
     return invalid_rows
 
 
 def classify_invalid_pinyin(marked: str, numeric: str, reason: str) -> str:
-    if reason == "invalid_numeric_shape":
-        return "multi_syllable_or_compound"
-    if not any(char in TONE_MARK_CHARS for char in marked):
-        return (
-            "plain_untoned"
-            if marked in load_valid_plain_untoned_pinyin()
-            else "nonstandard"
-        )
-    return "toned_but_outside_codebook"
+    del marked, numeric
+    return "source_compliance_rejected" if reason else "unknown"
 
 
 def create_views():

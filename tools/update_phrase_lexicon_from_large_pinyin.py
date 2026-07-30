@@ -8,40 +8,19 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE_DB_DIR = ROOT / "internal_data" / "pinyin_source_db"
 YIME_DIR = ROOT / "yime"
-BUILD_SOURCE_DB_SCRIPT = SOURCE_DB_DIR / "build_source_pinyin_db.py"
-VALIDATE_SOURCE_DB_SCRIPT = SOURCE_DB_DIR / "validate_source_pinyin_db.py"
-IMPORT_SINGLE_CHAR_SCRIPT = YIME_DIR / "import_danzi_into_prototype_tables.py"
-IMPORT_PHRASE_SCRIPT = YIME_DIR / "import_duozi_into_prototype_tables.py"
-REFRESH_RUNTIME_SCRIPT = YIME_DIR / "refresh_runtime_yime_codes.py"
-
-DEFAULT_CHAR_SOURCE = ROOT / "internal_data" / "hanzi_pinyin" / "pinyin.txt"
-DEFAULT_PHRASE_SOURCE = ROOT / "internal_data" / "phrase_pinyin" / "phrase_pinyin.txt"
+REBUILD_SOURCE_SCRIPT = ROOT / "internal_data" / "pinyin_source_db" / "rebuild_pinyin_assets.py"
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "用外部词语拼音源重建 Yime 当前主线词库；词频由后续 "
-            "`import_blcu_word_frequency.py` 写入（BCC 或词库默认 1）。"
-            "流程：source_pinyin.db -> prototype tables -> BCC 词频导入 -> runtime。"
+            "从统一来源证据库重建 Yime 当前主线词库。"
+            "流程：统一来源库 -> 音节编码 -> prototype tables -> runtime。"
             "默认真正执行；可先用 --dry-run 看将要跑哪些命令。"
         )
     )
-    parser.add_argument(
-        "--char-source",
-        default=str(DEFAULT_CHAR_SOURCE),
-        help="单字拼音来源，默认使用 internal_data/hanzi_pinyin/pinyin.txt",
-    )
-    parser.add_argument(
-        "--phrase-source",
-        default=str(DEFAULT_PHRASE_SOURCE),
-        help=(
-            "词语拼音来源，默认使用 "
-            "internal_data/phrase_pinyin/phrase_pinyin.txt"
-        ),
-    )
+    parser.add_argument("--wanxiang-root", default=str(ROOT.parent / "RIME-LMDG"))
     parser.add_argument(
         "--python",
         default=sys.executable,
@@ -53,9 +32,9 @@ def parse_args() -> argparse.Namespace:
         help="只打印将执行的命令，不真正写入数据库或导出 runtime。",
     )
     parser.add_argument(
-        "--skip-validate",
+        "--skip-source-build",
         action="store_true",
-        help="跳过 source_pinyin.db 校验步骤。",
+        help="复用已经生成的统一来源库。",
     )
     parser.add_argument(
         "--skip-runtime-apply",
@@ -68,33 +47,26 @@ def parse_args() -> argparse.Namespace:
 def build_commands(args: argparse.Namespace) -> list[tuple[str, list[str]]]:
     commands: list[tuple[str, list[str]]] = [
         (
-            "build-source-db",
+            "rebuild-unified-source",
             [
                 args.python,
-                str(BUILD_SOURCE_DB_SCRIPT),
-                "--char-source",
-                args.char_source,
-                "--phrase-source",
-                args.phrase_source,
+                str(REBUILD_SOURCE_SCRIPT),
+                "--wanxiang-root",
+                args.wanxiang_root,
             ],
         )
     ]
-    if not args.skip_validate:
-        commands.append(
-            (
-                "validate-source-db",
-                [args.python, str(VALIDATE_SOURCE_DB_SCRIPT)],
-            )
-        )
+    if args.skip_source_build:
+        commands[0][1].append("--skip-bundle-build")
     commands.extend(
         [
             (
                 "import-single-char",
-                [args.python, str(IMPORT_SINGLE_CHAR_SCRIPT)],
+                [args.python, "-m", "yime.import_danzi_into_prototype_tables"],
             ),
             (
                 "import-phrase",
-                [args.python, str(IMPORT_PHRASE_SCRIPT)],
+                [args.python, "-m", "yime.import_duozi_into_prototype_tables"],
             ),
         ]
     )
@@ -102,7 +74,7 @@ def build_commands(args: argparse.Namespace) -> list[tuple[str, list[str]]]:
         commands.append(
             (
                 "refresh-runtime",
-                [args.python, str(REFRESH_RUNTIME_SCRIPT), "--apply"],
+                [args.python, "-m", "yime.refresh_runtime_yime_codes", "--apply"],
             )
         )
     return commands
@@ -110,13 +82,8 @@ def build_commands(args: argparse.Namespace) -> list[tuple[str, list[str]]]:
 
 def validate_script_paths() -> None:
     required_paths = [
-        BUILD_SOURCE_DB_SCRIPT,
-        IMPORT_SINGLE_CHAR_SCRIPT,
-        IMPORT_PHRASE_SCRIPT,
-        REFRESH_RUNTIME_SCRIPT,
+        REBUILD_SOURCE_SCRIPT,
     ]
-    if VALIDATE_SOURCE_DB_SCRIPT.exists():
-        required_paths.append(VALIDATE_SOURCE_DB_SCRIPT)
 
     missing_paths = [path for path in required_paths if not path.exists()]
     if missing_paths:
@@ -133,14 +100,7 @@ def print_plan(commands: list[tuple[str, list[str]]]) -> None:
 
 def main() -> int:
     args = parse_args()
-    char_source = Path(args.char_source)
-    phrase_source = Path(args.phrase_source)
     validate_script_paths()
-
-    if not char_source.exists():
-        raise FileNotFoundError(f"single-character source not found: {char_source}")
-    if not phrase_source.exists():
-        raise FileNotFoundError(f"phrase source not found: {phrase_source}")
 
     commands = build_commands(args)
     print_plan(commands)
@@ -153,7 +113,7 @@ def main() -> int:
         subprocess.run(command, check=True, cwd=ROOT)
 
     print("result=completed")
-    print(f"phrase_source={phrase_source}")
+    print("source=unified_lexicon_source_database")
     if args.skip_runtime_apply:
         print("runtime_refresh=skipped")
     else:

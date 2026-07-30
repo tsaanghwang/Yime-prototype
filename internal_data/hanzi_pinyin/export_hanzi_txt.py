@@ -7,7 +7,7 @@ DB_FILE = Path(__file__).resolve().with_name("hanzi_pinyin.db")
 DEFAULT_OUTPUT_FILE = Path(__file__).resolve().with_name("pinyin.txt")
 DELIMITER = "\t"
 OUTPUT_COMMENT = (
-    "# 本文件由 hanzi_pinyin.db 的 hanzi_pinyin 表导出（仅含 Unihan 有读音汉字）。"
+    "# 本文件由 hanzi_pinyin.db 的 hanzi_pinyin 表导出（含合规读音汉字，以及保留字形但无合规读音的来源字）。"
     "数据源为 external_data/hanzi_pinyin.txt（Unihan mandarin_readings_merged 导出），"
     "经 pinyin_source_staging 导入后直接写入 hanzi_pinyin。"
     "构建流水线见 internal_data/hanzi_pinyin/build_valid_pinyin.py。"

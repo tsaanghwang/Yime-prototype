@@ -22,18 +22,14 @@ from yime.canonical_yime_mapping import (
     convert_legacy_code_to_primary,
     load_canonical_code_map,
     load_code_mode_map,
-    load_canonical_patch_map,
     sync_canonical_mapping_table,
 )
-from yime.utils.blcu_word_frequency_import import load_char_frequency_map
+from yime.asset_paths import resolve_lexicon_source_db_path
+from yime.lexicon_bundle.character_tiers import TIER_NAMES
 from yime.utils.char_frequency_policy import (
     BCC_SOURCE,
     DEFAULT_BCC_CHAR_FREQ_PATH,
     purge_legacy_frequency_metadata,
-)
-from yime.utils.unihan_readings_frequency import (
-    DEFAULT_UNIHAN_READINGS_DB,
-    load_tghz2013_char_frequencies,
 )
 
 
@@ -47,34 +43,16 @@ EXPORT_SCRIPT = PACKAGE_DIR / "export_runtime_candidates_json.py"
 SCHEMA_PATH = PACKAGE_DIR / "create_prototype_schema_additions.sql"
 DEFAULT_TUNING_SCAN_JSON_OUTPUT = PACKAGE_DIR / "reports" / "runtime_tuning_scan.json"
 DEFAULT_TUNING_SCAN_MARKDOWN_OUTPUT = PACKAGE_DIR / "reports" / "runtime_tuning_scan.md"
-DEFAULT_UNIHAN_READINGS_DB_PATH = DEFAULT_UNIHAN_READINGS_DB
-DEFAULT_XHC1983_SOURCE = Path("C:/dev/pinyin-data/kXHC1983.txt")
-DEFAULT_BLCU_CHAR_FREQ_SOURCE = DEFAULT_BCC_CHAR_FREQ_PATH
-
-OPTIONAL_EXTERNAL_FREQUENCY_SOURCES = (
-    (
-        DEFAULT_UNIHAN_READINGS_DB_PATH,
-        "《通用规范汉字表》TGHZ2013 + BCC 单字频",
-        "缺失时将跳过 TGHZ2013 单字分层增强；需要时可运行 external_data/unihan_readings/build_all.py 重建 unihan_readings.db。",
-    ),
-    (
-        DEFAULT_BLCU_CHAR_FREQ_SOURCE,
-        "BCC 合并单字频（merged_char_freq.txt）",
-        "缺失时将跳过 BCC 单字序位增强；需要时可运行 tools/merge_char_freq.py 生成后放回 external_data/char_freq/。",
-    ),
-)
-
-COMMON_HIGH_COUNT = 3500
-COMMON_LOW_COUNT = 3000
-SPECIAL_HIGH_COUNT = 1605
-SPECIAL_LOW_COUNT = 4895
-
 TIER_BASE_WEIGHT_MULTIPLIERS = {
-    "common_high": 4,
-    "common_low": 3,
-    "special_high": 2,
-    "special_low": 1,
-    "rare": 0,
+    TIER_NAMES[1]: 8,
+    TIER_NAMES[2]: 7,
+    TIER_NAMES[3]: 6,
+    TIER_NAMES[4]: 5,
+    TIER_NAMES[5]: 4,
+    TIER_NAMES[6]: 3,
+    TIER_NAMES[7]: 2,
+    TIER_NAMES[8]: 1,
+    TIER_NAMES[9]: 0,
 }
 TIER_BASE_WEIGHT_GRANULARITY = 10_000_000.0
 
@@ -251,21 +229,6 @@ def parse_int_list(raw_value: str) -> list[int]:
     return values
 
 
-def report_missing_optional_external_frequency_sources() -> None:
-    missing_entries = [
-        (path, label, note)
-        for path, label, note in OPTIONAL_EXTERNAL_FREQUENCY_SOURCES
-        if not path.exists()
-    ]
-    if not missing_entries:
-        return
-
-    print("提示：以下外部频率资源缺失，将跳过对应增强步骤：")
-    for path, label, note in missing_entries:
-        print(f"- {label}: {path}")
-        print(f"  {note}")
-
-
 def backup_database(db_path: Path, *, retain_count: int) -> tuple[Path, list[Path]]:
     return create_timestamped_backup(
         db_path,
@@ -308,7 +271,6 @@ def build_char_updates(
     canonical_code_map: dict[str, str],
     examples_limit: int,
 ) -> tuple[list[tuple[str, str, str]], Counter[str], dict[str, list[tuple[object, ...]]]]:
-    patch_pinyin_tones = set(load_canonical_patch_map(REPO_ROOT))
     rows = conn.execute(
         '''
         SELECT npi.pinyin_tone, pyc.yime_code, pyc.code_source
@@ -349,8 +311,7 @@ def build_char_updates(
             stats["already_current"] += 1
             continue
 
-        code_source = "canonical_patch" if pinyin_tone in patch_pinyin_tones else "yinjie_code"
-        updates.append((pinyin_tone, expected_code, code_source))
+        updates.append((pinyin_tone, expected_code, "yinjie_code"))
         stats["to_update"] += 1
 
     return updates, stats, examples
@@ -552,39 +513,21 @@ def summarize_char_frequency_state(conn: sqlite3.Connection) -> dict[str, int | 
     }
 
 
-def load_dictionary_chars(path: Path) -> set[str]:
-    if not path.exists():
-        return set()
-
-    chars: set[str] = set()
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or ":" not in line or "#" not in line:
-            continue
-        payload = line.split("#", 1)[1].strip()
-        if payload:
-            chars.add(payload[0])
-    return chars
-
-
-def load_char_inventory_frequencies(conn: sqlite3.Connection) -> dict[str, int]:
-    return {
-        str(row[0]): int(row[1] or 0)
-        for row in conn.execute(
-            "SELECT hanzi, COALESCE(char_frequency_abs, 0) FROM char_inventory"
-        )
-    }
-
-
-def load_single_char_word_frequencies(path: Path) -> dict[str, int]:
-    if not path.exists():
+def load_unified_modern_char_ranks(path: Path) -> dict[str, int]:
+    if not path.is_file():
         return {}
-    by_char, _parsed_rows = load_char_frequency_map(path)
-    return by_char
-
-
-def load_single_char_word_ranks(path: Path) -> dict[str, int]:
-    frequency_by_char = load_single_char_word_frequencies(path)
+    with sqlite3.connect(path) as source_conn:
+        frequency_by_char = {
+            str(text): int(frequency)
+            for text, frequency in source_conn.execute(
+                """
+                SELECT text, bcc_modern_chinese
+                FROM canonical_readings
+                WHERE text_length = 1 AND is_primary = 1
+                  AND bcc_modern_chinese IS NOT NULL
+                """
+            )
+        }
     sorted_chars = sorted(
         frequency_by_char.items(),
         key=lambda item: (-item[1], item[0]),
@@ -1325,7 +1268,9 @@ def rebuild_char_modern_common_profile(conn: sqlite3.Connection, tuning_paramete
         for row in conn.execute("SELECT hanzi FROM char_inventory")
         if str(row[0] or "")
     }
-    modern_rank_by_char = load_single_char_word_ranks(DEFAULT_BLCU_CHAR_FREQ_SOURCE)
+    modern_rank_by_char = load_unified_modern_char_ranks(
+        resolve_lexicon_source_db_path(REPO_ROOT)
+    )
     max_rank = int(tuning_parameters.get("modern_common_max_rank", MODERN_COMMON_MAX_RANK))
     rank_divisor = float(tuning_parameters.get("modern_common_rank_divisor", MODERN_COMMON_RANK_DIVISOR)) or 1.0
 
@@ -1336,7 +1281,7 @@ def rebuild_char_modern_common_profile(conn: sqlite3.Connection, tuning_paramete
         if rank > max_rank:
             continue
         boost = max(max_rank - rank, 0) / rank_divisor
-        rows.append((hanzi, rank, float(boost), "blcu_bcc_single_char_rank"))
+        rows.append((hanzi, rank, float(boost), "unified_lexicon_bcc_modern_chinese_rank"))
 
     conn.execute("DELETE FROM char_modern_common_profile")
     if rows:
@@ -1527,25 +1472,6 @@ def rebuild_char_reading_prior(conn: sqlite3.Connection, tuning_parameters: dict
     return stats
 
 
-def build_phrase_support_by_char(conn: sqlite3.Connection) -> dict[str, float]:
-    support_by_char: dict[str, float] = defaultdict(float)
-    rows = conn.execute(
-        '''
-        SELECT phrase, COALESCE(phrase_frequency, 0)
-        FROM phrase_inventory
-        WHERE phrase IS NOT NULL AND phrase <> ''
-        '''
-    ).fetchall()
-    for row in rows:
-        phrase = str(row[0] or "")
-        if not phrase:
-            continue
-        frequency = float(row[1] or 1.0)
-        for hanzi in phrase:
-            support_by_char[hanzi] += frequency
-    return dict(support_by_char)
-
-
 def compute_char_usage_tier_base_weights(
     conn: sqlite3.Connection,
     tuning_parameters: dict[str, float] | None = None,
@@ -1580,6 +1506,8 @@ def compute_char_usage_tier_base_weights(
 def build_char_usage_profile_rows(
     conn: sqlite3.Connection,
     tuning_parameters: dict[str, float] | None = None,
+    *,
+    source_db_path: Path | None = None,
 ) -> list[tuple[str, str, int, float, str]]:
     existing_chars = {
         str(row[0] or "")
@@ -1591,67 +1519,76 @@ def build_char_usage_profile_rows(
 
     tier_base_weights = compute_char_usage_tier_base_weights(conn, tuning_parameters)
 
-    tghz_freq = load_tghz2013_char_frequencies(DEFAULT_UNIHAN_READINGS_DB_PATH)
-    sorted_tghz_chars = [
-        hanzi
-        for hanzi, _frequency in sorted(
-            (
-                (hanzi, frequency)
-                for hanzi, frequency in tghz_freq.items()
-                if hanzi in existing_chars
-            ),
-            key=lambda item: (-item[1], item[0]),
-        )[: COMMON_HIGH_COUNT + COMMON_LOW_COUNT + SPECIAL_HIGH_COUNT]
-    ]
-
-    dictionary_chars = load_dictionary_chars(DEFAULT_XHC1983_SOURCE) & existing_chars
-    single_char_word_freq = load_char_inventory_frequencies(conn)
-    phrase_support = build_phrase_support_by_char(conn)
-
-    high_common_chars = sorted_tghz_chars[:COMMON_HIGH_COUNT]
-    low_common_chars = sorted_tghz_chars[COMMON_HIGH_COUNT:COMMON_HIGH_COUNT + COMMON_LOW_COUNT]
-    high_special_chars = sorted_tghz_chars[
-        COMMON_HIGH_COUNT + COMMON_LOW_COUNT:
-        COMMON_HIGH_COUNT + COMMON_LOW_COUNT + SPECIAL_HIGH_COUNT
-    ]
-
-    assigned_chars = set(high_common_chars) | set(low_common_chars) | set(high_special_chars)
-    remaining_chars = sorted(
-        existing_chars - assigned_chars,
-        key=lambda hanzi: (
-            0 if hanzi in dictionary_chars else 1,
-            0 if hanzi in single_char_word_freq else 1,
-            -single_char_word_freq.get(hanzi, 0),
-            -phrase_support.get(hanzi, 0.0),
-            hanzi,
-        ),
-    )
-    low_special_chars = remaining_chars[:SPECIAL_LOW_COUNT]
-    rare_chars = remaining_chars[SPECIAL_LOW_COUNT:]
-
     rows: list[tuple[str, str, int, float, str]] = []
+    unified_source = source_db_path or resolve_lexicon_source_db_path(REPO_ROOT)
+    if not unified_source.is_file():
+        raise RuntimeError(
+            "unified source database is required for character tiers: "
+            f"{unified_source}"
+        )
+    uri = f"file:{unified_source.resolve().as_posix()}?mode=ro"
+    with sqlite3.connect(uri, uri=True) as source:
+        table_exists = source.execute(
+            """
+            SELECT 1
+            FROM sqlite_master
+            WHERE type='table' AND name='character_tiers'
+            """
+        ).fetchone()
+        if table_exists is None:
+            raise RuntimeError(
+                "unified source database has no character_tiers table; "
+                "rebuild it with tools/rebuild_character_tiers.py"
+            )
+        source_rows = source.execute(
+            """
+            SELECT hanzi, tier_name, tier_rank, membership_source
+            FROM character_tiers
+            WHERE encoded_reading_count > 0
+            ORDER BY tier_number, tier_rank
+            """
+        ).fetchall()
 
-    def append_rows(chars: list[str], tier_name: str, source_note: str) -> None:
-        base_weight = tier_base_weights[tier_name]
-        for index, hanzi in enumerate(chars, start=1):
-            rows.append((
-                hanzi,
-                tier_name,
-                index,
-                base_weight,
-                source_note,
-            ))
+    covered_chars: set[str] = set()
+    for hanzi, tier_name, tier_rank, membership_source in source_rows:
+        character = str(hanzi or "")
+        name = str(tier_name or "")
+        if character not in existing_chars:
+            continue
+        if name not in tier_base_weights:
+            raise RuntimeError(f"unknown unified character tier: {name}")
+        covered_chars.add(character)
+        rows.append(
+            (
+                character,
+                name,
+                int(tier_rank),
+                tier_base_weights[name],
+                f"unified_source_character_tiers:{membership_source}",
+            )
+        )
 
-    append_rows(high_common_chars, "common_high", "tghz2013_bcc_frequency_top_3500")
-    append_rows(low_common_chars, "common_low", "tghz2013_bcc_frequency_3501_6500")
-    append_rows(high_special_chars, "special_high", "tghz2013_bcc_frequency_6501_8105")
-    append_rows(low_special_chars, "special_low", "dictionary_and_lexicon_support_to_13000")
-    append_rows(rare_chars, "rare", "out_of_primary_13000")
+    missing_chars = existing_chars - covered_chars
+    if missing_chars:
+        examples = ",".join(sorted(missing_chars)[:20])
+        raise RuntimeError(
+            "runtime char inventory is not fully covered by encoded unified "
+            f"character tiers: missing={len(missing_chars)} examples={examples}"
+        )
     return rows
 
 
-def rebuild_char_usage_profile(conn: sqlite3.Connection, tuning_parameters: dict[str, float] | None = None) -> Counter[str]:
-    rows = build_char_usage_profile_rows(conn, tuning_parameters)
+def rebuild_char_usage_profile(
+    conn: sqlite3.Connection,
+    tuning_parameters: dict[str, float] | None = None,
+    *,
+    source_db_path: Path | None = None,
+) -> Counter[str]:
+    rows = build_char_usage_profile_rows(
+        conn,
+        tuning_parameters,
+        source_db_path=source_db_path,
+    )
     tier_base_weights = compute_char_usage_tier_base_weights(conn, tuning_parameters)
     conn.execute("DELETE FROM char_usage_profile")
     if rows:
@@ -1673,8 +1610,43 @@ def rebuild_char_usage_profile(conn: sqlite3.Connection, tuning_parameters: dict
     for _hanzi, usage_tier, _tier_rank, _tier_sort_weight, _source_note in rows:
         stats[usage_tier] += 1
     stats["total"] = len(rows)
-    stats["tier_step"] = int(tier_base_weights["special_low"])
+    stats["tier_step"] = int(tier_base_weights[TIER_NAMES[8]])
     return stats
+
+
+def _runtime_lexicon_selection_active(
+    conn: sqlite3.Connection,
+) -> bool:
+    table_exists = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'runtime_lexicon_selection'
+        """
+    ).fetchone()
+    if table_exists is None:
+        return False
+    metadata_exists = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table' AND name = 'prototype_metadata'
+        """
+    ).fetchone()
+    if metadata_exists is None:
+        return False
+    row = conn.execute(
+        """
+        SELECT value
+        FROM prototype_metadata
+        WHERE key = 'runtime_lexicon_selection_active'
+        """
+    ).fetchone()
+    return (
+        row is not None
+        and str(row[0] or "").strip().lower()
+        in {"1", "true", "yes", "on"}
+    )
 
 
 def rebuild_materialized_runtime_candidates(conn: sqlite3.Connection) -> int:
@@ -1705,14 +1677,46 @@ def rebuild_materialized_runtime_candidates(conn: sqlite3.Connection) -> int:
     )
 
     code_mode_map = load_code_mode_map(REPO_ROOT)
-    rows = conn.execute(
-        """
-        SELECT entry_type, entry_id, text, pinyin_tone, yime_code, sort_weight, is_common, text_length, updated_at
-        FROM runtime_candidates
-        WHERE yime_code IS NOT NULL
-          AND TRIM(yime_code) <> ''
-        """
-    ).fetchall()
+    if _runtime_lexicon_selection_active(conn):
+        rows = conn.execute(
+            """
+            SELECT
+                candidate.entry_type,
+                candidate.entry_id,
+                candidate.text,
+                candidate.pinyin_tone,
+                candidate.yime_code,
+                candidate.sort_weight,
+                candidate.is_common,
+                candidate.text_length,
+                candidate.updated_at
+            FROM runtime_candidates AS candidate
+            JOIN runtime_lexicon_selection AS selected
+              ON selected.entry_type = candidate.entry_type
+             AND selected.text = candidate.text
+             AND selected.pinyin_tone = candidate.pinyin_tone
+            WHERE candidate.yime_code IS NOT NULL
+              AND TRIM(candidate.yime_code) <> ''
+            """
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            """
+            SELECT
+                entry_type,
+                entry_id,
+                text,
+                pinyin_tone,
+                yime_code,
+                sort_weight,
+                is_common,
+                text_length,
+                updated_at
+            FROM runtime_candidates
+            WHERE yime_code IS NOT NULL
+              AND TRIM(yime_code) <> ''
+            """
+        ).fetchall()
 
     conn.execute("DELETE FROM runtime_candidates_materialized")
     insert_rows = []
@@ -1847,7 +1851,6 @@ def ensure_materialized_runtime_candidates_primary_code_column(
 
 def main() -> int:
     args = parse_args()
-    report_missing_optional_external_frequency_sources()
     db_path = Path(args.db).resolve()
     repo_root = REPO_ROOT
 
@@ -2029,11 +2032,15 @@ def main() -> int:
         conn.commit()
         print(
             "已重建单字分层: "
-            f"高频通用 {usage_profile_stats['common_high']}，"
-            f"低频通用 {usage_profile_stats['common_low']}，"
-            f"高频专用 {usage_profile_stats['special_high']}，"
-            f"低频专用 {usage_profile_stats['special_low']}，"
-            f"罕用 {usage_profile_stats['rare']}"
+            f"通规一级 {usage_profile_stats[TIER_NAMES[1]]}，"
+            f"通规二级 {usage_profile_stats[TIER_NAMES[2]]}，"
+            f"通规三级 {usage_profile_stats[TIER_NAMES[3]]}，"
+            f"现汉1983扩展 {usage_profile_stats[TIER_NAMES[4]]}，"
+            f"新版辞书估计 {usage_profile_stats[TIER_NAMES[5]]}，"
+            f"汉语大字典 {usage_profile_stats[TIER_NAMES[6]]}，"
+            f"kMandarin地区扩展 {usage_profile_stats[TIER_NAMES[7]]}，"
+            f"项目已编码 {usage_profile_stats[TIER_NAMES[8]]}，"
+            f"未编码Unihan {usage_profile_stats[TIER_NAMES[9]]}"
         )
         print(
             "已重建现代常用单字序位: "
