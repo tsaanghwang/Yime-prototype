@@ -165,7 +165,7 @@ JSON，因此只用于确实需要检查 JSON 导出结构的场合。
 
 ## 与构建管线的关系
 
-```
+```text
 source_lexicon.sqlite3 ──validate──►  (validate_source_pinyin_db.py)
         │
         ▼
