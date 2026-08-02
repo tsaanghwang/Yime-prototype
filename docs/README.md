@@ -230,3 +230,12 @@ KLC 文档分工：
 
 **最后更新**: 2026-07-24
 **文档版本**: 1.2.0
+
+## 维护归档索引
+
+恢复历史流程或兼容入口前，先查看 [历史入口归档](archive/HISTORICAL_ENTRYPOINTS.md)。
+
+## 原型维护门禁
+
+- [第二批 BCC 审查](SECOND_BATCH_BCC_REVIEW.md)
+- [原型发布验收](PROTOTYPE_RELEASE_ACCEPTANCE.md)
