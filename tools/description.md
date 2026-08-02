@@ -7,3 +7,7 @@
 - 仍有活动消费者的查询或诊断辅助脚本。
 
 与音节分析实验、旧切片实现、历史兼容入口相关的脚本，优先放在 `tools/syllable_analysis/`。根目录 `legacy/` 归档树已删除；如需对照旧实现，请查 git 历史。
+
+## 归档与兼容入口
+
+权威目录为 `internal_data/archived_entrypoints.json`；替代入口和原型验收排除项见 `docs/archive/HISTORICAL_ENTRYPOINTS.md`。
