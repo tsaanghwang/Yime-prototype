@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "policy_id": "prototype-clean-rebuild-acceptance-v1",
+  "baseline": "internal_data/prototype_release_baseline.json",
+  "canonical_artifacts": {
+    "source_manifest": ".generated/lexicon_source_bundle/manifest.json",
+    "recursive_manifest": ".generated/recursive_composition/manifest.json",
+    "capacity_manifest": ".generated/static_lexicon_capacity/manifest.json",
+    "runtime_manifest": ".generated/two_level_runtime_trial/manifest.json",
+    "ranking_report": ".generated/candidate_ranking_evidence/report.json",
+    "dynamic_report": ".generated/dynamic_candidate_coverage/report.json",
+    "second_batch_manifest": ".generated/second_batch_bcc_review/manifest.json"
+  },
+  "documentation_anchors": {
+    "docs/CANDIDATE_CORPUS_ROADMAP.md": [
+      "11,274",
+      "tools/export_second_batch_bcc_review.py"
+    ],
+    "docs/SECOND_BATCH_BCC_REVIEW.md": [
+      "7,657",
+      "3,617",
+      "3,981"
+    ],
+    "docs/PROTOTYPE_RELEASE_ACCEPTANCE.md": [
+      "tools/run_prototype_release_acceptance.py",
+      "--skip-runtime-database",
+      "Windows Yime"
+    ],
+    "docs/archive/HISTORICAL_ENTRYPOINTS.md": [
+      "internal_data/archived_entrypoints.json",
+      "prototype_acceptance"
+    ]
+  },
+  "forbidden_entrypoints": [
+    "prepare_windows_yime_lexicon.ps1",
+    "prepare_windows_yime_auxiliary_assets.py",
+    "verify_default_runtime_handoff.py",
+    "refresh_runtime_yime_codes.py"
+  ],
+  "safeguards": {
+    "restart_allowed": false,
+    "windows_yime_export_allowed": false,
+    "canonical_generated_files_mutated": false,
+    "existing_gates_removed": false
+  }
+}

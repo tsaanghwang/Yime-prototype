@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "policy_id": "prototype-entrypoint-archive-v1",
+  "archive_strategy": "retain_in_place_to_preserve_consumers",
+  "entries": [
+    {
+      "path": "tools/lexicon_clean.py",
+      "kind": "entrypoint",
+      "state": "retired_diagnostic",
+      "replacement": "tools/evaluate_dynamic_candidate_coverage.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/drop_legacy_chinese_pinyin_tables.py",
+      "kind": "entrypoint",
+      "state": "maintenance_only",
+      "replacement": "tools/build_lexicon_source_bundle.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/drop_legacy_hanzi_phoneme.py",
+      "kind": "entrypoint",
+      "state": "maintenance_only",
+      "replacement": "tools/build_lexicon_source_bundle.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime/import_danzi_into_prototype_tables.py",
+      "kind": "entrypoint",
+      "state": "compatibility_shim",
+      "replacement": "tools/build_lexicon_source_bundle.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime/import_duozi_into_prototype_tables.py",
+      "kind": "entrypoint",
+      "state": "compatibility_shim",
+      "replacement": "tools/build_lexicon_source_bundle.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime/refresh_runtime_yime_codes.py",
+      "kind": "entrypoint",
+      "state": "compatibility_shim",
+      "replacement": "tools/build_two_level_runtime_trial.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime/export_runtime_candidates_json.py",
+      "kind": "entrypoint",
+      "state": "optional_json_compatibility",
+      "replacement": "tools/build_two_level_runtime_trial.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/prepare_windows_yime_lexicon.ps1",
+      "kind": "entrypoint",
+      "state": "external_handoff_only",
+      "replacement": "tools/build_two_level_runtime_trial.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/prepare_windows_yime_auxiliary_assets.py",
+      "kind": "entrypoint",
+      "state": "external_handoff_only",
+      "replacement": "tools/build_two_level_runtime_trial.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/verify_default_runtime_handoff.py",
+      "kind": "entrypoint",
+      "state": "external_handoff_only",
+      "replacement": "tools/build_two_level_runtime_trial.py",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "docs/windows-klc-workflow.md",
+      "kind": "document",
+      "state": "historical_workflow_note",
+      "replacement": "docs/MSKLC_RELEASE_QUICKSTART.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "docs/project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md",
+      "kind": "document",
+      "state": "suspended_draft",
+      "replacement": "docs/CURRENT_ARCHITECTURE.md",
+      "prototype_acceptance": false
+    }
+  ],
+  "safeguards": {
+    "files_moved": false,
+    "compatibility_paths_preserved": true,
+    "existing_gates_removed": false,
+    "windows_yime_touched": false
+  }
+}

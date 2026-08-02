@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "policy_id": "prototype-clean-rebuild-baseline-20260802",
+  "source": {
+    "counts": {
+      "accepted_source_rows": 2663046,
+      "bcc_input_rows": 2942663,
+      "character_tier_rows": 98769,
+      "character_tiers": {
+        "hanyu_dazidian": 24071,
+        "mandarin_regional": 6288,
+        "modern_dictionary_estimated": 2409,
+        "project_encoded": 1737,
+        "tgh_level_1": 3500,
+        "tgh_level_2": 3000,
+        "tgh_level_3": 1605,
+        "unencoded_unihan": 52673,
+        "xhc1983_extension": 3486
+      },
+      "output_text_readings": 2468976,
+      "reading_conflict_rows": 50060,
+      "rejected_source_rows": 11,
+      "unencoded_pending_strings": 10,
+      "unique_accepted_texts": 2441908,
+      "unique_bcc_texts": 2101047,
+      "unresolved_bcc_texts": 1667059
+    },
+    "source_gate_counts": {
+      "pypinyin": {"accepted": 411958, "rejected": 0},
+      "unihan": {"accepted": 56218, "rejected": 0},
+      "wanxiang": {"accepted": 2194870, "rejected": 11}
+    }
+  },
+  "input_model": {
+    "assessments": 0,
+    "candidate_universe": 4108988,
+    "dynamic_reachable": [[0, 3373065], [1, 735923]]
+  },
+  "recursive": {
+    "configuration": {
+      "maximum_alternatives": 4,
+      "maximum_component_readings": 4,
+      "maximum_parts_per_step": 6,
+      "minimum_target_length": 2
+    },
+    "counts": {
+      "reachable": 1667070,
+      "reading_ambiguous": 1046019,
+      "residual_blocks_only": 1031733,
+      "single_exception_targets": 0,
+      "structurally_ambiguous": 77803,
+      "targets": 1667070,
+      "unreachable": 0,
+      "uses_multichar_component": 635337
+    }
+  },
+  "capacity": {
+    "configuration": {
+      "maximum_equal_best_alternatives": 4,
+      "maximum_parts_per_recursive_step": 6,
+      "requested_capacity": null,
+      "target_direct_frequency_coverage": 0.98
+    },
+    "counts": {
+      "dynamically_recoverable_texts": 2389618,
+      "encoded_texts": 2441908,
+      "mandatory_static_texts": 52290,
+      "recommended_dynamic_migration_candidates": 2330614,
+      "recommended_static_capacity": 111294
+    },
+    "recommendation": {
+      "actual_direct_frequency_coverage": 0.9800000074578473,
+      "disclaimer": "Dynamic reachability proves pronunciation reconstruction only; migration still requires candidate-rank, ambiguity, latency, and real-input replay.",
+      "proxy_only": true,
+      "runtime_replay_required": true,
+      "target_direct_frequency_coverage": 0.98
+    }
+  },
+  "trial": {
+    "candidate_ranking_evidence": {
+      "decision": "pass",
+      "selected_counts": {
+        "first_level": {"direct_bcc": 374123, "provisional_rime_lmdg": 585244, "provisional_structural_floor": 184912},
+        "second_level": {"direct_bcc": 5034, "provisional_rime_lmdg": 1862, "provisional_structural_floor": 982}
+      }
+    },
+    "dynamic_candidate_coverage": {
+      "decision": "pass",
+      "level_counts": {"R1": 4798, "R2": 1397, "R3": 60312, "R4": 2054255, "R5": 321146}
+    },
+    "first_level": {
+      "distinct_texts_by_length": {"1": 46095, "2": 380050, "3": 655774, "4": 62362},
+      "total_distinct_texts": 1144281,
+      "total_reading_entries": 1168176
+    },
+    "dictionary": {
+      "distinct_texts_by_length": {"1": 46095, "2": 380049, "3": 655773, "4": 62362, "5": 3225, "6": 1856, "7": 1797, "8": 411, "9": 360, "10": 110, "11": 51, "12": 19, "13": 23, "14": 9, "15": 6, "16": 3, "17": 2, "19": 2, "20": 1, "21": 1, "24": 2},
+      "total_distinct_texts": 1152157,
+      "total_reading_entries": 1167057
+    }
+  },
+  "ranking": {
+    "decision": "complete",
+    "result": {
+      "classified_selected_texts": 1152157,
+      "completion_passed": true,
+      "full_inventory_counts": {"direct_bcc": 433978, "provisional_rime_lmdg": 1815902, "provisional_structural_floor": 192028},
+      "maximum_provisional_lmdg_effective_weight": 1999,
+      "maximum_provisional_structural_effective_weight": 999,
+      "minimum_direct_bcc_effective_weight": 2006,
+      "missing_selected_source_texts": 0,
+      "raw_bcc_and_lmdg_values_added": false,
+      "selected_counts": {
+        "first_level": {"direct_bcc": 374123, "provisional_rime_lmdg": 585244, "provisional_structural_floor": 184912},
+        "second_level": {"direct_bcc": 5034, "provisional_rime_lmdg": 1862, "provisional_structural_floor": 982}
+      },
+      "selected_texts": 1152157,
+      "selection_evidence_columns_present": true,
+      "source_priority_separation_passed": true
+    }
+  },
+  "dynamic": {
+    "decision": "complete",
+    "result": {
+      "classified_selected_texts": 1152157,
+      "classified_texts": 2441908,
+      "completion_passed": true,
+      "encoded_texts": 2441908,
+      "level_counts": {"R1": 4798, "R2": 1397, "R3": 60312, "R4": 2054255, "R5": 321146},
+      "level_frequency": {"R1": 192144, "R2": 2232902, "R3": 32825, "R4": 62959453, "R5": 3297483380},
+      "outside_encoded_capacity_texts": 1667080,
+      "selected_counts": {
+        "first_level": {"R1": 2095, "R2": 1213, "R4": 1006531, "R5": 134440},
+        "second_level": {"R1": 2699, "R2": 184, "R3": 89, "R4": 3682, "R5": 1224}
+      },
+      "selected_texts": 1152157
+    }
+  },
+  "second_batch": {
+    "counts": {
+      "by_evidence_flag": {"dynamic_composition_reachable": 7657, "missing_gated_reading": 11274},
+      "by_lane": {"dynamic_composition_review": 7657, "source_reading_required": 3617},
+      "conflict_or_scoped_review": 3981,
+      "total": 11274
+    },
+    "decision": "complete",
+    "frequency_range": {"maximum": 9999, "minimum": 1000},
+    "safeguards": {
+      "input_model_read_only": true,
+      "source_database_read_only": true,
+      "suggestions_require_human_review": true,
+      "writes_assessments": false,
+      "writes_pronunciation": false,
+      "writes_yinyuan_or_layout": false
+    }
+  }
+}

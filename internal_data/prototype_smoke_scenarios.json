@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "policy_id": "prototype-headless-interaction-smoke-v1",
+  "constraints": {
+    "gui_automation": false,
+    "restart_allowed": false,
+    "windows_yime_export_allowed": false,
+    "real_user_directory_allowed": false
+  },
+  "scenarios": [
+    {
+      "id": "combination_input",
+      "coverage": "bounded composition and layered candidate assembly",
+      "tests": [
+        "tests/input_method/test_bounded_character_composition.py",
+        "tests/input_method/test_layered_candidate_pipeline.py"
+      ]
+    },
+    {
+      "id": "candidate_pagination",
+      "coverage": "dense exact buckets preserve a representative on page two",
+      "tests": [
+        "tests/input_method/test_runtime_lookup_states.py::test_stage_b_keeps_a_rare_char_representative_on_second_page_for_dense_exact_bucket"
+      ]
+    },
+    {
+      "id": "backspace",
+      "coverage": "commit-buffer deletion and cross-window code replacement",
+      "tests": [
+        "yime/input_method/test_candidate_box_bindings.py::test_remove_last_commit_char_uses_user_facing_status",
+        "yime/input_method/test_app_cross_window_regression.py::test_paste_to_previous_window_replaces_existing_code_and_refocuses_when_keep_input"
+      ]
+    },
+    {
+      "id": "mode_switch",
+      "coverage": "hotkey mode, standby return, readiness and listener feedback",
+      "tests": [
+        "yime/input_method/test_app_mode_feedback.py"
+      ]
+    },
+    {
+      "id": "focus_restore",
+      "coverage": "missing targets, restore failures and keep-input refocus",
+      "tests": [
+        "yime/input_method/test_app_cross_window_regression.py::test_paste_to_previous_window_reports_missing_target_and_unlocks",
+        "yime/input_method/test_app_cross_window_regression.py::test_paste_to_previous_window_reports_restore_failure_and_unlocks",
+        "yime/input_method/test_app_cross_window_regression.py::test_paste_to_previous_window_replaces_existing_code_and_refocuses_when_keep_input"
+      ]
+    },
+    {
+      "id": "cross_window_paste",
+      "coverage": "scheduled, missing-target and repeated cross-window commits",
+      "tests": [
+        "yime/input_method/test_app_cross_window_regression.py::test_commit_candidate_box_text_schedules_paste_and_clears_commit_text_when_target_exists",
+        "yime/input_method/test_app_cross_window_regression.py::test_commit_candidate_box_text_unlocks_without_scheduling_paste_when_no_target",
+        "yime/input_method/test_app_cross_window_regression.py::test_commit_candidate_box_text_can_schedule_three_consecutive_cross_window_pastes",
+        "yime/input_method/test_app_cross_window_regression.py::test_input_method_after_commit_candidate_box_text_enters_commit_box_standby"
+      ]
+    }
+  ]
+}

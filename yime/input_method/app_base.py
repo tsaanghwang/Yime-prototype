@@ -1983,7 +1983,7 @@ class BaseInputMethodApp:
 
     def _commit_candidate_box_text(self, text: str) -> None:
         sentence_recorder = getattr(
-            self.decoder,
+            getattr(self, "decoder", None),
             "record_sentence_commit",
             None,
         )

@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
+import sys
 from pathlib import Path
 
-from yime.asset_paths import resolve_lexicon_source_db_path
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from yime.asset_paths import resolve_lexicon_source_db_path  # noqa: E402
 
 # cspell:ignore zcsr jqxy uēng uéng uěng uèng
 
-ROOT = Path(__file__).resolve().parent.parent
 SOURCE_DB_PATH = resolve_lexicon_source_db_path(ROOT)
 DEFAULT_TABLE_NAME = "m_distinct_syllable_inventory"
 
