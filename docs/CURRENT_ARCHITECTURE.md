@@ -54,8 +54,9 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
 | 缺失音节审查 | `internal_data/pinyin_source_db/syllable_admission_reviews.json` | 让有真实来源、结构合法且经批准的音节跨过旧清单循环门禁；可限定多字来源，不能写编码 |
 | 拼写规则说明 | `internal_data/syllable_encoding_rule_catalog.json` | 解释来源、规范化和兼容规则；禁止保存编码映射 |
-| 首音语义 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符 |
-| 乐音语义 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符 |
+| 首音稳定登记 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
+| 乐音稳定登记 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
+| 条件音值来源与规则契约 | `syllable/pianyin/conditional_sound_value_model.json` | 指向片音实现值、音质/音高归并、规范三段分解及稳定登记表；当前 `research_only` 且不接运行时 |
 | 音节分解 | `syllable/analysis/syllable_encoding_pipeline.py`、`syllable_splitter.py` | 标准拼音到首音段/干音段 |
 | 音节编码 | `ShouyinEncoder`、`GanyinEncoder`、`YinjieEncoder` | 正式生成四音元编码 |
 | 键盘布局 | `internal_data/manual_key_layout.json` | 唯一 Yinyuan-ID-to-key 投影 |
@@ -74,6 +75,11 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 单字候选，可以把同字音族一至四声的已有单字读音临时投影到该轻声位置参与动态组合。该投影只产生
 有数量上限的本次候选，不写回单字读音、来源库或音节码表；单音节输入、未准入的五声形式和没有
 同声韵本调依据的特殊轻声均不得触发。
+
+这里的“表层属性”只表示完整词音中出现了轻声这一身份，不表示数据库已经保存其具体表层调值。
+当前 `tone=5` 及三个中调乐音（音元）序列是稳定工程标识和兼容编码，不是第五个固定声调的声学声明，
+也不要求为每条轻声回填阴平、阳平、上声或去声中的深层本调。后期若要按语流中的实际轻声输入，必须
+在词语或构式层增加有来源、可撤销的表层输入别名；不得用该别名改写规范读音、基础音节码或轻声身份。
 
 单字分级同样只在统一来源库生成：`kTGH` 正式三级、`kXHC1983` 扩展、从
 `kHanyuPinyin ∪ kMandarin` 按BCC补到累计14000、剩余 `kHanyuPinyin`、

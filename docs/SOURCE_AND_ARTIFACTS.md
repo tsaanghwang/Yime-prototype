@@ -76,9 +76,15 @@
 承载合并登记在两份增强真源中，再由正式编码器生成派生产物：
 
 - `syllable/yinyuan/zaoyin_yinyuan_enhanced.json`
-  - 首音语义真源；每项包含稳定 `Nxx`、语义码、标签和运行时字符。
+  - 首音稳定登记真源；每项包含稳定 `Nxx`、语义码、标签和运行时字符。
+  - 条件音值的更早上游是 `syllable/yinyuan/pianyin_initial.json`，增强表不是语境规则表。
 - `syllable/yinyuan/yueyin_yinyuan_enhanced.json`
-  - 乐音语义真源；每项包含稳定 `Mxx`、语义码、别名和运行时字符。
+  - 乐音稳定登记真源；每项包含稳定 `Mxx`、语义码、别名和运行时字符。
+  - 别名的更早上游是 `pitched_pianyin.json` 与 `variables_of_attributes.json` 的归并链。
+- `syllable/pianyin/conditional_sound_value_model.json`
+  - 条件音值来源、条件维度和操作类型的研究期契约。
+  - 只允许选择同一音元的条件实现，或在固定位置替换为另一既有 Yinyuan ID；不得增删位置或写键位。
+  - 当前 `runtime_enabled=false`，不生成运行时候选。
 - `internal_data/syllable_encoding_rule_catalog.json`
   - 来源、拼写规范化和编码兼容规则的解释目录。
   - 明确禁止保存拼音到 Yinyuan ID、字符码或键位的逐项映射，避免形成第二套码表。
