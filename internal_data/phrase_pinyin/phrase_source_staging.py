@@ -15,20 +15,7 @@ def _split_syllables(pinyin_str: str) -> list[str]:
     return [p.strip() for p in pinyin_str.split() if p.strip()]
 
 
-def _is_untoned_syllable(syl: str) -> bool:
-    TONE_MARK_CHARS = "āáǎàēéěèếềīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ"
-    return not any(ch in TONE_MARK_CHARS for ch in syl)
-
-
-def _reorder_syllables(syllables: list[str]) -> list[str]:
-    if len(syllables) <= 1:
-        return syllables
-    toned = [s for s in syllables if not _is_untoned_syllable(s)]
-    untoned = [s for s in syllables if _is_untoned_syllable(s)]
-    return toned + untoned
-
-
-def import_to_staging(source_path: str) -> None:
+def import_to_staging(source_path: str, db_path: str | Path = DB_FILE) -> None:
     path = Path(source_path)
     if not path.exists():
         raise FileNotFoundError(f"词语拼音源文件未找到: {path}")
@@ -53,7 +40,9 @@ def import_to_staging(source_path: str) -> None:
         syllables = _split_syllables(canonical_pinyin)
         if not syllables:
             continue
-        syllables = _reorder_syllables(syllables)
+        # A phrase reading is an ordered character-to-syllable sequence. Tone
+        # normalization may replace a syllable in place, but must never move a
+        # neutral-tone syllable (or any other syllable) to another position.
         reading = " ".join(syllables)
 
         existing = readings_map.get(phrase)
@@ -70,7 +59,7 @@ def import_to_staging(source_path: str) -> None:
         else:
             readings_map[phrase] = (len(phrase), reading, reading)
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = sqlite3.connect(str(db_path))
     conn.execute("PRAGMA foreign_keys = ON")
     cur = conn.cursor()
 
