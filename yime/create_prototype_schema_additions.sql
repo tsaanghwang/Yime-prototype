@@ -222,6 +222,7 @@ CREATE TABLE IF NOT EXISTS phrase_pinyin_map (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     phrase_id INTEGER NOT NULL REFERENCES phrase_inventory(id) ON DELETE CASCADE,
     pinyin_tone TEXT NOT NULL,
+    yime_code TEXT NOT NULL DEFAULT '',
     reading_rank INTEGER NOT NULL DEFAULT 1,
     source_file TEXT,
     source_note TEXT,
@@ -297,7 +298,7 @@ SELECT
     pr.phrase AS phrase,
     pr.numeric_pinyin AS pinyin_tone,
     pr.reading_rank AS reading_rank,
-    pi.yime_code AS yime_code,
+    COALESCE(NULLIF(ppm.yime_code, ''), pi.yime_code) AS yime_code,
     pi.phrase_frequency AS phrase_frequency,
     COALESCE(pi.phrase_length, LENGTH(pr.phrase)) AS phrase_length,
     COALESCE(pi.is_common_phrase, CASE WHEN pr.reading_rank = 1 THEN 1 ELSE 0 END) AS is_common_phrase,
@@ -307,6 +308,9 @@ SELECT
 FROM phrase_readings pr
 LEFT JOIN phrase_inventory pi
     ON pi.phrase = pr.phrase
+LEFT JOIN phrase_pinyin_map ppm
+    ON ppm.phrase_id = pi.id
+   AND ppm.pinyin_tone = pr.numeric_pinyin
 LEFT JOIN phrase_reading_preference pref
     ON pref.phrase = pr.phrase
 WHERE pref.phrase IS NULL OR pref.preferred_pinyin_tone = pr.numeric_pinyin;
@@ -355,7 +359,7 @@ CREATE TABLE IF NOT EXISTS runtime_candidates_materialized (
     is_common INTEGER NOT NULL,
     text_length INTEGER NOT NULL,
     updated_at TEXT NOT NULL,
-    PRIMARY KEY (entry_type, entry_id)
+    PRIMARY KEY (entry_type, entry_id, pinyin_tone)
 );
 
 CREATE INDEX IF NOT EXISTS idx_runtime_candidates_materialized_code

@@ -139,6 +139,94 @@ def test_cjk_compatibility_supplement_is_not_dropped() -> None:
     assert is_han_text("灰")
 
 
+def test_reviewed_orthoepy_alternate_enters_candidates_without_becoming_primary(
+    tmp_path: Path,
+) -> None:
+    unihan = _write(
+        tmp_path / "unihan.tsv",
+        "codepoint\thanzi\tcommon_reading\treadings\tcommon_reading_source\tis_single\n",
+    )
+    phrases = _write(
+        tmp_path / "phrases.tsv",
+        "phrase\tphrase_len\tcommon_reading\treadings\n"
+        "当天\t2\tdàng tiān\tdàng tiān\n"
+        "普通次读\t4\tpǔ tōng cì dú\tpǔ tōng cì dú\n",
+    )
+    wanxiang = _write(
+        tmp_path / "jichu.dict.yaml",
+        "---\nname: test\n...\n普通次读\tpu3 tong1 ci4 dou4\t8\n",
+    )
+    orthoepy = tmp_path / "orthoepy.json"
+    orthoepy.write_text(
+        json.dumps(
+            {
+                "schema_version": "yime-reviewed-orthoepy-readings-v1",
+                "records": [
+                    {
+                        "text": "当天",
+                        "marked_pinyin": "dāng tiān",
+                        "numeric_pinyin": "dang1 tian1",
+                        "source": "psc_orthoepy_1985",
+                        "source_category": "example_phrase",
+                        "source_primary": False,
+                        "source_rank": 90,
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    inventory = Path(__file__).resolve().parents[2] / "yime" / "pinyin_normalized.json"
+    result = build_bundle(
+        BundleInputs(
+            unihan=unihan,
+            pypinyin_phrases=phrases,
+            bcc_word_files=(),
+            bcc_char_files=(),
+            wanxiang_files=(wanxiang,),
+            decoder_inventory=inventory,
+            orthoepy_coverage=orthoepy,
+        ),
+        tmp_path / "bundle",
+    )
+
+    with sqlite3.connect(result.database) as connection:
+        readings = connection.execute(
+            "SELECT marked_pinyin, is_primary FROM canonical_readings "
+            "WHERE text = '当天' ORDER BY reading_rank"
+        ).fetchall()
+        assert readings == [("dàng tiān", 1), ("dāng tiān", 0)]
+        assert connection.execute(
+            "SELECT COUNT(*) FROM phrase_readings WHERE phrase = '当天'"
+        ).fetchone()[0] == 1
+        assert connection.execute(
+            "SELECT COUNT(*) FROM phrase_candidate_readings WHERE phrase = '当天'"
+        ).fetchone()[0] == 2
+        assert connection.execute(
+            "SELECT COUNT(*) FROM phrase_candidate_readings WHERE phrase = '普通次读'"
+        ).fetchone()[0] == 1
+
+    runtime_db = tmp_path / "runtime.sqlite3"
+    schema = (
+        Path(__file__).resolve().parents[2]
+        / "yime"
+        / "create_prototype_schema_additions.sql"
+    ).read_text(encoding="utf-8")
+    with sqlite3.connect(runtime_db) as connection:
+        connection.executescript(schema)
+        phrase_count, mapping_count, _ = import_bundle_phrases_and_mappings(
+            connection, result.database, batch_size=2
+        )
+        assert phrase_count == 2
+        assert mapping_count == 3
+        assert connection.execute(
+            "SELECT COUNT(*) FROM phrase_pinyin_map AS m "
+            "JOIN phrase_inventory AS p ON p.id = m.phrase_id "
+            "WHERE p.phrase = '当天'"
+        ).fetchone()[0] == 2
+
+
 def test_generated_bcc_files_cannot_be_used_as_source_evidence(tmp_path: Path) -> None:
     generated = _write(tmp_path / "merged_word_freq.txt", "word,freq\n测试,1\n")
     inventory = Path(__file__).resolve().parents[2] / "yime" / "pinyin_normalized.json"
@@ -166,3 +254,62 @@ def test_generated_bcc_files_cannot_be_used_as_source_evidence(tmp_path: Path) -
             ),
             tmp_path / "bundle",
         )
+
+
+def test_reviewed_psc_candidate_alternate_enters_phrase_candidate_view(
+    tmp_path: Path,
+) -> None:
+    unihan = _write(
+        tmp_path / "unihan.tsv",
+        "codepoint\thanzi\tcommon_reading\treadings\tcommon_reading_source\tis_single\n",
+    )
+    phrases = _write(
+        tmp_path / "phrases.tsv",
+        "phrase\tphrase_len\tcommon_reading\treadings\n"
+        "当天\t2\tdāng tiān\tdāng tiān\n",
+    )
+    wanxiang = _write(tmp_path / "jichu.dict.yaml", "---\nname: test\n...\n")
+    catalog = tmp_path / "psc-candidates.json"
+    catalog.write_text(
+        json.dumps(
+            {
+                "schema_version": "yime-reviewed-psc-candidate-readings-v1",
+                "records": [
+                    {
+                        "text": "当天",
+                        "marked_pinyin": "dàng tiān",
+                        "numeric_pinyin": "dang4 tian1",
+                        "source": "psc_candidate_coverage",
+                        "source_category": "reviewed_psc_candidate_coverage",
+                        "source_primary": False,
+                        "source_rank": 92,
+                    }
+                ],
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    result = build_bundle(
+        BundleInputs(
+            unihan=unihan,
+            pypinyin_phrases=phrases,
+            bcc_word_files=(),
+            bcc_char_files=(),
+            wanxiang_files=(wanxiang,),
+            decoder_inventory=Path(__file__).resolve().parents[2]
+            / "yime"
+            / "pinyin_normalized.json",
+            psc_candidate_coverage=catalog,
+        ),
+        tmp_path / "bundle",
+    )
+
+    with sqlite3.connect(result.database) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM phrase_candidate_readings WHERE phrase='当天'"
+        ).fetchone()[0] == 2
+        assert connection.execute(
+            "SELECT is_primary FROM canonical_readings "
+            "WHERE text='当天' AND numeric_pinyin='dang4 tian1'"
+        ).fetchone()[0] == 0

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the gated Unihan/pypinyin/Wanxiang/BCC source lexicon bundle."""
+"""Build the gated Unihan/pypinyin/Wanxiang/PSC/BCC source lexicon bundle."""
 
 from __future__ import annotations
 
@@ -24,6 +24,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--unihan", type=Path, default=defaults.unihan)
     parser.add_argument("--pypinyin-phrases", type=Path, default=defaults.pypinyin_phrases)
     parser.add_argument("--decoder-inventory", type=Path, default=defaults.decoder_inventory)
+    parser.add_argument(
+        "--orthoepy-coverage",
+        type=Path,
+        default=defaults.orthoepy_coverage,
+        help="Reviewed orthoepy additions; adds coverage without primary/ranking decisions.",
+    )
+    parser.add_argument(
+        "--psc-candidate-coverage",
+        type=Path,
+        default=defaults.psc_candidate_coverage,
+        help="Reviewed PSC pairs missing from runtime candidates; candidate-only, non-primary coverage.",
+    )
     assert defaults.character_tier_sources is not None
     parser.add_argument(
         "--unihan-other-mappings",
@@ -75,6 +87,14 @@ def main() -> int:
         wanxiang_files=wanxiang_defaults.wanxiang_files,
         decoder_inventory=args.decoder_inventory.resolve(),
         source_compliance_policy=args.source_compliance_policy.resolve(),
+        orthoepy_coverage=(
+            args.orthoepy_coverage.resolve() if args.orthoepy_coverage else None
+        ),
+        psc_candidate_coverage=(
+            args.psc_candidate_coverage.resolve()
+            if args.psc_candidate_coverage
+            else None
+        ),
         character_tier_sources=CharacterTierSources(
             other_mappings=args.unihan_other_mappings.resolve(),
             readings=args.unihan_readings.resolve(),

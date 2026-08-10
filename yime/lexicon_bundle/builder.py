@@ -30,11 +30,19 @@ from .parsers import (
     ReadingRecord,
     iter_bcc_frequencies,
     iter_pypinyin_phrase_readings,
+    iter_reviewed_orthoepy_readings,
+    iter_reviewed_psc_candidate_readings,
     iter_unihan_readings,
     iter_wanxiang_readings,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_ORTHOEPY_COVERAGE_PATH = (
+    REPO_ROOT / "internal_data" / "pinyin_source_db" / "orthoepy_coverage_readings.json"
+)
+DEFAULT_PSC_CANDIDATE_COVERAGE_PATH = (
+    REPO_ROOT / "internal_data" / "pinyin_source_db" / "psc_candidate_readings.json"
+)
 DEFAULT_WANXIANG_FILES = (
     "zi.dict.yaml",
     "jichu.dict.yaml",
@@ -88,6 +96,8 @@ class BundleInputs:
     decoder_inventory: Path
     source_compliance_policy: Path = DEFAULT_SOURCE_COMPLIANCE_POLICY_PATH
     character_tier_sources: CharacterTierSources | None = None
+    orthoepy_coverage: Path | None = None
+    psc_candidate_coverage: Path | None = None
 
 
 @dataclass(frozen=True)
@@ -146,6 +156,8 @@ def default_inputs(wanxiang_root: Path | None = None) -> BundleInputs:
             ),
             yinjie_codebook=REPO_ROOT / "syllable" / "codec" / "yinjie_code.json",
         ),
+        orthoepy_coverage=DEFAULT_ORTHOEPY_COVERAGE_PATH,
+        psc_candidate_coverage=DEFAULT_PSC_CANDIDATE_COVERAGE_PATH,
     )
 
 
@@ -279,6 +291,30 @@ def _create_schema(conn: sqlite3.Connection) -> None:
                marked_pinyin, numeric_pinyin, reading_rank
         FROM canonical_readings
         WHERE text_length > 1 AND is_primary = 1;
+        CREATE VIEW phrase_candidate_readings AS
+        SELECT candidate.id,
+               primary_reading.id AS phrase_id,
+               candidate.text AS phrase,
+               candidate.text_length AS phrase_len,
+               candidate.marked_pinyin,
+               candidate.numeric_pinyin,
+               candidate.reading_rank,
+               candidate.is_primary,
+               primary_reading.numeric_pinyin AS primary_numeric_pinyin,
+               candidate.bcc_frequency,
+               candidate.pinyin_sources,
+               candidate.reading_source_categories,
+               candidate.wanxiang_categories
+        FROM canonical_readings AS candidate
+        JOIN canonical_readings AS primary_reading
+          ON primary_reading.text = candidate.text
+         AND primary_reading.is_primary = 1
+        WHERE candidate.text_length > 1
+          AND (
+              candidate.is_primary = 1
+              OR instr(candidate.pinyin_sources, 'psc_orthoepy_') > 0
+              OR instr(candidate.pinyin_sources, 'psc_candidate_coverage') > 0
+          );
         """
     )
     create_character_tier_schema(conn)
@@ -791,10 +827,18 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
         if inputs.character_tier_sources is not None
         else ()
     )
+    optional_reading_sources = (
+        (inputs.orthoepy_coverage,) if inputs.orthoepy_coverage is not None else ()
+    ) + (
+        (inputs.psc_candidate_coverage,)
+        if inputs.psc_candidate_coverage is not None
+        else ()
+    )
     source_paths = (
         inputs.unihan,
         inputs.pypinyin_phrases,
         inputs.source_compliance_policy,
+        *optional_reading_sources,
         DEFAULT_ADMISSION_PATH,
         DEFAULT_NEUTRAL_SOURCE_POLICY_PATH,
         *bcc_files,
@@ -823,10 +867,27 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
 
     source_stats: dict[str, dict[str, int]] = {}
     accepted_total = 0
-    for name, records in (
+    reading_sources: list[tuple[str, Iterable[ReadingRecord]]] = [
         ("unihan", iter_unihan_readings(inputs.unihan)),
         ("pypinyin", iter_pypinyin_phrase_readings(inputs.pypinyin_phrases)),
-    ):
+    ]
+    if inputs.orthoepy_coverage is not None:
+        reading_sources.append(
+            (
+                "psc_orthoepy",
+                iter_reviewed_orthoepy_readings(inputs.orthoepy_coverage),
+            )
+        )
+    if inputs.psc_candidate_coverage is not None:
+        reading_sources.append(
+            (
+                "psc_candidate_coverage",
+                iter_reviewed_psc_candidate_readings(
+                    inputs.psc_candidate_coverage
+                ),
+            )
+        )
+    for name, records in reading_sources:
         accepted, rejected = _import_readings(
             conn, gate, records, pending_characters
         )
@@ -915,6 +976,15 @@ def build_bundle(inputs: BundleInputs, output_dir: Path) -> BundleResult:
             "reading": (
                 "Shared first-round source compliance, reviewed non-neutral admissions, "
                 "source-specific unmarked-tone interpretation, and current decoder inventory."
+            ),
+            "orthoepy_coverage": (
+                "Reviewed orthoepy records add missing text-reading coverage only; "
+                "they are never source-primary and never delete or rerank existing readings."
+            ),
+            "psc_candidate_coverage": (
+                "Reviewed PSC transcription pairs absent from current runtime candidates "
+                "are imported as non-primary candidate coverage with source evidence; "
+                "pending non-aligned records remain outside the runtime lexicon."
             ),
             "unresolved": "No per-character pronunciation guessing for unmatched BCC terms.",
             "unencoded_pending": (

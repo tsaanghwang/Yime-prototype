@@ -8,7 +8,9 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 $python = Join-Path $repoRoot "venv312\Scripts\python.exe"
 $runtimeDb = Join-Path $repoRoot "yime\pinyin_hanzi.db"
+$sourceDb = Join-Path $repoRoot ".generated\lexicon_source_bundle\source_lexicon.sqlite3"
 $exporter = Join-Path $repoRoot "yime\export_rime_yime.py"
+$inventoryExporter = Join-Path $repoRoot "tools\export_materialized_syllable_inventory.py"
 $auxiliaryExporter = Join-Path $repoRoot "tools\prepare_windows_yime_auxiliary_assets.py"
 
 if (-not $OutputDir) {
@@ -17,7 +19,7 @@ if (-not $OutputDir) {
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 $resolvedOutputDir = (Resolve-Path -LiteralPath $OutputDir).Path
 
-foreach ($requiredPath in @($python, $runtimeDb, $exporter, $auxiliaryExporter)) {
+foreach ($requiredPath in @($python, $runtimeDb, $sourceDb, $exporter, $inventoryExporter, $auxiliaryExporter)) {
     if (-not (Test-Path -LiteralPath $requiredPath)) {
         throw "Required prototype asset is missing: $requiredPath"
     }
@@ -25,6 +27,14 @@ foreach ($requiredPath in @($python, $runtimeDb, $exporter, $auxiliaryExporter))
 
 $fullDictionary = Join-Path $resolvedOutputDir "yime_full.dict.yaml"
 $pinyinCodes = Join-Path $resolvedOutputDir "yime_pinyin_codes.tsv"
+$materializedInventory = Join-Path $resolvedOutputDir "materialized_syllable_inventory.tsv"
+
+& $python $inventoryExporter `
+    --source-db $sourceDb `
+    --output $materializedInventory
+if ($LASTEXITCODE -ne 0) {
+    throw "Materialized syllable-inventory export failed with exit code $LASTEXITCODE"
+}
 
 & $python $exporter `
     --db $runtimeDb `
@@ -33,7 +43,8 @@ $pinyinCodes = Join-Path $resolvedOutputDir "yime_pinyin_codes.tsv"
     --code-form layout-key `
     --schema-id yime_full `
     --schema-name "Yime等长" `
-    --pinyin-codes-output $pinyinCodes
+    --pinyin-codes-output $pinyinCodes `
+    --pinyin-codes-inventory $materializedInventory
 if ($LASTEXITCODE -ne 0) {
     throw "Prototype full-lexicon export failed with exit code $LASTEXITCODE"
 }

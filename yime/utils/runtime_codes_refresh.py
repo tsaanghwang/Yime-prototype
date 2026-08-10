@@ -31,6 +31,9 @@ from yime.utils.char_frequency_policy import (
     DEFAULT_BCC_CHAR_FREQ_PATH,
     purge_legacy_frequency_metadata,
 )
+from yime.utils.runtime_candidate_schema import (
+    ensure_materialized_runtime_candidate_table,
+)
 
 
 MODULE_DIR = Path(__file__).resolve().parent
@@ -1816,31 +1819,7 @@ def print_examples(title: str, examples: list[tuple[object, ...]]) -> None:
 def ensure_materialized_runtime_candidates_mode_columns(
     conn: sqlite3.Connection,
 ) -> None:
-    table_exists = conn.execute(
-        """
-        SELECT 1
-        FROM sqlite_master
-        WHERE type = 'table' AND name = 'runtime_candidates_materialized'
-        """
-    ).fetchone()
-    if table_exists is None:
-        return
-
-    columns = {
-        str(row[1] or "")
-        for row in conn.execute("PRAGMA table_info(runtime_candidates_materialized)").fetchall()
-    }
-    required_columns = {
-        "primary_yime_code": "TEXT NOT NULL DEFAULT ''",
-        "full_yime_code": "TEXT NOT NULL DEFAULT ''",
-        "variable_yinyuan_code": "TEXT NOT NULL DEFAULT ''",
-        "input_shorthand_code": "TEXT NOT NULL DEFAULT ''",
-    }
-    for column_name, column_spec in required_columns.items():
-        if column_name not in columns:
-            conn.execute(
-                f"ALTER TABLE runtime_candidates_materialized ADD COLUMN {column_name} {column_spec}"
-            )
+    ensure_materialized_runtime_candidate_table(conn)
 
 
 def ensure_materialized_runtime_candidates_primary_code_column(
