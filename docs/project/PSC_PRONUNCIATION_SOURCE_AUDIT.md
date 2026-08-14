@@ -37,6 +37,70 @@
 旧 `review_decisions` 和 `review_decision_history` 中已经形成的读音裁决及历史继续保留，但不在当前
 第一阶段界面中显示为操作按钮，也不驱动任何原型修订。
 
+## 实现流程图（维护导航）
+
+下图概括比较审计、复核分流、原子写库及独立决策账本之间的关系。它用于帮助维护者定位代码，
+不替代本文件规定的来源边界和人工裁决政策。
+
+```mermaid
+flowchart TD
+    CLI1["audit_psc_pronunciation_source.py main()"] --> RA["run_audit(source_db, psc_db, output_dir)"]
+
+    RA --> CHK{"Both DB files exist?"}
+    CHK -->|No| ERR["Raise FileNotFoundError"]
+    CHK -->|Yes| SNAP["Snapshot source + PSC (sha256)"]
+
+    SNAP --> LOADP["load_psc_observations() read-only"]
+    LOADP --> LOADS["load_source_readings() read-only"]
+
+    LOADS --> LOOP{"For each observation"}
+    LOOP --> CLS["classify_observation()"]
+
+    CLS --> C1{"Empty text or variants?"}
+    C1 -->|Yes| L1["lane = invalid_psc_evidence"]
+    C1 -->|No| C2{"Erhua evidence?"}
+    C2 -->|Yes| L2["lane = erhua_policy_review"]
+    C2 -->|No| C3{"outcome == exact_primary?"}
+    C3 -->|Yes| L3["lane = verified"]
+    C3 -->|No| C4{"Neutral / rare / passage / alternate?"}
+    C4 -->|Match| L4["lane = specific review lane"]
+    C4 -->|No| L5["lane = canonical_pronunciation_review"]
+
+    L1 --> AGG["Group into review cases"]
+    L2 --> AGG
+    L3 --> AGG
+    L4 --> AGG
+    L5 --> AGG
+    AGG --> LOOP
+
+    LOOP -->|Done| VERIFY["Assert inputs unchanged"]
+    VERIFY --> PREV["_load_existing_review_state (preserve decisions)"]
+    PREV --> WRITE[("Write temp audit DB + schema")]
+    WRITE --> INT{"integrity_check == ok?"}
+    INT -->|No| ERR2["Raise RuntimeError"]
+    INT -->|Yes| SWAP["os.replace temp to final DB"]
+
+    SWAP --> ART["Write summary.json, REPORT.md, review_queue.tsv"]
+    ART --> RET["Return AuditArtifacts"]
+
+    RET --> RULES["suggest_review_case() batch rules"]
+    RULES --> R1{"Numeric prefix in pinyin?"}
+    R1 -->|Yes| RS1["ocr_source_index_prefix suggestion"]
+    R1 -->|No| R2{"“一” / “不” sandhi match?"}
+    R2 -->|Yes| RS2["accept_psc suggestion"]
+    R2 -->|No| R3{"Missing tone / neutral primary?"}
+    R3 -->|Yes| RS3["psc_evidence_error / keep_both"]
+    R3 -->|No| RS4["No suggestion"]
+
+    RET --> UI["review_psc_pronunciation_audit.py ReviewApplication"]
+    UI --> STORE["TranscriptionReviewStore.load_items()"]
+    STORE --> SAVE{"User decision"}
+    SAVE -->|confirmed / corrected / unresolved| VAL{"Validation passes?"}
+    VAL -->|No| WARN["Show warning, keep pending"]
+    VAL -->|Yes| WDB[("Write separate decision ledger")]
+    WDB --> HIST["Append decision history"]
+```
+
 ## 来源范围
 
 当前转录层包含五类记录：
