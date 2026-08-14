@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "status": "research_draft_only",
+  "runtime_enabled": false,
+  "policy": "同一 PSC 非鼻化儿化结果共用一套表层三段模板；本规则源只登记规范拼音韵母，技术拼音别名留在输入兼容边界处理。",
+  "classes": {
+    "ERHUA-ORAL-AR": {
+      "source_results": ["ar"],
+      "members": ["a", "ai", "an"],
+      "basis": "PSC 三类均归并为 ar；三段模型把儿化动程量化为主音和末音携带 rhotic。",
+      "surface_segments": {
+        "呼音": {"quality": "ä", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-ER": {
+      "source_results": ["er"],
+      "members": ["_i", "e", "ei", "en"],
+      "basis": "PSC 均归并为 er；原韵尾或舌尖元音不再保留为独立表层类别。",
+      "surface_segments": {
+        "呼音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}},
+        "主音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-I-ER": {
+      "source_results": ["i:er"],
+      "members": ["i", "in"],
+      "basis": "PSC 均归并为 i:er；i 保留在前段，卷舌央元音占主音和末音。",
+      "surface_segments": {
+        "呼音": {"quality": "i", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-IAR": {
+      "source_results": ["iar"],
+      "members": ["ia"],
+      "basis": "PSC 的 ia 归并为 iar；ian 虽同写 iar，但基础韵核及人工表层标注不同，不再由本模板覆盖。",
+      "surface_segments": {
+        "呼音": {"quality": "i", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-UAR": {
+      "source_results": ["uar"],
+      "members": ["ua", "uai", "uan"],
+      "basis": "PSC 均归并为 uar；介音保留，a 类韵核从主音开始携带 rhotic。",
+      "surface_segments": {
+        "呼音": {"quality": "u", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ä", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-UER": {
+      "source_results": ["uer"],
+      "members": ["uei", "uen"],
+      "basis": "PSC 均归并为 uer；u 保留在前段，卷舌央元音占主音和末音。",
+      "surface_segments": {
+        "呼音": {"quality": "u", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-UMLAUT-I-ER": {
+      "source_results": ["ü:er"],
+      "members": ["ü", "ün"],
+      "basis": "PSC 均归并为 ü:er；本音系规则只登记规范拼音 ü/ün。",
+      "surface_segments": {
+        "呼音": {"quality": "ʏ", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ə", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-IAOR": {
+      "source_results": ["iaor"],
+      "members": ["iao"],
+      "basis": "实验资料显示 iao 儿化时第二、第三元音成分均发生 rhotacization。",
+      "surface_segments": {
+        "呼音": {"quality": "i", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ɑ", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ʊ", "features": {"rhotic": true, "nasalized": false}}
+      }
+    },
+    "ERHUA-ORAL-IOUR": {
+      "source_results": ["iour"],
+      "members": ["iou"],
+      "basis": "实验资料显示 iou 儿化时第二、第三元音成分均发生 rhotacization。",
+      "surface_segments": {
+        "呼音": {"quality": "i", "features": {"rhotic": false, "nasalized": false}},
+        "主音": {"quality": "ɤ", "features": {"rhotic": true, "nasalized": false}},
+        "末音": {"quality": "ʊ", "features": {"rhotic": true, "nasalized": false}}
+      }
+    }
+  }
+}
