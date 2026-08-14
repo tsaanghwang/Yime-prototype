@@ -58,11 +58,11 @@ class GanyinSlicer:
             tone_num = "5"  # 默认中性调(轻声调)
             if "˥˥" in value["ipa"]:
                 tone_num = "1"
-            elif "˧˥" in value["ipa"]:
+            elif "˧˦˥" in value["ipa"]:
                 tone_num = "2"
             elif "˨˩" in value["ipa"]:
                 tone_num = "3"
-            elif "˥˩" in value["ipa"]:
+            elif "˥˦˩" in value["ipa"]:
                 tone_num = "4"
             tone_pattern = self._get_tone_pattern(tone_num)
 

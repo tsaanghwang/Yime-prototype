@@ -137,14 +137,15 @@ class GanyinEncoder:
             if ganyin.startswith(source) and len(ganyin) >= len(source) + 1:
                 return f"{target}{ganyin[-1]}"
 
-        if ganyin.startswith("iou") and len(ganyin) >= 4 and ganyin[-1].isdigit():
-            return f"iu{ganyin[-1]}"
-
-        if ganyin.startswith("ueng") and len(ganyin) >= 5 and ganyin[-1].isdigit():
-            return f"uong{ganyin[-1]}"
-
-        if ganyin.startswith("ong") and len(ganyin) >= 4 and ganyin[-1].isdigit():
-            return f"uong{ganyin[-1]}"
+        if ganyin and ganyin[-1].isdigit():
+            surface_final = ganyin[:-1]
+            full_final = {
+                "iu": "iou",
+                "ui": "uei",
+                "un": "uen",
+            }.get(surface_final)
+            if full_final is not None:
+                return f"{full_final}{ganyin[-1]}"
 
         return ganyin
 
@@ -294,8 +295,7 @@ class GanyinEncoder:
 
         # 5. 生成简化版干音音符数据
         # Keep the runtime snapshot on the same normalization path as
-        # on-demand encoding. Registered form-family aliases such as
-        # ueng/uong must not retain a second, stale encoding here.
+        # on-demand encoding. Only reviewed boundary aliases are normalized.
         simplified_notes_data: Dict[str, str] = {
             ganyin_name: self.encode_ganyin(ganyin_name)
             for ganyin_type in notes_data

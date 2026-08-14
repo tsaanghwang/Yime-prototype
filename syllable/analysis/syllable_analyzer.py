@@ -12,9 +12,20 @@ from .syllable_splitter import SyllableSplitter
 
 def _remove_tone_from_ganyin(value: str) -> str:
     """移除干音中的声调信息（数字与拼音音调符号）。"""
+    # 数字标调的内部形式已经保留了规范 ü；先去掉尾部调号，不能再把它
+    # 送入历史技术拼音转换而降成 ue/v 系列。
+    if value and value[-1].isdigit():
+        return value[:-1]
+
     tone_map = str.maketrans(
-        "āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü",
-        "aaaaeeeeiiiioooouuuuvvvvu",
+        {
+            "ā": "a", "á": "a", "ǎ": "a", "à": "a",
+            "ē": "e", "é": "e", "ě": "e", "è": "e",
+            "ī": "i", "í": "i", "ǐ": "i", "ì": "i",
+            "ō": "o", "ó": "o", "ǒ": "o", "ò": "o",
+            "ū": "u", "ú": "u", "ǔ": "u", "ù": "u",
+            "ǖ": "ü", "ǘ": "ü", "ǚ": "ü", "ǜ": "ü",
+        }
     )
     cleaned = value.translate(tone_map)
     if cleaned and cleaned[-1].isdigit():

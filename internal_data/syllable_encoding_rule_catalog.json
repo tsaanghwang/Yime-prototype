@@ -194,35 +194,11 @@
       "basis": "历史 Rime/微软码表兼容需求及 PinyinNormalizer.normalize_one。",
       "policy": "只允许在输入兼容边界归一化为 ü；不得作为规范来源或第二套编码。"
     },
-    "ENC-IOU-TO-IU": {
-      "layer": "encoder_alias",
-      "title": "编码查表将 iou 归并到 iu",
-      "basis": "GanyinEncoder._normalize_ganyin_name。",
-      "policy": "这是现有干音编码表的兼容查表名，不改变上游拼写分析记录。"
-    },
-    "ENC-UENG-TO-UONG": {
-      "layer": "encoder_alias",
-      "title": "编码查表将 ueng 归并到 uong",
-      "basis": "GanyinEncoder._normalize_ganyin_name。",
-      "policy": "这是现有干音编码表的兼容查表名。"
-    },
-    "ENC-ONG-TO-UONG": {
-      "layer": "encoder_alias",
-      "title": "编码查表将 ong 归并到 uong",
-      "basis": "GanyinEncoder._normalize_ganyin_name。",
-      "policy": "这是现有干音编码表的兼容查表名。"
-    },
     "ENC-H-NASAL-ALIAS": {
       "layer": "encoder_alias",
       "title": "hm/hn/hng 干音查表归并",
       "basis": "GanyinEncoder._normalize_ganyin_name。",
       "policy": "h 保留在首音段，干音查表使用 m/n/ng。"
-    },
-    "LEGACY-FIVE-TONE-CLOSURE": {
-      "layer": "historical_reference",
-      "title": "早期韵母五声穷举规则",
-      "basis": "项目早期约 1836 音节方案的历史规则；现行清单不再使用。",
-      "policy": "仅用于解释历史差集。不得据此自动新增现行规范音节或编码。"
     }
   }
 }

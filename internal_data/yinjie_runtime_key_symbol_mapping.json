@@ -155,9 +155,9 @@
           "full_code": ""
         },
         {
-          "syllable": "pai1",
+          "syllable": "pa5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -428,9 +428,9 @@
           "full_code": ""
         },
         {
-          "syllable": "gai1",
+          "syllable": "ga5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -506,9 +506,9 @@
           "full_code": ""
         },
         {
-          "syllable": "hai1",
+          "syllable": "ha5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -584,9 +584,9 @@
           "full_code": ""
         },
         {
-          "syllable": "zai1",
+          "syllable": "za5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -647,6 +647,11 @@
           "full_code": ""
         },
         {
+          "syllable": "sa2",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
           "syllable": "sa3",
           "position_in_code": 1,
           "full_code": ""
@@ -660,11 +665,6 @@
           "syllable": "sa5",
           "position_in_code": 1,
           "full_code": ""
-        },
-        {
-          "syllable": "sai1",
-          "position_in_code": 1,
-          "full_code": ""
         }
       ]
     },
@@ -740,9 +740,9 @@
           "full_code": ""
         },
         {
-          "syllable": "chai1",
+          "syllable": "cha5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -798,6 +798,11 @@
       ],
       "example_syllables": [
         {
+          "syllable": "ra4",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
           "syllable": "ran2",
           "position_in_code": 1,
           "full_code": ""
@@ -813,14 +818,9 @@
           "full_code": ""
         },
         {
-          "syllable": "rang1",
+          "syllable": "ran5",
           "position_in_code": 1,
-          "full_code": ""
-        },
-        {
-          "syllable": "rang2",
-          "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -857,9 +857,9 @@
           "full_code": ""
         },
         {
-          "syllable": "jia1",
+          "syllable": "ji5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -935,9 +935,9 @@
           "full_code": ""
         },
         {
-          "syllable": "xia1",
+          "syllable": "xi5",
           "position_in_code": 1,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -1033,8 +1033,6 @@
       ],
       "ganyin_names": [
         "i1",
-        "io1",
-        "io4",
         "i2",
         "i4",
         "ai1",
@@ -1043,7 +1041,9 @@
         "ei2",
         "ia1",
         "ia4",
-        "ie1"
+        "io1",
+        "ie1",
+        "ie4"
       ],
       "example_syllables": [
         {
@@ -1086,20 +1086,25 @@
         4
       ],
       "ganyin_names": [
-        "io5",
         "i2",
         "i4",
         "i5",
         "ai5",
         "ei5",
         "ia5",
+        "io5",
         "ie5",
         "uai5",
         "uei5",
-        "ui5",
-        "iao5"
+        "iao5",
+        "iou5"
       ],
       "example_syllables": [
+        {
+          "syllable": "ai5",
+          "position_in_code": 4,
+          "full_code": ""
+        },
         {
           "syllable": "bai5",
           "position_in_code": 4,
@@ -1119,11 +1124,6 @@
           "syllable": "bi4",
           "position_in_code": 3,
           "full_code": ""
-        },
-        {
-          "syllable": "bian5",
-          "position_in_code": 2,
-          "full_code": ""
         }
       ]
     },
@@ -1140,8 +1140,6 @@
         4
       ],
       "ganyin_names": [
-        "io2",
-        "io3",
         "i2",
         "i3",
         "i4",
@@ -1151,7 +1149,9 @@
         "ei4",
         "ia3",
         "ia2",
-        "ie2"
+        "ie2",
+        "ie3",
+        "uai3"
       ],
       "example_syllables": [
         {
@@ -1257,11 +1257,16 @@
         "uo5",
         "uai5",
         "uei5",
-        "ui5",
         "iao5",
-        "iu5"
+        "iou5",
+        "uan5"
       ],
       "example_syllables": [
+        {
+          "syllable": "bao5",
+          "position_in_code": 4,
+          "full_code": ""
+        },
         {
           "syllable": "bu2",
           "position_in_code": 3,
@@ -1273,19 +1278,14 @@
           "full_code": ""
         },
         {
-          "syllable": "chu2",
-          "position_in_code": 3,
-          "full_code": ""
-        },
-        {
-          "syllable": "chu4",
-          "position_in_code": 3,
-          "full_code": ""
-        },
-        {
-          "syllable": "chu5",
+          "syllable": "bu5",
           "position_in_code": 2,
-          "full_code": ""
+          "full_code": ""
+        },
+        {
+          "syllable": "bu5",
+          "position_in_code": 3,
+          "full_code": ""
         }
       ]
     },
@@ -1359,15 +1359,14 @@
         "ü1",
         "ü2",
         "ü4",
-        "v1",
-        "v2",
-        "v4",
         "üe1",
         "üe4",
-        "ve1",
-        "ve4",
         "üan1",
-        "üan4"
+        "üan4",
+        "ün1",
+        "ün4",
+        "iong1",
+        "iong4"
       ],
       "example_syllables": [
         {
@@ -1413,15 +1412,10 @@
         "ü2",
         "ü4",
         "ü5",
-        "v2",
-        "v4",
-        "v5",
         "üe5",
-        "ve5",
         "üan5",
-        "van5",
         "ün5",
-        "vn5"
+        "iong5"
       ],
       "example_syllables": [
         {
@@ -1467,15 +1461,14 @@
         "ü2",
         "ü3",
         "ü4",
-        "v2",
-        "v3",
-        "v4",
         "üe2",
         "üe3",
-        "ve2",
-        "ve3",
         "üan3",
-        "üan2"
+        "üan2",
+        "ün3",
+        "ün2",
+        "iong3",
+        "iong2"
       ],
       "example_syllables": [
         {
@@ -1680,8 +1673,6 @@
         4
       ],
       "ganyin_names": [
-        "io1",
-        "io2",
         "o1",
         "o2",
         "o4",
@@ -1691,7 +1682,9 @@
         "ou1",
         "ou4",
         "eng1",
-        "eng4"
+        "eng4",
+        "io1",
+        "uo1"
       ],
       "example_syllables": [
         {
@@ -1734,9 +1727,6 @@
         4
       ],
       "ganyin_names": [
-        "io2",
-        "io4",
-        "io5",
         "o2",
         "o4",
         "o5",
@@ -1745,7 +1735,10 @@
         "e5",
         "ou2",
         "ou4",
-        "ou5"
+        "ou5",
+        "eng2",
+        "eng4",
+        "eng5"
       ],
       "example_syllables": [
         {
@@ -1788,8 +1781,6 @@
         4
       ],
       "ganyin_names": [
-        "io3",
-        "io4",
         "o2",
         "o3",
         "o4",
@@ -1799,7 +1790,9 @@
         "ou2",
         "ou3",
         "eng2",
-        "eng3"
+        "eng3",
+        "uo4",
+        "uo3"
       ],
       "example_syllables": [
         {
@@ -1853,7 +1846,7 @@
         "ie2",
         "üe1",
         "üe2",
-        "ve1"
+        "uei1"
       ],
       "example_syllables": [
         {
@@ -1898,7 +1891,6 @@
       "ganyin_names": [
         "ê2",
         "ê4",
-        "ê5",
         "ei4",
         "ei5",
         "ei2",
@@ -1907,7 +1899,8 @@
         "en2",
         "ie2",
         "ie4",
-        "ie5"
+        "ie5",
+        "üe2"
       ],
       "example_syllables": [
         {
@@ -1931,9 +1924,9 @@
           "full_code": ""
         },
         {
-          "syllable": "bie2",
-          "position_in_code": 3,
-          "full_code": ""
+          "syllable": "ben5",
+          "position_in_code": 2,
+          "full_code": ""
         }
       ]
     },
@@ -1961,7 +1954,7 @@
         "ie4",
         "üe3",
         "üe4",
-        "ve3"
+        "uei3"
       ],
       "example_syllables": [
         {
@@ -2135,11 +2128,9 @@
       "source_file": "syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json",
       "used_in_yinjie_position": [
         2,
-        3,
         4
       ],
       "ganyin_names": [
-        "er1",
         "er2",
         "er4"
       ],
@@ -2304,9 +2295,9 @@
         4
       ],
       "ganyin_names": [
+        "m5",
         "m2",
-        "m4",
-        "m5"
+        "m4"
       ],
       "example_syllables": [
         {
@@ -2345,12 +2336,10 @@
       "source_file": "syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json",
       "used_in_yinjie_position": [
         2,
-        3,
         4
       ],
       "ganyin_names": [
         "m2",
-        "m3",
         "m4"
       ],
       "example_syllables": [
@@ -2375,11 +2364,9 @@
       "source_file": "syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json",
       "used_in_yinjie_position": [
         2,
-        3,
         4
       ],
       "ganyin_names": [
-        "n1",
         "n2",
         "n4",
         "an1",
@@ -2390,7 +2377,8 @@
         "ian2",
         "uan1",
         "uan2",
-        "uen1"
+        "üan1",
+        "üan2"
       ],
       "example_syllables": [
         {
@@ -2440,17 +2428,26 @@
         "en5",
         "ian5",
         "uan5",
-        "uen5",
         "üan5",
-        "van5",
+        "uen5",
         "in5",
-        "un5"
+        "ün5"
       ],
       "example_syllables": [
+        {
+          "syllable": "an5",
+          "position_in_code": 4,
+          "full_code": ""
+        },
         {
           "syllable": "ban5",
           "position_in_code": 4,
           "full_code": ""
+        },
+        {
+          "syllable": "ben5",
+          "position_in_code": 4,
+          "full_code": ""
         },
         {
           "syllable": "bian5",
@@ -2461,16 +2458,6 @@
           "syllable": "bin5",
           "position_in_code": 4,
           "full_code": ""
-        },
-        {
-          "syllable": "chen5",
-          "position_in_code": 4,
-          "full_code": ""
-        },
-        {
-          "syllable": "han5",
-          "position_in_code": 4,
-          "full_code": ""
         }
       ]
     },
@@ -2498,7 +2485,7 @@
         "ian4",
         "uan3",
         "uan4",
-        "uen3"
+        "üan3"
       ],
       "example_syllables": [
         {
@@ -2537,22 +2524,21 @@
       "source_file": "syllable/yinyuan/ganyin_to_fixed_length_yinyuan_sequence.json",
       "used_in_yinjie_position": [
         2,
-        3,
         4
       ],
       "ganyin_names": [
-        "ng1",
         "ng2",
         "ng4",
         "ang1",
         "ang2",
         "eng1",
         "eng2",
-        "ueng1",
-        "ueng2",
         "iang2",
         "iang1",
-        "uang1"
+        "uang1",
+        "uang2",
+        "ing1",
+        "ing2"
       ],
       "example_syllables": [
         {
@@ -2595,44 +2581,42 @@
         4
       ],
       "ganyin_names": [
+        "ng5",
         "ng2",
         "ng4",
-        "ng5",
         "ang5",
         "eng5",
-        "ueng5",
         "iang5",
         "uang5",
         "ing5",
         "ong5",
-        "uong5",
         "iong5"
       ],
       "example_syllables": [
+        {
+          "syllable": "ang5",
+          "position_in_code": 4,
+          "full_code": ""
+        },
+        {
+          "syllable": "bang5",
+          "position_in_code": 4,
+          "full_code": ""
+        },
         {
           "syllable": "beng5",
           "position_in_code": 4,
           "full_code": ""
         },
         {
-          "syllable": "chang5",
+          "syllable": "bing5",
           "position_in_code": 4,
-          "full_code": ""
+          "full_code": ""
         },
         {
-          "syllable": "dang5",
+          "syllable": "cang5",
           "position_in_code": 4,
-          "full_code": ""
-        },
-        {
-          "syllable": "fang5",
-          "position_in_code": 4,
-          "full_code": ""
-        },
-        {
-          "syllable": "gong5",
-          "position_in_code": 4,
-          "full_code": ""
+          "full_code": ""
         }
       ]
     },
@@ -2656,11 +2640,11 @@
         "ang4",
         "eng3",
         "eng4",
-        "ueng3",
-        "ueng4",
         "iang4",
         "iang3",
-        "uang3"
+        "uang3",
+        "uang4",
+        "ing3"
       ],
       "example_syllables": [
         {

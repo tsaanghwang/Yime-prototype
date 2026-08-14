@@ -13,7 +13,6 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
 
-from syllable.analysis.ganyin_categorizer import FinalCategorizer
 from syllable.codec.yinjie_encoder import YinjieEncoder, YinjieEncodingError
 from yime.utils.yinyuan_id_chain import (
     REPO_ROOT,
@@ -187,131 +186,6 @@ def rule_ids(rows: Iterable[SyllableDecompositionRow]) -> set[str]:
     return {row.rule_id for row in rows}
 
 
-def _theoretical_ganyin_keys() -> set[str]:
-    finals: set[str] = set()
-    for group in FinalCategorizer.get_all_finals().values():
-        finals.update(group)
-    return {f"{final}{tone}" for final in finals for tone in range(1, 6)}
-
-
-def _missing_ganyin_route(final: str) -> tuple[str, str, str, str, str, str, str]:
-    if final in {"v", "van", "ve", "vn"}:
-        return (
-            "技术拼音别名",
-            "v 系列来自历史输入法或程序拼音，用于表示 ü 系列；现行规范层不建立第二套编码。",
-            final.replace("v", "ü", 1),
-            "TECH-V-ALIAS",
-            "yime/utils/pinyin_normalizer.py::PinyinNormalizer.normalize_one",
-            "只在兼容输入边界归一化为 ü；不要向规范音节表或码表补 v 系列。",
-            "兼容规则说明，不是现行规范音节缺失。",
-        )
-    orthographic_rules = {
-        "iu": ("ORTH-IU-TO-IOU", "iou"),
-        "ui": ("ORTH-UI-TO-UEI", "uei"),
-        "un": ("ORTH-UN-TO-UEN", "uen"),
-        "ue": ("ORTH-JQX-UMLAUT", "üe"),
-        "ueng": ("ORTH-W-FAMILY ENC-UENG-TO-UONG", "ueng/uong"),
-    }
-    if final in orthographic_rules:
-        rule_ids, equivalent = orthographic_rules[final]
-        return (
-            "方案形式与音节拼写/编码形式差异",
-            "该项属于方案韵母形式、音节表面拼写或编码查表名之间的等价表示，不是独立读音缺失。",
-            equivalent,
-            rule_ids,
-            "syllable/analysis/syllable_splitter.py",
-            "检查形式族的规范化关系；不要为两个写法建立平行编码。",
-            "语义规则改动须单独审查，不得混入布局修改。",
-        )
-    if final == "io":
-        return (
-            "词典扩展干音的未实例化声调",
-            "yo 在当前词典来源中有实例并分析为 y + io；这里只是 io 的这些声调未在现行来源中出现。",
-            "yo",
-            "ORTH-YO-TO-IO LEGACY-FIVE-TONE-CLOSURE",
-            "internal_data/hanzi_pinyin/pinyin.txt 与 internal_data/phrase_pinyin/phrase_pinyin.txt",
-            "先寻找对应声调的真实字词实例；没有实例时不要按五声穷举补码。",
-            "来源事实优先；不得从理论干音直接写入 yinjie_code.json。",
-        )
-
-    handling = FinalCategorizer.get_missing_handling_info(final)
-    classification = str(handling["status"])
-    reason = str(handling["reason"])
-    surface_forms = " ".join(str(item) for item in handling.get("surface_forms", []))
-
-    canonical_forms = [
-        canonical
-        for canonical, variants in FinalCategorizer.RULE_VARIANT_SURFACE_FORMS.items()
-        if final in variants
-    ]
-    final_info = FinalCategorizer.get_final_form_info(final)
-    if canonical_forms or final_info["kind"] == "规则变体":
-        classification = "拼写规则导致缺失"
-        reason = "该形式会在规范化或输入法拼写中归并到等价形式，不应直接补一套平行编码。"
-        if canonical_forms:
-            surface_forms = " ".join(canonical_forms)
-
-    if classification == "拼写规则导致缺失":
-        return (
-            classification,
-            reason,
-            surface_forms,
-            "LEGACY-FIVE-TONE-CLOSURE",
-            "syllable/analysis/ganyin_categorizer.py::RULE_VARIANT_SURFACE_FORMS",
-            "先审查该理论形式与实际拼写形式的等价关系；不要先补码表。",
-            "若决定改变语义，再改 syllable/analysis/syllable_splitter.py 和 syllable_encoding_pipeline.py。",
-        )
-    if classification == "当前导入过滤导致缺失":
-        return (
-            "早期五声穷举遗留",
-            "当前来源没有该带调实例；它由早期每个韵母补齐五声的理论集合产生。",
-            surface_forms,
-            "LEGACY-FIVE-TONE-CLOSURE",
-            "yime.lexicon_bundle.gate.ReadingGate",
-            "先核实上游词典是否确有该带调实例；没有实例时保持不编码。",
-            "若找到实例，再从拼音来源重建完整链；禁止从 yinjie_code.json 中间补入。",
-        )
-    return (
-        "早期五声穷举遗留",
-        "当前来源没有该带调实例；它由早期每个韵母补齐五声的理论集合产生。",
-        surface_forms,
-        "LEGACY-FIVE-TONE-CLOSURE",
-        "syllable/analysis/ganyin_categorizer.py::FinalCategorizer",
-        "先核对真实字典来源；没有实例时不要把理论组合提升为规范音节。",
-        "若后来找到实例，再从来源层进入正式编码链。",
-    )
-
-
-def build_theoretical_ganyin_omission_rows(
-    actual_ganyin_keys: Iterable[str],
-) -> list[SyllableOmissionRow]:
-    """Compare the declared final/tone universe with ganyin generated from the inventory."""
-    rows: list[SyllableOmissionRow] = []
-    for candidate in sorted(_theoretical_ganyin_keys() - set(actual_ganyin_keys)):
-        final = candidate[:-1]
-        classification, reason, surface_forms, rule_ids, source_rule, first_change, followup = (
-            _missing_ganyin_route(final)
-        )
-        rows.append(
-            SyllableOmissionRow(
-                candidate=candidate,
-                candidate_kind="theoretical_ganyin",
-                stage="ganyin_generation",
-                status="not_generated_from_current_inventory",
-                classification=classification,
-                rule_ids=rule_ids,
-                occurrences=0,
-                reason=reason,
-                surface_forms=surface_forms,
-                source_rule=source_rule,
-                first_change=first_change,
-                followup_change=followup,
-                lock_scope="语义改动：单独审查并更新语义锁；不得混入布局改动。",
-            )
-        )
-    return rows
-
-
 def build_source_filter_omission_rows(
     char_source_path: Path = DEFAULT_CHAR_SOURCE_PATH,
 ) -> list[SyllableOmissionRow]:
@@ -400,16 +274,6 @@ def build_syllable_omission_rows(
 ) -> list[SyllableOmissionRow]:
     rows = build_source_filter_omission_rows(char_source_path)
     rows.extend(build_encoder_failure_rows(inventory, encoder=encoder))
-    resolved_encoder = encoder or YinjieEncoder()
-    current_ganyin_keys: set[str] = set()
-    for candidate in sorted(inventory):
-        try:
-            current_ganyin_keys.add(
-                resolved_encoder.encode_yinjie_structured(candidate).ganyin_slots.ganyin_label
-            )
-        except YinjieEncodingError:
-            continue
-    rows.extend(build_theoretical_ganyin_omission_rows(current_ganyin_keys))
     return rows
 
 

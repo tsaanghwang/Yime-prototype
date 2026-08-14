@@ -41,8 +41,8 @@ def test_orthography_rules_name_historical_and_standard_form_families(
 
 
 def test_encoder_aliases_are_explicit_and_uncatalogued_aliases_fail() -> None:
-    assert encoder_alias_rule_ids("iou2", "iu2") == ("ENC-IOU-TO-IU",)
-    assert encoder_alias_rule_ids("ueng1", "uong1") == ("ENC-UENG-TO-UONG",)
+    assert encoder_alias_rule_ids("iou2", "iou2") == ()
+    assert encoder_alias_rule_ids("ueng1", "ueng1") == ()
     with pytest.raises(ValueError, match="Uncatalogued encoder alias"):
         encoder_alias_rule_ids("made1", "up1")
 
@@ -79,7 +79,7 @@ def test_small_provenance_sample_explains_source_rules_and_ids() -> None:
     assert by_pinyin["yo1"].source_rule_ids == "SRC-UNIHAN"
     assert by_pinyin["yo1"].orthography_rule_ids == "ORTH-YO-TO-IO"
     assert by_pinyin["jiu2"].orthography_rule_ids == "ORTH-IU-TO-IOU"
-    assert by_pinyin["jiu2"].encoder_alias_rule_ids == "ENC-IOU-TO-IU"
+    assert by_pinyin["jiu2"].encoder_alias_rule_ids == ""
     assert len(by_pinyin["jiu2"].yinyuan_ids.split()) == 4
 
 

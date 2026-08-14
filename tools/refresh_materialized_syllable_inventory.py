@@ -282,7 +282,7 @@ def rebuild_analysis_views(connection: sqlite3.Connection, table_name: str) -> N
                             ELSE SUBSTR(i.numeric_syllable, 1, 1)
                         END AS current_rule_initial,
                         CASE
-                            WHEN i.numeric_syllable IN ('ê1','ê2','ê3','ê4','ê5','m1','m2','m3','m4','m5','n1','n2','n3','n4','n5','ng1','ng2','ng3','ng4','ng5') THEN i.marked_syllable
+                            WHEN i.numeric_syllable IN ('ê1','ê2','ê3','ê4','ê5','m1','m2','m3','m4','m5','n1','n2','n3','n4','n5','ng1','ng2','ng3','ng4','ng5') THEN i.numeric_syllable
                             WHEN SUBSTR(i.numeric_syllable, 1, 1) IN ('a','o','e','ê') THEN i.numeric_syllable
                             WHEN LENGTH(i.numeric_syllable) >= 2 AND LOWER(SUBSTR(i.numeric_syllable, 1, 2)) IN ('zh','ch','sh') AND LENGTH(i.numeric_syllable) > 2 AND SUBSTR(i.numeric_syllable, 3, 1) = 'i' THEN '_' || SUBSTR(i.numeric_syllable, 3)
                             WHEN LENGTH(i.numeric_syllable) >= 2 AND LOWER(SUBSTR(i.numeric_syllable, 1, 2)) IN ('zh','ch','sh') AND NOT (LOWER(SUBSTR(i.numeric_syllable, 3)) GLOB 'ui[1-5]' OR LOWER(SUBSTR(i.numeric_syllable, 3)) GLOB 'un[1-5]') THEN SUBSTR(i.numeric_syllable, 3)
@@ -406,6 +406,20 @@ def rebuild_analysis_views(connection: sqlite3.Connection, table_name: str) -> N
                     ns.current_rule_initial,
                     ns.current_rule_numeric_final,
                     ts.current_rule_tone_final,
+                    CASE
+                        WHEN SUBSTR(ns.current_rule_numeric_final, -1) BETWEEN '1' AND '5'
+                        THEN SUBSTR(
+                            ns.current_rule_numeric_final,
+                            1,
+                            LENGTH(ns.current_rule_numeric_final) - 1
+                        )
+                        ELSE ns.current_rule_numeric_final
+                    END AS current_rule_final_base,
+                    CASE
+                        WHEN SUBSTR(ns.current_rule_numeric_final, -1) BETWEEN '1' AND '5'
+                        THEN CAST(SUBSTR(ns.current_rule_numeric_final, -1) AS INTEGER)
+                        ELSE NULL
+                    END AS current_rule_tone_number,
                     ns.current_rule_initial || ' / ' || ns.current_rule_numeric_final AS current_rule_numeric_split,
                     ns.current_rule_initial || ' / ' || ts.current_rule_tone_final AS current_rule_tone_split,
                     ns.current_rule_initial || ' / ' || ts.current_rule_tone_final AS marked_rule_split,
@@ -433,6 +447,8 @@ def rebuild_analysis_views(connection: sqlite3.Connection, table_name: str) -> N
                         current_rule_initial,
                         current_rule_numeric_final,
                         current_rule_tone_final,
+                        current_rule_final_base,
+                        current_rule_tone_number,
                         current_rule_numeric_split,
                         current_rule_tone_split,
                         marked_rule_split,
@@ -455,6 +471,8 @@ def rebuild_analysis_views(connection: sqlite3.Connection, table_name: str) -> N
                     current_rule_initial,
                     current_rule_numeric_final,
                     current_rule_tone_final,
+                    current_rule_final_base,
+                    current_rule_tone_number,
                     current_rule_numeric_split,
                     current_rule_tone_split,
                     marked_rule_split,
@@ -484,7 +502,7 @@ def rebuild_analysis_views(connection: sqlite3.Connection, table_name: str) -> N
                         WHEN base_syllable GLOB 'yong*' THEN 'current splitter treats yong-family as ɥ + iong-family final while keeping the standard pinyin final form'
                         WHEN base_syllable GLOB 'ya*' OR base_syllable GLOB 'ye*' OR base_syllable GLOB 'you*' OR base_syllable = 'yo' THEN 'current splitter restores standard i-family finals for non-umlaut y spellings'
                         WHEN base_syllable GLOB 'wei*' OR base_syllable GLOB 'wen*' OR base_syllable GLOB 'weng*' OR base_syllable GLOB 'wai*' OR base_syllable GLOB 'wan*' OR base_syllable GLOB 'wang*' OR base_syllable GLOB 'wa*' OR (base_syllable GLOB 'wo*' AND base_syllable NOT GLOB 'wong*') THEN 'current splitter restores standard u-family finals for non-wu w spellings'
-                        WHEN base_syllable GLOB 'wong*' THEN 'wong 源语料形式当前先保留为 w + ong，后续在方案并入阶段再归并到 uong'
+                        WHEN base_syllable GLOB 'wong*' THEN 'wong 源语料形式当前保留为 w + ong；不预设 uong，后续如需合码只在编码投影层处理'
                         WHEN (base_syllable GLOB '*iu' AND base_syllable NOT GLOB 'you') OR base_syllable GLOB '*ui' OR base_syllable GLOB '*un' THEN 'current splitter restores scheme-standard iou/uei/uen finals for generic abbreviated spellings'
                         WHEN base_syllable GLOB 'w*' OR (base_syllable GLOB 'y*' AND NOT base_syllable GLOB 'yu*') THEN 'semivowel-led spelling; current splitter preserves w/y except the explicit restored families'
                         WHEN INSTR(base_syllable, 'ü') > 0 THEN 'contains explicit ü in source syllable'
