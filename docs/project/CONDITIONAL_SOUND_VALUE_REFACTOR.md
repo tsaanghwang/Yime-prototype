@@ -32,10 +32,13 @@ yinyuan/unpitched_yinyuan.json（初始提交）
 当前可重建链的真正上游是：
 
 ```text
-syllable/yinyuan/pianyin_initial.json
-  -> tools/syllable_analysis/generate_zaoyin_yinyuan.py
-  -> syllable/yinyuan/zaoyin_yinyuan_enhanced.json
+syllable/pianyin/zaoyin_pianyin.json
+  -> tools/rebuild_zaoyin_registry.py（默认只校验）
+  -> .generated/zaoyin-registry/zaoyin_yinyuan_enhanced.proposed.json
+  -> 经布局与迁移评审后，才可晋级稳定登记
 ```
+
+旧的 `pianyin_initial.json` 与首音分析器不再参与现行来源链，也不得覆盖稳定登记。
 
 `pianyin_initial.json` 保存首音标签及其已登记的实际 IPA 值；增强表负责保存稳定 ID 和运行时字符。
 

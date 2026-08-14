@@ -12,9 +12,10 @@ def test_current_conditional_sound_value_source_chain_is_complete() -> None:
     result = audit_conditional_sound_value_model()
 
     assert result.passed, result.issues
-    assert result.zaoyin_count == 24
+    assert result.zaoyin_count == 27
+    assert result.zaoyin_registered_count == 24
     assert result.yueyin_count == 33
-    assert result.zaoyin_count + result.yueyin_count == 57
+    assert result.zaoyin_count + result.yueyin_count == 60
     assert result.conditional_rule_count == 0
     assert result.runtime_enabled is False
 

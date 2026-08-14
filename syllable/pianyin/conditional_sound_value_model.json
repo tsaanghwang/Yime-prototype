@@ -40,9 +40,9 @@
   ],
   "source_layers": {
     "zaoyin_realizations": {
-      "path": "syllable/yinyuan/pianyin_initial.json",
+      "path": "syllable/pianyin/zaoyin_pianyin.json",
       "role": "upstream_pianyin_realization_inventory",
-      "note": "保存首音标签在不同分布中已经登记的 IPA 实现值；历史上早于 zaoyin_yinyuan_enhanced.json。"
+      "note": "结构化登记二十一规范声母、零首音、y/w，以及延后的 ɥ、ŋ、语气词啊舌尖同化首音；旧 pianyin_initial.json 不再参与现行来源链。"
     },
     "yueyin_quality_and_pitch_classes": {
       "path": "syllable/yinyuan/variables_of_attributes.json",

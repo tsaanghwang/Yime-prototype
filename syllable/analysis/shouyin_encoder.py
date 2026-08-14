@@ -4,6 +4,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+from syllable.analysis.zaoyin_pianyin_source import runtime_compatibility_aliases
+
 class ShouyinEncoder:
     """首音编码处理器，整合音元映射和音元序列生成功能"""
 
@@ -43,17 +45,14 @@ class ShouyinEncoder:
             data = json.load(f)
             self._codepoint_map = data["首音"]
 
-        with self.default_data_path.open('r', encoding='utf-8') as f:
-            source_data = json.load(f)
-
-        for shouyin, entry in source_data.get("entries", {}).items():
-            runtime_char = self._codepoint_map.get(shouyin, "")
+        # 首音分析标签与运行登记之间的兼容投影来自结构化真源。
+        # 不再把旧增强登记表里的全部 IPA 别名自动当成可输入首音。
+        for alias, registered_label in runtime_compatibility_aliases().items():
+            runtime_char = self._codepoint_map.get(registered_label, "")
             if not runtime_char:
                 continue
-
-            for alias in entry.get("ipa", []):
-                if alias and alias not in self._codepoint_map:
-                    self._codepoint_map[alias] = runtime_char
+            if alias and alias not in self._codepoint_map:
+                self._codepoint_map[alias] = runtime_char
 
     def map_shouyin_to_codepoint(self, shouyin: str) -> str:
         """将首音映射到码位"""

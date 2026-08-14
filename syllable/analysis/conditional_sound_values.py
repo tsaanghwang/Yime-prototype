@@ -25,6 +25,7 @@ class ConditionalSoundValueAudit:
     model_id: str
     source_layer_count: int
     zaoyin_count: int
+    zaoyin_registered_count: int
     yueyin_count: int
     zaoyin_realization_count: int
     yueyin_realization_count: int
@@ -41,6 +42,7 @@ class ConditionalSoundValueAudit:
             "model_id": self.model_id,
             "source_layer_count": self.source_layer_count,
             "zaoyin_count": self.zaoyin_count,
+            "zaoyin_registered_count": self.zaoyin_registered_count,
             "yueyin_count": self.yueyin_count,
             "zaoyin_realization_count": self.zaoyin_realization_count,
             "yueyin_realization_count": self.yueyin_realization_count,
@@ -68,6 +70,16 @@ def _repo_path(project_root: Path, raw_path: str) -> Path:
 
 
 def _collect_zaoyin_realizations(source: dict[str, Any]) -> dict[str, list[str]]:
+    entries = source.get("entries", {})
+    if isinstance(entries, dict) and entries:
+        return {
+            str(label): [str(value) for value in entry.get("ipa", [])]
+            for label, entry in entries.items()
+            if isinstance(entry, dict)
+        }
+
+    # Legacy compatibility for external audit fixtures.  The production model
+    # no longer uses pianyin_initial.json.
     groups = source.get("uncertain_pitch_pianyin", {})
     result: dict[str, list[str]] = {}
     for group in groups.values():
@@ -194,16 +206,34 @@ def audit_conditional_sound_value_model(
 
     zaoyin_entries = loaded_registries.get("zaoyin", {}).get("entries", {})
     yueyin_entries = loaded_registries.get("yueyin", {}).get("entries", {})
-    zaoyin_realizations = _collect_zaoyin_realizations(
-        loaded_sources.get("zaoyin_realizations", {})
-    )
+    zaoyin_source = loaded_sources.get("zaoyin_realizations", {})
+    zaoyin_source_entries = zaoyin_source.get("entries", {})
+    zaoyin_realizations = _collect_zaoyin_realizations(zaoyin_source)
 
-    if set(zaoyin_realizations) != set(zaoyin_entries):
-        issues.append("pianyin_initial 与稳定噪音登记表的标签集合不一致")
-    for label in sorted(set(zaoyin_realizations) & set(zaoyin_entries)):
-        registered = [str(value) for value in zaoyin_entries[label].get("ipa", [])]
-        if set(registered) != set(zaoyin_realizations[label]):
-            issues.append(f"噪音 {label} 的上游实现值与稳定登记表不一致")
+    if isinstance(zaoyin_source_entries, dict) and zaoyin_source_entries:
+        runtime_source_entries = {
+            label: entry
+            for label, entry in zaoyin_source_entries.items()
+            if isinstance(entry, dict) and entry.get("activation") == "runtime_compatible"
+        }
+        source_runtime_ids = {
+            str(entry.get("yinyuan_id", "")) for entry in runtime_source_entries.values()
+        }
+        registry_ids = {
+            str(entry.get("yinyuan_id", "")) for entry in zaoyin_entries.values()
+        }
+        if source_runtime_ids != registry_ids:
+            issues.append("结构化噪音真源的运行投影与稳定登记表 ID 集合不一致")
+        registry_label_by_id = {
+            str(entry.get("yinyuan_id", "")): label
+            for label, entry in zaoyin_entries.items()
+        }
+        for label, entry in runtime_source_entries.items():
+            yinyuan_id = str(entry.get("yinyuan_id", ""))
+            if registry_label_by_id.get(yinyuan_id) != label:
+                issues.append(f"噪音 {yinyuan_id} 的真源标签与稳定登记标签不一致")
+    elif set(zaoyin_realizations) != set(zaoyin_entries):
+        issues.append("旧噪音片音来源与稳定噪音登记表的标签集合不一致")
 
     variables = loaded_sources.get("yueyin_quality_and_pitch_classes", {})
     quality_variables = variables.get("quality_variables", {})
@@ -228,12 +258,29 @@ def audit_conditional_sound_value_model(
                 )
 
     all_ids: list[str] = []
+    source_yinyuan_ids = [
+        str(entry.get("yinyuan_id", ""))
+        for entry in zaoyin_source_entries.values()
+        if isinstance(entry, dict)
+    ] if isinstance(zaoyin_source_entries, dict) else []
+    if source_yinyuan_ids:
+        if any(not value.startswith("N") for value in source_yinyuan_ids):
+            issues.append("结构化噪音真源存在非 N 前缀 Yinyuan ID")
+        if len(source_yinyuan_ids) != len(set(source_yinyuan_ids)):
+            issues.append("结构化噪音真源存在重复 Yinyuan ID")
+        all_ids.extend(source_yinyuan_ids)
+    else:
+        all_ids.extend(
+            str(entry.get("yinyuan_id", "")) for entry in zaoyin_entries.values()
+        )
+
     for prefix, entries in (("N", zaoyin_entries), ("M", yueyin_entries)):
         for label, entry in entries.items():
             yinyuan_id = str(entry.get("yinyuan_id", ""))
             if not yinyuan_id.startswith(prefix):
                 issues.append(f"稳定登记项 {label} 的 Yinyuan ID 非 {prefix} 前缀")
-            all_ids.append(yinyuan_id)
+            if prefix == "M":
+                all_ids.append(yinyuan_id)
     if len(all_ids) != len(set(all_ids)):
         issues.append("稳定登记表存在重复 Yinyuan ID")
 
@@ -247,7 +294,8 @@ def audit_conditional_sound_value_model(
     return ConditionalSoundValueAudit(
         model_id=str(model.get("model_id", "")),
         source_layer_count=len(sources) if isinstance(sources, dict) else 0,
-        zaoyin_count=len(zaoyin_entries),
+        zaoyin_count=len(zaoyin_realizations),
+        zaoyin_registered_count=len(zaoyin_entries),
         yueyin_count=len(yueyin_entries),
         zaoyin_realization_count=sum(len(values) for values in zaoyin_realizations.values()),
         yueyin_realization_count=len(registered_aliases),

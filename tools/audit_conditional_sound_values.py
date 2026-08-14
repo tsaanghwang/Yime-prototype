@@ -27,7 +27,7 @@ def _report_markdown(payload: dict[str, object]) -> str:
 - 结论：{verdict}
 - 模型：`{payload['model_id']}`
 - 上游来源层：{payload['source_layer_count']}
-- 噪音音元：{payload['zaoyin_count']}；已登记实现值：{payload['zaoyin_realization_count']}
+- 噪音片音真源：{payload['zaoyin_count']}；现行稳定登记：{payload['zaoyin_registered_count']}；已登记实现值：{payload['zaoyin_realization_count']}
 - 乐音音元：{payload['yueyin_count']}；已登记实现值：{payload['yueyin_realization_count']}
 - 条件规则：{payload['conditional_rule_count']}
 - 运行时启用：`{str(payload['runtime_enabled']).lower()}`
