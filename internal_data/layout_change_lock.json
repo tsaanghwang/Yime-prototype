@@ -12,9 +12,9 @@
     "internal_data/yime_syllable_omissions.tsv"
   ],
   "semantic_registry_sha256": "ba46591d6ade4045741b0f0a36a8b5a5f0669c5f3ced8345f488348f40a128e4",
-  "pinyin_yinyuan_chain_sha256": "0d1818db37f7b6deff55e9bc5461b8fa16a8fa9dc94ecb030bcaac632711f86d",
+  "pinyin_yinyuan_chain_sha256": "9616b2cefaf85c2c68735475bbaa8a5f21ab5bff3a0cfb3c323315b0006d4a9c",
   "syllable_rule_catalog_sha256": "bd7b4155c1b2e8a1ecbc3f89d29a07e9f19066d0823329186c33d0c53a15f7fa",
-  "syllable_provenance_sha256": "a799adee9dca269b2ec71e10c8032d9e8cf08b74161a25a8a5b019153dcdf97b",
+  "syllable_provenance_sha256": "e48ed228b1843565c9420ca5005b8e1a104ac7b32e2cb79040659678afff21ba",
   "canonical_layout_source": "internal_data/manual_key_layout.json",
   "derived_layout_artifacts": [
     "internal_data/manual_key_layout.resolved.json",

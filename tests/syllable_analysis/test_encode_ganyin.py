@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Final, cast
 
 from syllable.analysis.ganyin_encoder import GanyinEncoder
+from syllable.analysis.yueyin_mapper import YueyinMapper
 from tools.syllable_analysis.ganyin_slicer import GanyinSlicer
 
 
@@ -147,6 +148,39 @@ class TestGanyinEncoder(unittest.TestCase):
 
         assert rising == {"呼音": "a˧", "主音": "a˦", "末音": "a˥"}
         assert falling == {"呼音": "a˥", "主音": "a˦", "末音": "a˩"}
+
+    def test_slicer_keeps_combining_diacritics_inside_quality_positions(self):
+        slicer = GanyinSlicer()
+        single = slicer.slice_ganyin(
+            "single quality ganyin",
+            {"a1": {"ime": "a1", "ipa": "ä˥˥˥"}},
+        )["a1"]
+        triple = slicer.slice_ganyin(
+            "triple quality ganyin",
+            {"ing1": {"ime": "ing1", "ipa": "iɘ̠̆ŋ˥˥˥"}},
+        )["ing1"]
+
+        assert single == {"呼音": "ä˥", "主音": "ä˥", "末音": "ä˥"}
+        assert triple == {"呼音": "i˥", "主音": "ɘ̠̆˥", "末音": "ŋ˥"}
+
+    def test_modern_ipa_symbols_keep_registered_quality_classes(self):
+        mapper = YueyinMapper(SYLLABLE_DIR / "yinyuan" / "variables_of_attributes.json")
+        for modern, registered in (
+            ("ʊ", "ᴜ"),
+            ("ä", "a"),
+            ("ɛ̞", "æ"),
+            ("e̞", "e"),
+            ("ə̆", "ə"),
+            ("ɘ̠̆", "𐞑"),
+            ("m̩", "m"),
+            ("n̩", "n"),
+            ("ŋ̩", "ŋ"),
+        ):
+            with self.subTest(modern=modern, registered=registered):
+                self.assertEqual(
+                    mapper.normalize_symbol(modern, "˥"),
+                    mapper.normalize_symbol(registered, "˥"),
+                )
 
     def test_invalid_ganyin_inputs_raise_value_error(self):
         """无效输入应统一抛出 ValueError。"""

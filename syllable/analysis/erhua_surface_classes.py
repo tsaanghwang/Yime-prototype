@@ -46,6 +46,41 @@ def _normalize_template(value: object) -> dict[str, dict[str, object]]:
     }
 
 
+def _ng_coda_surface_segments(entry: Mapping[str, Any]) -> dict[str, dict[str, object]]:
+    review = entry.get("three_segment_review") or {}
+    base_segments = review.get("base_segments") or {}
+    if set(base_segments) != set(SEGMENT_NAMES):
+        raise ValueError("-ng 鼻化类缺少完整的基础三段。")
+    if str(base_segments["末音"]) != "ŋ":
+        raise ValueError("-ng 鼻化类的基础末音必须是 ŋ。")
+    main_quality = str(base_segments["主音"])
+    return {
+        "呼音": normalize_surface_segment(
+            {
+                "quality": str(base_segments["呼音"]),
+                "features": {"rhotic": False, "nasalized": False},
+            }
+        ),
+        "主音": normalize_surface_segment(
+            {"quality": main_quality, "features": {"rhotic": True, "nasalized": True}}
+        ),
+        "末音": normalize_surface_segment(
+            {"quality": main_quality, "features": {"rhotic": True, "nasalized": True}}
+        ),
+    }
+
+
+def _surface_segments_for_member(
+    rule: Mapping[str, Any], member: str, entry: Mapping[str, Any]
+) -> dict[str, dict[str, object]]:
+    transform = str(rule.get("transform") or "")
+    if transform == "ng_coda_to_nasalized_rhotic_main":
+        return _ng_coda_surface_segments(entry)
+    if transform:
+        raise ValueError(f"{member} 使用未知儿化表层变换：{transform}")
+    return copy.deepcopy(rule["surface_segments"])
+
+
 def _source_results(entry: Mapping[str, Any]) -> set[str]:
     return {
         str(source.get("source_erhua_final"))
@@ -63,7 +98,14 @@ def load_surface_class_rules(path: Path) -> dict[str, Any]:
         raise ValueError("儿化表层类规则缺少 classes。")
     seen_members: dict[str, str] = {}
     for class_id, rule in classes.items():
-        rule["surface_segments"] = _normalize_template(rule.get("surface_segments"))
+        transform = str(rule.get("transform") or "")
+        if transform:
+            if transform != "ng_coda_to_nasalized_rhotic_main":
+                raise ValueError(f"{class_id} 使用未知儿化表层变换：{transform}")
+            if "surface_segments" in rule:
+                raise ValueError(f"{class_id} 不能同时定义 transform 和 surface_segments。")
+        else:
+            rule["surface_segments"] = _normalize_template(rule.get("surface_segments"))
         members = [str(value) for value in rule.get("members") or []]
         if not members:
             raise ValueError(f"{class_id} 没有成员。")
@@ -90,27 +132,49 @@ def apply_surface_class_rules(
     rules = load_surface_class_rules(rules_path)
     entries = _entries(draft)
     timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-    changed: list[str] = []
+    surface_changed: list[str] = []
+    metadata_changed: list[str] = []
+    stale_classifications_cleared: list[str] = []
     unchanged: list[str] = []
 
+    active_members = {
+        str(member)
+        for rule in rules["classes"].values()
+        for member in rule["members"]
+    }
+    for final, entry in entries.items():
+        if final in active_members:
+            continue
+        review = entry.get("three_segment_review") or {}
+        cleared = entry.pop("erhua_surface_class", None) is not None
+        for field in ("surface_class", "surface_class_rule_version"):
+            if field in review:
+                review.pop(field)
+                cleared = True
+        if cleared:
+            stale_classifications_cleared.append(final)
+
     for class_id, rule in rules["classes"].items():
-        template = rule["surface_segments"]
+        expected_by_member = rule.get("source_results_by_member") or {}
         expected = {str(value) for value in rule.get("source_results") or []}
         aliases = rule.get("technical_aliases") or {}
         for member in rule["members"]:
             if member not in entries:
                 raise ValueError(f"{class_id} 的成员不存在：{member}")
             entry = entries[member]
+            member_expected = {
+                str(value) for value in expected_by_member.get(member, expected)
+            }
             actual = _source_results(entry)
-            if actual != expected:
+            if actual != member_expected:
                 raise ValueError(
                     f"{class_id}/{member} 的来源儿化结果为 {sorted(actual)}，"
-                    f"与规则 {sorted(expected)} 不一致。"
+                    f"与规则 {sorted(member_expected)} 不一致。"
                 )
             review = entry.get("three_segment_review") or {}
             if int(review.get("schema_version") or 0) != 2:
                 raise ValueError(f"{member} 尚未迁移到 structured segment schema。")
-            normalized = copy.deepcopy(template)
+            normalized = _surface_segments_for_member(rule, member, entry)
             desired_ipa = render_surface_segments(normalized)
             desired_fields = {
                 "surface_segments": normalized,
@@ -118,19 +182,32 @@ def apply_surface_class_rules(
                 "surface_class": class_id,
                 "surface_class_rule_version": int(rules["schema_version"]),
             }
-            differs = any(review.get(key) != value for key, value in desired_fields.items())
-            review.update(desired_fields)
-            entry["erhua_surface_class"] = {
+            surface_differs = any(
+                review.get(key) != value
+                for key, value in desired_fields.items()
+                if key in {"surface_segments", "surface_ipa"}
+            )
+            metadata_differs = any(
+                review.get(key) != value
+                for key, value in desired_fields.items()
+                if key in {"surface_class", "surface_class_rule_version"}
+            )
+            desired_entry_class = {
                 "class_id": class_id,
                 "rule_version": int(rules["schema_version"]),
                 "basis": str(rule.get("basis") or ""),
                 "technical_alias_of": str(aliases.get(member) or ""),
                 "runtime_enabled": False,
             }
-            if differs:
+            entry_metadata_differs = entry.get("erhua_surface_class") != desired_entry_class
+            review.update(desired_fields)
+            entry["erhua_surface_class"] = desired_entry_class
+            if surface_differs:
                 review["revision"] = int(review.get("revision") or 0) + 1
                 review["updated_utc"] = timestamp.isoformat().replace("+00:00", "Z")
-                changed.append(member)
+                surface_changed.append(member)
+            elif metadata_differs or entry_metadata_differs:
+                metadata_changed.append(member)
             else:
                 unchanged.append(member)
 
@@ -156,7 +233,10 @@ def apply_surface_class_rules(
     _write_json(draft_path, draft)
     return {
         "class_count": len(rules["classes"]),
-        "changed_members": changed,
+        "changed_members": surface_changed + metadata_changed,
+        "surface_changed_members": surface_changed,
+        "metadata_changed_members": metadata_changed,
+        "stale_classifications_cleared": stale_classifications_cleared,
         "unchanged_members": unchanged,
     }
 
@@ -168,10 +248,11 @@ def audit_surface_classes(draft_path: Path, rules_path: Path) -> dict[str, Any]:
     mismatches: list[str] = []
     class_rows: dict[str, dict[str, Any]] = {}
     for class_id, rule in rules["classes"].items():
-        template = rule["surface_segments"]
-        expected_ipa = render_surface_segments(template)
         members = []
+        member_surfaces: dict[str, str] = {}
         for member in rule["members"]:
+            template = _surface_segments_for_member(rule, member, entries[member])
+            expected_ipa = render_surface_segments(template)
             review = entries[member].get("three_segment_review") or {}
             if (
                 review.get("surface_class") != class_id
@@ -180,13 +261,20 @@ def audit_surface_classes(draft_path: Path, rules_path: Path) -> dict[str, Any]:
             ):
                 mismatches.append(member)
             members.append(member)
-        class_rows[class_id] = {
+            member_surfaces[member] = expected_ipa
+        unique_surfaces = list(dict.fromkeys(member_surfaces.values()))
+        class_row = {
             "members": members,
-            "surface_ipa": expected_ipa,
-            "surface_yime": render_surface_segments(
-                template, notation="yime_combining_r"
+            "surface_ipa": unique_surfaces[0] if len(unique_surfaces) == 1 else "按成员基础主音派生",
+            "surface_yime": (
+                render_surface_segments(template, notation="yime_combining_r")
+                if len(unique_surfaces) == 1
+                else "按成员基础主音派生"
             ),
         }
+        if rule.get("transform"):
+            class_row["member_surfaces"] = member_surfaces
+        class_rows[class_id] = class_row
     return {"mismatches": mismatches, "classes": class_rows}
 
 

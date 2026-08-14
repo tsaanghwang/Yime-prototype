@@ -1,5 +1,6 @@
 import json
 import sys
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, cast
@@ -114,6 +115,22 @@ class GanyinSlicer:
                           "ɔ", "y", "e", "o", "a", "m", "n", "i", "u"]
         return char.isalpha() or char in valid_phonemes
 
+    def _quality_symbols(self, ipa: str) -> List[str]:
+        """Split IPA into quality units while retaining combining diacritics."""
+
+        primary = ipa.split("/", 1)[0]
+        symbols: List[str] = []
+        for char in primary:
+            if char in self.pitch_levels.values():
+                continue
+            if unicodedata.combining(char):
+                if symbols:
+                    symbols[-1] += char
+                continue
+            if self._is_valid_phoneme(char):
+                symbols.append(char)
+        return symbols
+
     def _slice_single_quality(self, ipa: str, tone_pattern: List[str]) -> Dict[str, Any]:
         """切分单质干音"""
         # 处理双变体 IPA (如 "ɿ˥˥/ʅ˥˥")
@@ -121,8 +138,8 @@ class GanyinSlicer:
         first_ipa = first_ipa.split("˥")[0].split("˦")[0].split("˧")[
             0].split("˨")[0].split("˩")[0]
 
-        # 提取有效音素
-        chars = [c for c in first_ipa if self._is_valid_phoneme(c)]
+        # 提取音质单位；组合附标属于前一个音质，不另占位置。
+        chars = self._quality_symbols(first_ipa)
 
         # 处理音素不足情况
         if len(chars) == 1:
@@ -159,7 +176,7 @@ class GanyinSlicer:
 
     def _slice_back_long(self, ipa: str, tone_pattern: List[str]) -> Dict[str, Any]:
         """切分后长干音"""
-        chars = [c for c in ipa if self._is_valid_phoneme(c)]
+        chars = self._quality_symbols(ipa)
         if len(chars) == 2:
             chars = [chars[0], chars[1], chars[1]]
         if len(chars) < 3:
@@ -193,7 +210,7 @@ class GanyinSlicer:
 
     def _slice_front_long(self, ipa: str, tone_pattern: List[str]) -> Dict[str, Any]:
         """切分前长干音"""
-        chars = [c for c in ipa if self._is_valid_phoneme(c)]
+        chars = self._quality_symbols(ipa)
         if len(chars) == 2:
             chars = [chars[0], chars[0], chars[1]]
         if len(chars) < 3:
@@ -227,25 +244,15 @@ class GanyinSlicer:
 
     def _slice_triple_quality(self, ipa: str, tone_pattern: List[str]) -> Dict[str, Any]:
         """切分三质干音"""
-        ipa_stripped = ipa.split("˥")[0].split("˦")[0].split("˧")[
-            0].split("˨")[0].split("˩")[0]
-        if ipa_stripped in ["in", "un", "yn"]:
-            chars = [ipa_stripped[0], "ə", ipa_stripped[1]]
-        elif ipa_stripped in ["iŋ", "iʊ", "ʊŋ", "yŋ"]:
-            chars = [ipa_stripped[0], "ɤ", ipa_stripped[1:]]
-        elif ipa_stripped == "uɪ":
-            chars = ["u", "e", "ɪ"]
-        else:
-            chars = [c for c in ipa if c.isalpha() or c in [
-                "ə", "ɚ", "ŋ", "ɪ", "ʊ", "ʌ", "ɔ", "y", "e", "o", "a", "m", "n", "i", "u"]]
-            if len(chars) < 3:
-                chars += [None] * (3 - len(chars))
-                return {
-                    "呼音": self._create_yueyin(chars[0], tone_pattern[0]) if chars[0] else None,
-                    "主音": self._create_yueyin(chars[1], tone_pattern[1]) if chars[1] else None,
-                    "末音": self._create_yueyin(chars[2], tone_pattern[2]) if chars[2] else None,
-                    "warning": f"IPA too short: {ipa}"
-                }
+        chars = self._quality_symbols(ipa)
+        if len(chars) < 3:
+            chars += [None] * (3 - len(chars))
+            return {
+                "呼音": self._create_yueyin(chars[0], tone_pattern[0]) if chars[0] else None,
+                "主音": self._create_yueyin(chars[1], tone_pattern[1]) if chars[1] else None,
+                "末音": self._create_yueyin(chars[2], tone_pattern[2]) if chars[2] else None,
+                "warning": f"IPA too short: {ipa}"
+            }
         return {
             "呼音": str(YUEYIN_PIANYIN_CLASS.create_yueyin(chars[0], tone_pattern[0], "pianyin", "mark")),
             "主音": str(YUEYIN_PIANYIN_CLASS.create_yueyin(chars[1], tone_pattern[1], "pianyin", "mark")),

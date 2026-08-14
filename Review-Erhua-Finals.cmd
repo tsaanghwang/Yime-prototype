@@ -19,5 +19,23 @@ if not exist "%PYTHON%" (
     exit /b 2
 )
 
+"%PYTHON%" -m tools.syllable_analysis.ganyin_enhanced
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+
+"%PYTHON%" -m tools.syllable_analysis.ganyin_slicer
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+
+"%PYTHON%" "tools\sync_erhua_final_draft.py"
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+
 "%PYTHON%" "tools\review_erhua_final_segments.py"
 if errorlevel 1 pause

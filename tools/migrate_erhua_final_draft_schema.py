@@ -44,6 +44,10 @@ def audit(store: ErhuaFinalDraftStore) -> dict[str, object]:
 
     for item in items:
         review = item.review
+        if not review:
+            if not item.source_annotations:
+                no_source.append(item.final)
+            continue
         for field in ("rhotic_positions", "nasalized_positions"):
             if field in review:
                 legacy_fields.append(f"{item.final}.{field}")

@@ -2,13 +2,18 @@ import json
 from pathlib import Path
 from typing import Any
 
+from syllable.analysis.final_ipa_registry import (
+    require_complete_final_ipa_registry,
+    sync_final_ipa_registry,
+)
+
 """将数字标调的干音数据转换为带声调标记和IPA的格式"""
 
 SYLLABLE_DIR = Path(__file__).resolve().parents[2] / "syllable"
 YINYUAN_DIR = SYLLABLE_DIR / "yinyuan"
 DERIVED_OUTPUT_DIR = Path(__file__).resolve().parents[2] / "internal_data" / "yinyuan_derived"
 
-# 韵母与国际音标（IPA）的映射
+# 从唯一主表派生视图读取韵母与国际音标（IPA）的映射
 def load_final_styles() -> dict[str, str]:
     """加载韵母与IPA的映射关系"""
     final_styles_path = YINYUAN_DIR / "final_styles.json"
@@ -22,15 +27,11 @@ def load_final_styles() -> dict[str, str]:
         for final, info in category.items():
             # 处理特殊韵母"_i"的IPA值（ɿ/ʅ）
             if final == "_i":
-                ipa_map[final] = info["ipa"].split("/")[0]  # 默认使用第一个变体
-                ipa_map["i"] = info["ipa"].split("/")[1]    # 添加i的映射
+                ipa_map[final] = info["ipa"]
             else:
                 ipa_map[final] = info["ipa"]
     return ipa_map
 
-
-# 全局韵母-IPA映射表
-IPA_MAP = load_final_styles()
 
 # 数字调号到声调标记的映射
 TONE_MARK_MAP = {
@@ -50,11 +51,14 @@ def get_pinyin(base: str, tone_num: str) -> str:
     return base + mark
 
 
-def get_ipa(base: str, tone_num: str) -> str:
+def get_ipa(base: str, tone_num: str, ipa_map: dict[str, str] | None = None) -> str:
     """获取韵母的IPA表示（含声调）"""
     # 特殊处理带下划线的韵母（如"_i"）
     base_key = base if base.startswith("_") else base.lstrip("_")
-    ipa_base = str(IPA_MAP.get(base_key, base_key))
+    resolved_map = ipa_map if ipa_map is not None else load_final_styles()
+    if base_key not in resolved_map:
+        raise KeyError(f"韵母 {base_key!r} 缺少 IPA；请先同步韵母 IPA 主表")
+    ipa_base = str(resolved_map[base_key])
     tone_ipa: dict[str, str] = {
         "1": "˥˥˥",    # 降调
         "2": "˧˦˥",   # 升调
@@ -71,6 +75,10 @@ def get_ipa(base: str, tone_num: str) -> str:
 
 
 def enhance_ganyin(input_path: Path, output_path: Path) -> None:
+    sync_result = sync_final_ipa_registry(ganyin_path=input_path)
+    require_complete_final_ipa_registry(sync_result)
+    ipa_map = load_final_styles()
+
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -88,7 +96,7 @@ def enhance_ganyin(input_path: Path, output_path: Path) -> None:
             enhanced[category][key] = {
                 "ime": key,
                 "pinyin": pinyin,
-                "ipa": get_ipa(base, tone_num)
+                "ipa": get_ipa(base, tone_num, ipa_map)
             }
 
     with open(output_path, "w", encoding="utf-8") as f:

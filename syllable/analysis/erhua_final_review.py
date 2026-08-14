@@ -208,6 +208,12 @@ class ErhuaFinalDraftStore:
             for final, options in choices.items()
         }
 
+    @property
+    def segment_map(self) -> Mapping[str, tuple[str, Mapping[str, str]]]:
+        """Current generated base segments; callers must treat the map as read-only."""
+
+        return self._segment_map
+
     def _payload(self) -> dict[str, Any]:
         payload = _read_json(self.draft_path)
         if payload.get("runtime_enabled") is not False:
@@ -241,14 +247,6 @@ class ErhuaFinalDraftStore:
                 )
             if review:
                 self._normalize_segments(review.get("surface_segments") or {})
-                saved_base_segments = review.get("base_segments") or {}
-                if set(saved_base_segments) == set(SEGMENT_NAMES):
-                    base_segments = {
-                        name: str(saved_base_segments[name]) for name in SEGMENT_NAMES
-                    }
-                    base_segment_ganyin = str(
-                        review.get("base_segments_ganyin") or base_segment_ganyin
-                    )
             items.append(
                 ErhuaReviewItem(
                     category=category,
@@ -302,14 +300,6 @@ class ErhuaFinalDraftStore:
         timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
         segment_form = _SEGMENT_FORM_ALIASES.get(final, final)
         base_segment_ganyin, base_segments = self._segment_map[segment_form]
-        saved_base_segments = previous.get("base_segments") or {}
-        if set(saved_base_segments) == set(SEGMENT_NAMES):
-            base_segments = {
-                name: str(saved_base_segments[name]) for name in SEGMENT_NAMES
-            }
-            base_segment_ganyin = str(
-                previous.get("base_segments_ganyin") or base_segment_ganyin
-            )
         entry["three_segment_review"] = {
             "schema_version": 2,
             "surface_segment_schema": "quality_features_v1",
@@ -325,6 +315,13 @@ class ErhuaFinalDraftStore:
             "updated_utc": timestamp.isoformat().replace("+00:00", "Z"),
             "runtime_enabled": False,
         }
+        foundation_sync = payload.get("draft_foundation_sync") or {}
+        required = list(foundation_sync.get("surface_review_required") or [])
+        if final in required:
+            foundation_sync["surface_review_required"] = [
+                name for name in required if name != final
+            ]
+            payload["draft_foundation_sync"] = foundation_sync
         self._update_progress(payload, timestamp)
         self._write(payload)
         return next(item for item in self.load_items() if item.final == final)

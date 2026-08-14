@@ -27,8 +27,8 @@ def test_current_neutral_inventory_splits_into_regular_and_reviewed_routes() -> 
         if syllable.endswith("5")
     ]
 
-    assert len(resolutions) == 303
-    assert sum(item.kind == "regular" for item in resolutions) == 300
+    assert len(resolutions) == 304
+    assert sum(item.kind == "regular" for item in resolutions) == 301
     assert {
         item.syllable
         for item in resolutions
@@ -51,7 +51,7 @@ def test_neutral_exception_registry_contains_no_code_or_layout_mapping() -> None
         assert f'"{prohibited}"' not in serialized
 
 
-@pytest.mark.parametrize("syllable", ["lai5", "qiao5", "hm5", "hng5", "lo5"])
+@pytest.mark.parametrize("syllable", ["lai5", "qiao5", "chuo5", "hm5", "hng5", "lo5"])
 def test_neutral_routes_keep_the_existing_formal_encoding(syllable: str) -> None:
     inventory = json.loads(INVENTORY_PATH.read_text(encoding="utf-8"))
     codebook = json.loads(CODEBOOK_PATH.read_text(encoding="utf-8"))

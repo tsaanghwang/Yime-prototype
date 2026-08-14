@@ -94,12 +94,15 @@ def test_checked_in_provenance_covers_every_canonical_encoding() -> None:
     ) as file:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
-    assert len(actual) == len(inventory) == 1732
+    assert len(actual) == len(inventory) == 1733
     assert {row["pinyin_tone"] for row in actual} == set(inventory)
     assert all(row["status"] == "encoded-with-registered-basis" for row in actual)
     assert all(row["source_rule_ids"] for row in actual)
     assert all(row["orthography_rule_ids"] for row in actual)
     assert all(len(row["yinyuan_ids"].split()) == 4 for row in actual)
+    chuo5 = next(row for row in actual if row["pinyin_tone"] == "chuo5")
+    assert "ORTH-SOURCE-ATTESTED-NEUTRAL" in chuo5["orthography_rule_ids"]
+    assert "ENC-NEUTRAL-REGULAR-DERIVATION" in chuo5["encoder_alias_rule_ids"]
 
 
 def test_excluded_reading_does_not_erase_its_character() -> None:

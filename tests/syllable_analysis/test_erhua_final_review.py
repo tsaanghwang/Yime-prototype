@@ -40,7 +40,7 @@ def test_real_draft_has_complete_three_segment_foundations() -> None:
     store = ErhuaFinalDraftStore(DRAFT, DECOMPOSITION)
     items = {item.final: item for item in store.load_items()}
 
-    assert len(items) == 41
+    assert len(items) == 42
     assert {"v", "ve", "van", "vn"}.isdisjoint(items)
     assert items["ao"].base_segments == {"呼音": "ɑ", "主音": "ɑ", "末音": "ʊ"}
     assert items["ao"].base_segment_ganyin == "ao1"
@@ -53,16 +53,19 @@ def test_real_draft_has_complete_three_segment_foundations() -> None:
     assert items["uai"].base_segments == {"呼音": "u", "主音": "a", "末音": "ɪ"}
     assert items["in"].base_segments == {
         "\u547c\u97f3": "i",
-        "\u4e3b\u97f3": "ə",
+        "\u4e3b\u97f3": "ə̆",
         "\u672b\u97f3": "n",
     }
-    assert items["ong"].base_segments == {"呼音": "ʊ", "主音": "ɘ̠", "末音": "ŋ"}
-    assert items["ueng"].base_segments == {"呼音": "u", "主音": "ə", "末音": "ŋ"}
+    assert items["ong"].base_segments == {"呼音": "ʊ", "主音": "ɘ̠̆", "末音": "ŋ"}
+    assert items["ueng"].base_segments == {"呼音": "u", "主音": "ɤ", "末音": "ŋ"}
     assert items["ueng"].decision == "reviewed"
     assert [row["source_base_final"] for row in items["ong"].source_annotations] == ["ong"]
     assert [row["source_base_final"] for row in items["ueng"].source_annotations] == ["ueng"]
     assert "uong" not in items
     assert "ue" not in items
+    assert items["io"].decision == "not_applicable"
+    assert items["io"].base_ipa == "io"
+    assert items["io"].base_segments == {"呼音": "i", "主音": "o", "末音": "o"}
     assert items["ê"].base_segments == {"呼音": "e̞", "主音": "e̞", "末音": "e̞"}
     assert items["ie"].base_segments == {"呼音": "i", "主音": "e̞", "末音": "e̞"}
     assert items["üe"].base_segments == {"呼音": "ʏ", "主音": "e̞", "末音": "e̞"}
@@ -161,7 +164,7 @@ def test_review_save_is_atomic_and_preserves_research_boundary(
     assert not list(copied_store.draft_path.parent.glob(".*.tmp"))
 
 
-def test_review_save_preserves_draft_base_segment_corrections(
+def test_review_save_uses_current_generated_base_segments(
     copied_store: ErhuaFinalDraftStore,
 ) -> None:
     before = {item.final: item for item in copied_store.load_items()}["ian"]

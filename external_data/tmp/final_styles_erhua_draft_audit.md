@@ -1,30 +1,36 @@
 # 儿化标注草稿规则审计
 
 - 范围：研究草稿、表层类规则和校对显示；未修改正式音元源、布局或运行时。
-- 规则类：9。
-- 本次变更成员：['a', 'ai', 'an', 'e', 'ei', 'en', 'i', 'ia', 'ua', 'uai', 'uan', 'ü']。
-- 未变化成员：['_i', 'in', 'uei', 'uen', 'ün', 'iao', 'iou']。
+- 规则类：13。
+- 表层音质变更：['ing', 'ong', 'iong']。
+- 仅分类元数据变更：['ang', 'eng', 'iang', 'uang', 'ueng']。
+- 已清除过期分类：无。
+- 未变化成员：['a', 'ai', 'an', '_i', 'ei', 'en', 'e', 'i', 'in', 'ia', 'ua', 'uai', 'uan', 'uei', 'uen', 'ü', 'ün', 'iao', 'iou']。
 - 合流类不一致：无。
 
 ## 表层类
 
-同一 PSC 儿化结果的规范拼音成员引用同一套三段模板；技术拼音别名不进入音系草稿。
+PSC 儿化结果拼写用于来源对齐；基础音质或卷舌范围不同的成员拆分为不同三段模板。技术拼音别名不进入音系草稿。
 `᷊`（U+1DCA）仅为 Yime 下方卷舌显示附标，标准 IPA 仍由同一结构渲染为 `˞/ɚ`；上方可继续附加音高符号。
 
 | 表层类 | 成员 | 标准 IPA | Yime 显示 |
 |---|---|---|---|
-| `ERHUA-ORAL-AR` | `a, ai, an` | `ää˞ä˞` | `ää᷊ä᷊` |
-| `ERHUA-ORAL-ER` | `_i, e, ei, en` | `ɚɚɚ` | `ə᷊ə᷊ə᷊` |
+| `ERHUA-ORAL-AR-A` | `a` | `ää˞ɐ˞` | `ää᷊ɐ᷊` |
+| `ERHUA-ORAL-AR-AI-N` | `ai, an` | `aa˞ɐ˞` | `aa᷊ɐ᷊` |
+| `ERHUA-ORAL-ER` | `_i, ei, en` | `ɚɚɚ` | `ə᷊ə᷊ə᷊` |
+| `ERHUA-ORAL-ER-E` | `e` | `ɤɤ˞ɤ˞` | `ɤɤ᷊ɤ᷊` |
 | `ERHUA-ORAL-I-ER` | `i, in` | `iɚɚ` | `iə᷊ə᷊` |
-| `ERHUA-ORAL-IAR` | `ia` | `iä˞ä˞` | `iä᷊ä᷊` |
-| `ERHUA-ORAL-UAR` | `ua, uai, uan` | `uä˞ä˞` | `uä᷊ä᷊` |
+| `ERHUA-ORAL-IAR` | `ia` | `iä˞ɐ˞` | `iä᷊ɐ᷊` |
+| `ERHUA-ORAL-UAR-A` | `ua` | `uä˞ɐ˞` | `uä᷊ɐ᷊` |
+| `ERHUA-ORAL-UAR-AI-N` | `uai, uan` | `ua˞ɐ˞` | `ua᷊ɐ᷊` |
 | `ERHUA-ORAL-UER` | `uei, uen` | `uɚɚ` | `uə᷊ə᷊` |
 | `ERHUA-ORAL-UMLAUT-I-ER` | `ü, ün` | `ʏɚɚ` | `ʏə᷊ə᷊` |
-| `ERHUA-ORAL-IAOR` | `iao` | `iɑ˞ʊ˞` | `iɑ᷊ʊ᷊` |
-| `ERHUA-ORAL-IOUR` | `iou` | `iɤ˞ʊ˞` | `iɤ᷊ʊ᷊` |
+| `ERHUA-NASAL-NG` | `ang, eng, iang, uang, ueng, ing, ong, iong` | `按成员基础主音派生` | `按成员基础主音派生` |
+| `ERHUA-ORAL-IAOR` | `iao` | `iɑʊ˞` | `iɑʊ᷊` |
+| `ERHUA-ORAL-IOUR` | `iou` | `iɤʊ˞` | `iɤʊ᷊` |
 
-## 尚未自动统一
+## 参数化分类
 
-- `-ng` 鼻化类：鼻化范围与 rhotic 动程需继续分别审查。
-- `ong/ueng`：共用内部编码族但来源表层形式不同，不能压成单一模板。
+- `ERHUA-NASAL-NG`：保留各成员呼音，基础主音同时加鼻化和卷舌特征，并复制到主音、末音两段；`ong/ueng` 与其余 `-ng` 韵母遵循同一结构规则。
+- 独立占位项 `ng` 不是本规则中的规范韵母，不自动生成儿化表层。
 - 其余单成员类：没有合流遗漏时维持已有人工标注。
