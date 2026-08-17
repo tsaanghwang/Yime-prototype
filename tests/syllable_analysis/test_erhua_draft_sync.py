@@ -126,7 +126,7 @@ def test_real_draft_foundations_match_current_sources() -> None:
 
     store = ErhuaFinalDraftStore(DRAFT, DECOMPOSITION)
     items = {item.final: item for item in store.load_items()}
-    assert len(items) == 42
+    assert len(items) == 43
     assert items["ueng"].base_ipa == "uɤŋ"
     assert items["ueng"].base_segments == {"呼音": "u", "主音": "ɤ", "末音": "ŋ"}
 

@@ -6,6 +6,7 @@ from pathlib import Path
 from yime.lexicon_bundle.parsers import iter_reviewed_psc_candidate_readings
 from yime.lexicon_bundle.psc_candidate_coverage import (
     InventorySegmenter,
+    PSC_PRONUNCIATION_PERIPHERAL_CATEGORY,
     expand_transcription_pair,
 )
 
@@ -52,6 +53,21 @@ def test_reviewed_catalog_is_complete_and_duplicate_free() -> None:
     assert len(keys) == len(set(keys))
     assert all(item["source"] == "psc_candidate_coverage" for item in payload["records"])
     assert all(not item["source_primary"] for item in payload["records"])
+    peripheral = [
+        item
+        for item in payload["records"]
+        if item.get("source_category") == PSC_PRONUNCIATION_PERIPHERAL_CATEGORY
+    ]
+    assert len(peripheral) == 315
+    assert all(
+        item.get("candidate_layer") == "psc_normative_low_frequency_periphery"
+        for item in peripheral
+    )
+    assert {
+        evidence["source_kind"]
+        for item in peripheral
+        for evidence in item["evidence"]
+    } >= {"psc_neutral_tone", "psc_erhua"}
 
 
 def test_catalog_parser_keeps_candidate_records_non_primary() -> None:

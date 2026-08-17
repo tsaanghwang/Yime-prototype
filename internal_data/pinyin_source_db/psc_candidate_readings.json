@@ -4,12 +4,13 @@
     "purpose": "Add reviewed PSC pairs absent from current runtime candidates.",
     "ranking": "Candidate coverage only; never rerank an existing reading.",
     "transcription": "Machine-verified, confirmed, and corrected transcription states are eligible.",
-    "erhua": "Preserve source Pinyin as evidence and derive a written-儿 input alias with a separate er slot."
+    "erhua": "Preserve source Pinyin as evidence and derive a written-儿 input alias with a separate er slot.",
+    "neutral_erhua_runtime": "Reviewed psc_neutral_tone and psc_erhua pairs may enter a separate fixed-low-frequency peripheral candidate layer; they never become source-primary or rerank the existing core."
   },
   "input_sha256": {
     "audit_database": "c2b1173934ea40bb6a604f18e9b2bea509a641fbd352faf515610d66cadfcd6a",
-    "decision_database": "17b66d95165250c700254f0e45d53e36e71f036d183f0aee631c178f617cd8da",
-    "source_database": "d653f98a265a30b3771230adb7e739405576fd7f0956d8c52fe59ade155a0e94"
+    "decision_database": "9df3269afd8934f8c4f91faad3d2152728d973acee058502119f8daf3c270fd5",
+    "source_database": "93fc4794c6da0168b17cc8905923d7d56218db8554031302e913d31790643708"
   },
   "records": [
     {
@@ -547,7 +548,7 @@
       "marked_pinyin": "yī zhèn er",
       "numeric_pinyin": "yi1 zhen4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -572,7 +573,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "一面",
@@ -641,7 +643,7 @@
       "marked_pinyin": "zhàng ren",
       "numeric_pinyin": "zhang4 ren5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -682,14 +684,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "丈夫",
       "marked_pinyin": "zhàng fu",
       "numeric_pinyin": "zhang4 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -730,14 +733,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "上司",
       "marked_pinyin": "shàng si",
       "numeric_pinyin": "shang4 si5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -778,7 +782,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "上头",
@@ -1046,7 +1051,7 @@
       "marked_pinyin": "shì gu",
       "numeric_pinyin": "shi4 gu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1087,14 +1092,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "东家",
       "marked_pinyin": "dōng jia",
       "numeric_pinyin": "dong1 jia5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1135,14 +1141,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "东西",
       "marked_pinyin": "dōng xi",
       "numeric_pinyin": "dong1 xi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1227,7 +1234,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "东边",
@@ -1292,7 +1300,7 @@
       "marked_pinyin": "gè tóu er",
       "numeric_pinyin": "ge4 tou2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1335,7 +1343,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "中意",
@@ -1404,7 +1413,7 @@
       "marked_pinyin": "zhú yi",
       "numeric_pinyin": "zhu2 yi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1445,14 +1454,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "主角儿",
       "marked_pinyin": "zhǔ jué er",
       "numeric_pinyin": "zhu3 jue2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1477,7 +1487,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "书记",
@@ -1513,7 +1524,7 @@
       "marked_pinyin": "mǎi mai",
       "numeric_pinyin": "mai3 mai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1576,7 +1587,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "云彩丝儿",
@@ -1616,7 +1628,7 @@
       "marked_pinyin": "qīn qi",
       "numeric_pinyin": "qin1 qi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1657,14 +1669,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "人家",
       "marked_pinyin": "rén jia",
       "numeric_pinyin": "ren2 jia5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1705,14 +1718,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "人影儿",
       "marked_pinyin": "rén yǐng er",
       "numeric_pinyin": "ren2 ying3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1755,7 +1769,8 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "人影绰约",
@@ -1824,7 +1839,7 @@
       "marked_pinyin": "xiū xi",
       "numeric_pinyin": "xiu1 xi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1865,14 +1880,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "伺候",
       "marked_pinyin": "cì hou",
       "numeric_pinyin": "ci4 hou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -1913,7 +1929,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "体现为",
@@ -2011,7 +2028,7 @@
       "marked_pinyin": "sú qi",
       "numeric_pinyin": "su2 qi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2052,7 +2069,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "倒不是",
@@ -2208,7 +2226,7 @@
       "marked_pinyin": "xiōng di",
       "numeric_pinyin": "xiong1 di5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2249,14 +2267,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "光棍儿",
       "marked_pinyin": "guāng gùn er",
       "numeric_pinyin": "guang1 gun4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2299,7 +2318,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "免得",
@@ -2364,7 +2384,7 @@
       "marked_pinyin": "guān xi",
       "numeric_pinyin": "guan1 xi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2405,14 +2425,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "冒失",
       "marked_pinyin": "mào shi",
       "numeric_pinyin": "mao4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2453,14 +2474,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "冒尖儿",
       "marked_pinyin": "mào jiān er",
       "numeric_pinyin": "mao4 jian1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2485,14 +2507,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "冤家",
       "marked_pinyin": "yuān jia",
       "numeric_pinyin": "yuan1 jia5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2533,14 +2556,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "冰棍儿",
       "marked_pinyin": "bīng gùn er",
       "numeric_pinyin": "bing1 gun4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2565,14 +2589,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "凉快",
       "marked_pinyin": "liáng kuai",
       "numeric_pinyin": "liang2 kuai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2613,7 +2638,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "几场",
@@ -2653,7 +2679,7 @@
       "marked_pinyin": "chū quān er",
       "numeric_pinyin": "chu1 quan1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2678,14 +2704,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "出息",
       "marked_pinyin": "chū xi",
       "numeric_pinyin": "chu1 xi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2726,14 +2753,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "刀刃儿",
       "marked_pinyin": "dāo rèn er",
       "numeric_pinyin": "dao1 ren4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2758,14 +2786,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "刀背儿",
       "marked_pinyin": "dāo bèi er",
       "numeric_pinyin": "dao1 bei4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2790,7 +2819,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "分子",
@@ -2826,7 +2856,7 @@
       "marked_pinyin": "bào zi",
       "numeric_pinyin": "bao4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2867,14 +2897,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "利落",
       "marked_pinyin": "lì luo",
       "numeric_pinyin": "li4 luo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2915,14 +2946,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "别扭",
       "marked_pinyin": "biè niu",
       "numeric_pinyin": "bie4 niu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2963,14 +2995,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "别针儿",
       "marked_pinyin": "bié zhēn er",
       "numeric_pinyin": "bie2 zhen1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -2995,14 +3028,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "刺猬",
       "marked_pinyin": "cì wei",
       "numeric_pinyin": "ci4 wei5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3043,7 +3077,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "前边",
@@ -3079,7 +3114,7 @@
       "marked_pinyin": "jiā sāi er",
       "numeric_pinyin": "jia1 sai1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3104,14 +3139,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "加油儿",
       "marked_pinyin": "jiā yóu er",
       "numeric_pinyin": "jia1 you2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3136,14 +3172,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "动弹",
       "marked_pinyin": "dòng tan",
       "numeric_pinyin": "dong4 tan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3184,14 +3221,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "动静",
       "marked_pinyin": "dòng jing",
       "numeric_pinyin": "dong4 jing5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3232,7 +3270,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "势力",
@@ -3297,7 +3336,7 @@
       "marked_pinyin": "qín kuai",
       "numeric_pinyin": "qin2 kuai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3338,14 +3377,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "包干儿",
       "marked_pinyin": "bāo gān er",
       "numeric_pinyin": "bao1 gan1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3388,7 +3428,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "半截儿",
@@ -3424,7 +3465,7 @@
       "marked_pinyin": "bàn jié er",
       "numeric_pinyin": "ban4 jie2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3449,7 +3490,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "单个儿",
@@ -3485,7 +3527,7 @@
       "marked_pinyin": "dān gè er",
       "numeric_pinyin": "dan1 ge4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3510,7 +3552,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "危涧",
@@ -3583,7 +3626,7 @@
       "marked_pinyin": "juàn zi",
       "numeric_pinyin": "juan4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3624,14 +3667,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "压根儿",
       "marked_pinyin": "yà gēn er",
       "numeric_pinyin": "ya4 gen1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3674,7 +3718,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "反差",
@@ -3710,7 +3755,7 @@
       "marked_pinyin": "kǒu shào er",
       "numeric_pinyin": "kou3 shao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3753,14 +3798,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "口罩儿",
       "marked_pinyin": "kǒu zhào er",
       "numeric_pinyin": "kou3 zhao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3785,14 +3831,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "口袋",
       "marked_pinyin": "kǒu dai",
       "numeric_pinyin": "kou3 dai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3833,7 +3880,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "古朴",
@@ -3869,7 +3917,7 @@
       "marked_pinyin": "jiào hǎo er",
       "numeric_pinyin": "jiao4 hao3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3894,7 +3942,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "右边",
@@ -3930,7 +3979,7 @@
       "marked_pinyin": "hào mǎ er",
       "numeric_pinyin": "hao4 ma3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -3955,14 +4004,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "吆喝",
       "marked_pinyin": "yāo he",
       "numeric_pinyin": "yao1 he5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4003,14 +4053,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "合同",
       "marked_pinyin": "hé tong",
       "numeric_pinyin": "he2 tong5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4051,14 +4102,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "合群儿",
       "marked_pinyin": "hé qún er",
       "numeric_pinyin": "he2 qun2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4083,7 +4135,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "同行",
@@ -4152,7 +4205,7 @@
       "marked_pinyin": "míng pái er",
       "numeric_pinyin": "ming2 pai2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4177,14 +4230,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "后跟儿",
       "marked_pinyin": "hòu gēn er",
       "numeric_pinyin": "hou4 gen1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4209,7 +4263,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "后边",
@@ -4245,7 +4300,7 @@
       "marked_pinyin": "xià hu",
       "numeric_pinyin": "xia4 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4286,14 +4341,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "含糊",
       "marked_pinyin": "hán hu",
       "numeric_pinyin": "han2 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4334,7 +4390,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "听不见",
@@ -4403,7 +4460,7 @@
       "marked_pinyin": "gào su",
       "numeric_pinyin": "gao4 su5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4444,7 +4501,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "味道",
@@ -4509,7 +4567,7 @@
       "marked_pinyin": "hé shang",
       "numeric_pinyin": "he2 shang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4550,14 +4608,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "咳嗽",
       "marked_pinyin": "ké sou",
       "numeric_pinyin": "ke2 sou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4598,7 +4657,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "哀乐",
@@ -4634,7 +4694,7 @@
       "marked_pinyin": "hā qian",
       "numeric_pinyin": "ha1 qian5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4675,7 +4735,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "哪儿",
@@ -4744,7 +4805,7 @@
       "marked_pinyin": "láo dao",
       "numeric_pinyin": "lao2 dao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4785,14 +4846,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "商量",
       "marked_pinyin": "shāng liang",
       "numeric_pinyin": "shang1 liang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4833,7 +4895,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "啊",
@@ -4953,7 +5016,7 @@
       "marked_pinyin": "yuán zi",
       "numeric_pinyin": "yuan2 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -4994,14 +5057,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "围嘴儿",
       "marked_pinyin": "wéi zuǐ er",
       "numeric_pinyin": "wei2 zui3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5026,14 +5090,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "图钉儿",
       "marked_pinyin": "tú dīng er",
       "numeric_pinyin": "tu2 ding1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5058,7 +5123,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "在乎",
@@ -5098,7 +5164,7 @@
       "marked_pinyin": "dì fang",
       "numeric_pinyin": "di4 fang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5227,14 +5293,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "地道",
       "marked_pinyin": "dì dao",
       "numeric_pinyin": "di4 dao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5275,7 +5342,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "垫圈",
@@ -5311,7 +5379,7 @@
       "marked_pinyin": "diàn dǐ er",
       "numeric_pinyin": "dian4 di3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5336,14 +5404,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "墨汁儿",
       "marked_pinyin": "mò zhī er",
       "numeric_pinyin": "mo4 zhi1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5368,14 +5437,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "壶盖儿",
       "marked_pinyin": "hú gài er",
       "numeric_pinyin": "hu2 gai4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5400,14 +5470,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "外甥",
       "marked_pinyin": "wài sheng",
       "numeric_pinyin": "wai4 sheng5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5448,7 +5519,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "外边",
@@ -5513,7 +5585,7 @@
       "marked_pinyin": "dài fu",
       "numeric_pinyin": "dai4 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5554,14 +5626,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "大婶儿",
       "marked_pinyin": "dà shěn er",
       "numeric_pinyin": "da4 shen3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5604,14 +5677,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "大意",
       "marked_pinyin": "dà yi",
       "numeric_pinyin": "da4 yi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5652,14 +5726,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "大方",
       "marked_pinyin": "dà fang",
       "numeric_pinyin": "da4 fang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5700,14 +5775,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "大爷",
       "marked_pinyin": "dà ye",
       "numeric_pinyin": "da4 ye5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5748,14 +5824,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "大褂儿",
       "marked_pinyin": "dà guà er",
       "numeric_pinyin": "da4 gua4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5798,7 +5875,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "天一擦黑儿",
@@ -5838,7 +5916,7 @@
       "marked_pinyin": "tiān chuāng er",
       "numeric_pinyin": "tian1 chuang1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5863,7 +5941,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "太阳",
@@ -5899,7 +5978,7 @@
       "marked_pinyin": "tóu fa",
       "numeric_pinyin": "tou2 fa5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5940,14 +6019,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "夹缝儿",
       "marked_pinyin": "jiā fèng er",
       "numeric_pinyin": "jia1 feng4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -5972,14 +6052,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "女婿",
       "marked_pinyin": "nǚ xu",
       "numeric_pinyin": "nü3 xu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6020,7 +6101,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "好事",
@@ -6056,7 +6138,7 @@
       "marked_pinyin": "hǎo wán er",
       "numeric_pinyin": "hao3 wan2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6099,7 +6181,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "妙手成章",
@@ -6139,7 +6222,7 @@
       "marked_pinyin": "tuǒ dang",
       "numeric_pinyin": "tuo3 dang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6180,14 +6263,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "姐夫",
       "marked_pinyin": "jiě fu",
       "numeric_pinyin": "jie3 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6228,14 +6312,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "委屈",
       "marked_pinyin": "wěi qu",
       "numeric_pinyin": "wei3 qu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6276,7 +6361,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "娇嫩",
@@ -6312,7 +6398,7 @@
       "marked_pinyin": "niáng jia",
       "numeric_pinyin": "niang2 jia5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6353,14 +6439,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "媳妇",
       "marked_pinyin": "xí fu",
       "numeric_pinyin": "xi2 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6401,14 +6488,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "媳妇儿",
       "marked_pinyin": "xí fu er",
       "numeric_pinyin": "xi2 fu5 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6433,7 +6521,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "嫩柳",
@@ -6473,7 +6562,7 @@
       "marked_pinyin": "zì hao",
       "numeric_pinyin": "zi4 hao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6514,7 +6603,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "学得",
@@ -6587,7 +6677,7 @@
       "marked_pinyin": "xué wen",
       "numeric_pinyin": "xue2 wen5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6628,14 +6718,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "实在",
       "marked_pinyin": "shí zai",
       "numeric_pinyin": "shi2 zai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6676,7 +6767,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "宽敞",
@@ -6774,7 +6866,7 @@
       "marked_pinyin": "duì tou",
       "numeric_pinyin": "dui4 tou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6815,14 +6907,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "对子",
       "marked_pinyin": "duì zi",
       "numeric_pinyin": "dui4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6863,14 +6956,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "将就",
       "marked_pinyin": "jiāng jiu",
       "numeric_pinyin": "jiang1 jiu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6911,14 +7005,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小丑儿",
       "marked_pinyin": "xiǎo chǒu er",
       "numeric_pinyin": "xiao3 chou3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6943,14 +7038,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小偷儿",
       "marked_pinyin": "xiǎo tōu er",
       "numeric_pinyin": "xiao3 tou1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -6993,7 +7089,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小姐",
@@ -7029,7 +7126,7 @@
       "marked_pinyin": "xiǎo zi",
       "numeric_pinyin": "xiao3 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7070,14 +7167,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小曲儿",
       "marked_pinyin": "xiǎo qǔ er",
       "numeric_pinyin": "xiao3 qu3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7102,7 +7200,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小朋友",
@@ -7138,7 +7237,7 @@
       "marked_pinyin": "xiǎo qi",
       "numeric_pinyin": "xiao3 qi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7179,14 +7278,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小熊儿",
       "marked_pinyin": "xiǎo xióng er",
       "numeric_pinyin": "xiao3 xiong2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7211,14 +7311,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小瓮儿",
       "marked_pinyin": "xiǎo wèng er",
       "numeric_pinyin": "xiao3 weng4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7262,7 +7363,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小草儿",
@@ -7302,7 +7404,7 @@
       "marked_pinyin": "xiǎo cōng er",
       "numeric_pinyin": "xiao3 cong1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7327,14 +7429,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小褂儿",
       "marked_pinyin": "xiǎo guà er",
       "numeric_pinyin": "xiao3 gua4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7377,14 +7480,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小说儿",
       "marked_pinyin": "xiǎo shuō er",
       "numeric_pinyin": "xiao3 shuo1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7427,14 +7531,15 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "小鞋儿",
       "marked_pinyin": "xiǎo xié er",
       "numeric_pinyin": "xiao3 xie2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7459,14 +7564,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "少爷",
       "marked_pinyin": "shào ye",
       "numeric_pinyin": "shao4 ye5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7507,7 +7613,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "尸首",
@@ -7605,7 +7712,7 @@
       "marked_pinyin": "suì shu",
       "numeric_pinyin": "sui4 shu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7646,7 +7753,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "左扭柏",
@@ -7744,7 +7852,7 @@
       "marked_pinyin": "chāi shi",
       "numeric_pinyin": "chai1 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7785,14 +7893,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "巴结",
       "marked_pinyin": "bā jie",
       "numeric_pinyin": "ba1 jie5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7833,14 +7942,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "师父",
       "marked_pinyin": "shī fu",
       "numeric_pinyin": "shi1 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7881,14 +7991,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "帮手",
       "marked_pinyin": "bāng shou",
       "numeric_pinyin": "bang1 shou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7929,14 +8040,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "干事",
       "marked_pinyin": "gàn shi",
       "numeric_pinyin": "gan4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -7977,14 +8089,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "庄子",
       "marked_pinyin": "zhuāng zi",
       "numeric_pinyin": "zhuang1 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8025,14 +8138,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "应酬",
       "marked_pinyin": "yìng chou",
       "numeric_pinyin": "ying4 chou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8073,14 +8187,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "废物",
       "marked_pinyin": "fèi wu",
       "numeric_pinyin": "fei4 wu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8121,7 +8236,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "延误",
@@ -8157,7 +8273,7 @@
       "marked_pinyin": "kāi chūn er",
       "numeric_pinyin": "kai1 chun1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8182,14 +8298,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "开窍儿",
       "marked_pinyin": "kāi qiào er",
       "numeric_pinyin": "kai1 qiao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8214,14 +8331,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "开通",
       "marked_pinyin": "kāi tong",
       "numeric_pinyin": "kai1 tong5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8262,14 +8380,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "弟兄",
       "marked_pinyin": "dì xiong",
       "numeric_pinyin": "di4 xiong5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8310,7 +8429,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "当夜",
@@ -8499,7 +8619,7 @@
       "marked_pinyin": "xīn si",
       "numeric_pinyin": "xin1 si5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8584,7 +8704,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "心里",
@@ -8620,7 +8741,7 @@
       "marked_pinyin": "niàn dao",
       "numeric_pinyin": "nian4 dao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8661,14 +8782,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "思量",
       "marked_pinyin": "sī liang",
       "numeric_pinyin": "si1 liang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8709,14 +8831,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "怪不得",
       "marked_pinyin": "guài bu de",
       "numeric_pinyin": "guai4 bu5 de5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8757,14 +8880,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "恨不得",
       "marked_pinyin": "hèn bu de",
       "numeric_pinyin": "hen4 bu5 de5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8805,7 +8929,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "恭维",
@@ -8928,7 +9053,7 @@
       "marked_pinyin": "xì fǎ er",
       "numeric_pinyin": "xi4 fa3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -8953,7 +9078,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "成行",
@@ -8989,7 +9115,7 @@
       "marked_pinyin": "biǎn dan",
       "numeric_pinyin": "bian3 dan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9030,14 +9156,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "扇面儿",
       "marked_pinyin": "shàn miàn er",
       "numeric_pinyin": "shan4 mian4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9062,14 +9189,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "手套儿",
       "marked_pinyin": "shǒu tào er",
       "numeric_pinyin": "shou3 tao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9094,14 +9222,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "手绢儿",
       "marked_pinyin": "shǒu juàn er",
       "numeric_pinyin": "shou3 juan4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9144,14 +9273,15 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "扎实",
       "marked_pinyin": "zhā shi",
       "numeric_pinyin": "zha1 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9192,14 +9322,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打发",
       "marked_pinyin": "dǎ fa",
       "numeric_pinyin": "da3 fa5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9240,14 +9371,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打听",
       "marked_pinyin": "dǎ ting",
       "numeric_pinyin": "da3 ting5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9288,14 +9420,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打扮",
       "marked_pinyin": "dǎ ban",
       "numeric_pinyin": "da3 ban5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9336,14 +9469,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打招呼",
       "marked_pinyin": "dǎ zhāo hu",
       "numeric_pinyin": "da3 zhao1 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9384,14 +9518,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打晃儿",
       "marked_pinyin": "dǎ huàng er",
       "numeric_pinyin": "da3 huang4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9416,14 +9551,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打点",
       "marked_pinyin": "dǎ dian",
       "numeric_pinyin": "da3 dian5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9464,14 +9600,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打算",
       "marked_pinyin": "dǎ suan",
       "numeric_pinyin": "da3 suan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9512,14 +9649,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打转儿",
       "marked_pinyin": "dǎ zhuàn er",
       "numeric_pinyin": "da3 zhuan4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9544,14 +9682,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打量",
       "marked_pinyin": "dǎ liang",
       "numeric_pinyin": "da3 liang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9592,14 +9731,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "打鸣儿",
       "marked_pinyin": "dǎ míng er",
       "numeric_pinyin": "da3 ming2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9624,14 +9764,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "扫帚",
       "marked_pinyin": "sào zhou",
       "numeric_pinyin": "sao4 zhou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9672,14 +9813,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "找碴儿",
       "marked_pinyin": "zhǎo chá er",
       "numeric_pinyin": "zhao3 cha2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9704,14 +9846,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "把子",
       "marked_pinyin": "bà zi",
       "numeric_pinyin": "ba4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9752,14 +9895,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "把门儿",
       "marked_pinyin": "bǎ mén er",
       "numeric_pinyin": "ba3 men2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9802,14 +9946,15 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "抓阄儿",
       "marked_pinyin": "zhuā jiū er",
       "numeric_pinyin": "zhua1 jiu1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9834,7 +9979,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "报酬",
@@ -9899,7 +10045,7 @@
       "marked_pinyin": "chōu kòng er",
       "numeric_pinyin": "chou1 kong4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9924,14 +10070,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "拉扯",
       "marked_pinyin": "lā che",
       "numeric_pinyin": "la1 che5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -9972,14 +10119,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "拉链儿",
       "marked_pinyin": "lā liàn er",
       "numeric_pinyin": "la1 lian4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10004,14 +10152,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "拾掇",
       "marked_pinyin": "shí duo",
       "numeric_pinyin": "shi2 duo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10052,14 +10201,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "指头",
       "marked_pinyin": "zhí tou",
       "numeric_pinyin": "zhi2 tou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10100,14 +10250,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "指甲",
       "marked_pinyin": "zhī jia",
       "numeric_pinyin": "zhi1 jia5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10148,14 +10299,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "挑剔",
       "marked_pinyin": "tiāo ti",
       "numeric_pinyin": "tiao1 ti5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10196,14 +10348,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "挖苦",
       "marked_pinyin": "wā ku",
       "numeric_pinyin": "wa1 ku5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10244,14 +10397,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "提成儿",
       "marked_pinyin": "tí chéng er",
       "numeric_pinyin": "ti2 cheng2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10276,14 +10430,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "提防",
       "marked_pinyin": "dī fang",
       "numeric_pinyin": "di1 fang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10324,7 +10479,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "摆摆",
@@ -10451,7 +10607,7 @@
       "marked_pinyin": "shōu cheng",
       "numeric_pinyin": "shou1 cheng5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10514,14 +10670,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "收拾",
       "marked_pinyin": "shōu shi",
       "numeric_pinyin": "shou1 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10562,14 +10719,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "故事",
       "marked_pinyin": "gù shi",
       "numeric_pinyin": "gu4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10610,7 +10768,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "教会",
@@ -10828,7 +10987,7 @@
       "marked_pinyin": "dàn jué er",
       "numeric_pinyin": "dan4 jue2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10853,14 +11012,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "早上",
       "marked_pinyin": "zǎo shang",
       "numeric_pinyin": "zao3 shang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -10901,7 +11061,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "显得",
@@ -10966,7 +11127,7 @@
       "marked_pinyin": "yuè bing",
       "numeric_pinyin": "yue4 bing5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11007,14 +11168,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "有数儿",
       "marked_pinyin": "yǒu shù er",
       "numeric_pinyin": "you3 shu4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11039,7 +11201,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "朝阳",
@@ -11075,7 +11238,7 @@
       "marked_pinyin": "mù jiang",
       "numeric_pinyin": "mu4 jiang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11116,14 +11279,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "本事",
       "marked_pinyin": "běn shi",
       "numeric_pinyin": "ben3 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11164,7 +11328,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "杂拌儿",
@@ -11204,7 +11369,7 @@
       "marked_pinyin": "gǎn zi",
       "numeric_pinyin": "gan3 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11245,7 +11410,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "杖竿",
@@ -11318,7 +11484,7 @@
       "marked_pinyin": "guǒ dòng er",
       "numeric_pinyin": "guo3 dong4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11343,14 +11509,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "栅栏",
       "marked_pinyin": "zhà lan",
       "numeric_pinyin": "zha4 lan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11391,14 +11558,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "栅栏儿",
       "marked_pinyin": "zhà lan er",
       "numeric_pinyin": "zha4 lan5 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11423,7 +11591,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "树叶儿",
@@ -11492,7 +11661,7 @@
       "marked_pinyin": "hé tao",
       "numeric_pinyin": "he2 tao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11533,7 +11702,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "栽着",
@@ -11606,7 +11776,7 @@
       "marked_pinyin": "lí hú er",
       "numeric_pinyin": "li2 hu2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11631,14 +11801,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "棉球儿",
       "marked_pinyin": "mián qiú er",
       "numeric_pinyin": "mian2 qiu2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11663,7 +11834,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "棉花",
@@ -11699,7 +11871,7 @@
       "marked_pinyin": "bàng chui",
       "numeric_pinyin": "bang4 chui5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11740,14 +11912,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "模特儿",
       "marked_pinyin": "mó tè er",
       "numeric_pinyin": "mo2 te4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11790,14 +11963,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "模糊",
       "marked_pinyin": "mó hu",
       "numeric_pinyin": "mo2 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11860,7 +12034,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "正当",
@@ -11954,7 +12129,7 @@
       "marked_pinyin": "máo lǘ er",
       "numeric_pinyin": "mao2 lü2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -11979,7 +12154,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "气场",
@@ -12015,7 +12191,7 @@
       "marked_pinyin": "méi fǎ er",
       "numeric_pinyin": "mei2 fa3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12058,14 +12234,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "没词儿",
       "marked_pinyin": "méi cí er",
       "numeric_pinyin": "mei2 ci2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12090,14 +12267,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "泪珠儿",
       "marked_pinyin": "lèi zhū er",
       "numeric_pinyin": "lei4 zhu1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12122,7 +12300,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "泼辣",
@@ -12216,7 +12395,7 @@
       "marked_pinyin": "wēn huo",
       "numeric_pinyin": "wen1 huo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12257,7 +12436,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "温差",
@@ -12293,7 +12473,7 @@
       "marked_pinyin": "liū da",
       "numeric_pinyin": "liu1 da5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12356,7 +12536,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "满不在乎",
@@ -12392,7 +12573,7 @@
       "marked_pinyin": "dī shui",
       "numeric_pinyin": "di1 shui5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12433,14 +12614,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "漂亮",
       "marked_pinyin": "piào liang",
       "numeric_pinyin": "piao4 liang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12481,14 +12663,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "火候",
       "marked_pinyin": "huǒ hou",
       "numeric_pinyin": "huo3 hou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12529,14 +12712,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "火星儿",
       "marked_pinyin": "huǒ xīng er",
       "numeric_pinyin": "huo3 xing1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12561,14 +12745,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "火苗儿",
       "marked_pinyin": "huǒ miáo er",
       "numeric_pinyin": "huo3 miao2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12593,14 +12778,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "火锅儿",
       "marked_pinyin": "huǒ guō er",
       "numeric_pinyin": "huo3 guo1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12625,14 +12811,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "灯泡儿",
       "marked_pinyin": "dēng pào er",
       "numeric_pinyin": "deng1 pao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12675,14 +12862,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "灯笼",
       "marked_pinyin": "dēng long",
       "numeric_pinyin": "deng1 long5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12723,14 +12911,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "烟卷儿",
       "marked_pinyin": "yān juǎn er",
       "numeric_pinyin": "yan1 juan3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12773,14 +12962,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "烟筒",
       "marked_pinyin": "yān tong",
       "numeric_pinyin": "yan1 tong5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12821,7 +13011,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "焕然一新",
@@ -12915,7 +13106,7 @@
       "marked_pinyin": "yá shuā er",
       "numeric_pinyin": "ya2 shua1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12940,14 +13131,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "牙签儿",
       "marked_pinyin": "yá qiān er",
       "numeric_pinyin": "ya2 qian1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -12972,7 +13164,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "牡丹",
@@ -13008,7 +13201,7 @@
       "marked_pinyin": "zhuàng yuan",
       "numeric_pinyin": "zhuang4 yuan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13049,7 +13242,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "琉璃",
@@ -13085,7 +13279,7 @@
       "marked_pinyin": "zuó mo",
       "numeric_pinyin": "zuo2 mo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13126,7 +13320,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "琵琶",
@@ -13206,7 +13401,7 @@
       "marked_pinyin": "guā zǐ er",
       "numeric_pinyin": "gua1 zi3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13231,14 +13426,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "瓜瓤儿",
       "marked_pinyin": "guā ráng er",
       "numeric_pinyin": "gua1 rang2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13263,7 +13459,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "生发",
@@ -13299,7 +13496,7 @@
       "marked_pinyin": "shēng yi",
       "numeric_pinyin": "sheng1 yi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13340,7 +13537,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "生长荣枯",
@@ -13442,7 +13640,7 @@
       "marked_pinyin": "nüè ji",
       "numeric_pinyin": "nüe4 ji5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13502,7 +13700,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "登场",
@@ -13538,7 +13737,7 @@
       "marked_pinyin": "bái jing",
       "numeric_pinyin": "bai2 jing5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13579,7 +13778,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "百年不变",
@@ -13619,7 +13819,7 @@
       "marked_pinyin": "huáng shang",
       "numeric_pinyin": "huang2 shang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13660,7 +13860,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "皱裂",
@@ -13700,7 +13901,7 @@
       "marked_pinyin": "pán suan",
       "numeric_pinyin": "pan2 suan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13741,7 +13942,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "盛放",
@@ -13810,7 +14012,7 @@
       "marked_pinyin": "xiàng sheng",
       "numeric_pinyin": "xiang4 sheng5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13851,7 +14053,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "眩晕",
@@ -13887,7 +14090,7 @@
       "marked_pinyin": "yǎn jìng er",
       "numeric_pinyin": "yan3 jing4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13912,14 +14115,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "知识",
       "marked_pinyin": "zhī shi",
       "numeric_pinyin": "zhi1 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -13982,14 +14186,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "石匠",
       "marked_pinyin": "shí jiang",
       "numeric_pinyin": "shi2 jiang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14030,14 +14235,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "石榴",
       "marked_pinyin": "shí liu",
       "numeric_pinyin": "shi2 liu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14078,14 +14284,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "码头",
       "marked_pinyin": "mǎ tou",
       "numeric_pinyin": "ma3 tou5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14126,14 +14333,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "砂轮儿",
       "marked_pinyin": "shā lún er",
       "numeric_pinyin": "sha1 lun2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14158,7 +14366,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "硬朗",
@@ -14198,7 +14407,7 @@
       "marked_pinyin": "suì bù er",
       "numeric_pinyin": "sui4 bu4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14223,7 +14432,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "礼教",
@@ -14259,7 +14469,7 @@
       "marked_pinyin": "zǔ zong",
       "numeric_pinyin": "zu3 zong5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14300,7 +14510,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "禁不住",
@@ -14358,7 +14569,7 @@
       "marked_pinyin": "chēng hu",
       "numeric_pinyin": "cheng1 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14399,14 +14610,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "稳当",
       "marked_pinyin": "wěn dang",
       "numeric_pinyin": "wen3 dang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14447,7 +14659,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "穿亭绕榭",
@@ -14516,7 +14729,7 @@
       "marked_pinyin": "wō nang",
       "numeric_pinyin": "wo1 nang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14557,14 +14770,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "端详",
       "marked_pinyin": "duān xiang",
       "numeric_pinyin": "duan1 xiang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14605,14 +14819,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "笑话儿",
       "marked_pinyin": "xiào hua er",
       "numeric_pinyin": "xiao4 hua5 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14655,14 +14870,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "笔杆儿",
       "marked_pinyin": "bǐ gǎn er",
       "numeric_pinyin": "bi3 gan3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14687,7 +14903,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "笸箩",
@@ -14760,7 +14977,7 @@
       "marked_pinyin": "dā ying",
       "numeric_pinyin": "da1 ying5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14801,7 +15018,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "简朴",
@@ -14866,7 +15084,7 @@
       "marked_pinyin": "bò ji",
       "numeric_pinyin": "bo4 ji5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14907,14 +15125,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "粉末儿",
       "marked_pinyin": "fěn mò er",
       "numeric_pinyin": "fen3 mo4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14939,14 +15158,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "粮食",
       "marked_pinyin": "liáng shi",
       "numeric_pinyin": "liang2 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -14987,7 +15207,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "精神",
@@ -15045,7 +15266,7 @@
       "marked_pinyin": "hú tu",
       "numeric_pinyin": "hu2 tu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15086,7 +15307,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "累累",
@@ -15126,7 +15348,7 @@
       "marked_pinyin": "léi zhui",
       "numeric_pinyin": "lei2 zhui5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15186,7 +15408,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "繁花绿叶",
@@ -15226,7 +15449,7 @@
       "marked_pinyin": "hóng bāo er",
       "numeric_pinyin": "hong2 bao1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15251,14 +15474,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "红火",
       "marked_pinyin": "hóng huo",
       "numeric_pinyin": "hong2 huo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15299,7 +15523,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "级差",
@@ -15364,7 +15589,7 @@
       "marked_pinyin": "nà mèn er",
       "numeric_pinyin": "na4 men4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15407,7 +15632,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "纵横其间",
@@ -15447,7 +15673,7 @@
       "marked_pinyin": "niǔ kòu er",
       "numeric_pinyin": "niu3 kou4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15472,14 +15698,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "线轴儿",
       "marked_pinyin": "xiàn zhóu er",
       "numeric_pinyin": "xian4 zhou2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15504,14 +15731,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "结实",
       "marked_pinyin": "jiē shi",
       "numeric_pinyin": "jie1 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15552,7 +15780,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "结果",
@@ -15588,7 +15817,7 @@
       "marked_pinyin": "rào yuǎn er",
       "numeric_pinyin": "rao4 yuan3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15613,14 +15842,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "绝着儿",
       "marked_pinyin": "jué zhāo er",
       "numeric_pinyin": "jue2 zhao1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15645,7 +15875,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "绿荫",
@@ -15714,7 +15945,7 @@
       "marked_pinyin": "lǎo tóu er",
       "numeric_pinyin": "lao3 tou2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15757,14 +15988,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "老婆",
       "marked_pinyin": "lǎo po",
       "numeric_pinyin": "lao3 po5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15805,14 +16037,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "耳垂儿",
       "marked_pinyin": "ěr chuí er",
       "numeric_pinyin": "er3 chui2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15837,14 +16070,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "耳膜儿",
       "marked_pinyin": "ěr mó er",
       "numeric_pinyin": "er3 mo2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15869,14 +16103,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "耷拉",
       "marked_pinyin": "dā la",
       "numeric_pinyin": "da1 la5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15917,7 +16152,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "耸着",
@@ -15957,7 +16193,7 @@
       "marked_pinyin": "dān ge",
       "numeric_pinyin": "dan1 ge5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -15998,7 +16234,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "聪明",
@@ -16034,7 +16271,7 @@
       "marked_pinyin": "dù zi",
       "numeric_pinyin": "du4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16075,14 +16312,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "肚脐儿",
       "marked_pinyin": "dù qí er",
       "numeric_pinyin": "du4 qi2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16107,14 +16345,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "胡同儿",
       "marked_pinyin": "hú tòng er",
       "numeric_pinyin": "hu2 tong4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16157,14 +16396,15 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "胭脂",
       "marked_pinyin": "yān zhi",
       "numeric_pinyin": "yan1 zhi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16205,14 +16445,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "胳膊",
       "marked_pinyin": "gē bo",
       "numeric_pinyin": "ge1 bo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16253,14 +16494,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "能耐",
       "marked_pinyin": "néng nai",
       "numeric_pinyin": "neng2 nai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16301,7 +16543,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "脊梁",
@@ -16341,7 +16584,7 @@
       "marked_pinyin": "jiǎo yìn er",
       "numeric_pinyin": "jiao3 yin4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16366,14 +16609,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "膏药",
       "marked_pinyin": "gāo yao",
       "numeric_pinyin": "gao1 yao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16414,7 +16658,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "自在",
@@ -16450,7 +16695,7 @@
       "marked_pinyin": "shě bu de",
       "numeric_pinyin": "she3 bu5 de5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16491,14 +16736,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "舒服",
       "marked_pinyin": "shū fu",
       "numeric_pinyin": "shu1 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16539,7 +16785,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "芍药",
@@ -16579,7 +16826,7 @@
       "marked_pinyin": "jiè mo",
       "numeric_pinyin": "jie4 mo5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16620,14 +16867,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "花样儿",
       "marked_pinyin": "huā yàng er",
       "numeric_pinyin": "hua1 yang4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16652,14 +16900,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "花瓶儿",
       "marked_pinyin": "huā píng er",
       "numeric_pinyin": "hua1 ping2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16684,14 +16933,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "花盆儿",
       "marked_pinyin": "huā pén er",
       "numeric_pinyin": "hua1 pen2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16716,14 +16966,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "苗条",
       "marked_pinyin": "miáo tiao",
       "numeric_pinyin": "miao2 tiao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16764,7 +17015,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "苫背",
@@ -16965,7 +17217,7 @@
       "marked_pinyin": "luò kuǎn er",
       "numeric_pinyin": "luo4 kuan3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -16990,7 +17242,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "葡萄",
@@ -17084,7 +17337,7 @@
       "marked_pinyin": "hú lu",
       "numeric_pinyin": "hu2 lu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17125,7 +17378,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "蒸融",
@@ -17231,7 +17485,7 @@
       "marked_pinyin": "bò he",
       "numeric_pinyin": "bo4 he5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17272,14 +17526,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "蛋清儿",
       "marked_pinyin": "dàn qīng er",
       "numeric_pinyin": "dan4 qing1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17304,14 +17559,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "蛋黄儿",
       "marked_pinyin": "dàn huáng er",
       "numeric_pinyin": "dan4 huang2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17336,14 +17592,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "蜜枣儿",
       "marked_pinyin": "mì zǎo er",
       "numeric_pinyin": "mi4 zao3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17368,7 +17625,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "行家",
@@ -17404,7 +17662,7 @@
       "marked_pinyin": "háng dang",
       "numeric_pinyin": "hang2 dang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17445,14 +17703,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "行李",
       "marked_pinyin": "xíng li",
       "numeric_pinyin": "xing2 li5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17493,14 +17752,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "街坊",
       "marked_pinyin": "jiē fang",
       "numeric_pinyin": "jie1 fang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17541,14 +17801,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "衣兜儿",
       "marked_pinyin": "yī dōu er",
       "numeric_pinyin": "yi1 dou1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17573,14 +17834,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "衣服",
       "marked_pinyin": "yī fu",
       "numeric_pinyin": "yi1 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17621,14 +17883,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "补丁",
       "marked_pinyin": "bǔ ding",
       "numeric_pinyin": "bu3 ding5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17669,7 +17932,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "衰草连天",
@@ -17709,7 +17973,7 @@
       "marked_pinyin": "bèi wō er",
       "numeric_pinyin": "bei4 wo1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17752,14 +18016,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "裁缝",
       "marked_pinyin": "cái feng",
       "numeric_pinyin": "cai2 feng5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17800,14 +18065,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "见识",
       "marked_pinyin": "jiàn shi",
       "numeric_pinyin": "jian4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17848,7 +18114,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "见长",
@@ -17884,7 +18151,7 @@
       "marked_pinyin": "guī ju",
       "numeric_pinyin": "gui1 ju5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -17947,7 +18214,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "觉得",
@@ -18078,7 +18346,7 @@
       "marked_pinyin": "rèn shi",
       "numeric_pinyin": "ren4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18141,7 +18409,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "认识论",
@@ -18177,7 +18446,7 @@
       "marked_pinyin": "jì hao",
       "numeric_pinyin": "ji4 hao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18218,7 +18487,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "记得",
@@ -18305,7 +18575,7 @@
       "marked_pinyin": "shì tan",
       "numeric_pinyin": "shi4 tan5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18346,7 +18616,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "调配",
@@ -18411,7 +18682,7 @@
       "marked_pinyin": "dòu fu",
       "numeric_pinyin": "dou4 fu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18452,14 +18723,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "豆芽儿",
       "marked_pinyin": "dòu yá er",
       "numeric_pinyin": "dou4 ya2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18502,14 +18774,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "豆角儿",
       "marked_pinyin": "dòu jiǎo er",
       "numeric_pinyin": "dou4 jiao3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18534,14 +18807,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "财主",
       "marked_pinyin": "cái zhu",
       "numeric_pinyin": "cai2 zhu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18582,7 +18856,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "质朴",
@@ -18618,7 +18893,7 @@
       "marked_pinyin": "fàn zi",
       "numeric_pinyin": "fan4 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18659,7 +18934,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "赶场",
@@ -18695,7 +18971,7 @@
       "marked_pinyin": "gǎn tàng er",
       "numeric_pinyin": "gan3 tang4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18720,7 +18996,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "起来",
@@ -18756,7 +19033,7 @@
       "marked_pinyin": "pǎo tuǐ er",
       "numeric_pinyin": "pao3 tui3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18781,14 +19058,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "跑调儿",
       "marked_pinyin": "pǎo diào er",
       "numeric_pinyin": "pao3 diao4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18813,14 +19091,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "跳蚤",
       "marked_pinyin": "tiào zao",
       "numeric_pinyin": "tiao4 zao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18861,14 +19140,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "跳高儿",
       "marked_pinyin": "tiào gāo er",
       "numeric_pinyin": "tiao4 gao1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -18893,7 +19173,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "蹑足潜行",
@@ -18991,7 +19272,7 @@
       "marked_pinyin": "zhuàn you",
       "numeric_pinyin": "zhuan4 you5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19032,7 +19313,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "软绵绵",
@@ -19134,7 +19416,7 @@
       "marked_pinyin": "lián lei",
       "numeric_pinyin": "lian2 lei5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19175,7 +19457,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "迷惑",
@@ -19211,7 +19494,7 @@
       "marked_pinyin": "mí hu",
       "numeric_pinyin": "mi2 hu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19252,14 +19535,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "送信儿",
       "marked_pinyin": "sòng xìn er",
       "numeric_pinyin": "song4 xin4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19284,7 +19568,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "逆差",
@@ -19320,7 +19605,7 @@
       "marked_pinyin": "tòu liàng er",
       "numeric_pinyin": "tou4 liang4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19345,14 +19630,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "逗乐儿",
       "marked_pinyin": "dòu lè er",
       "numeric_pinyin": "dou4 le4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19395,14 +19681,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "道士",
       "marked_pinyin": "dào shi",
       "numeric_pinyin": "dao4 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19465,7 +19752,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "道理",
@@ -19530,7 +19818,7 @@
       "marked_pinyin": "yóu chuō er",
       "numeric_pinyin": "you2 chuo1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19555,14 +19843,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "部分",
       "marked_pinyin": "bù fen",
       "numeric_pinyin": "bu4 fen5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19691,14 +19980,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "酒盅儿",
       "marked_pinyin": "jiǔ zhōng er",
       "numeric_pinyin": "jiu3 zhong1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19742,7 +20032,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "里边",
@@ -19778,7 +20069,7 @@
       "marked_pinyin": "jīn zi",
       "numeric_pinyin": "jin1 zi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19819,14 +20110,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "针鼻儿",
       "marked_pinyin": "zhēn bí er",
       "numeric_pinyin": "zhen1 bi2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19851,14 +20143,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "铃铛",
       "marked_pinyin": "líng dang",
       "numeric_pinyin": "ling2 dang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -19921,7 +20214,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "铸刻",
@@ -19961,7 +20255,7 @@
       "marked_pinyin": "pū gai",
       "numeric_pinyin": "pu1 gai5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20002,14 +20296,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "锯齿儿",
       "marked_pinyin": "jù chǐ er",
       "numeric_pinyin": "ju4 chi3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20034,7 +20329,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "长虹卧波",
@@ -20074,7 +20370,7 @@
       "marked_pinyin": "mén kǒu er",
       "numeric_pinyin": "men2 kou3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20099,14 +20395,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "门槛儿",
       "marked_pinyin": "mén kǎn er",
       "numeric_pinyin": "men2 kan3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20131,14 +20428,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "门洞儿",
       "marked_pinyin": "mén dòng er",
       "numeric_pinyin": "men2 dong4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20181,14 +20479,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "门道",
       "marked_pinyin": "mén dao",
       "numeric_pinyin": "men2 dao5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20229,14 +20528,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "门铃儿",
       "marked_pinyin": "mén ling er",
       "numeric_pinyin": "men2 ling5 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20261,7 +20561,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "门面",
@@ -20297,7 +20598,7 @@
       "marked_pinyin": "guī nü",
       "numeric_pinyin": "gui1 nü5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20338,14 +20639,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "队伍",
       "marked_pinyin": "duì wu",
       "numeric_pinyin": "dui4 wu5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20386,14 +20688,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "难为",
       "marked_pinyin": "nán wei",
       "numeric_pinyin": "nan2 wei5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20434,7 +20737,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "难处",
@@ -20470,7 +20774,7 @@
       "marked_pinyin": "yǔ diǎn er",
       "numeric_pinyin": "yu3 dian3 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20513,7 +20817,8 @@
           },
           "note": "转录有误——跨行拼音漏接"
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "零七八碎儿",
@@ -20630,7 +20935,7 @@
       "marked_pinyin": "lòu xiàn er",
       "numeric_pinyin": "lou4 xian4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20673,7 +20978,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "靠不住",
@@ -20709,7 +21015,7 @@
       "marked_pinyin": "xié dài er",
       "numeric_pinyin": "xie2 dai4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20734,7 +21040,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "风号浪吼",
@@ -20774,7 +21081,7 @@
       "marked_pinyin": "fēng zheng",
       "numeric_pinyin": "feng1 zheng5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20815,14 +21122,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "饭盒儿",
       "marked_pinyin": "fàn hé er",
       "numeric_pinyin": "fan4 he2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20847,14 +21155,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "首饰",
       "marked_pinyin": "shǒu shi",
       "numeric_pinyin": "shou3 shi5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20895,14 +21204,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "香肠儿",
       "marked_pinyin": "xiāng cháng er",
       "numeric_pinyin": "xiang1 chang2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -20927,7 +21237,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "马笼头",
@@ -20967,7 +21278,7 @@
       "marked_pinyin": "mǎ guà er",
       "numeric_pinyin": "ma3 gua4 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -21010,14 +21321,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "高粱",
       "marked_pinyin": "gāo liang",
       "numeric_pinyin": "gao1 liang5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -21058,14 +21370,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "高跟儿鞋",
       "marked_pinyin": "gāo gēn er xié",
       "numeric_pinyin": "gao1 gen1 er5 xie2",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -21090,14 +21403,15 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "鱼漂儿",
       "marked_pinyin": "yú piāo er",
       "numeric_pinyin": "yu2 piao1 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -21122,7 +21436,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     },
     {
       "text": "鸟儿",
@@ -21210,7 +21525,7 @@
       "marked_pinyin": "bí liáng er",
       "numeric_pinyin": "bi2 liang2 er5",
       "source": "psc_candidate_coverage",
-      "source_category": "reviewed_psc_candidate_coverage",
+      "source_category": "reviewed_psc_neutral_erhua_peripheral",
       "source_rank": 92,
       "source_primary": false,
       "evidence": [
@@ -21235,7 +21550,8 @@
           },
           "note": ""
         }
-      ]
+      ],
+      "candidate_layer": "psc_normative_low_frequency_periphery"
     }
   ],
   "pending_records": [

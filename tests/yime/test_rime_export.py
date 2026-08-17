@@ -200,6 +200,39 @@ def test_export_canonical_pinyin_codes_uses_fixed_length_layout_keys(tmp_path: P
     assert all(len(line.split("\t")[1]) == 4 for line in lines[1:])
 
 
+def test_explicit_pinyin_inventory_uses_codebook_not_stale_runtime_db(
+    tmp_path: Path,
+) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    output_path = tmp_path / "yime_pinyin_codes.tsv"
+    inventory_path = tmp_path / "materialized_syllable_inventory.tsv"
+    inventory_path.write_text(
+        "numeric_syllable\tmarked_syllable\n"
+        "chui5\tchui\n"
+        "dian5\tdian\n",
+        encoding="utf-8",
+    )
+    stale_db = tmp_path / "stale-runtime.db"
+    with sqlite3.connect(stale_db) as connection:
+        connection.execute(
+            "CREATE TABLE numeric_pinyin_inventory (pinyin_tone TEXT)"
+        )
+
+    row_count = export_pinyin_codes_tsv(
+        output_path,
+        db_path=stale_db,
+        repo_root=repo_root,
+        inventory_path=inventory_path,
+    )
+
+    rows = output_path.read_text(encoding="utf-8").splitlines()
+    assert row_count == 2
+    assert rows[0] == "pinyin_tone\tfull"
+    assert rows[1].startswith("chui5\t")
+    assert rows[2].startswith("dian5\t")
+    assert all(len(row.split("\t")[1]) == 4 for row in rows[1:])
+
+
 def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> None:
     repo_root = tmp_path / "repo"
     repo_root.mkdir()

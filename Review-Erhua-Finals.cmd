@@ -37,5 +37,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
+"%PYTHON%" "tools\apply_erhua_surface_class_rules.py"
+if errorlevel 1 (
+    pause
+    exit /b 1
+)
+
 "%PYTHON%" "tools\review_erhua_final_segments.py"
 if errorlevel 1 pause

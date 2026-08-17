@@ -21,6 +21,7 @@ from syllable.analysis.erhua_surface_classes import (  # noqa: E402
 
 DEFAULT_DRAFT = ROOT / "external_data" / "tmp" / "final_styles_erhua_draft.json"
 DEFAULT_RULES = ROOT / "external_data" / "tmp" / "erhua_surface_class_rules.json"
+DEFAULT_QUALITIES = ROOT / "external_data" / "tmp" / "erhua_surface_quality_profiles.json"
 DEFAULT_REPORT = ROOT / "external_data" / "tmp" / "final_styles_erhua_draft_audit.md"
 
 
@@ -34,6 +35,7 @@ def render_report(result: dict, audit: dict) -> str:
         f"- 仅分类元数据变更：{result['metadata_changed_members'] or '无'}。",
         f"- 已清除过期分类：{result['stale_classifications_cleared'] or '无'}。",
         f"- 未变化成员：{result['unchanged_members']}。",
+        f"- 人工例外（规则不覆盖）：{result['manual_overrides'] or '无'}。",
         f"- 合流类不一致：{audit['mismatches'] or '无'}。",
         "",
         "## 表层类",
@@ -66,14 +68,15 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--draft", type=Path, default=DEFAULT_DRAFT)
     parser.add_argument("--rules", type=Path, default=DEFAULT_RULES)
+    parser.add_argument("--qualities", type=Path, default=DEFAULT_QUALITIES)
     parser.add_argument("--report", type=Path, default=DEFAULT_REPORT)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    result = apply_surface_class_rules(args.draft, args.rules)
-    audit = audit_surface_classes(args.draft, args.rules)
+    result = apply_surface_class_rules(args.draft, args.rules, args.qualities)
+    audit = audit_surface_classes(args.draft, args.rules, args.qualities)
     if audit["mismatches"]:
         raise ValueError(f"儿化表层类仍不一致：{audit['mismatches']}")
     args.report.write_text(render_report(result, audit), encoding="utf-8", newline="\n")

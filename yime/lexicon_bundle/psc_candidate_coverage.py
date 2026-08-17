@@ -28,6 +28,12 @@ from .syllable_admission import DEFAULT_ADMISSION_PATH, load_syllable_admissions
 
 SCHEMA_VERSION = "yime-reviewed-psc-candidate-readings-v1"
 SOURCE_NAME = "psc_candidate_coverage"
+PSC_PRONUNCIATION_PERIPHERAL_CATEGORY = (
+    "reviewed_psc_neutral_erhua_peripheral"
+)
+PSC_PRONUNCIATION_PERIPHERAL_SOURCE_KINDS = frozenset(
+    {"psc_neutral_tone", "psc_erhua"}
+)
 ELIGIBLE_REVIEW_STATES = frozenset({"machine_verified", "confirmed", "corrected"})
 _PARENTHETICAL_RE = re.compile(r"^(.*?)\s*[（(]([^()（）]+)[）)]\s*$", re.DOTALL)
 _ALTERNATIVE_RE = re.compile(r"[/、]+")
@@ -499,6 +505,15 @@ def export_psc_candidate_catalog(
         grouped.values(),
         key=lambda record: (str(record["text"]), str(record["numeric_pinyin"])),
     )
+    for record in records:
+        evidence_source_kinds = {
+            str(item.get("source_kind", ""))
+            for item in record.get("evidence", [])
+            if isinstance(item, dict)
+        }
+        if evidence_source_kinds & PSC_PRONUNCIATION_PERIPHERAL_SOURCE_KINDS:
+            record["source_category"] = PSC_PRONUNCIATION_PERIPHERAL_CATEGORY
+            record["candidate_layer"] = "psc_normative_low_frequency_periphery"
     pending.sort(
         key=lambda record: (
             str(record.get("source_kind", "")),
@@ -513,6 +528,11 @@ def export_psc_candidate_catalog(
             "ranking": "Candidate coverage only; never rerank an existing reading.",
             "transcription": "Machine-verified, confirmed, and corrected transcription states are eligible.",
             "erhua": "Preserve source Pinyin as evidence and derive a written-儿 input alias with a separate er slot.",
+            "neutral_erhua_runtime": (
+                "Reviewed psc_neutral_tone and psc_erhua pairs may enter a "
+                "separate fixed-low-frequency peripheral candidate layer; "
+                "they never become source-primary or rerank the existing core."
+            ),
         },
         "input_sha256": snapshots,
         "records": records,
@@ -544,6 +564,8 @@ __all__ = [
     "InventorySegmenter",
     "SCHEMA_VERSION",
     "SOURCE_NAME",
+    "PSC_PRONUNCIATION_PERIPHERAL_CATEGORY",
+    "PSC_PRONUNCIATION_PERIPHERAL_SOURCE_KINDS",
     "expand_transcription_pair",
     "export_psc_candidate_catalog",
 ]

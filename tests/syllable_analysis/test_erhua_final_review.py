@@ -10,6 +10,8 @@ import pytest
 from syllable.analysis.erhua_final_review import (
     ErhuaFinalDraftStore,
     SEGMENT_NAMES,
+    build_psc_result_group_index,
+    review_variant_source_annotations,
     render_surface_segment,
 )
 
@@ -40,7 +42,7 @@ def test_real_draft_has_complete_three_segment_foundations() -> None:
     store = ErhuaFinalDraftStore(DRAFT, DECOMPOSITION)
     items = {item.final: item for item in store.load_items()}
 
-    assert len(items) == 42
+    assert len(items) == 43
     assert {"v", "ve", "van", "vn"}.isdisjoint(items)
     assert items["ao"].base_segments == {"呼音": "ɑ", "主音": "ɑ", "末音": "ʊ"}
     assert items["ao"].base_segment_ganyin == "ao1"
@@ -69,7 +71,23 @@ def test_real_draft_has_complete_three_segment_foundations() -> None:
     assert items["ê"].base_segments == {"呼音": "e̞", "主音": "e̞", "末音": "e̞"}
     assert items["ie"].base_segments == {"呼音": "i", "主音": "e̞", "末音": "e̞"}
     assert items["üe"].base_segments == {"呼音": "ʏ", "主音": "e̞", "末音": "e̞"}
-    assert [row["source_index"] for row in items["_i"].source_annotations] == [21, 22]
+    assert items["_i_front"].display_final == "i[ɿ]"
+    assert items["_i_front"].base_segments == {name: "ɿ" for name in SEGMENT_NAMES}
+    assert [row["source_index"] for row in items["_i_front"].source_annotations] == [21]
+    assert items["_i_back"].display_final == "i[ʅ]"
+    assert items["_i_back"].base_segments == {name: "ʅ" for name in SEGMENT_NAMES}
+    assert [row["source_index"] for row in items["_i_back"].source_annotations] == [22]
+    assert items["ang"].psc_result_group_text == "ãr"
+    assert items["e"].psc_result_group_text == "er[ɤr]"
+    assert items["a"].psc_result_group_keys == ("ar|oral",)
+    assert items["er"].psc_result_group_text == "—"
+
+    payload = json.loads(DRAFT.read_text(encoding="utf-8"))
+    group_index = build_psc_result_group_index(payload)
+    assert len(group_index) == 26
+    assert next(row for row in group_index if row["key"] == "ãr|nasalized")[
+        "project_finals"
+    ] == ["ang"]
 
     canonical_un = items["ün"].source_annotations[0]
     assert canonical_un["source_index"] == 27
@@ -103,6 +121,23 @@ def test_real_draft_has_complete_three_segment_foundations() -> None:
     draft_text = DRAFT.read_text(encoding="utf-8")
     assert "ᵊ" not in draft_text
     assert "ᶹ" not in draft_text
+
+
+def test_apical_variants_are_selected_from_psc_content_not_row_number() -> None:
+    annotations = [
+        {"source_index": 9001, "source_base_final": "i(后)"},
+        {"source_index": 9002, "source_base_final": "i(前)"},
+    ]
+
+    front = review_variant_source_annotations(
+        annotations, {"source_base_final": "i(前)"}
+    )
+    back = review_variant_source_annotations(
+        annotations, {"source_base_final": "i(后)"}
+    )
+
+    assert [row["source_index"] for row in front] == [9002]
+    assert [row["source_index"] for row in back] == [9001]
 
 
 def test_prune_deferred_internal_finals_removes_technical_and_merge_forms(
@@ -180,6 +215,35 @@ def test_review_save_uses_current_generated_base_segments(
         "主音": "ɛ̞",
         "末音": "n",
     }
+
+
+def test_apical_i_variants_are_saved_independently(
+    copied_store: ErhuaFinalDraftStore,
+) -> None:
+    items = {item.final: item for item in copied_store.load_items()}
+    back_note = str(items["_i_back"].review.get("note") or "")
+    saved = copied_store.save_review(
+        "_i_front",
+        surface_segments=items["_i_front"].review["surface_segments"],
+        note="舌尖前韵母独立复核。",
+    )
+    payload = json.loads(copied_store.draft_path.read_text(encoding="utf-8"))
+    entry = next(
+        entry
+        for group in payload["finals"].values()
+        for final, entry in group.items()
+        if final == "_i"
+    )
+
+    assert saved.final == "_i_front"
+    assert saved.display_final == "i[ɿ]"
+    assert entry["three_segment_review_variants"]["apical_front"]["note"] == "舌尖前韵母独立复核。"
+    assert str(
+        (entry.get("three_segment_review_variants") or {})
+        .get("apical_back", {})
+        .get("note")
+        or ""
+    ) == back_note
 
 
 def test_reviewed_requires_all_three_positions(

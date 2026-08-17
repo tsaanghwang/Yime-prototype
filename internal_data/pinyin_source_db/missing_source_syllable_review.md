@@ -4,14 +4,14 @@
 
 | 拼音 | 当前音节库 | 审查 | 范围 | 正式编码器 | 当前拒绝实例 | 重建后已接纳实例 |
 |---|---|---|---|---|---:|---:|
-| chui5 | 缺失 | approved | word_context_only | 通过 | 0 | 1 |
+| chui5 | 已有 | approved | word_context_only | 通过 | 0 | 1 |
 | chuo5 | 已有 | approved | all_source_records | 通过 | 0 | 2 |
 | de4 | 已有 | approved | multi_character_only | 通过 | 0 | 20 |
-| deng2 | 缺失 | approved | word_context_only | 通过 | 0 | 1 |
-| dian5 | 缺失 | approved | word_context_only | 通过 | 0 | 1 |
+| deng2 | 已有 | approved | word_context_only | 通过 | 0 | 1 |
+| dian5 | 已有 | approved | word_context_only | 通过 | 0 | 1 |
 | kuai2 | 已有 | approved | all_source_records | 通过 | 0 | 1 |
 | lan5 | 已有 | approved | word_context_only | 通过 | 0 | 18 |
-| mian1 | 缺失 | approved | word_context_only | 通过 | 0 | 1 |
+| mian1 | 已有 | approved | word_context_only | 通过 | 0 | 1 |
 | sa2 | 已有 | approved | all_source_records | 通过 | 0 | 9 |
 
 ## BCC 高频与来源实例

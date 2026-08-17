@@ -49,7 +49,7 @@ _FLAT_SYLLABLES_CTE = """
                         INSTR(marked_pinyin || ' ', ' ') + 1
                     )
                 ) AS rest_marked
-            FROM phrase_readings
+            FROM phrase_candidate_readings
             WHERE TRIM(COALESCE(numeric_pinyin, '')) <> ''
               AND TRIM(COALESCE(marked_pinyin, '')) <> ''
 

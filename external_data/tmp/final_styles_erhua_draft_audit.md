@@ -1,11 +1,12 @@
 # 儿化标注草稿规则审计
 
 - 范围：研究草稿、表层类规则和校对显示；未修改正式音元源、布局或运行时。
-- 规则类：13。
-- 表层音质变更：['ing', 'ong', 'iong']。
-- 仅分类元数据变更：['ang', 'eng', 'iang', 'uang', 'ueng']。
+- 规则类：22。
+- 表层音质变更：无。
+- 仅分类元数据变更：无。
 - 已清除过期分类：无。
-- 未变化成员：['a', 'ai', 'an', '_i', 'ei', 'en', 'e', 'i', 'in', 'ia', 'ua', 'uai', 'uan', 'uei', 'uen', 'ü', 'ün', 'iao', 'iou']。
+- 未变化成员：['a', 'ai', 'an', '_i', 'ei', 'en', 'e', 'i', 'in', 'ia', 'ua', 'uai', 'uan', 'uei', 'uen', 'ü', 'ün', 'ang', 'eng', 'iang', 'uang', 'ueng', 'ing', 'ong', 'iong', 'iao', 'iou', 'u', 'o', 'ao', 'ou', 'uo', 'ie', 'üe', 'ian', 'üan']。
+- 人工例外（规则不覆盖）：无。
 - 合流类不一致：无。
 
 ## 表层类
@@ -28,6 +29,15 @@ PSC 儿化结果拼写用于来源对齐；基础音质或卷舌范围不同的�
 | `ERHUA-NASAL-NG` | `ang, eng, iang, uang, ueng, ing, ong, iong` | `按成员基础主音派生` | `按成员基础主音派生` |
 | `ERHUA-ORAL-IAOR` | `iao` | `iɑʊ˞` | `iɑʊ᷊` |
 | `ERHUA-ORAL-IOUR` | `iou` | `iɤʊ˞` | `iɤʊ᷊` |
+| `ERHUA-ORAL-UR` | `u` | `ʊ˞ʊ˞ʊ˞` | `ʊ᷊ʊ᷊ʊ᷊` |
+| `ERHUA-ORAL-OR` | `o` | `oo˞o˞` | `oo᷊o᷊` |
+| `ERHUA-ORAL-AOR` | `ao` | `ɑɑʊ˞` | `ɑɑʊ᷊` |
+| `ERHUA-ORAL-OUR` | `ou` | `ɤɤʊ˞` | `ɤɤʊ᷊` |
+| `ERHUA-ORAL-UOR` | `uo` | `uo˞o˞` | `uo᷊o᷊` |
+| `ERHUA-ORAL-IER` | `ie` | `ie̞˞ɚ` | `ie̞᷊ə᷊` |
+| `ERHUA-ORAL-UMLAUT-ER` | `üe` | `ʏe̞˞ɚ` | `ʏe̞᷊ə᷊` |
+| `ERHUA-ORAL-IAR-IAN` | `ian` | `iɛ̞˞ɐ˞` | `iɛ̞᷊ɐ᷊` |
+| `ERHUA-ORAL-UMLAUT-AR` | `üan` | `ʏɛ̞˞ɐ˞` | `ʏɛ̞᷊ɐ᷊` |
 
 ## 参数化分类
 

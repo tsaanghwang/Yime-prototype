@@ -16,6 +16,7 @@ _refresh_module = importlib.util.module_from_spec(_refresh_spec)
 _refresh_spec.loader.exec_module(_refresh_module)
 
 rebuild_analysis_views = _refresh_module.rebuild_analysis_views
+refresh_materialized_table = _refresh_module.refresh_materialized_table
 
 
 def _build_inventory(connection: sqlite3.Connection) -> None:
@@ -103,3 +104,41 @@ def test_current_rule_exposes_final_base_and_numeric_tone() -> None:
         "ng5": ("ng5", "ng", 5),
     }
     assert missing_tones == 0
+
+
+def test_candidate_only_phrase_reading_contributes_syllables() -> None:
+    connection = sqlite3.connect(":memory:")
+    try:
+        connection.executescript(
+            """
+            CREATE TABLE char_readings (
+                numeric_pinyin TEXT,
+                marked_pinyin TEXT
+            );
+            CREATE TABLE phrase_candidate_readings (
+                id INTEGER PRIMARY KEY,
+                numeric_pinyin TEXT,
+                marked_pinyin TEXT
+            );
+            INSERT INTO phrase_candidate_readings VALUES
+                (1, 'da3 dian3', 'dǎ diǎn'),
+                (2, 'da3 dian5', 'dǎ dian');
+            """
+        )
+        count = refresh_materialized_table(
+            connection,
+            "m_distinct_syllable_inventory",
+        )
+        rows = {
+            tuple(row)
+            for row in connection.execute(
+                "SELECT numeric_syllable, marked_syllable "
+                "FROM m_distinct_syllable_inventory"
+            )
+        }
+    finally:
+        connection.close()
+
+    assert count == 3
+    assert ("dian3", "diǎn") in rows
+    assert ("dian5", "dian") in rows

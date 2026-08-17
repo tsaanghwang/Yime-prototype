@@ -26,6 +26,89 @@ _RHOTIC_MODIFIER = "˞"
 _YIME_RHOTIC_COMBINING = "\u1dca"
 _LEGACY_YIME_RHOTIC_COMBINING = "\u036c"
 _NASALIZATION_MARK = "\u0303"
+SPLIT_REVIEW_VARIANTS = {
+    "_i_front": {
+        "canonical_final": "_i",
+        "variant_id": "apical_front",
+        "display_final": "i[ɿ]",
+        "base_ipa": "ɿ",
+        "base_quality": "ɿ",
+        "source_base_final": "i(前)",
+    },
+    "_i_back": {
+        "canonical_final": "_i",
+        "variant_id": "apical_back",
+        "display_final": "i[ʅ]",
+        "base_ipa": "ʅ",
+        "base_quality": "ʅ",
+        "source_base_final": "i(后)",
+    },
+}
+
+
+def review_variant_source_annotations(
+    annotations: object, config: Mapping[str, Any]
+) -> tuple[Mapping[str, Any], ...]:
+    """Select a virtual review variant by PSC transcription content, not row number."""
+
+    if not isinstance(annotations, list):
+        return ()
+    expected = str(config.get("source_base_final") or "").strip()
+    return tuple(
+        row
+        for row in annotations
+        if isinstance(row, Mapping)
+        and str(row.get("source_base_final") or "").strip() == expected
+    )
+
+
+def psc_result_group(annotation: Mapping[str, Any]) -> dict[str, Any] | None:
+    """Return the immutable PSC-result grouping for one source annotation."""
+
+    result = str(annotation.get("source_erhua_final") or "").strip()
+    if not result:
+        return None
+    nasalized = bool(annotation.get("nasalized"))
+    project_final = str((annotation.get("alignment") or {}).get("project_final") or "")
+    display_result = "er[ɤr]" if result == "er" and project_final == "e" else result
+    if nasalized and display_result.endswith("r"):
+        display_result = display_result[:-1] + _NASALIZATION_MARK + "r"
+    return {
+        "key": f"{display_result}|{'nasalized' if nasalized else 'oral'}",
+        "label": display_result,
+        "source_erhua_final": result,
+        "display_erhua_final": display_result,
+        "nasalized": nasalized,
+    }
+
+
+def build_psc_result_group_index(payload: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Build a query index without rewriting any PSC transcription."""
+
+    grouped: dict[str, dict[str, Any]] = {}
+    for _category, final, entry in ErhuaFinalDraftStore._entries(payload):
+        for annotation in entry.get("erhua_final") or []:
+            group = psc_result_group(annotation)
+            if group is None:
+                continue
+            row = grouped.setdefault(
+                group["key"],
+                {
+                    **group,
+                    "source_indices": [],
+                    "project_finals": [],
+                },
+            )
+            source_index = annotation.get("source_index")
+            if source_index is not None and source_index not in row["source_indices"]:
+                row["source_indices"].append(source_index)
+            if final not in row["project_finals"]:
+                row["project_finals"].append(final)
+    rows = list(grouped.values())
+    for row in rows:
+        row["source_indices"].sort()
+    rows.sort(key=lambda row: (row["source_indices"] or [10_000])[0])
+    return rows
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -152,6 +235,9 @@ class ErhuaReviewItem:
 
     category: str
     final: str
+    canonical_final: str
+    display_final: str
+    variant_id: str
     base_ipa: str
     base_segments: Mapping[str, str]
     base_segment_form: str
@@ -169,6 +255,23 @@ class ErhuaReviewItem:
     def source_rules(self) -> str:
         rules = [str(row.get("source_rule") or "") for row in self.source_annotations]
         return " / ".join(rule for rule in rules if rule)
+
+    @property
+    def psc_result_groups(self) -> tuple[dict[str, Any], ...]:
+        groups: dict[str, dict[str, Any]] = {}
+        for annotation in self.source_annotations:
+            group = psc_result_group(annotation)
+            if group is not None:
+                groups.setdefault(str(group["key"]), group)
+        return tuple(groups.values())
+
+    @property
+    def psc_result_group_keys(self) -> tuple[str, ...]:
+        return tuple(str(group["key"]) for group in self.psc_result_groups)
+
+    @property
+    def psc_result_group_text(self) -> str:
+        return " / ".join(str(group["label"]) for group in self.psc_result_groups) or "—"
 
     @property
     def base_segment_text(self) -> str:
@@ -240,6 +343,42 @@ class ErhuaFinalDraftStore:
             annotations = entry.get("erhua_final") or []
             if not isinstance(annotations, list):
                 raise ValueError(f"{final}.erhua_final 必须是数组。")
+            if final == "_i":
+                variants = entry.get("three_segment_review_variants") or {}
+                for record_id, config in SPLIT_REVIEW_VARIANTS.items():
+                    review = variants.get(config["variant_id"]) or entry.get(
+                        "three_segment_review"
+                    ) or {}
+                    if review and int(review.get("schema_version") or 0) != 2:
+                        raise ValueError(
+                            f"{record_id}.three_segment_review 仍是旧结构；请先运行草稿迁移工具。"
+                        )
+                    if review:
+                        self._normalize_segments(review.get("surface_segments") or {})
+                    variant_annotations = review_variant_source_annotations(
+                        annotations, config
+                    )
+                    variant_segments = {
+                        name: str(config["base_quality"]) for name in SEGMENT_NAMES
+                    }
+                    items.append(
+                        ErhuaReviewItem(
+                            category=category,
+                            final=record_id,
+                            canonical_final=final,
+                            display_final=str(config["display_final"]),
+                            variant_id=str(config["variant_id"]),
+                            base_ipa=str(config["base_ipa"]),
+                            base_segments=variant_segments,
+                            base_segment_form=segment_form,
+                            base_segment_ganyin=base_segment_ganyin,
+                            source_annotations=variant_annotations,
+                            source_review_status=str(entry.get("erhua_review_status") or ""),
+                            source_note=str(entry.get("erhua_note") or ""),
+                            review=dict(review),
+                        )
+                    )
+                continue
             review = entry.get("three_segment_review") or {}
             if review and int(review.get("schema_version") or 0) != 2:
                 raise ValueError(
@@ -251,6 +390,9 @@ class ErhuaFinalDraftStore:
                 ErhuaReviewItem(
                     category=category,
                     final=final,
+                    canonical_final=final,
+                    display_final=final,
+                    variant_id="",
                     base_ipa=str(entry.get("ipa") or ""),
                     base_segments=dict(base_segments),
                     base_segment_form=segment_form,
@@ -295,12 +437,37 @@ class ErhuaFinalDraftStore:
             raise ValueError("标为‘不适用’时必须填写理由。")
 
         payload = self._payload()
-        entry = self._find_entry(payload, final)
-        previous = entry.get("three_segment_review") or {}
+        variant = SPLIT_REVIEW_VARIANTS.get(final)
+        canonical_final = str(variant["canonical_final"]) if variant else final
+        entry = self._find_entry(payload, canonical_final)
+        if variant:
+            reviews = entry.setdefault("three_segment_review_variants", {})
+            previous = reviews.get(variant["variant_id"]) or {}
+        else:
+            previous = entry.get("three_segment_review") or {}
         timestamp = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
-        segment_form = _SEGMENT_FORM_ALIASES.get(final, final)
-        base_segment_ganyin, base_segments = self._segment_map[segment_form]
-        entry["three_segment_review"] = {
+        segment_form = _SEGMENT_FORM_ALIASES.get(canonical_final, canonical_final)
+        base_segment_ganyin, generated_base_segments = self._segment_map[segment_form]
+        base_segments = (
+            {name: str(variant["base_quality"]) for name in SEGMENT_NAMES}
+            if variant
+            else generated_base_segments
+        )
+        previous_generation = previous.get("surface_generation") or {}
+        generation: dict[str, Any] = {}
+        if previous_generation.get("method") == "rule_generated":
+            if previous.get("surface_segments") == normalized:
+                generation = dict(previous_generation)
+            else:
+                generation = {
+                    "method": "manual_override",
+                    "overrides_class_id": str(previous_generation.get("class_id") or ""),
+                    "reason": "UI 中显式修改规则生成结果",
+                    "runtime_enabled": False,
+                }
+        elif previous_generation:
+            generation = dict(previous_generation)
+        saved_review = {
             "schema_version": 2,
             "surface_segment_schema": "quality_features_v1",
             "decision": decision,
@@ -315,11 +482,36 @@ class ErhuaFinalDraftStore:
             "updated_utc": timestamp.isoformat().replace("+00:00", "Z"),
             "runtime_enabled": False,
         }
+        if variant:
+            variant_annotations = review_variant_source_annotations(
+                entry.get("erhua_final") or [], variant
+            )
+            if len(variant_annotations) != 1:
+                raise ValueError(
+                    f"{final} 需要且只能匹配一条 PSC {variant['source_base_final']} 记录。"
+                )
+            saved_review["review_variant"] = {
+                "variant_id": variant["variant_id"],
+                "record_id": final,
+                "display_final": variant["display_final"],
+                "source_index": variant_annotations[0].get("source_index"),
+                "source_base_final": variant["source_base_final"],
+                "derivation": "按 PSC source_base_final 把规范韵母 _i 的舌尖前、舌尖后记录分列",
+            }
+        if generation:
+            saved_review["surface_generation"] = generation
+        for metadata_field in ("surface_class", "surface_class_rule_version"):
+            if metadata_field in previous:
+                saved_review[metadata_field] = previous[metadata_field]
+        if variant:
+            entry["three_segment_review_variants"][variant["variant_id"]] = saved_review
+        else:
+            entry["three_segment_review"] = saved_review
         foundation_sync = payload.get("draft_foundation_sync") or {}
         required = list(foundation_sync.get("surface_review_required") or [])
-        if final in required:
+        if canonical_final in required:
             foundation_sync["surface_review_required"] = [
-                name for name in required if name != final
+                name for name in required if name != canonical_final
             ]
             payload["draft_foundation_sync"] = foundation_sync
         self._update_progress(payload, timestamp)
@@ -426,8 +618,15 @@ class ErhuaFinalDraftStore:
 
     def clear_review(self, final: str) -> ErhuaReviewItem:
         payload = self._payload()
-        entry = self._find_entry(payload, final)
-        entry.pop("three_segment_review", None)
+        variant = SPLIT_REVIEW_VARIANTS.get(final)
+        canonical_final = str(variant["canonical_final"]) if variant else final
+        entry = self._find_entry(payload, canonical_final)
+        if variant:
+            reviews = entry.get("three_segment_review_variants") or {}
+            reviews.pop(variant["variant_id"], None)
+            entry["three_segment_review_variants"] = reviews
+        else:
+            entry.pop("three_segment_review", None)
         now = datetime.now(timezone.utc)
         self._update_progress(payload, now)
         self._write(payload)
@@ -436,7 +635,14 @@ class ErhuaFinalDraftStore:
     def _update_progress(self, payload: dict[str, Any], now: datetime) -> None:
         counts: Counter[str] = Counter()
         total = 0
-        for _category, _final, entry in self._entries(payload):
+        for _category, final, entry in self._entries(payload):
+            if final == "_i":
+                variants = entry.get("three_segment_review_variants") or {}
+                for config in SPLIT_REVIEW_VARIANTS.values():
+                    total += 1
+                    review = variants.get(config["variant_id"]) or {}
+                    counts[str(review.get("decision") or "pending")] += 1
+                continue
             total += 1
             review = entry.get("three_segment_review") or {}
             counts[str(review.get("decision") or "pending")] += 1
@@ -449,6 +655,12 @@ class ErhuaFinalDraftStore:
             "not_applicable": counts["not_applicable"],
             "runtime_aliases_generated": 0,
             "updated_utc": now.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+        }
+        payload["psc_result_group_index"] = {
+            "schema_version": 1,
+            "derivation": "由 PSC source_erhua_final、nasalized 与既有韵母对齐结果派生；外部表仅作事后核对，不参与生成",
+            "groups": build_psc_result_group_index(payload),
+            "runtime_enabled": False,
         }
 
     def _write(self, payload: Mapping[str, Any]) -> None:
@@ -464,9 +676,13 @@ __all__ = [
     "DECISIONS",
     "FEATURE_NAMES",
     "SEGMENT_NAMES",
+    "SPLIT_REVIEW_VARIANTS",
     "ErhuaFinalDraftStore",
     "ErhuaReviewItem",
+    "build_psc_result_group_index",
+    "review_variant_source_annotations",
     "normalize_surface_segment",
+    "psc_result_group",
     "render_surface_segment",
     "render_surface_segments",
 ]

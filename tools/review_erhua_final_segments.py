@@ -63,6 +63,9 @@ class ReviewApplication:
         self._dirty = False
 
         self.state_var = tk.StringVar(value="待标注")
+        self.psc_group_var = tk.StringVar(value="全部结果类")
+        self.psc_group_label_to_key: dict[str, str] = {"全部结果类": "all"}
+        self.psc_group_order: dict[str, int] = {}
         self.search_var = tk.StringVar()
         self.header_var = tk.StringVar(value="尚未选择韵母")
         self.base_ipa_var = tk.StringVar()
@@ -101,6 +104,18 @@ class ReviewApplication:
         )
         state.pack(side="left", padx=(0, 10))
         state.bind("<<ComboboxSelected>>", lambda _event: self.refresh_with_guard())
+        ttk.Label(controls, text="PSC 结果类：").pack(side="left")
+        self.psc_group_box = ttk.Combobox(
+            controls,
+            textvariable=self.psc_group_var,
+            values=("全部结果类",),
+            width=16,
+            state="readonly",
+        )
+        self.psc_group_box.pack(side="left", padx=(0, 10))
+        self.psc_group_box.bind(
+            "<<ComboboxSelected>>", lambda _event: self.refresh_with_guard()
+        )
         ttk.Label(controls, text="搜索：").pack(side="left")
         search = ttk.Entry(controls, textvariable=self.search_var, width=28)
         search.pack(side="left", padx=(0, 6))
@@ -120,10 +135,11 @@ class ReviewApplication:
         body.add(left, weight=3)
         body.add(right, weight=5)
 
-        columns = ("state", "final", "ipa", "segments", "category", "rule")
+        columns = ("state", "psc_group", "final", "ipa", "segments", "category", "rule")
         self.tree = ttk.Treeview(left, columns=columns, show="headings", selectmode="browse")
         headings = {
             "state": "状态",
+            "psc_group": "PSC 结果类",
             "final": "韵母",
             "ipa": "基础 IPA",
             "segments": "干音三段音质",
@@ -132,6 +148,7 @@ class ReviewApplication:
         }
         widths = {
             "state": 82,
+            "psc_group": 105,
             "final": 65,
             "ipa": 90,
             "segments": 145,
@@ -291,6 +308,33 @@ class ReviewApplication:
     def reload(self, preferred_final: str = "") -> None:
         self.items = self.store.load_items()
         self.item_by_final = {item.final: item for item in self.items}
+        groups: list[tuple[str, str, int]] = []
+        seen: set[str] = set()
+        for item in self.items:
+            for group in item.psc_result_groups:
+                key = str(group["key"])
+                if key in seen:
+                    continue
+                seen.add(key)
+                indices = [
+                    int(row.get("source_index"))
+                    for row in item.source_annotations
+                    if row.get("source_index") is not None
+                    and str(row.get("source_erhua_final") or "")
+                    == str(group["source_erhua_final"])
+                    and bool(row.get("nasalized")) == bool(group["nasalized"])
+                ]
+                groups.append((str(group["label"]), key, min(indices or [10_000])))
+        groups.sort(key=lambda row: (row[2], row[0]))
+        self.psc_group_label_to_key = {"全部结果类": "all"}
+        self.psc_group_order = {}
+        for order, (label, key, _source_index) in enumerate(groups):
+            self.psc_group_label_to_key[label] = key
+            self.psc_group_order[key] = order
+        self.psc_group_label_to_key["无 PSC 对应类别"] = "none"
+        self.psc_group_box.configure(values=tuple(self.psc_group_label_to_key))
+        if self.psc_group_var.get() not in self.psc_group_label_to_key:
+            self.psc_group_var.set("全部结果类")
         self._dirty = False
         self.refresh(preferred_final)
 
@@ -305,6 +349,11 @@ class ReviewApplication:
                 return False
         elif state != "all" and item.decision != state:
             return False
+        group_key = self.psc_group_label_to_key.get(self.psc_group_var.get(), "all")
+        if group_key == "none" and item.psc_result_group_keys:
+            return False
+        if group_key not in {"all", "none"} and group_key not in item.psc_result_group_keys:
+            return False
         search = self.search_var.get().strip().lower()
         if not search:
             return True
@@ -313,7 +362,17 @@ class ReviewApplication:
             for annotation in item.source_annotations
             for example in annotation.get("examples") or []
         )
-        haystack = " ".join((item.final, item.base_ipa, item.category, item.source_rules, examples)).lower()
+        haystack = " ".join(
+            (
+                item.final,
+                item.display_final,
+                item.base_ipa,
+                item.category,
+                item.psc_result_group_text,
+                item.source_rules,
+                examples,
+            )
+        ).lower()
         return search in haystack
 
     def refresh_with_guard(self) -> None:
@@ -321,7 +380,16 @@ class ReviewApplication:
             self.refresh(self.current_final)
 
     def refresh(self, preferred_final: str = "") -> None:
-        self.visible = [item for item in self.items if self._matches(item)]
+        self.visible = sorted(
+            (item for item in self.items if self._matches(item)),
+            key=lambda item: (
+                min(
+                    (self.psc_group_order.get(key, 10_000) for key in item.psc_result_group_keys),
+                    default=10_001,
+                ),
+                item.final,
+            ),
+        )
         self.tree.delete(*self.tree.get_children())
         for item in self.visible:
             state = STATE_LABELS[item.decision]
@@ -333,7 +401,8 @@ class ReviewApplication:
                 iid=item.final,
                 values=(
                     state,
-                    item.final,
+                    item.psc_result_group_text,
+                    item.display_final,
                     item.base_ipa,
                     item.base_segment_text,
                     item.category,
@@ -381,7 +450,7 @@ class ReviewApplication:
     def show(self, item: ErhuaReviewItem) -> None:
         self._loading = True
         self.current_final = item.final
-        self.header_var.set(f"{item.final}　[{STATE_LABELS[item.decision]}]")
+        self.header_var.set(f"{item.display_final}　[{STATE_LABELS[item.decision]}]")
         self.base_ipa_var.set(item.base_ipa)
         self.base_segments_var.set(item.base_segment_text)
         self.base_ganyin_var.set(item.base_segment_ganyin)
@@ -405,14 +474,23 @@ class ReviewApplication:
     def _source_description(item: ErhuaReviewItem) -> str:
         lines = [
             f"现行类别：{item.category}",
-            f"基础韵母：{item.final}    整体 IPA：{item.base_ipa}",
+            f"复核韵母：{item.display_final}    整体 IPA：{item.base_ipa}",
+            f"规范内部韵母：{item.canonical_final}",
             f"三段分解查表形式：{item.base_segment_form}",
             f"干音提取条目：{item.base_segment_ganyin} → {item.base_segment_text}",
             f"来源复核状态：{item.source_review_status or '未登记'}",
+            f"PSC 结果类：{item.psc_result_group_text}",
         ]
         surface_class = str(item.review.get("surface_class") or "")
         if surface_class:
             lines.append(f"规则化儿化表层类：{surface_class}")
+        generation = item.review.get("surface_generation") or {}
+        if generation:
+            method = str(generation.get("method") or "")
+            lines.append(
+                "表层生成方式："
+                + ("规则自动生成" if method == "rule_generated" else "人工例外覆盖")
+            )
         if item.source_note:
             lines.append(f"来源备注：{item.source_note}")
         if not item.source_annotations:
@@ -560,9 +638,22 @@ def main() -> int:
     items = store.load_items()
     if args.smoke_test:
         counts: dict[str, int] = {}
+        groups: dict[str, str] = {}
         for item in items:
             counts[item.decision] = counts.get(item.decision, 0) + 1
-        print(json.dumps({"items": len(items), "decisions": counts}, ensure_ascii=False))
+            for group in item.psc_result_groups:
+                groups[str(group["key"])] = str(group["label"])
+        print(
+            json.dumps(
+                {
+                    "items": len(items),
+                    "decisions": counts,
+                    "psc_result_group_count": len(groups),
+                    "psc_result_groups": list(groups.values()),
+                },
+                ensure_ascii=False,
+            )
+        )
         return 0
     application = ReviewApplication(store)
     if args.ui_smoke_test:
