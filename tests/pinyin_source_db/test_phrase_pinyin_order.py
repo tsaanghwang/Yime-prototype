@@ -5,6 +5,8 @@ import sqlite3
 import unicodedata
 from pathlib import Path
 
+import pytest
+
 from internal_data.phrase_pinyin.phrase_source_staging import import_to_staging
 from yime.utils.dictionary_pinyin_compliance import (
     TONE_MARKS,
@@ -70,6 +72,8 @@ def test_checked_in_phrase_export_keeps_internal_neutral_syllables_in_place() ->
 def test_all_internal_untoned_source_syllables_keep_their_positions_in_export() -> None:
     source_path = REPO_ROOT / "external_data" / "phrase_pinyin.txt"
     export_path = REPO_ROOT / "internal_data" / "phrase_pinyin" / "phrase_pinyin.txt"
+    if not source_path.is_file():
+        pytest.skip("requires external_data/phrase_pinyin.txt")
     policy = load_policy()
     expected: dict[str, list[str]] = {}
 
