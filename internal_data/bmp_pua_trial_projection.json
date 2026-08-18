@@ -7,7 +7,7 @@
     "block_end": "U+E548",
     "total_slots": 96,
     "initial_slots_reserved": 32,
-    "initial_slots_used": 24,
+    "initial_slots_used": 27,
     "musical_slots_reserved": 33,
     "musical_start_slot": 33,
     "musical_end_slot": 65,
@@ -16,12 +16,12 @@
     "notes": [
       "This file is a Windows compile/install projection only.",
       "Do not replace the canonical SPUA-B mapping with this BMP PUA trial mapping.",
-      "Allocation slots 25-32 are intentionally reserved for future initials expansion."
+      "Allocation slots 28-32 remain reserved for future initials expansion."
     ]
   },
   "ranges": {
-    "initial_used": "U+E4E9-U+E500",
-    "initial_reserved_extra": "U+E501-U+E508",
+    "initial_used": "U+E4E9-U+E503",
+    "initial_reserved_extra": "U+E504-U+E508",
     "musical_used": "U+E509-U+E529",
     "spare": "U+E52A-U+E548"
   },
@@ -50,6 +50,9 @@
     "N22": { "char": "\uE4FE", "codepoint": "U+E4FE", "allocation_slot": 22 },
     "N23": { "char": "\uE500", "codepoint": "U+E500", "allocation_slot": 23 },
     "N24": { "char": "\uE4FF", "codepoint": "U+E4FF", "allocation_slot": 24 },
+    "N25": { "char": "\uE501", "codepoint": "U+E501", "allocation_slot": 25 },
+    "N26": { "char": "\uE502", "codepoint": "U+E502", "allocation_slot": 26 },
+    "N27": { "char": "\uE503", "codepoint": "U+E503", "allocation_slot": 27 },
     "M01": { "char": "\uE509", "codepoint": "U+E509", "allocation_slot": 33 },
     "M02": { "char": "\uE50A", "codepoint": "U+E50A", "allocation_slot": 34 },
     "M03": { "char": "\uE50B", "codepoint": "U+E50B", "allocation_slot": 35 },
@@ -85,9 +88,6 @@
     "M33": { "char": "\uE529", "codepoint": "U+E529", "allocation_slot": 65 }
   },
   "reserved_slots": [
-    { "allocation_slot": 25, "char": "\uE501", "codepoint": "U+E501", "label": "N25_reserved" },
-    { "allocation_slot": 26, "char": "\uE502", "codepoint": "U+E502", "label": "N26_reserved" },
-    { "allocation_slot": 27, "char": "\uE503", "codepoint": "U+E503", "label": "N27_reserved" },
     { "allocation_slot": 28, "char": "\uE504", "codepoint": "U+E504", "label": "N28_reserved" },
     { "allocation_slot": 29, "char": "\uE505", "codepoint": "U+E505", "label": "N29_reserved" },
     { "allocation_slot": 30, "char": "\uE506", "codepoint": "U+E506", "label": "N30_reserved" },

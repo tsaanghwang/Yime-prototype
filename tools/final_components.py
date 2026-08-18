@@ -5,9 +5,17 @@
 
 import json
 import os
+import sys
+import unicodedata
 from typing import Any, Dict, List, Tuple, Optional
 from collections import defaultdict
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from syllable.analysis.final_ipa_registry import load_final_ipa_mapping
 
 class FinalsComponentsAnalyzer:
     def __init__(self):
@@ -29,9 +37,9 @@ class FinalsComponentsAnalyzer:
         }
 
     def load_data(self) -> Dict[str, str]:
-        """加载音标-拼音映射数据"""
-        with open(self.input_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        """加载韵母到音标的唯一主表。"""
+        mapping, _ = load_final_ipa_mapping(Path(self.input_file))
+        return mapping
 
     def extract_components(self, ipa: str) -> List[str]:
         """
@@ -47,7 +55,7 @@ class FinalsComponentsAnalyzer:
 
         while i < n:
             # 处理组合标记
-            if i > 0 and normalized_ipa[i] in self.combining_marks:
+            if i > 0 and unicodedata.combining(normalized_ipa[i]):
                 # 将组合标记附加到前一个component
                 if components:
                     components[-1] += normalized_ipa[i]
@@ -64,10 +72,11 @@ class FinalsComponentsAnalyzer:
         """分析所有音标的components"""
         data = self.load_data()
 
-        for ipa in data.keys():
-            components = self.extract_components(ipa)
-            for comp in components:
-                self.components_stats[comp] += 1
+        for ipa in data.values():
+            for variant in ipa.split("/"):
+                components = self.extract_components(variant)
+                for comp in components:
+                    self.components_stats[comp] += 1
 
     def get_sorted_results(self, sort_by: str = "frequency") -> List[Tuple[str, int]]:
         """
@@ -123,9 +132,9 @@ class FinalsComponentsAnalyzer:
         """
         actual_components = list(self.components_stats.keys())
 
-        # 找出缺失的预设音标
-        missing = [c for c in self.preset_order if c not in actual_components]
-        # 找出多余的音标
+        # 预设表只控制展示顺序，不是第二份 IPA 真源；不再要求主表继续使用旧音标。
+        missing: List[str] = []
+        # 新音标自动排到预设顺序之后，仅作信息提示，不要求修改另一份配置。
         extra = [c for c in actual_components if c not in self.preset_order]
 
         return missing, extra
@@ -144,15 +153,11 @@ class FinalsComponentsAnalyzer:
 
         # 添加验证结果
         missing, extra = self.validate_components()
-        if missing or extra:
-            print("\n[警告] 音标验证不一致:")
-            if missing:
-                print(f"  缺失的预设音标: {', '.join(missing)}")
-            if extra:
-                print(f"  多余的音标: {', '.join(extra)}")
-            print("  请检查数据源或更新预设音标数组")
+        if extra:
+            print("\n[信息] 主表中的新音标组分将自动排在预设展示顺序之后:")
+            print(f"  {', '.join(extra)}")
         else:
-            print("\n[验证通过] 所有音标与预设数组一致")
+            print("\n[验证通过] 所有音标组分均有预设展示顺序")
 
         print("=" * 50)
 

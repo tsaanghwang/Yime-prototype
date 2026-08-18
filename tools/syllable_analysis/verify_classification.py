@@ -6,21 +6,21 @@ from typing import Any
 from syllable.analysis.ganyin_categorizer import GanyinCategorizer
 
 
-NEW_FINALS = ['ian', 'iong', 'iu', 'ong', 'ua', 'uai', 'ue', 'ui', 'un', 'v', 'van', 've']
+NEW_FINALS = ['ian', 'iong', 'iou', 'ong', 'ua', 'uai', 'uei', 'uen', 'ueng', 'üe', 'üan', 'ün']
 
 EXPECTED_CATEGORIES = {
     'ian': '三质干音',
     'iong': '三质干音',
-    'iu': '三质干音',
+    'iou': '三质干音',
     'ong': '三质干音',
     'ua': '后长干音',
     'uai': '三质干音',
-    'ue': '后长干音',
-    'ui': '三质干音',
-    'un': '三质干音',
-    'v': '单质干音',
-    'van': '三质干音',
-    've': '后长干音',
+    'uei': '三质干音',
+    'uen': '三质干音',
+    'ueng': '三质干音',
+    'üe': '后长干音',
+    'üan': '三质干音',
+    'ün': '三质干音',
 }
 
 

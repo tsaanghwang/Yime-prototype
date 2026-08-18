@@ -21,10 +21,15 @@ def parse_numeric_tone_pinyin(pinyin_str: str) -> dict[str, str | int]:
 
 class TestSplitNumericPinyin(unittest.TestCase):
     def test_parse_uses_splitter_rule_for_abbreviated_finals(self):
-        self.assertEqual(
-            parse_numeric_tone_pinyin("jiu2"),
-            {"声母": "j", "韵母": "iou", "声调": 2},
-        )
+        cases = {
+            "jiu2": {"声母": "j", "韵母": "iou", "声调": 2},
+            "dui4": {"声母": "d", "韵母": "uei", "声调": 4},
+            "sun1": {"声母": "s", "韵母": "uen", "声调": 1},
+        }
+
+        for syllable, expected in cases.items():
+            with self.subTest(syllable=syllable):
+                self.assertEqual(parse_numeric_tone_pinyin(syllable), expected)
 
     def test_parse_uses_splitter_rule_for_y_family(self):
         self.assertEqual(

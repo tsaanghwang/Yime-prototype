@@ -54,8 +54,9 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
 | 缺失音节审查 | `internal_data/pinyin_source_db/syllable_admission_reviews.json` | 让有真实来源、结构合法且经批准的音节跨过旧清单循环门禁；可限定多字来源，不能写编码 |
 | 拼写规则说明 | `internal_data/syllable_encoding_rule_catalog.json` | 解释来源、规范化和兼容规则；禁止保存编码映射 |
-| 首音语义 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符 |
-| 乐音语义 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符 |
+| 首音稳定登记 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N27 的标签、语义码、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
+| 乐音稳定登记 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
+| 条件音值来源与规则契约 | `syllable/pianyin/conditional_sound_value_model.json` | 指向片音实现值、音质/音高归并、规范三段分解及稳定登记表；当前 `research_only` 且不接运行时 |
 | 音节分解 | `syllable/analysis/syllable_encoding_pipeline.py`、`syllable_splitter.py` | 标准拼音到首音段/干音段 |
 | 音节编码 | `ShouyinEncoder`、`GanyinEncoder`、`YinjieEncoder` | 正式生成四音元编码 |
 | 键盘布局 | `internal_data/manual_key_layout.json` | 唯一 Yinyuan-ID-to-key 投影 |
@@ -75,6 +76,11 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 有数量上限的本次候选，不写回单字读音、来源库或音节码表；单音节输入、未准入的五声形式和没有
 同声韵本调依据的特殊轻声均不得触发。
 
+这里的“表层属性”只表示完整词音中出现了轻声这一身份，不表示数据库已经保存其具体表层调值。
+当前 `tone=5` 及三个中调乐音（音元）序列是稳定工程标识和兼容编码，不是第五个固定声调的声学声明，
+也不要求为每条轻声回填阴平、阳平、上声或去声中的深层本调。后期若要按语流中的实际轻声输入，必须
+在词语或构式层增加有来源、可撤销的表层输入别名；不得用该别名改写规范读音、基础音节码或轻声身份。
+
 单字分级同样只在统一来源库生成：`kTGH` 正式三级、`kXHC1983` 扩展、从
 `kHanyuPinyin ∪ kMandarin` 按BCC补到累计14000、剩余 `kHanyuPinyin`、
 剩余 `kMandarin`、项目门禁且已有正式音元编码字符、未编码Unihan字符，共九级。
@@ -86,9 +92,9 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 
 ### 总体分配
 
-- 47个 Base 可分配键中：22个放常用乐音，24个放 N01–N24，反引号 `` ` `` 保留。
+- 47个 Base 可分配键中：22个放常用乐音，25个承载首音；N12/N26、N25/N27 受控共键，反引号承载 N25/N27。
 - 其余11个乐音放在 Shift 层。
-- 所有57个 Yinyuan ID 只使用 Base 或 Shift；保留的 AltGr 槽位全部为空。
+- 所有60个 Yinyuan ID 只使用 Base 或 Shift；保留的 AltGr 槽位全部为空。
 - `Shift+1` 至 `Shift+9` 是候选选择操作，不承载 Yinyuan ID。
 - 已删除早期“把数字和标点机械搬到其他键位”的输入兜底；数字和标点由宿主/候选功能处理。
 
@@ -119,11 +125,10 @@ A/Z = n 高/低            ; / = ng 高/低
 
 1. `yime_syllable_decomposition.tsv`：1732项正式分解、Yinyuan ID 和布局码。
 2. `yime_syllable_encoding_provenance.tsv`：每项编码的来源和规则依据。
-3. `yime_syllable_omissions.tsv`：旧理论全集与现行实例驱动链的50项差集；有来源的轻声由统一规则准入，不再按每个 `-5` 音节列举。
+3. `yime_syllable_omissions.tsv`：实际来源在进入正式音节清单前被过滤，或进入清单后编码失败的记录。
 
-50项差集目前分为：22项方案形式/音节拼写/编码形式差异，20项历史 `v` 技术拼音，3项 `io`
-形式族中未实例化的声调，以及5项早期五声穷举遗留（`er1、m3、n1、ng1、ê5`）。它们不是50个
-被编码器漏掉的现行音节。
+遗漏表不再把预定义韵母补齐为五声，也不登记未被来源实例化的 `v`、`ue`、`uong` 等技术或
+合并形式。缺少来源实例的组合不属于“遗漏”；将来出现新的经审查读音时，由实例驱动链自动纳入。
 
 ## 修改入口
 

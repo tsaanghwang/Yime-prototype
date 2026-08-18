@@ -21,13 +21,49 @@ SHOUYIN_SOURCE = Path("syllable/yinyuan/zaoyin_yinyuan_enhanced.json")
 YUEYIN_SOURCE = Path("syllable/yinyuan/yueyin_yinyuan_enhanced.json")
 CANONICAL_SYMBOL_SOURCE = Path("internal_data/key_to_symbol.json")
 CANONICAL_LAYOUT_SOURCE = Path("internal_data/manual_key_layout.json")
+CONTROLLED_SHARED_LAYOUT_GROUPS = {
+    frozenset(("N12", "N26")),
+    frozenset(("N25", "N27")),
+}
 
 
 def expected_yinyuan_ids() -> set[str]:
     return {
-        *(f"N{index:02d}" for index in range(1, 25)),
+        *(f"N{index:02d}" for index in range(1, 28)),
         *(f"M{index:02d}" for index in range(1, 34)),
     }
+
+
+def load_shared_layout_groups(layout: dict[str, Any]) -> dict[str, tuple[str, ...]]:
+    """Return owner -> members for the two reviewed many-ID-to-one-key groups."""
+    raw_groups = layout.get("shared_yinyuan_key_groups", [])
+    if not isinstance(raw_groups, list):
+        raise ValueError("shared_yinyuan_key_groups must be an array")
+    groups: dict[str, tuple[str, ...]] = {}
+    actual_sets: set[frozenset[str]] = set()
+    seen_members: set[str] = set()
+    for raw_group in raw_groups:
+        if not isinstance(raw_group, dict):
+            raise ValueError("shared Yinyuan key group must be an object")
+        owner = str(raw_group.get("owner_yinyuan_id") or "")
+        raw_members = raw_group.get("member_yinyuan_ids", [])
+        if not isinstance(raw_members, list):
+            raise ValueError(f"shared group {owner} members must be an array")
+        members = tuple(map(str, raw_members))
+        member_set = frozenset(members)
+        if not owner or owner not in member_set or len(members) != len(member_set):
+            raise ValueError(f"invalid shared Yinyuan key group: {owner} -> {members}")
+        if member_set not in CONTROLLED_SHARED_LAYOUT_GROUPS:
+            raise ValueError(f"unreviewed shared Yinyuan key group: {sorted(member_set)}")
+        overlap = seen_members & member_set
+        if overlap:
+            raise ValueError(f"Yinyuan IDs occur in multiple shared groups: {sorted(overlap)}")
+        seen_members.update(member_set)
+        actual_sets.add(member_set)
+        groups[owner] = members
+    if actual_sets != CONTROLLED_SHARED_LAYOUT_GROUPS:
+        raise ValueError("canonical layout must declare both controlled shared-key groups")
+    return groups
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -79,7 +115,7 @@ def load_symbol_to_yinyuan_id(repo_root: Path = REPO_ROOT) -> dict[str, str]:
     registry = load_semantic_yinyuan_registry(repo_root)
     canonical_symbols = _load_json(repo_root / CANONICAL_SYMBOL_SOURCE)
     if set(canonical_symbols) != expected_yinyuan_ids():
-        raise ValueError("Canonical symbol source does not cover exactly N01-N24 and M01-M33")
+        raise ValueError("Canonical symbol source does not cover exactly N01-N27 and M01-M33")
 
     symbol_to_id: dict[str, str] = {}
     for yinyuan_id, entry in registry.items():
@@ -168,6 +204,17 @@ def load_yinyuan_id_to_layout_key(
             raise ValueError(f"Duplicate layout key token {key!r}: {occupied[key]} and {yinyuan_id}")
         mapping[yinyuan_id] = key
         occupied[key] = yinyuan_id
+
+    for owner, members in load_shared_layout_groups(layout).items():
+        if owner not in mapping:
+            raise ValueError(f"shared-key owner has no physical assignment: {owner}")
+        key = mapping[owner]
+        for member in members:
+            if member == owner:
+                continue
+            if member in mapping:
+                raise ValueError(f"shared-key member also has an independent slot: {member}")
+            mapping[member] = key
 
     expected = expected_yinyuan_ids()
     if set(mapping) != expected:

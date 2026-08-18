@@ -189,12 +189,6 @@ def encoder_alias_rule_ids(analyzed_ganyin: str, encoder_ganyin: str) -> tuple[s
         return ()
     if analyzed_ganyin.startswith(("hm", "hn", "hng")):
         return ("ENC-H-NASAL-ALIAS",)
-    if analyzed_ganyin.startswith("iou") and encoder_ganyin.startswith("iu"):
-        return ("ENC-IOU-TO-IU",)
-    if analyzed_ganyin.startswith("ueng") and encoder_ganyin.startswith("uong"):
-        return ("ENC-UENG-TO-UONG",)
-    if analyzed_ganyin.startswith("ong") and encoder_ganyin.startswith("uong"):
-        return ("ENC-ONG-TO-UONG",)
     raise ValueError(
         "Uncatalogued encoder alias: "
         f"analyzed={analyzed_ganyin!r}, encoder={encoder_ganyin!r}"

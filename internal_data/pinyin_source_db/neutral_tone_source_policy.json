@@ -11,6 +11,10 @@
       "unmarked_interpretation": "neutral",
       "basis": "The checked-in phrase-pinyin export uses marked Pinyin and leaves neutral-tone syllables unmarked."
     },
+    "psc_candidate_coverage": {
+      "unmarked_interpretation": "neutral",
+      "basis": "The reviewed PSC transcription sources use tone-marked Pinyin and leave lexical neutral-tone syllables unmarked; the candidate catalog preserves the reviewed pair and its provenance."
+    },
     "wanxiang": {
       "unmarked_interpretation": "neutral",
       "basis": "Wanxiang dictionary readings use tone-marked Pinyin and represent neutral-tone syllables without a tone mark."

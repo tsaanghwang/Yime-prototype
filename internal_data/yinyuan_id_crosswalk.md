@@ -1,8 +1,8 @@
 # Yinyuan ID Crosswalk
 
-- Rows: 57
+- Rows: 60
 - Runtime vs projection mismatches: 0
-- Runtime BMP vs canonical SPUA-B differences: 57
+- Runtime BMP vs canonical SPUA-B differences: 60
 - Rows with issues: 0
 
 |Yinyuan ID|Label|Physical Key|Runtime BMP|Projection BMP|Canonical SPUA-B|Layer Relation|Issues|
@@ -31,6 +31,9 @@
 |N22|x|1:base:1| (U+E4FE)| (U+E4FE)|􀀕 (U+100015)|runtime_bmp_differs_from_canonical||
 |N23|y|y:base:y| (U+E500)| (U+E500)|􀀖 (U+100016)|runtime_bmp_differs_from_canonical||
 |N24|w|=:base:=| (U+E4FF)| (U+E4FF)|􀀗 (U+100017)|runtime_bmp_differs_from_canonical||
+|N25|ɥ|`:base:`| (U+E501)| (U+E501)|􀀘 (U+100018)|runtime_bmp_differs_from_canonical||
+|N26|ŋ|':base:'| (U+E502)| (U+E502)|􀀙 (U+100019)|runtime_bmp_differs_from_canonical||
+|N27|a_apical|`:base:`| (U+E503)| (U+E503)|􀀚 (U+10001A)|runtime_bmp_differs_from_canonical||
 |M01|ɪ́|j:base:j| (U+E509)| (U+E509)|􀀠 (U+100020)|runtime_bmp_differs_from_canonical||
 |M02|ɪ̄|k:base:k| (U+E50A)| (U+E50A)|􀀡 (U+100021)|runtime_bmp_differs_from_canonical||
 |M03|ɪ̀|l:base:l| (U+E50B)| (U+E50B)|􀀢 (U+100022)|runtime_bmp_differs_from_canonical||

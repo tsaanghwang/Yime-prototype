@@ -18,6 +18,9 @@ Yime 使用的 **词语普通话读音** SQLite 库。上游数据来自 [phrase
 
 同一词语若源文件出现多次，staging 会合并为一条，`readings` 内以 `|` 分隔多种读音。
 
+词语读音是按字词顺序排列的音节序列。导入时只允许逐音节原位规范化，不得为了调整轻声或默认
+读音优先级而移动词语内部的音节；读音候选之间的排序也不得套用到完整词语内部。
+
 ## 一键构建
 
 ```bash
@@ -66,6 +69,15 @@ python build_valid_pinyin.py
 | `view_staging_inspection`  | staging 侧检视                   |
 
 校验未通过的词条不会进入 `phrase_pinyin`；`append_pinyin.py` 运行时会打印 `invalid_phrases` 计数与示例。
+
+词语内拼音顺序门禁可单独运行：
+
+```powershell
+.\venv312\Scripts\python.exe -m pytest tests\pinyin_source_db\test_phrase_pinyin_order.py -q
+```
+
+该门禁既检查临时数据库导入过程，也扫描上游中所有“内部无调音节后仍有有调音节”的多字词，核对
+受版本控制的导出表是否保持原顺序。
 
 ## 单独执行
 

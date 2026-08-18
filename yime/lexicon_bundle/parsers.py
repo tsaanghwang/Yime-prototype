@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterator
@@ -120,6 +121,66 @@ def iter_wanxiang_readings(path: Path, *, source_rank: int = 30) -> Iterator[Rea
                 source_rank=source_rank,
                 source_weight=weight,
             )
+
+
+def iter_reviewed_orthoepy_readings(path: Path) -> Iterator[ReadingRecord]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != "yime-reviewed-orthoepy-readings-v1":
+        raise ValueError(f"unsupported orthoepy coverage catalog: {path}")
+    for index, raw in enumerate(payload.get("records", []), start=1):
+        record = dict(raw)
+        text = str(record.get("text", "")).strip()
+        reading = " ".join(str(record.get("marked_pinyin", "")).split())
+        source = str(record.get("source", "")).strip()
+        category = str(record.get("source_category", "")).strip()
+        if not (text and reading and source and category):
+            raise ValueError(f"incomplete orthoepy coverage record {index}: {path}")
+        if source not in {"psc_orthoepy_1985", "psc_orthoepy_2016_draft"}:
+            raise ValueError(f"unexpected orthoepy source {source!r}: {path}")
+        if bool(record.get("source_primary", False)):
+            raise ValueError("orthoepy coverage records must not be source-primary")
+        yield ReadingRecord(
+            text=text,
+            reading=reading,
+            source=source,
+            source_category=category,
+            source_file=str(path),
+            line_number=index,
+            source_rank=int(record.get("source_rank", 90)),
+            source_primary=False,
+            codepoint_context=len(text) == 1,
+        )
+
+
+def iter_reviewed_psc_candidate_readings(path: Path) -> Iterator[ReadingRecord]:
+    """Yield reviewed PSC pairs from the candidate-only coverage catalog."""
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != "yime-reviewed-psc-candidate-readings-v1":
+        raise ValueError(f"unsupported PSC candidate coverage catalog: {path}")
+    for index, raw in enumerate(payload.get("records", []), start=1):
+        record = dict(raw)
+        text = str(record.get("text", "")).strip()
+        reading = " ".join(str(record.get("marked_pinyin", "")).split())
+        source = str(record.get("source", "")).strip()
+        category = str(record.get("source_category", "")).strip()
+        if not (text and reading and source and category):
+            raise ValueError(f"incomplete PSC candidate record {index}: {path}")
+        if source != "psc_candidate_coverage":
+            raise ValueError(f"unexpected PSC candidate source {source!r}: {path}")
+        if bool(record.get("source_primary", False)):
+            raise ValueError("PSC candidate coverage records must not be source-primary")
+        yield ReadingRecord(
+            text=text,
+            reading=reading,
+            source=source,
+            source_category=category,
+            source_file=str(path),
+            line_number=index,
+            source_rank=int(record.get("source_rank", 92)),
+            source_primary=False,
+            codepoint_context=len(text) == 1,
+        )
 
 
 def iter_bcc_frequencies(

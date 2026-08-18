@@ -90,6 +90,15 @@ def build_physical_key_index() -> dict[str, list[str]]:
         binding = f"{physical_key}:{output_layer}:{display_label}"
         physical.setdefault(yinyuan_id, []).append(binding)
 
+    for group in ensure_dict_list(payload.get("shared_yinyuan_key_groups", [])):
+        owner = str(group.get("owner_yinyuan_id") or "")
+        members = group.get("member_yinyuan_ids", [])
+        if not isinstance(members, list) or owner not in physical:
+            continue
+        for member in map(str, members):
+            if member != owner:
+                physical[member] = list(physical[owner])
+
     for bindings in physical.values():
         bindings.sort()
 
@@ -110,6 +119,15 @@ def build_display_label_index() -> dict[str, list[str]]:
         if not display_label:
             continue
         labels.setdefault(yinyuan_id, []).append(display_label)
+
+    for group in ensure_dict_list(payload.get("shared_yinyuan_key_groups", [])):
+        owner = str(group.get("owner_yinyuan_id") or "")
+        members = group.get("member_yinyuan_ids", [])
+        if not isinstance(members, list) or owner not in labels:
+            continue
+        for member in map(str, members):
+            if member != owner:
+                labels[member] = list(labels[owner])
 
     for items in labels.values():
         items.sort()

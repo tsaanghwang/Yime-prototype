@@ -18,12 +18,17 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
   `merged_word_freq.txt`、`merged_char_freq.txt` 和 `word_freq_merged_single_char_freq.txt` 都是本仓库
   生成的二手数据，禁止作为统一语料包的来源证据；配置误用时构建会直接失败。
 - 万象的权重经过其自身语料和排序流程处理，只保存在 `wanxiang_weight`，不得冒充 BCC count。
-- 运行候选采用 BCC 直接证据、RIME-LMDG 缺失补充和结构保底三层隔离排序；原值永不相加，
-  详见[候选排序证据与长尾结构](CANDIDATE_RANKING_EVIDENCE.md)。
-- 万象来源同时保留 `jichu`、`lianxiang`、`diming`、`shici`、`yixue` 等原始文件分类，供以后构建
-  基础、联想、地名、诗词和专业分类词库。
-- 同一字词允许保留多个读音。Unihan 是单字首选来源，pypinyin 是词语首选来源，万象用于补充、交叉
-  验证及冲突发现。
+- 词语拼音来源与排序证据是两件事：万象词库直接提供进入统一来源库和运行候选选择的字词、带调拼音
+  与原始权重；BCC 提供独立语料频次。运行候选在有 BCC 直接证据时使用 BCC，在缺少 BCC 时使用
+  RIME-LMDG 权重的分桶百分位，最后才使用结构保底；原值永不相加，详见
+  [候选排序证据与长尾结构](CANDIDATE_RANKING_EVIDENCE.md)。
+- 万象来源同时保留 `jichu`、`lianxiang`、`diming`、`shici`、`yixue` 等原始文件分类。统一来源库
+  已实际导入这些分类；当前运行词库选择也明确纳入其中若干类别，分类字段继续用于基础、联想、地名、
+  诗词和专业词库的审查与分层。
+- 同一字词允许保留多个读音。Unihan 是主要的单字读音生产来源；pypinyin 与万象都是词语读音生产
+  来源。pypinyin 在两者重合或冲突时暂时具有来源顺序优先权，但这不是对质量或规范地位的最终裁决；
+  万象承担大规模词语覆盖、带调拼音、来源分类和缺少 BCC 时的排序证据，同时也与 pypinyin 互相提供
+  重合验证及冲突发现。不得把万象描述成只读参考资料。
 - 拼音必须通过 `dictionary_pinyin_compliance_policy.json`，音节数必须与全汉字词条的字数相同。规范
   数字拼音须存在于当前 `pinyin_normalized.json`；唯一例外是已有真实来源且在
   `syllable_admission_reviews.json` 明确批准的循环门禁项目，重建后仍须由正式编码器生成。
@@ -61,6 +66,16 @@ BCC 字频与词频 ─────────── 保留原始整数 count �
 | `reading_conflicts.tsv` | 同一字词有多个合规读音的审查表 |
 | `character_tiers.tsv` | 九级互斥汉字分级、来源、BCC频次及门禁/编码状态审计表 |
 | `manifest.json` | 输入文件摘要、口径、数量和输出文件清单 |
+
+重建后可单独运行万象词语拼音顺序审计：
+
+```powershell
+.\venv312\Scripts\python.exe tools\audit_wanxiang_pinyin_order.py
+```
+
+该工具以只读方式逐条比较 `accepted_readings.source_marked` 和按原位置规范化后应得的数字拼音，既
+覆盖内部轻声音节，也统计音节数异常和纯粹的音节排列变化；审计报告写入
+`.generated/wanxiang_pinyin_order_audit/summary.json`。
 
 需要提交小型审查快照而不是整个本地语料包时，运行：
 
@@ -119,3 +134,14 @@ SQLite 中的 `bcc_frequency_evidence` 保留每个 BCC 分域原始文件及 `w
 生成器只读取使用者本地准备的上游数据，不把上游大文件提交进本仓库。公开或再分发生成结果前，
 必须分别核对 Unihan、phrase-pinyin-data、BCC 和 RIME-LMDG 的许可、署名与引用要求；BCC 的研究引用
 见 `external_data/word_freq_README.md`，万象仓库当前许可证见其本地 `LICENSE`。
+
+### RIME-LMDG（万象）归属
+
+本项目实际使用 [RIME-LMDG（万象语法模型与词库）](https://github.com/amzxyz/RIME-LMDG) 提供的
+字词、带声调拼音、词库分类和权重数据；这些数据经过 Yime 的来源合规、音节编码、候选筛选和分层
+排序流程形成派生产物。万象不是只供人工查阅的参考来源，而是当前统一来源库和运行候选的重要生产
+来源。
+
+本机同步的 RIME-LMDG 上游仓库以 CC BY 4.0 发布。公开或再分发含其派生数据的词库或安装产物时，
+应按该许可证保留适当署名、许可证链接并说明所作修改；Yime 自身的筛选、转码和重新排序不得抹去
+万象的来源身份。具体义务以发布时采用的上游版本及其 `LICENSE` 为准。

@@ -18,11 +18,16 @@ MissingHandlingInfo: TypeAlias = dict[str, str | list[str]]
 class FinalCategorizer:
     """根据韵母类型进行分类与排序。"""
 
+    SURFACE_TO_FULL_FINAL: Final[dict[str, str]] = {
+        'iu': 'iou',
+        'ui': 'uei',
+        'un': 'uen',
+    }
+
     RULE_VARIANT_SURFACE_FORMS: Final[dict[str, tuple[str, ...]]] = {
         'iou': ('iu', 'ou'),
         'uei': ('ui', 'ei'),
         'uen': ('un', 'en'),
-        'ue': ('üe', 've'),
         'ueng': ('eng',),
     }
 
@@ -81,11 +86,6 @@ class FinalCategorizer:
             'kind': '常规形式',
             'source': '常规韵母定义',
             'detail': '基础单韵母，直接按标准韵母处理。',
-        },
-        'v': {
-            'kind': '规则变体',
-            'source': 'ü 替代编码',
-            'detail': '输入法和内部编码常用 v 代替 ü，以兼容键盘输入和无变音符环境。',
         },
         'ê': {
             'kind': '特殊形式',
@@ -152,20 +152,10 @@ class FinalCategorizer:
             'source': '常规韵母定义',
             'detail': '介音 u 加主元音的常规组合，直接按标准韵母处理。',
         },
-        'ue': {
-            'kind': '规则变体',
-            'source': 'ü 省写形式',
-            'detail': '由 üe 在 y、j、q、x 前的省写规则产生，实际拼写中常写作 yue、jue、que、xue。',
-        },
         'uo': {
             'kind': '常规形式',
             'source': '常规韵母定义',
             'detail': '介音 u 加主元音的常规组合，直接按标准韵母处理。',
-        },
-        've': {
-            'kind': '规则变体',
-            'source': 'üe 的输入法编码',
-            'detail': '用 v 代替 ü 的编码写法，对应标准形式 üe。',
         },
         'üe': {
             'kind': '常规形式',
@@ -208,9 +198,9 @@ class FinalCategorizer:
             'detail': '《汉语拼音方案》中的完整形式，实际拼写中通常按省写规则记作 iu。',
         },
         'iu': {
-            'kind': '常规形式',
-            'source': '常规拼写形式',
-            'detail': '由 iou 按省写规则得到的实际常用拼写形式。',
+            'kind': '兼容表面形式',
+            'source': '规范拼音省写形式',
+            'detail': '由 iou 按省写规则得到；只在输入边界兼容，内部韵母统一还原为 iou。',
         },
         'ong': {
             'kind': '常规形式',
@@ -248,24 +238,14 @@ class FinalCategorizer:
             'detail': '理论上保留为完整形式，零声母或实际拼写中通常转写为 weng 等表面形式。',
         },
         'ui': {
-            'kind': '常规形式',
-            'source': '常规拼写形式',
-            'detail': '由 uei 按省写规则得到的实际常用拼写形式。',
+            'kind': '兼容表面形式',
+            'source': '规范拼音省写形式',
+            'detail': '由 uei 按省写规则得到；只在输入边界兼容，内部韵母统一还原为 uei。',
         },
         'un': {
-            'kind': '常规形式',
-            'source': '常规拼写形式',
-            'detail': '由 uen 按省写规则得到的实际常用拼写形式。',
-        },
-        'van': {
-            'kind': '规则变体',
-            'source': 'üan 的输入法编码',
-            'detail': '用 v 代替 ü 的编码写法，对应标准形式 üan。',
-        },
-        'vn': {
-            'kind': '规则变体',
-            'source': 'ün 的输入法编码',
-            'detail': '用 v 代替 ü 的编码写法，对应标准形式 ün。',
+            'kind': '兼容表面形式',
+            'source': '规范拼音省写形式',
+            'detail': '由 uen 按省写规则得到；只在输入边界兼容，内部韵母统一还原为 uen。',
         },
         'üan': {
             'kind': '常规形式',
@@ -280,22 +260,28 @@ class FinalCategorizer:
     }
 
     SINGLE_QUALITY_FINALS: Final[FinalSet] = {
-        '_i', 'a', 'e', 'er', 'i', 'm', 'n', 'ng', 'o', 'u', 'v', 'ê', 'ü'
+        '_i', 'a', 'e', 'er', 'i', 'm', 'n', 'ng', 'o', 'u', 'ê', 'ü'
     }
     FRONT_LONG_FINALS: Final[FinalSet] = {'ai', 'an', 'ang', 'ao', 'ei', 'en', 'eng', 'ou'}
-    BACK_LONG_FINALS: Final[FinalSet] = {'ia', 'ie', 'io', 'ua', 'ue', 'uo', 've', 'üe'}
+    BACK_LONG_FINALS: Final[FinalSet] = {'ia', 'ie', 'io', 'ua', 'uo', 'üe'}
     TRIPLE_QUALITY_FINALS: Final[FinalSet] = {
-        'ian', 'iang', 'iao', 'in', 'ing', 'iong', 'iou', 'iu', 'ong',
-        'uai', 'uan', 'uang', 'uei', 'uen', 'ueng', 'ui', 'un', 'van',
-        'vn', 'üan', 'ün'
+        'ian', 'iang', 'iao', 'in', 'ing', 'iong', 'iou', 'ong',
+        'uai', 'uan', 'uang', 'uei', 'uen', 'ueng', 'üan', 'ün'
     }
+
+    @classmethod
+    def normalize_final_form(cls, final: str) -> str:
+        """把规范拼音省写形式还原为供音质分析使用的完整韵母。"""
+        return cls.SURFACE_TO_FULL_FINAL.get(final, final)
 
     @staticmethod
     def categorize(ganyin: str) -> str:
         if not ganyin:
             return "未知类型"
 
-        final = FinalCategorizer._remove_tone_from_ganyin(ganyin)
+        final = FinalCategorizer.normalize_final_form(
+            FinalCategorizer._remove_tone_from_ganyin(ganyin)
+        )
 
         if final in FinalCategorizer.SINGLE_QUALITY_FINALS:
             return "单质干音"
@@ -338,6 +324,8 @@ class FinalCategorizer:
     def _add_final_to_category(final: str) -> bool:
         if not final:
             return False
+
+        final = FinalCategorizer.normalize_final_form(final)
 
         all_finals = (
             FinalCategorizer.SINGLE_QUALITY_FINALS |

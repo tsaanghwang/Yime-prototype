@@ -41,6 +41,14 @@ class TestShouyinEncoder(unittest.TestCase):
         result = self.encoder.encode_shouyin("")
         self.assertEqual(result, "", "空字符串输入应返回空字符串")
 
+    def test_yu_family_analysis_label_has_independent_runtime_mapping(self):
+        self.assertEqual(self.encoder.encode_shouyin("ɥ"), self.runtime_map["ɥ"])
+        self.assertNotEqual(self.runtime_map["ɥ"], self.runtime_map["y"])
+
+    def test_contextual_initials_have_independent_runtime_mappings(self):
+        self.assertEqual(self.encoder.encode_shouyin("ŋ"), self.runtime_map["ŋ"])
+        self.assertEqual(self.encoder.encode_shouyin("a_apical"), self.runtime_map["a_apical"])
+
     def test_encode_complex_shouyin(self):
         """测试复合首音编码"""
         # 测试复合首音(如zh, ch, sh)是否保持完整

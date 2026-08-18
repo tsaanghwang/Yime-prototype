@@ -112,8 +112,7 @@
       "ipa": [
         "ʔ",
         "",
-        "ɣ",
-        "ŋ"
+        "ɣ"
       ],
       "type": "mixed_yinyuan",
       "semantic_code": "UPY_'",
@@ -179,9 +178,7 @@
     "r": {
       "ipa": [
         "ɻ",
-        "ʐ",
-        "ɹ",
-        "z"
+        "ʐ"
       ],
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_R",
@@ -217,8 +214,7 @@
     },
     "y": {
       "ipa": [
-        "j",
-        "ɥ"
+        "j"
       ],
       "type": "unstable_pitch_yinyuan",
       "semantic_code": "UPY_Y",
@@ -234,6 +230,27 @@
       "semantic_code": "UPY_W",
       "runtime_char": "",
       "yinyuan_id": "N24"
+    },
+    "ɥ": {
+      "ipa": ["ɥ"],
+      "type": "unstable_pitch_yinyuan",
+      "semantic_code": "UPY_YU_VIRTUAL",
+      "runtime_char": "",
+      "yinyuan_id": "N25"
+    },
+    "ŋ": {
+      "ipa": ["ŋ"],
+      "type": "unstable_pitch_yinyuan",
+      "semantic_code": "UPY_NG_CONTEXTUAL",
+      "runtime_char": "",
+      "yinyuan_id": "N26"
+    },
+    "a_apical": {
+      "ipa": ["ɹ", "z"],
+      "type": "unstable_pitch_yinyuan",
+      "semantic_code": "UPY_A_APICAL",
+      "runtime_char": "",
+      "yinyuan_id": "N27"
     }
   }
 }

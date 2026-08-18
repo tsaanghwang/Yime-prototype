@@ -203,10 +203,10 @@ Z = n低 M30            / = ng低 M33
 
 ## 当前实现状态与后续试验
 
-当前 57 个 Yinyuan ID 已全部进入 Base 或 Shift 层，AltGr 层保留但为空。
+当前 60 个 Yinyuan ID 已全部进入 Base 或 Shift 层，AltGr 层保留但为空；N12/N26 与 N25/N27 为受控共键。
 本文件与首音布局文档共同解释当前 `canonical_yinyuan_vk_layout_v1`：
 
-1. 确定反引号 `` ` `` 保留键将来的用途；
+1. 反引号 `` ` `` 已用于 N25 `[ɥ]` 与 N27 `[z]/[ɹ]` 的受控共键；
 2. 使用 `scripts\layout_workbench.cmd` 进行可视化交换和词库试打；
 3. 保存后由 `python tools/run_locked_layout_pipeline.py` 重建 resolved layout、
    crosswalk、KLC 和其他消费者产物；

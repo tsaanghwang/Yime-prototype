@@ -8,7 +8,10 @@ from datetime import date
 from pathlib import Path
 from typing import Iterable, Mapping
 
-from yime.canonical_yime_mapping import build_canonical_pinyin_rows
+from yime.canonical_yime_mapping import (
+    build_canonical_pinyin_rows,
+    load_canonical_code_map,
+)
 from yime.utils.code_modes import YimeCodeMode, code_mode_label, lookup_code_column, normalize_code_mode
 from yime.utils.yinyuan_id_chain import (
     layout_projection_digest,
@@ -122,16 +125,19 @@ def export_pinyin_codes_tsv(
     inventory_path: Path | None = None,
 ) -> int:
     symbol_to_key = load_runtime_symbol_to_layout_key(repo_root, layout_path)
-    conn = sqlite3.connect(db_path)
-    try:
-        canonical_rows = build_canonical_pinyin_rows(conn, repo_root)
-    finally:
-        conn.close()
-    canonical_by_pinyin = {pinyin_tone: code for pinyin_tone, code, _ in canonical_rows}
     if inventory_path:
+        canonical_by_pinyin = load_canonical_code_map(repo_root)
         inventory_lines = inventory_path.read_text(encoding="utf-8-sig").splitlines()
         inventory = [line.split("\t", 1)[0].strip() for line in inventory_lines[1:] if line.strip()]
     else:
+        conn = sqlite3.connect(db_path)
+        try:
+            canonical_rows = build_canonical_pinyin_rows(conn, repo_root)
+        finally:
+            conn.close()
+        canonical_by_pinyin = {
+            pinyin_tone: code for pinyin_tone, code, _ in canonical_rows
+        }
         inventory = [pinyin_tone for pinyin_tone, _, _ in canonical_rows]
 
     lines = ["pinyin_tone\tfull"]

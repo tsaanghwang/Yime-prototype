@@ -28,7 +28,7 @@
 internal_data/manual_key_layout.json
 ```
 
-当前版本 `canonical_yinyuan_vk_layout_v1` 把全部 57 个 Yinyuan ID 分配到
+当前版本 `canonical_yinyuan_vk_layout_v1` 把全部 60 个 Yinyuan ID 分配到
 Base 或 Shift 层，AltGr 层保留为空；具体设计理由见乐音和首音布局依据文档。
 
 每次修改后只运行：
@@ -109,7 +109,5 @@ python tools/export_syllable_decomposition.py
   `tools/build_lexicon_source_bundle.py` 及统一合规门禁的规范化和允许格式开始检查。
 - `encoder_failed`：规范数字拼音已经进入清单，但正式编码器失败；按表中的 `source_rule`
   从切分、首音编码或干音编码阶段开始修复。
-- `not_generated_from_current_inventory`：理论干音集合中存在、当前规范音节编码链未产出的项；
-  先核实是拼写变体、未被词库收录的特殊形式，还是真异常，不能直接补 `yinjie_code.json`。
 如果确需改变分解或编码规则，这是独立的语义改动。应从表中所列上游真源开始，重建完整编码链，
 验证成功后再由审查者明确更新 `layout_change_lock.json` 的语义摘要；不得在布局分支中仅为通过锁而更新摘要。

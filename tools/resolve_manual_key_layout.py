@@ -1,10 +1,16 @@
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from yime.utils.yinyuan_id_chain import load_shared_layout_groups  # noqa: E402
+
+
 DEFAULT_LAYOUT = ROOT / "internal_data" / "manual_key_layout.json"
 DEFAULT_SYMBOLS = ROOT / "internal_data" / "key_to_symbol.json"
 DEFAULT_OUTPUT = ROOT / "internal_data" / "manual_key_layout.resolved.json"
@@ -93,6 +99,20 @@ def build_resolved_layout(layout_data: dict[str, Any], key_to_symbol: dict[str, 
 
     layers: list[dict[str, Any]] = layout_data.get("layers", [])
     resolved_layers = validate_layers(layers, key_to_symbol)
+    shared_groups = load_shared_layout_groups(layout_data)
+    primary_ids = {
+        str(item.get("yinyuan_id") or "")
+        for item in resolved_layers
+        if item.get("yinyuan_id")
+    }
+    for owner, members in shared_groups.items():
+        if owner not in primary_ids:
+            raise ValueError(f"Shared-key owner is not assigned: {owner}")
+        for member in members:
+            if member not in key_to_symbol:
+                raise ValueError(f"Unknown shared yinyuan_id: {member}")
+            if member != owner and member in primary_ids:
+                raise ValueError(f"Shared-key member also owns a physical slot: {member}")
 
     return {
         "metadata": metadata,
@@ -108,7 +128,11 @@ def build_resolved_layout(layout_data: dict[str, Any], key_to_symbol: dict[str, 
                 for item in resolved_layers
                 if item["yinyuan_id"] is None and item.get("literal_char") is None
             ),
+            "assigned_yinyuan_ids": len(primary_ids) + sum(
+                len(members) - 1 for members in shared_groups.values()
+            ),
         },
+        "shared_yinyuan_key_groups": layout_data.get("shared_yinyuan_key_groups", []),
         "layers": resolved_layers,
     }
 

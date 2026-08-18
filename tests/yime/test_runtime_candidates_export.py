@@ -157,3 +157,65 @@ def test_materialized_runtime_candidates_store_primary_yime_code_and_match_expor
     assert materialized[0]["input_shorthand_code"] == expected_derived_code
     assert list(grouped) == [expected_derived_code]
     conn.close()
+
+
+def test_materialized_runtime_candidates_allow_multiple_readings_for_one_phrase() -> None:
+    conn = sqlite3.connect(":memory:")
+    conn.row_factory = sqlite3.Row
+    conn.executescript(
+        """
+        CREATE TABLE runtime_candidates (
+            entry_type TEXT NOT NULL,
+            entry_id TEXT NOT NULL,
+            text TEXT NOT NULL,
+            pinyin_tone TEXT NOT NULL,
+            yime_code TEXT NOT NULL,
+            sort_weight REAL NOT NULL,
+            is_common INTEGER NOT NULL,
+            text_length INTEGER NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        CREATE TABLE runtime_candidates_materialized (
+            entry_type TEXT NOT NULL,
+            entry_id TEXT NOT NULL,
+            text TEXT NOT NULL,
+            pinyin_tone TEXT NOT NULL,
+            yime_code TEXT NOT NULL,
+            sort_weight REAL NOT NULL,
+            is_common INTEGER NOT NULL,
+            text_length INTEGER NOT NULL,
+            updated_at TEXT NOT NULL,
+            PRIMARY KEY (entry_type, entry_id)
+        );
+        """
+    )
+    conn.executemany(
+        "INSERT INTO runtime_candidates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            ("phrase", "7", "当天", "dang4 tian1", "ABCD", 10.0, 1, 2, "now"),
+            ("phrase", "7", "当天", "dang1 tian1", "WXYZ", 10.0, 1, 2, "now"),
+        ],
+    )
+
+    assert rebuild_materialized_runtime_candidates(conn) == 2
+    assert [
+        row[0]
+        for row in conn.execute(
+            "SELECT pinyin_tone FROM runtime_candidates_materialized ORDER BY pinyin_tone"
+        )
+    ] == ["dang1 tian1", "dang4 tian1"]
+    primary_key = tuple(
+        row[1]
+        for row in sorted(
+            (
+                row
+                for row in conn.execute(
+                    "PRAGMA table_info(runtime_candidates_materialized)"
+                )
+                if row[5]
+            ),
+            key=lambda row: row[5],
+        )
+    )
+    assert primary_key == ("entry_type", "entry_id", "pinyin_tone")
+    conn.close()

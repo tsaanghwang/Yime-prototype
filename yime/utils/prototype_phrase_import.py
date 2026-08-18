@@ -171,7 +171,7 @@ def import_phrases_and_mappings(
     missing_numeric_rows: list[tuple[str, str | None, str | None, int, int | None, int | None]] = []
     seen_missing_numeric: set[str] = set()
     phrase_rows_by_text: dict[str, tuple[str, str | None, int | None, int, int, int | None]] = {}
-    phrase_map_rows: list[tuple[int, str, int, str, str]] = []
+    phrase_map_rows: list[tuple[int, str, str, int, str, str]] = []
 
     for _, source_name, phrase, _, numeric_pinyin, reading_rank, comment, raw_line in source_rows:
         for syllable in numeric_pinyin.split():
@@ -275,9 +275,15 @@ def import_phrases_and_mappings(
 
     for _, source_name, phrase, _, numeric_pinyin, reading_rank, comment, _ in source_rows:
         phrase_id = phrase_id_by_text[phrase]
+        yime_code = build_phrase_yime_code(numeric_pinyin, yime_by_pinyin)
+        if yime_code is None:
+            raise RuntimeError(
+                f"source phrase reading has no canonical code: {phrase} -> {numeric_pinyin}"
+            )
         phrase_map_rows.append((
             phrase_id,
             numeric_pinyin,
+            yime_code,
             reading_rank,
             source_name,
             comment or 'source_pinyin.db.phrase_readings',
@@ -285,8 +291,9 @@ def import_phrases_and_mappings(
 
     conn.executemany(
         '''
-        INSERT OR REPLACE INTO phrase_pinyin_map (phrase_id, pinyin_tone, reading_rank, source_file, source_note)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO phrase_pinyin_map (
+            phrase_id, pinyin_tone, yime_code, reading_rank, source_file, source_note
+        ) VALUES (?, ?, ?, ?, ?, ?)
         ''',
         phrase_map_rows,
     )
@@ -300,7 +307,13 @@ def import_bundle_phrases_and_mappings(
     *,
     batch_size: int = 10_000,
 ) -> tuple[int, int, int]:
-    """Stream primary phrase readings from the unified source without loading 2M rows."""
+    """Stream candidate phrase readings without loading the full canonical table.
+
+    The source view contains every primary phrase reading plus reviewed PSC
+    orthoepy coverage additions. The additions remain non-primary in the
+    canonical source; inclusion here means only that they are valid candidate
+    input paths.
+    """
     source_name = "phrase:source_lexicon.sqlite3"
     conn.execute("DELETE FROM phrase_pinyin_map")
     conn.execute("DELETE FROM phrase_inventory")
@@ -322,11 +335,11 @@ def import_bundle_phrases_and_mappings(
     with sqlite3.connect(source_path) as source_conn:
         source_cursor = source_conn.execute(
             """
-            SELECT id, text, marked_pinyin, numeric_pinyin, reading_rank,
+            SELECT id, phrase_id, phrase, marked_pinyin, numeric_pinyin, reading_rank,
+                   primary_numeric_pinyin,
                    bcc_frequency, pinyin_sources, reading_source_categories,
                    wanxiang_categories
-            FROM canonical_readings
-            WHERE text_length > 1 AND is_primary = 1
+            FROM phrase_candidate_readings
             ORDER BY id
             """
         )
@@ -338,10 +351,12 @@ def import_bundle_phrases_and_mappings(
 
             for (
                 row_id,
+                phrase_id,
                 phrase,
                 marked_pinyin,
                 numeric_pinyin,
                 reading_rank,
+                primary_numeric_pinyin,
                 bcc_frequency,
                 pinyin_sources,
                 source_categories,
@@ -368,17 +383,26 @@ def import_bundle_phrases_and_mappings(
                     f"sources={pinyin_sources};categories={source_categories};"
                     f"wanxiang={wanxiang_categories}"
                 )
-                phrase_inventory_rows.append(
-                    (
-                        int(row_id),
-                        str(phrase),
-                        yime_code,
-                        int(bcc_frequency),
-                        len(str(phrase)),
-                        1,
-                        None,
+                if int(row_id) == int(phrase_id):
+                    primary_yime_code = build_phrase_yime_code(
+                        str(primary_numeric_pinyin), yime_by_pinyin
                     )
-                )
+                    if primary_yime_code is None:
+                        raise RuntimeError(
+                            "candidate phrase has no canonical primary code: "
+                            f"{phrase} -> {primary_numeric_pinyin}"
+                        )
+                    phrase_inventory_rows.append(
+                        (
+                            int(phrase_id),
+                            str(phrase),
+                            primary_yime_code,
+                            int(bcc_frequency),
+                            len(str(phrase)),
+                            1,
+                            None,
+                        )
+                    )
                 source_reading_rows.append(
                     (
                         int(row_id),
@@ -393,8 +417,9 @@ def import_bundle_phrases_and_mappings(
                 )
                 phrase_map_rows.append(
                     (
-                        int(row_id),
+                        int(phrase_id),
                         numeric_pinyin,
+                        yime_code,
                         int(reading_rank),
                         source_name,
                         source_note,
@@ -432,8 +457,8 @@ def import_bundle_phrases_and_mappings(
             conn.executemany(
                 """
                 INSERT INTO phrase_pinyin_map (
-                    phrase_id, pinyin_tone, reading_rank, source_file, source_note
-                ) VALUES (?, ?, ?, ?, ?)
+                    phrase_id, pinyin_tone, yime_code, reading_rank, source_file, source_note
+                ) VALUES (?, ?, ?, ?, ?, ?)
                 """,
                 phrase_map_rows,
             )
@@ -448,8 +473,8 @@ def write_import_metadata(conn: sqlite3.Connection, phrase_count: int, phrase_ma
     rows = [
         (
             "phrase_source_strategy",
-            "clone_unified_lexicon_primary_phrase_readings",
-            "Derive the phrase inventory only from source_lexicon.sqlite3.",
+            "clone_unified_lexicon_candidate_phrase_readings",
+            "Derive primary phrases and reviewed PSC coverage readings from source_lexicon.sqlite3.",
         ),
         ("prototype_duozi_import_source", str(SOURCE_DB_PATH), "词语拼音来源数据库（phrase_readings）"),
         ("prototype_duozi_phrase_rows", str(phrase_count), "本次导入覆盖的词语读音行数"),

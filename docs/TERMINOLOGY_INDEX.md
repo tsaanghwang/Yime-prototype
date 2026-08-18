@@ -38,7 +38,7 @@
 | **时段** | temporal slot | [YINYUAN_TERMINOLOGY.md](YINYUAN_TERMINOLOGY.md) §1 | 语流中可被语音单位占据的**时间位置** | 音元 **占时段**；中文 **不用「槽」** 译 temporal slot |
 | **段**（结构段） | segment (project sense) | 本文「音节结构」、`yinjie.py` 文件头 | 首音 / 干音 / 呼 / 主 / 末等 **音系切分** | 首音**段**、干音**段**；段由 **音元类别** 填充（噪音 / 乐音） |
 | **位**（音元位 / 编码位） | code position | `codec/yinjie.py`、四码 `yinjie_code.json` | 固定顺序上的 **第 1–4 个音元字符** | **音元位**只在强调编码位置时使用；第 1–4 位依次存放 **首音元 / 呼音元 / 主音元 / 末音元**；≠ 段本身，存的是 **已编码音元** |
-| **Yinyuan ID** | Yinyuan ID | [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md)、[FAQ.md](FAQ.md) Q16 | `N01–N24`、`M01–M33`：**哪一种音元的稳定唯一编号** | 独立于码点、键位、标签和四元编码位置；不再称 slot |
+| **Yinyuan ID** | Yinyuan ID | [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md)、[FAQ.md](FAQ.md) Q16 | `N01–N27`、`M01–M33`：**哪一种音元的稳定唯一编号** | 独立于码点、键位、标签和四元编码位置；不再称 slot |
 
 **关系（一句话）：** **段** 是结构怎么切；各段由 **音元** 填充；四码串里四个 **位** 各放一个 runtime 字符；每个字符背后对应 **Yinyuan ID N/M**（再投影到 PUA 等）。
 

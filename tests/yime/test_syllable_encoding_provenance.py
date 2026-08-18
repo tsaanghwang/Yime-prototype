@@ -41,8 +41,8 @@ def test_orthography_rules_name_historical_and_standard_form_families(
 
 
 def test_encoder_aliases_are_explicit_and_uncatalogued_aliases_fail() -> None:
-    assert encoder_alias_rule_ids("iou2", "iu2") == ("ENC-IOU-TO-IU",)
-    assert encoder_alias_rule_ids("ueng1", "uong1") == ("ENC-UENG-TO-UONG",)
+    assert encoder_alias_rule_ids("iou2", "iou2") == ()
+    assert encoder_alias_rule_ids("ueng1", "ueng1") == ()
     with pytest.raises(ValueError, match="Uncatalogued encoder alias"):
         encoder_alias_rule_ids("made1", "up1")
 
@@ -79,7 +79,7 @@ def test_small_provenance_sample_explains_source_rules_and_ids() -> None:
     assert by_pinyin["yo1"].source_rule_ids == "SRC-UNIHAN"
     assert by_pinyin["yo1"].orthography_rule_ids == "ORTH-YO-TO-IO"
     assert by_pinyin["jiu2"].orthography_rule_ids == "ORTH-IU-TO-IOU"
-    assert by_pinyin["jiu2"].encoder_alias_rule_ids == "ENC-IOU-TO-IU"
+    assert by_pinyin["jiu2"].encoder_alias_rule_ids == ""
     assert len(by_pinyin["jiu2"].yinyuan_ids.split()) == 4
 
 
@@ -94,12 +94,15 @@ def test_checked_in_provenance_covers_every_canonical_encoding() -> None:
     ) as file:
         actual = list(csv.DictReader(file, delimiter="\t"))
 
-    assert len(actual) == len(inventory) == 1732
+    assert len(actual) == len(inventory) == 1737
     assert {row["pinyin_tone"] for row in actual} == set(inventory)
     assert all(row["status"] == "encoded-with-registered-basis" for row in actual)
     assert all(row["source_rule_ids"] for row in actual)
     assert all(row["orthography_rule_ids"] for row in actual)
     assert all(len(row["yinyuan_ids"].split()) == 4 for row in actual)
+    chuo5 = next(row for row in actual if row["pinyin_tone"] == "chuo5")
+    assert "ORTH-SOURCE-ATTESTED-NEUTRAL" in chuo5["orthography_rule_ids"]
+    assert "ENC-NEUTRAL-REGULAR-DERIVATION" in chuo5["encoder_alias_rule_ids"]
 
 
 def test_excluded_reading_does_not_erase_its_character() -> None:

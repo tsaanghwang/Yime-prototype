@@ -7,7 +7,7 @@
 - internal_data/key_symbol_mapping.json：键位与音元符号映射
 - internal_data/ganyin_pinyin_mapping.json：PUA 音元序列到带调干音字符串映射
 - internal_data/ipa_pinyin_mapping.json：带调 IPA / 音标串到数字调拼音映射
-- external_data/finals_IPA_mapping.json：finals 侧外部 IPA 输入映射
+- external_data/finals_IPA_mapping.json：当前实例化韵母到 IPA 的唯一人工维护主表
 - external_data/initials_IPA_mapping.json：initials 侧外部 IPA 输入映射
 - `syllable/codec/key_to_code.json`：运行时 Yinyuan ID 到字符映射（见 [syllable/README.md](../syllable/README.md)）
 - yime/reports/yinyuan_dict.json：音元分类导出报告
@@ -45,12 +45,30 @@
 
 ### external_data/finals_IPA_mapping.json / external_data/initials_IPA_mapping.json
 
-- 角色：外部 IPA 输入映射
-- 用途：作为 `tools/final_components.py`、`tools/final_classifier.py` 等现行链路的上游输入
+- `external_data/finals_IPA_mapping.json` 使用 `final_to_ipa` 方向，`finals` 中固定保存
+  “规范内部韵母 → 无调 IPA 音质基形”；它是韵母 IPA 的唯一人工维护主表。
+- `tools/sync_final_ipa_registry.py` 以 `syllable/yinyuan/ganyin.json` 中实际析出的韵母为边界：
+  保留已有 IPA，给新增韵母写入 `__TODO_IPA__` 并提示，删除已不在实际清单中的多余韵母，
+  然后派生 `syllable/yinyuan/final_styles.json`。
+- `tools/syllable_analysis/ganyin_enhanced.py` 每次生成前先执行同一同步；存在占位符时拒绝生成，
+  避免把拼音或占位符冒充 IPA。
+- `tools/final_components.py`、`tools/final_classifier.py` 也读取同一主表，不再维护反向副本。
+- `external_data/initials_IPA_mapping.json` 仍是 initials 侧外部 IPA 输入映射。
 - 边界：它们不是内部派生产物，不应与
   `internal_data/ipa_of_finals.json`、
   `internal_data/yinyuan_pianyin_mapping.json`
   这类内部整理结果混并
+
+### external_data/tmp/final_styles_erhua_draft.json
+
+- 角色：研究期儿化韵来源、表层三段音质和人工复核决定的工作草稿，不进入运行时。
+- `tools/sync_erhua_final_draft.py` 从韵母 IPA 主表、派生分类视图和当前三段分解产物
+  非破坏性刷新每项的 `ipa` 与 `base_foundation`。
+- 已保存复核中的基础三段会同步到现行值；人工填写的 `surface_segments`、来源证据、备注、
+  `decision/revision/updated_utc` 均保持不变。
+- 基础层发生变化而表层结论已经复核的项目进入
+  `draft_foundation_sync.surface_review_required`；在复核 UI 中重新保存后自动移出清单。
+- `Review-Erhua-Finals.cmd` 会依次刷新基础 IPA、三段分解和儿化草稿，再打开复核界面。
 
 ### 可下载外部频率资源
 

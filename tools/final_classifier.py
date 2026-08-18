@@ -8,7 +8,16 @@
 """
 
 import json
+from pathlib import Path
+import sys
+import unicodedata
 from typing import Dict, List, TypedDict
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from syllable.analysis.final_ipa_registry import load_final_ipa_mapping
 
 
 class StatsResult(TypedDict):
@@ -44,9 +53,8 @@ class FinalsClassifier:
         }
 
     def load_data(self) -> None:
-        """加载音标-拼音映射数据"""
-        with open(self.input_file, 'r', encoding='utf-8') as f:
-            self.data = json.load(f)
+        """加载韵母到音标的唯一主表。"""
+        self.data, _ = load_final_ipa_mapping(Path(self.input_file))
 
     def count_symbols(self, ipa: str) -> int:
         """
@@ -63,20 +71,9 @@ class FinalsClassifier:
         if not ipa:
             return 0
 
-        count = 0
-        i = 0
-        n = len(ipa)
-
-        while i < n:
-            # 跳过组合标记
-            if i > 0 and ipa[i] in self.combining_marks:
-                i += 1
-                continue
-
-            count += 1
-            i += 1
-
-        return count
+        # “ɿ/ʅ”是同一韵母的两个实现，不是三个音质位置；分类时取首个实现。
+        variant = ipa.split("/", 1)[0]
+        return sum(1 for char in variant if not unicodedata.combining(char))
 
     def is_back_long(self, ipa: str) -> bool:
         """
@@ -86,39 +83,17 @@ class FinalsClassifier:
         2. 前一个音符是"i","u"或"ʏ"
         3. 后一音符是"ᴀ","o"或"ᴇ"
         """
-        if len(ipa) < 2:
+        variant = ipa.split("/", 1)[0]
+        symbols = [char for char in variant if not unicodedata.combining(char)]
+        if len(symbols) < 2:
             return False
 
         # 扩展的前音符集合
         first_chars = {'i', 'u', 'ʏ', 'ɪ', 'ʊ'}
         # 扩展的后音符集合
-        second_chars = {'ᴀ', 'o', 'ᴇ', 'ɑ', 'ɔ', 'ɛ', 'œ'}
+        second_chars = {'ᴀ', 'a', 'o', 'ᴇ', 'e', 'ɤ', 'ɑ', 'ɔ', 'ɛ', 'œ'}
 
-        # 获取第一个实际音标(处理组合字符)
-        first_symbol: List[str] = []
-        i = 0
-        while i < len(ipa):
-            if ipa[i] in self.combining_marks:
-                i += 1
-                continue
-            first_symbol.append(ipa[i])
-            i += 1
-            break
-
-        if not first_symbol:
-            return False
-
-        # 获取第二个实际音标(跳过中间的组合标记)
-        while i < len(ipa) and ipa[i] in self.combining_marks:
-            i += 1
-
-        if i >= len(ipa):
-            return False
-
-        second_symbol = ipa[i]
-
-        return (''.join(first_symbol) in first_chars and
-                second_symbol in second_chars)
+        return symbols[0] in first_chars and symbols[1] in second_chars
 
     def normalize_pinyin(self, pinyin: str) -> str:
         """规范化拼音表示：将ɑ(U+0251)改为a，ɡ(U+0261)改为g"""
@@ -126,7 +101,7 @@ class FinalsClassifier:
 
     def classify(self) -> None:
         """执行三步分类流程"""
-        for ipa, pinyin in self.data.items():
+        for pinyin, ipa in self.data.items():
             # 规范化拼音表示
             normalized_pinyin = self.normalize_pinyin(pinyin)
             entry = {

@@ -12,6 +12,7 @@ from typing import Any, Iterable, cast
 
 from yime.utils.yinyuan_id_chain import (
     expected_yinyuan_ids,
+    load_shared_layout_groups,
     load_semantic_yinyuan_registry,
 )
 
@@ -115,9 +116,17 @@ class LayoutDraft:
         display_label = str(entry.get("display_label") or "")
         return (
             str(entry.get("output_layer") or "") == "altgr"
-            or str(entry.get("physical_key") or "") == "`"
             or display_label in CANDIDATE_KEY_TOKENS
         )
+
+    def shared_groups(self) -> dict[str, tuple[str, ...]]:
+        return load_shared_layout_groups(self.payload)
+
+    def shared_owner(self, yinyuan_id: str) -> str:
+        for owner, members in self.shared_groups().items():
+            if yinyuan_id in members:
+                return owner
+        return yinyuan_id
 
     def assign(self, order: int, yinyuan_id: str | None) -> None:
         target = self.slot(order)
@@ -125,15 +134,21 @@ class LayoutDraft:
             raise ValueError("该键位受布局锁保护，不能分配音元")
         if yinyuan_id is not None and yinyuan_id not in expected_yinyuan_ids():
             raise ValueError(f"未知 Yinyuan ID：{yinyuan_id}")
+        if yinyuan_id is not None:
+            yinyuan_id = self.shared_owner(yinyuan_id)
 
         previous_id = cast(str | None, target.get("yinyuan_id"))
-        source = next(
-            (
-                entry
-                for entry in self.layers
-                if entry.get("yinyuan_id") == yinyuan_id and entry is not target
-            ),
-            None,
+        source = (
+            next(
+                (
+                    entry
+                    for entry in self.layers
+                    if entry.get("yinyuan_id") == yinyuan_id and entry is not target
+                ),
+                None,
+            )
+            if yinyuan_id is not None
+            else None
         )
         target["yinyuan_id"] = yinyuan_id
         target["literal_char"] = None if yinyuan_id else _native_literal(target)
@@ -146,6 +161,19 @@ class LayoutDraft:
         issues: list[str] = []
         seen_slots: set[tuple[str, str]] = set()
         id_to_slot: dict[str, str] = {}
+
+        try:
+            shared_groups = self.shared_groups()
+        except ValueError as exc:
+            issues.append(str(exc))
+            shared_groups = {}
+
+        shared_followers = {
+            member
+            for owner, members in shared_groups.items()
+            for member in members
+            if member != owner
+        }
 
         for entry in self.layers:
             physical_key = str(entry.get("physical_key") or "")
@@ -164,8 +192,10 @@ class LayoutDraft:
                 continue
             if output_layer not in {"base", "shift"}:
                 issues.append(f"{yinyuan_id} 被放入禁用层 {output_layer}")
-            if physical_key == "`" or display_label in CANDIDATE_KEY_TOKENS:
+            if display_label in CANDIDATE_KEY_TOKENS:
                 issues.append(f"{yinyuan_id} 占用了保留键 {display_label}")
+            if yinyuan_id in shared_followers:
+                issues.append(f"共享键从属音元不得独立占槽：{yinyuan_id}")
             if yinyuan_id in id_to_slot:
                 issues.append(f"{yinyuan_id} 重复：{id_to_slot[yinyuan_id]}、{display_label}")
             else:
@@ -173,6 +203,9 @@ class LayoutDraft:
 
         expected = expected_yinyuan_ids()
         assigned = set(id_to_slot)
+        for owner, members in shared_groups.items():
+            if owner in assigned:
+                assigned.update(members)
         missing = sorted(expected - assigned)
         if missing:
             issues.append("尚未分配：" + " ".join(missing))

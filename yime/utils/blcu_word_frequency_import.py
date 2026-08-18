@@ -11,6 +11,9 @@ from pathlib import Path
 try:
     from yime.canonical_yime_mapping import convert_legacy_code_to_primary, load_primary_code_map
     from yime.utils.backup import create_timestamped_backup
+    from yime.utils.runtime_candidate_schema import (
+        ensure_materialized_runtime_candidate_table,
+    )
     from yime.utils.char_frequency_policy import (
         BCC_SOURCE,
         DEFAULT_BCC_CHAR_FREQ_PATH,
@@ -24,6 +27,7 @@ try:
 except ImportError:
     from yime.canonical_yime_mapping import convert_legacy_code_to_primary, load_primary_code_map
     from .backup import create_timestamped_backup
+    from .runtime_candidate_schema import ensure_materialized_runtime_candidate_table
     from .char_frequency_policy import (
         BCC_SOURCE,
         DEFAULT_BCC_CHAR_FREQ_PATH,
@@ -523,24 +527,7 @@ def apply_frequency_updates(
 def ensure_materialized_runtime_candidates_primary_code_column(
     conn: sqlite3.Connection,
 ) -> None:
-    table_exists = conn.execute(
-        """
-        SELECT 1
-        FROM sqlite_master
-        WHERE type = 'table' AND name = 'runtime_candidates_materialized'
-        """
-    ).fetchone()
-    if table_exists is None:
-        return
-
-    columns = {
-        str(row[1] or "")
-        for row in conn.execute("PRAGMA table_info(runtime_candidates_materialized)").fetchall()
-    }
-    if "primary_yime_code" not in columns:
-        conn.execute(
-            "ALTER TABLE runtime_candidates_materialized ADD COLUMN primary_yime_code TEXT NOT NULL DEFAULT ''"
-        )
+    ensure_materialized_runtime_candidate_table(conn)
 
 
 def refresh_prototype_schema_views(db_path: Path) -> int:

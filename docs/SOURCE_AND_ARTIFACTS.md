@@ -58,7 +58,7 @@
 #### 2. Yinyuan ID 到规范字符映射真源
 
 - `internal_data/key_to_symbol.json`
-  - 当前表达 `N01-N24` 与 `M01-M33` 到规范字符的映射。
+  - 当前表达 `N01-N27` 与 `M01-M33` 到规范字符的映射。
   - 按策略文档，应将其理解为“Yinyuan ID 到 canonical 字符”的稳定层。
   - 外部 `Yime-keyboard-layout` 仓库中如果存在对应快照，也只能视为同步副本，不得反向覆盖这里。
 
@@ -76,9 +76,15 @@
 承载合并登记在两份增强真源中，再由正式编码器生成派生产物：
 
 - `syllable/yinyuan/zaoyin_yinyuan_enhanced.json`
-  - 首音语义真源；每项包含稳定 `Nxx`、语义码、标签和运行时字符。
+  - 首音稳定登记真源；每项包含稳定 `Nxx`、语义码、标签和运行时字符。
+  - 条件音值的更早上游是 `syllable/yinyuan/pianyin_initial.json`，增强表不是语境规则表。
 - `syllable/yinyuan/yueyin_yinyuan_enhanced.json`
-  - 乐音语义真源；每项包含稳定 `Mxx`、语义码、别名和运行时字符。
+  - 乐音稳定登记真源；每项包含稳定 `Mxx`、语义码、别名和运行时字符。
+  - 别名的更早上游是 `pitched_pianyin.json` 与 `variables_of_attributes.json` 的归并链。
+- `syllable/pianyin/conditional_sound_value_model.json`
+  - 条件音值来源、条件维度和操作类型的研究期契约。
+  - 只允许选择同一音元的条件实现，或在固定位置替换为另一既有 Yinyuan ID；不得增删位置或写键位。
+  - 当前 `runtime_enabled=false`，不生成运行时候选。
 - `internal_data/syllable_encoding_rule_catalog.json`
   - 来源、拼写规范化和编码兼容规则的解释目录。
   - 明确禁止保存拼音到 Yinyuan ID、字符码或键位的逐项映射，避免形成第二套码表。
@@ -563,14 +569,24 @@ git show <commit> --stat
     runtime 结果而非多层交叉对照。
 
 - `external_data/finals_IPA_mapping.json`
-  - 分类：外部语音学输入映射。
-  - 原因：它承担 finals 侧 IPA 到项目拼写约定的外部输入面，
-    当前仍被 `tools/final_components.py`、`tools/final_classifier.py`
-    等现行链路当作上游输入；因此不应与
+  - 分类：当前实例化韵母到无调 IPA 的唯一人工维护主表。
+  - 原因：`tools/sync_final_ipa_registry.py` 以当前 `ganyin.json` 的实际韵母集合校准该表，
+    再派生 `syllable/yinyuan/final_styles.json`；干音增强、韵母分类和音标组成分析都读取
+    这一来源，不再各自维护 IPA 副本。因此不应与
     `internal_data/ipa_of_finals.json`、
     `internal_data/yinyuan_pianyin_mapping.json`
-    这类内部派生产物混并。旧 orchestrator 分析链已删除，
-    不再视为当前入口。
+    这类内部派生产物混并。
+
+- `syllable/yinyuan/final_styles.json`
+  - 分类：从 `external_data/finals_IPA_mapping.json` 派生的分类视图。
+  - 原因：按当前干音清单的四类结构重排韵母，供 `ganyin_enhanced.py` 读取；不得手工修改，
+    也不再承担 IPA 真源职责。
+
+- `external_data/tmp/final_styles_erhua_draft.json`
+  - 分类：研究期人工草稿；基础层受控派生，儿化表层与来源字段人工维护。
+  - 原因：`tools/sync_erhua_final_draft.py` 只刷新活动韵母清单、基础 IPA、分类和基础三段，
+    不覆盖儿化 `surface_segments`、来源证据、备注或复核决定。移出当前韵母主表的旧条目
+    转入 `archived_final_entries`，不直接删除人工资料。
 
 - `external_data/initials_IPA_mapping.json`
   - 分类：外部声母 IPA 输入映射。

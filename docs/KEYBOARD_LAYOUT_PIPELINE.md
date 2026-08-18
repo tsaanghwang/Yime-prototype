@@ -12,7 +12,7 @@
 
 当前流程依赖四个前提：
 
-1. `N01-N24` 与 `M01-M33` 是 Yinyuan ID 层，不是可以删除的临时中间结果。
+1. `N01-N27` 与 `M01-M33` 是 Yinyuan ID 层，不是可以删除的临时中间结果。
 2. `internal_data/manual_key_layout.json` 是历史文件名，
   当前语义应理解为布局真源，不表示 manual install 或手工编译。
 3. 布局真源只负责“物理键位 -> Yinyuan ID”的关系，不负责决定长期 canonical 码点。
@@ -38,7 +38,7 @@
 
 ### 1. 语义与映射层
 
-- `N01-N24` / `M01-M33`：Yinyuan ID 层
+- `N01-N27` / `M01-M33`：Yinyuan ID 层
 - `internal_data/key_to_symbol.json`：Yinyuan ID 到规范字符的映射
 - `internal_data/bmp_pua_trial_projection.json`：Windows 当前使用的 BMP PUA 投影
 
@@ -72,8 +72,9 @@
 
 ## 当前布局摘要
 
-- 57 个 Yinyuan ID 全部位于 Base 或 Shift 层，AltGr 层为空。
-- Base 层共 47 键：22 个乐音、24 个首音类 ID 和 1 个反引号保留键。
+- 60 个 Yinyuan ID 全部位于 Base 或 Shift 层，AltGr 层为空。
+- Base 层共 47 个物理键位：22 个乐音键位和 25 个首音键位；N12/N26、N25/N27 是两组受控共键关系。
+- 反引号键已启用，由 N25 `[ɥ]` 与 N27 `[z]/[ɹ]` 共用；N26 `[ŋ]` 与 N12 共用撇号键。
 - Shift 层承载其余 11 个乐音；`Shift+1` 至 `Shift+9` 保留给候选选择。
 - Space、Enter、`Shift+1` 提交首选，`Shift+2` 至 `Shift+9` 选择对应候选。
 - 旧的数字和标点重定位功能已经移除；可打印键不再承担翻页键职责。

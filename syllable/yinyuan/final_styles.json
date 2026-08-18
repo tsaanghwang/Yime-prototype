@@ -1,20 +1,33 @@
 {
+  "generated_from": "external_data/finals_IPA_mapping.json",
   "finals": {
     "single quality finals": {
-      "_i": {
-        "ipa": "ɿ/ʅ"
+      "i": {
+        "ipa": "i"
+      },
+      "u": {
+        "ipa": "u"
+      },
+      "ü": {
+        "ipa": "ʏ"
       },
       "a": {
-        "ipa": "ᴀ"
+        "ipa": "ä"
+      },
+      "o": {
+        "ipa": "o"
       },
       "e": {
         "ipa": "ɤ"
       },
-      "er": {
-        "ipa": "ɚ5"
+      "ê": {
+        "ipa": "e̞"
       },
-      "i": {
-        "ipa": "i"
+      "_i": {
+        "ipa": "ɿ/ʅ"
+      },
+      "er": {
+        "ipa": "ɚ"
       },
       "m": {
         "ipa": "m̩"
@@ -24,123 +37,102 @@
       },
       "ng": {
         "ipa": "ŋ̩"
-      },
-      "o": {
-        "ipa": "o"
-      },
-      "u": {
-        "ipa": "u"
-      },
-      "v": {
-        "ipa": "ʏ"
-      },
-      "ü": {
-        "ipa": "ʏ"
-      },
-      "ê": {
-        "ipa": "ᴇ"
       }
     },
     "front long finals": {
       "ai": {
-        "ipa": "ai"
-      },
-      "an": {
-        "ipa": "an"
-      },
-      "ang": {
-        "ipa": "ɑŋ"
-      },
-      "ao": {
-        "ipa": "ɑᴜ"
+        "ipa": "aɪ"
       },
       "ei": {
         "ipa": "eɪ"
       },
+      "ao": {
+        "ipa": "ɑʊ"
+      },
+      "ou": {
+        "ipa": "ɤʊ"
+      },
+      "an": {
+        "ipa": "an"
+      },
       "en": {
         "ipa": "ən"
       },
+      "ang": {
+        "ipa": "ɑŋ"
+      },
       "eng": {
         "ipa": "ɤŋ"
-      },
-      "ou": {
-        "ipa": "ɤᴜ"
       }
     },
     "back long finals": {
       "ia": {
-        "ipa": "iᴀ"
-      },
-      "ie": {
-        "ipa": "iᴇ"
+        "ipa": "iä"
       },
       "ua": {
-        "ipa": "uᴀ"
+        "ipa": "uä"
       },
-      "ue": {
-        "ipa": "ʏᴇ"
+      "io": {
+        "ipa": "io"
       },
       "uo": {
         "ipa": "uo"
       },
-      "ve": {
-        "ipa": "ʏᴇ"
+      "ie": {
+        "ipa": "ie̞"
       },
       "üe": {
-        "ipa": "ʏᴇ"
+        "ipa": "ʏe̞"
       }
     },
     "triple quality finals": {
-      "ian": {
-        "ipa": "iæn"
+      "uai": {
+        "ipa": "uaɪ"
       },
-      "iang": {
-        "ipa": "iɑŋ"
+      "uei": {
+        "ipa": "ueɪ"
       },
       "iao": {
-        "ipa": "iɑᴜ"
+        "ipa": "iɑʊ"
       },
-      "in": {
-        "ipa": "iᵊn"
+      "iou": {
+        "ipa": "iɤʊ"
       },
-      "ing": {
-        "ipa": "i𐞑ŋ"
-      },
-      "iong": {
-        "ipa": "y𐞑ŋ"
-      },
-      "iu": {
-        "ipa": "iɤᴜ"
-      },
-      "ong": {
-        "ipa": "ᴜ𐞑ŋ"
-      },
-      "uai": {
-        "ipa": "uæɪ"
+      "ian": {
+        "ipa": "iɛ̞n"
       },
       "uan": {
         "ipa": "uan"
       },
+      "üan": {
+        "ipa": "ʏɛ̞n"
+      },
+      "uen": {
+        "ipa": "uən"
+      },
+      "in": {
+        "ipa": "iə̆n"
+      },
+      "ün": {
+        "ipa": "ʏə̆n"
+      },
+      "iang": {
+        "ipa": "iɑŋ"
+      },
       "uang": {
         "ipa": "uɑŋ"
       },
-      "ui": {
-        "ipa": "ueɪ"
+      "ueng": {
+        "ipa": "uɤŋ"
       },
-      "un": {
-        "ipa": "uən"
+      "ing": {
+        "ipa": "iɘ̠̆ŋ"
       },
-      "vn": {
-        "ipa": "ʏən"
+      "ong": {
+        "ipa": "ʊɘ̠̆ŋ"
       },
-      "ün": {
-        "ipa": "ʏən"
-      },
-      "van": {
-        "ipa": "ʏæn"
-      },
-      "üan": {
-        "ipa": "ʏæn"
+      "iong": {
+        "ipa": "yɘ̠̆ŋ"
       }
     }
   }
