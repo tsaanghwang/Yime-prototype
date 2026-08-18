@@ -28,7 +28,7 @@
 internal_data/manual_key_layout.json
 ```
 
-当前版本 `canonical_yinyuan_vk_layout_v1` 把全部 57 个 Yinyuan ID 分配到
+当前版本 `canonical_yinyuan_vk_layout_v1` 把全部 60 个 Yinyuan ID 分配到
 Base 或 Shift 层，AltGr 层保留为空；具体设计理由见乐音和首音布局依据文档。
 
 每次修改后只运行：

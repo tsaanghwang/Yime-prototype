@@ -58,7 +58,7 @@
 #### 2. Yinyuan ID 到规范字符映射真源
 
 - `internal_data/key_to_symbol.json`
-  - 当前表达 `N01-N24` 与 `M01-M33` 到规范字符的映射。
+  - 当前表达 `N01-N27` 与 `M01-M33` 到规范字符的映射。
   - 按策略文档，应将其理解为“Yinyuan ID 到 canonical 字符”的稳定层。
   - 外部 `Yime-keyboard-layout` 仓库中如果存在对应快照，也只能视为同步副本，不得反向覆盖这里。
 

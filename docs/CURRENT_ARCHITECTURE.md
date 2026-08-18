@@ -54,7 +54,7 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 拼音补充 | `internal_data/pinyin_source_db/pinyin_normalized_patch.json` | 明确审查的来源或标调补充；不能写音元码 |
 | 缺失音节审查 | `internal_data/pinyin_source_db/syllable_admission_reviews.json` | 让有真实来源、结构合法且经批准的音节跨过旧清单循环门禁；可限定多字来源，不能写编码 |
 | 拼写规则说明 | `internal_data/syllable_encoding_rule_catalog.json` | 解释来源、规范化和兼容规则；禁止保存编码映射 |
-| 首音稳定登记 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N24 的标签、语义码、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
+| 首音稳定登记 | `syllable/yinyuan/zaoyin_yinyuan_enhanced.json` | N01–N27 的标签、语义码、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
 | 乐音稳定登记 | `syllable/yinyuan/yueyin_yinyuan_enhanced.json` | M01–M33 的标签、别名、Yinyuan ID 与运行时字符；不是条件音值规则起点 |
 | 条件音值来源与规则契约 | `syllable/pianyin/conditional_sound_value_model.json` | 指向片音实现值、音质/音高归并、规范三段分解及稳定登记表；当前 `research_only` 且不接运行时 |
 | 音节分解 | `syllable/analysis/syllable_encoding_pipeline.py`、`syllable_splitter.py` | 标准拼音到首音段/干音段 |
@@ -92,9 +92,9 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 
 ### 总体分配
 
-- 47个 Base 可分配键中：22个放常用乐音，24个放 N01–N24，反引号 `` ` `` 保留。
+- 47个 Base 可分配键中：22个放常用乐音，25个承载首音；N12/N26、N25/N27 受控共键，反引号承载 N25/N27。
 - 其余11个乐音放在 Shift 层。
-- 所有57个 Yinyuan ID 只使用 Base 或 Shift；保留的 AltGr 槽位全部为空。
+- 所有60个 Yinyuan ID 只使用 Base 或 Shift；保留的 AltGr 槽位全部为空。
 - `Shift+1` 至 `Shift+9` 是候选选择操作，不承载 Yinyuan ID。
 - 已删除早期“把数字和标点机械搬到其他键位”的输入兜底；数字和标点由宿主/候选功能处理。
 

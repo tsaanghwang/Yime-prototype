@@ -44,7 +44,7 @@
   音元/片音/干音/乐音命名索引、常见误解、AI 提醒；
   链到中英文专题文档与 [syllable/NAMING.md](../syllable/NAMING.md)
 - **[码点与中间层策略](CODEPOINT_POLICY.md)** -
-  说明 `N01-N24`、`M01-M33` 的语义层地位，以及 canonical 与
+  说明 `N01-N27`、`M01-M33` 的语义层地位，以及 canonical 与
   projection 的分工
 - **[真源文件与生成产物清单](SOURCE_AND_ARTIFACTS.md)** -
   区分哪些文件是设计真源，哪些文件只是可重建产物
