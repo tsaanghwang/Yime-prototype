@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "generated_utc": "2026-08-17T01:56:13.447190Z",
+  "generated_utc": "2026-08-17T13:21:50.827211Z",
   "source_catalog": "internal_data/pinyin_source_db/psc_candidate_readings.json",
   "erhua_yinyuan_feature_source": "external_data/erhua_yinyuan_feature_rules.json",
   "admission_policy": {
@@ -10208,7 +10208,7 @@
             "M10",
             "M11",
             "M06",
-            "N23",
+            "N25",
             "M09",
             "M12",
             "M30",
@@ -10219,13 +10219,13 @@
           ],
           "codes": {
             "full": {
-              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀖􀀨􀀫􀀽􀀋􀀶􀀶􀀶",
+              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀘􀀨􀀫􀀽􀀋􀀶􀀶􀀶",
               "yinyuan_ids": [
                 "N19",
                 "M10",
                 "M11",
                 "M06",
-                "N23",
+                "N25",
                 "M09",
                 "M12",
                 "M30",
@@ -10234,41 +10234,41 @@
                 "M23",
                 "M23"
               ],
-              "layout_key_code": "0fdoy.sz'III",
+              "layout_key_code": "0fdo`.sz'III",
               "length": 12
             },
             "variable": {
-              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀖􀀨􀀫􀀽􀀋􀀶",
+              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀘􀀨􀀫􀀽􀀋􀀶",
               "yinyuan_ids": [
                 "N19",
                 "M10",
                 "M11",
                 "M06",
-                "N23",
+                "N25",
                 "M09",
                 "M12",
                 "M30",
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "0fdoy.sz'I",
+              "layout_key_code": "0fdo`.sz'I",
               "length": 10
             },
             "shorthand": {
-              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀖􀀨􀀫􀀽􀀋􀀶",
+              "runtime_symbol_code": "􀀒􀀩􀀪􀀥􀀘􀀨􀀫􀀽􀀋􀀶",
               "yinyuan_ids": [
                 "N19",
                 "M10",
                 "M11",
                 "M06",
-                "N23",
+                "N25",
                 "M09",
                 "M12",
                 "M30",
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "0fdoy.sz'I",
+              "layout_key_code": "0fdo`.sz'I",
               "length": 10
             }
           }
@@ -10279,7 +10279,7 @@
           "feature_rule_id": "ERHUA-YINYUAN-MEDIAL-A-RHOTIC",
           "attached_syllable_source": "yuan3",
           "attached_syllable_source_yinyuan_ids": [
-            "N23",
+            "N25",
             "M09",
             "M12",
             "M30"
@@ -14076,7 +14076,7 @@
           "numeric_pinyin": "yu3 dian3 er5",
           "syllable_count": 3,
           "full_yinyuan_ids": [
-            "N23",
+            "N25",
             "M09",
             "M09",
             "M09",
@@ -14091,9 +14091,9 @@
           ],
           "codes": {
             "full": {
-              "runtime_symbol_code": "􀀖􀀨􀀨􀀨􀀄􀀢􀀫􀀽􀀋􀀶􀀶􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀨􀀨􀀄􀀢􀀫􀀽􀀋􀀶􀀶􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "M09",
                 "M09",
@@ -14106,13 +14106,13 @@
                 "M23",
                 "M23"
               ],
-              "layout_key_code": "y...]lsz'III",
+              "layout_key_code": "`...]lsz'III",
               "length": 12
             },
             "variable": {
-              "runtime_symbol_code": "􀀖􀀨􀀄􀀢􀀫􀀽􀀋􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀄􀀢􀀫􀀽􀀋􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "N05",
                 "M03",
@@ -14121,13 +14121,13 @@
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "y.]lsz'I",
+              "layout_key_code": "`.]lsz'I",
               "length": 8
             },
             "shorthand": {
-              "runtime_symbol_code": "􀀖􀀨􀀄􀀢􀀫􀀽􀀋􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀄􀀢􀀫􀀽􀀋􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "N05",
                 "M03",
@@ -14136,7 +14136,7 @@
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "y.]lsz'I",
+              "layout_key_code": "`.]lsz'I",
               "length": 8
             }
           }
@@ -14757,7 +14757,7 @@
           "numeric_pinyin": "yu2 piao1 er5",
           "syllable_count": 3,
           "full_yinyuan_ids": [
-            "N23",
+            "N25",
             "M09",
             "M08",
             "M07",
@@ -14772,9 +14772,9 @@
           ],
           "codes": {
             "full": {
-              "runtime_symbol_code": "􀀖􀀨􀀧􀀦􀀁􀀠􀀩􀀣􀀋􀀶􀀶􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀧􀀦􀀁􀀠􀀩􀀣􀀋􀀶􀀶􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "M08",
                 "M07",
@@ -14787,13 +14787,13 @@
                 "M23",
                 "M23"
               ],
-              "layout_key_code": "y.,mpjfu'III",
+              "layout_key_code": "`.,mpjfu'III",
               "length": 12
             },
             "variable": {
-              "runtime_symbol_code": "􀀖􀀨􀀧􀀦􀀁􀀠􀀩􀀣􀀋􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀧􀀦􀀁􀀠􀀩􀀣􀀋􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "M08",
                 "M07",
@@ -14804,13 +14804,13 @@
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "y.,mpjfu'I",
+              "layout_key_code": "`.,mpjfu'I",
               "length": 10
             },
             "shorthand": {
-              "runtime_symbol_code": "􀀖􀀨􀀦􀀁􀀠􀀩􀀣􀀋􀀶",
+              "runtime_symbol_code": "􀀘􀀨􀀦􀀁􀀠􀀩􀀣􀀋􀀶",
               "yinyuan_ids": [
-                "N23",
+                "N25",
                 "M09",
                 "M07",
                 "N02",
@@ -14820,7 +14820,7 @@
                 "N12",
                 "M23"
               ],
-              "layout_key_code": "y.mpjfu'I",
+              "layout_key_code": "`.mpjfu'I",
               "length": 9
             }
           }

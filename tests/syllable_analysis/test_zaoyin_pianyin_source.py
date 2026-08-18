@@ -17,9 +17,9 @@ def test_structured_zaoyin_source_has_27_complete_entries() -> None:
     assert result.entry_count == 27
     assert result.articulatory_group_count == 7
     assert result.memory_sequence_count == 27
-    assert result.runtime_entry_count == 24
-    assert result.deferred_entry_count == 3
-    assert result.compatibility_alias_count == 1
+    assert result.runtime_entry_count == 27
+    assert result.deferred_entry_count == 0
+    assert result.compatibility_alias_count == 0
 
 
 def test_articulatory_memory_order_has_six_groups_of_four_then_three_remainders() -> None:
@@ -78,27 +78,19 @@ def test_memory_order_does_not_renumber_stable_yinyuan_ids() -> None:
     assert source["entries"]["'"]["yinyuan_id"] == "N12"
 
 
-def test_a_apical_keeps_front_and_retroflex_realizations_separate() -> None:
+def test_a_apical_is_front_only_and_retroflex_stays_on_r() -> None:
     source = json.loads(DEFAULT_SOURCE_PATH.read_text(encoding="utf-8"))
     entry = source["entries"]["a_apical"]
 
     assert entry["yinyuan_id"] == "N27"
-    assert entry["ipa"] == ["ɹ", "z", "ɻ", "ʐ"]
+    assert entry["ipa"] == ["ɹ", "z"]
     assert entry["conditions"]["conditional_realizations"] == [
         {
             "when": {"left_surface_final": ["ɿ"]},
             "surface_forms": ["ɹa", "za"],
-        },
-        {
-            "when": {
-                "any_of": [
-                    {"left_surface_final": ["ʅ"]},
-                    {"left_pinyin_final": ["er"]},
-                ]
-            },
-            "surface_forms": ["ɻa", "ʐa"],
-        },
+        }
     ]
+    assert source["entries"]["r"]["ipa"] == ["ɻ", "ʐ"]
 
 
 def test_source_rejects_collapsed_a_apical_realizations(tmp_path: Path) -> None:
@@ -125,7 +117,7 @@ def test_source_rejects_duplicate_member_in_memory_groups(tmp_path: Path) -> Non
     assert any("重复成员" in issue for issue in result.issues)
 
 
-def test_deferred_entries_restore_to_canonical_pinyin() -> None:
+def test_contextual_entries_restore_to_canonical_pinyin() -> None:
     source = json.loads(DEFAULT_SOURCE_PATH.read_text(encoding="utf-8"))
 
     assert source["entries"]["ɥ"]["canonical_restore"] == {
@@ -133,15 +125,15 @@ def test_deferred_entries_restore_to_canonical_pinyin() -> None:
         "target_pinyin_initial": "y",
     }
     for label in ("ŋ", "a_apical"):
-        assert source["entries"][label]["activation"] == "research_only"
+        assert source["entries"][label]["activation"] == "runtime_compatible"
         assert source["entries"][label]["canonical_restore"] == {
             "strategy": "particle_a_zero_initial",
             "target_pinyin_initial": "'",
         }
 
 
-def test_current_yu_family_compatibility_projection_is_explicit() -> None:
-    assert runtime_compatibility_aliases() == {"ɥ": "y"}
+def test_yu_family_no_longer_uses_compatibility_projection() -> None:
+    assert runtime_compatibility_aliases() == {}
 
 
 def test_proposal_has_27_entries_without_changing_live_registry() -> None:
@@ -154,18 +146,18 @@ def test_proposal_has_27_entries_without_changing_live_registry() -> None:
     assert proposal["entries"]["ɥ"]["yinyuan_id"] == "N25"
     assert proposal["entries"]["ŋ"]["yinyuan_id"] == "N26"
     assert proposal["entries"]["a_apical"]["yinyuan_id"] == "N27"
-    assert proposal["entries"]["ɥ"]["activation"] == "research_only"
+    assert proposal["entries"]["ɥ"]["activation"] == "runtime_compatible"
 
 
-def test_source_rejects_runtime_promotion_without_registry_migration(tmp_path: Path) -> None:
+def test_source_rejects_runtime_demotion_without_registry_migration(tmp_path: Path) -> None:
     source = json.loads(DEFAULT_SOURCE_PATH.read_text(encoding="utf-8"))
-    source["entries"]["ɥ"]["activation"] = "runtime_compatible"
-    source["runtime_projection"]["active_yinyuan_ids"].append("N25")
-    source["runtime_projection"]["deferred_yinyuan_ids"].remove("N25")
+    source["entries"]["ɥ"]["activation"] = "research_only"
+    source["runtime_projection"]["active_yinyuan_ids"].remove("N25")
+    source["runtime_projection"]["deferred_yinyuan_ids"].append("N25")
     source_path = tmp_path / "zaoyin_pianyin.json"
     source_path.write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
 
     result = audit_zaoyin_pianyin_source(source_path)
 
     assert not result.passed
-    assert any("稳定登记表" in issue for issue in result.issues)
+    assert any("延后登记" in issue or "稳定登记表" in issue for issue in result.issues)

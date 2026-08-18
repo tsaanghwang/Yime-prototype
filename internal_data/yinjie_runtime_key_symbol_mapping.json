@@ -19,8 +19,8 @@
     }
   ],
   "counts": {
-    "unique_symbols_in_yinjie_code": 57,
-    "shouyin_symbols": 24,
+    "unique_symbols_in_yinjie_code": 60,
+    "shouyin_symbols": 27,
     "ganyin_symbols": 33
   },
   "key_to_symbol": {
@@ -48,6 +48,9 @@
     "N22": "",
     "N23": "",
     "N24": "",
+    "N25": "",
+    "N26": "",
+    "N27": "",
     "M01": "",
     "M02": "",
     "M03": "",
@@ -1018,6 +1021,71 @@
           "full_code": ""
         }
       ]
+    },
+    {
+      "key": "N25",
+      "symbol": "",
+      "codepoint": "U+00E501",
+      "plane": "BMP Private Use Area",
+      "source_type": "shouyin",
+      "source_name": "ɥ",
+      "source_file": "syllable/yinyuan/shouyin_codepoint.json",
+      "used_in_yinjie_position": [
+        1
+      ],
+      "example_syllables": [
+        {
+          "syllable": "yong1",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
+          "syllable": "yong2",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
+          "syllable": "yong3",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
+          "syllable": "yong4",
+          "position_in_code": 1,
+          "full_code": ""
+        },
+        {
+          "syllable": "yong5",
+          "position_in_code": 1,
+          "full_code": ""
+        }
+      ]
+    },
+    {
+      "key": "N26",
+      "symbol": "",
+      "codepoint": "U+00E502",
+      "plane": "BMP Private Use Area",
+      "source_type": "shouyin",
+      "source_name": "ŋ",
+      "source_file": "syllable/yinyuan/shouyin_codepoint.json",
+      "used_in_yinjie_position": [
+        1
+      ],
+      "example_syllables": []
+    },
+    {
+      "key": "N27",
+      "symbol": "",
+      "codepoint": "U+00E503",
+      "plane": "BMP Private Use Area",
+      "source_type": "shouyin",
+      "source_name": "a_apical",
+      "source_file": "syllable/yinyuan/shouyin_codepoint.json",
+      "used_in_yinjie_position": [
+        1
+      ],
+      "example_syllables": []
     },
     {
       "key": "M01",

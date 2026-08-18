@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "model_id": "yime-zaoyin-pianyin-v1",
-  "status": "research_only",
-  "runtime_enabled": false,
-  "description": "噪音类片音真源。把规范拼音首音、条件音值、规范拼音还原和稳定音元登记分开；N25-N27 尚未接入键盘布局或运行时候选。",
+  "status": "runtime_registry",
+  "runtime_enabled": true,
+  "description": "噪音类片音真源。把规范拼音首音、条件音值、规范拼音还原和稳定音元登记分开；N25-N27 已接入稳定音元登记，其中 N26/N27 仍须由经审核的语境规则显式引用，不自动生成候选。",
   "source_refs": {
     "SRC-HYPY-1958": {
       "title": "汉语拼音方案",
@@ -98,15 +98,11 @@
     "active_yinyuan_ids": [
       "N01", "N02", "N03", "N04", "N05", "N06", "N07", "N08",
       "N09", "N10", "N11", "N12", "N13", "N14", "N15", "N16",
-      "N17", "N18", "N19", "N20", "N21", "N22", "N23", "N24"
+      "N17", "N18", "N19", "N20", "N21", "N22", "N23", "N24",
+      "N25", "N26", "N27"
     ],
-    "compatibility_aliases": {
-      "ɥ": {
-        "target_yinyuan_id": "N23",
-        "reason": "现行规范音节分解已经把 yu/yong 族分析为 ɥ；在 N25 完成布局评审前继续投影到原 y 音元，保持既有编码不变。"
-      }
-    },
-    "deferred_yinyuan_ids": ["N25", "N26", "N27"]
+    "compatibility_aliases": {},
+    "deferred_yinyuan_ids": []
   },
   "entries": {
     "b": {"yinyuan_id": "N01", "role": "canonical_initial", "canonical_pinyin_initial": "b", "ipa": ["p"], "activation": "runtime_compatible", "source_refs": ["SRC-HYPY-1958", "SRC-TUP-IPA-2022"]},
@@ -166,7 +162,7 @@
       "structural_role": "virtual_initial",
       "canonical_pinyin_initial": "y",
       "ipa": ["ɥ"],
-      "activation": "research_only",
+      "activation": "runtime_compatible",
       "source_refs": ["SRC-TUP-IPA-2022"],
       "conditions": {"pinyin_families": ["yu", "yue", "yuan", "yun", "yong"]},
       "canonical_restore": {"strategy": "yu_family_orthography", "target_pinyin_initial": "y"}
@@ -176,7 +172,7 @@
       "role": "contextual_particle_onset",
       "canonical_pinyin_initial": "",
       "ipa": ["ŋ"],
-      "activation": "research_only",
+      "activation": "runtime_compatible",
       "source_refs": ["SRC-A-SANDHI-2017"],
       "conditions": {"candidate_text": "啊", "left_surface_final": ["ŋ"]},
       "canonical_restore": {"strategy": "particle_a_zero_initial", "target_pinyin_initial": "'"}
@@ -185,8 +181,8 @@
       "yinyuan_id": "N27",
       "role": "contextual_particle_onset",
       "canonical_pinyin_initial": "",
-      "ipa": ["ɹ", "z", "ɻ", "ʐ"],
-      "activation": "research_only",
+      "ipa": ["ɹ", "z"],
+      "activation": "runtime_compatible",
       "source_refs": ["SRC-A-SANDHI-2017"],
       "conditions": {
         "candidate_text": "啊",
@@ -194,20 +190,11 @@
           {
             "when": {"left_surface_final": ["ɿ"]},
             "surface_forms": ["ɹa", "za"]
-          },
-          {
-            "when": {
-              "any_of": [
-                {"left_surface_final": ["ʅ"]},
-                {"left_pinyin_final": ["er"]}
-              ]
-            },
-            "surface_forms": ["ɻa", "ʐa"]
           }
         ]
       },
       "canonical_restore": {"strategy": "particle_a_zero_initial", "target_pinyin_initial": "'"},
-      "notes": ["同一 N27 下保留两支条件实现，不再把舌尖前与舌尖后的 ra/za 混写。", "这些形式仍统一还原为规范拼音零首音语气词‘啊’，不还原成规范拼音 r 或 z 声母。"]
+      "notes": ["N27 只登记舌尖前 [ɹ]/[z]；舌尖后 [ɻ]/[ʐ] 继续使用 N19(r)。", "这些形式仍统一还原为规范拼音零首音语气词‘啊’，不还原成规范拼音 r 或 z 声母。"]
     }
   }
 }

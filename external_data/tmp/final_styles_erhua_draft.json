@@ -248,7 +248,8 @@
           "rule_version": 3,
           "basis": "u 的三段儿化音质由附属音质表给出，卷舌特征覆盖固定三段。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         }
       },
       "ü": {
@@ -474,7 +475,8 @@
           "rule_version": 3,
           "basis": "单韵母 a 保留基础 ä，主音开始卷舌，末段向 ɐ 央化。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -989,14 +991,8 @@
             "revision": 4,
             "updated_utc": "2026-08-16T10:03:13.003449Z",
             "runtime_enabled": false,
-            "review_variant": {
-              "variant_id": "apical_front",
-              "record_id": "_i_front",
-              "display_final": "i[ɿ]",
-              "source_index": 21,
-              "source_base_final": "i(前)",
-              "derivation": "按 PSC source_base_final 把规范韵母 _i 的舌尖前、舌尖后记录分列"
-            },
+            "surface_class": "ERHUA-ORAL-ER",
+            "surface_class_rule_version": 3,
             "surface_generation": {
               "method": "rule_generated",
               "class_id": "ERHUA-ORAL-ER",
@@ -1005,8 +1001,14 @@
               "quality_profile_source": "external_data/tmp/erhua_surface_quality_profiles.json",
               "runtime_enabled": false
             },
-            "surface_class": "ERHUA-ORAL-ER",
-            "surface_class_rule_version": 3
+            "review_variant": {
+              "variant_id": "apical_front",
+              "record_id": "_i_front",
+              "display_final": "i[ɿ]",
+              "source_index": 21,
+              "source_base_final": "i(前)",
+              "derivation": "按 PSC source_base_final 把规范韵母 _i 的舌尖前、舌尖后记录分列"
+            }
           },
           "apical_back": {
             "schema_version": 2,
@@ -1048,14 +1050,8 @@
             "revision": 6,
             "updated_utc": "2026-08-16T10:03:33.497072Z",
             "runtime_enabled": false,
-            "review_variant": {
-              "variant_id": "apical_back",
-              "record_id": "_i_back",
-              "display_final": "i[ʅ]",
-              "source_index": 22,
-              "source_base_final": "i(后)",
-              "derivation": "按 PSC source_base_final 把规范韵母 _i 的舌尖前、舌尖后记录分列"
-            },
+            "surface_class": "ERHUA-ORAL-ER",
+            "surface_class_rule_version": 3,
             "surface_generation": {
               "method": "rule_generated",
               "class_id": "ERHUA-ORAL-ER",
@@ -1064,8 +1060,14 @@
               "quality_profile_source": "external_data/tmp/erhua_surface_quality_profiles.json",
               "runtime_enabled": false
             },
-            "surface_class": "ERHUA-ORAL-ER",
-            "surface_class_rule_version": 3
+            "review_variant": {
+              "variant_id": "apical_back",
+              "record_id": "_i_back",
+              "display_final": "i[ʅ]",
+              "source_index": 22,
+              "source_base_final": "i(后)",
+              "derivation": "按 PSC source_base_final 把规范韵母 _i 的舌尖前、舌尖后记录分列"
+            }
           }
         }
       },
@@ -1413,7 +1415,8 @@
           "rule_version": 3,
           "basis": "ai/an 的基础主音为 a；韵尾替换后末段向 ɐ 央化，主音与末音携带 rhotic。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -1661,7 +1664,8 @@
           "rule_version": 3,
           "basis": "ao 保留基础三段，卷舌特征落在末音。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         }
       },
       "ou": {
@@ -1780,7 +1784,8 @@
           "rule_version": 3,
           "basis": "ou 保留基础三段，卷舌特征落在末音。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         }
       },
       "an": {
@@ -1885,7 +1890,8 @@
           "rule_version": 3,
           "basis": "ai/an 的基础主音为 a；韵尾替换后末段向 ɐ 央化，主音与末音携带 rhotic。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -3016,7 +3022,8 @@
           "rule_version": 3,
           "basis": "uai/uan 保留介音 u 与基础主音 a；韵尾替换后末段向 ɐ 央化。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -3255,7 +3262,8 @@
           "rule_version": 3,
           "basis": "iao 保留呼音和主音，卷舌特征落在末音 ʊ；不把末段特征前扩为主音卷舌。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -3374,7 +3382,8 @@
           "rule_version": 3,
           "basis": "iou 保留呼音和主音，卷舌特征落在末音 ʊ；不把末段特征前扩为主音卷舌。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -3612,7 +3621,8 @@
           "rule_version": 3,
           "basis": "uai/uan 保留介音 u 与基础主音 a；韵尾替换后末段向 ɐ 央化。",
           "technical_alias_of": "",
-          "runtime_enabled": false
+          "runtime_enabled": false,
+          "manual_override": true
         },
         "base_foundation": {
           "schema_version": 1,
@@ -4935,7 +4945,7 @@
   },
   "draft_refresh": {
     "schema_version": 1,
-    "updated_utc": "2026-08-16T09:01:36.662452Z",
+    "updated_utc": "2026-08-18T05:06:38.579375Z",
     "scope": "discussion_draft_and_audit_only",
     "formal_final_styles_changed": false,
     "runtime_artifacts_changed": false,

@@ -53,10 +53,10 @@ class YinjieDecoder:
         return output_path
 
     def _get_shouyin_source_path(self) -> Path:
-        return ROOT / 'syllable' / 'yinyuan' / 'zaoyin_yinyuan_enhanced.json'
+        return REPO_ROOT / 'syllable' / 'yinyuan' / 'zaoyin_yinyuan_enhanced.json'
 
     def _get_yueyin_source_path(self) -> Path:
-        return ROOT / 'syllable' / 'yinyuan' / 'yueyin_yinyuan_enhanced.json'
+        return REPO_ROOT / 'syllable' / 'yinyuan' / 'yueyin_yinyuan_enhanced.json'
 
     def _load_yinyuan_id_mapping_from_source(self, source_path: Path, expected_prefix: str) -> dict[str, str]:
         with source_path.open('r', encoding='utf-8') as f:

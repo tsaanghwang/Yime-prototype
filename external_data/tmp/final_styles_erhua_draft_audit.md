@@ -5,8 +5,8 @@
 - 表层音质变更：无。
 - 仅分类元数据变更：无。
 - 已清除过期分类：无。
-- 未变化成员：['a', 'ai', 'an', '_i', 'ei', 'en', 'e', 'i', 'in', 'ia', 'ua', 'uai', 'uan', 'uei', 'uen', 'ü', 'ün', 'ang', 'eng', 'iang', 'uang', 'ueng', 'ing', 'ong', 'iong', 'iao', 'iou', 'u', 'o', 'ao', 'ou', 'uo', 'ie', 'üe', 'ian', 'üan']。
-- 人工例外（规则不覆盖）：无。
+- 未变化成员：['_i', 'ei', 'en', 'e', 'i', 'in', 'ia', 'ua', 'uei', 'uen', 'ü', 'ün', 'ang', 'eng', 'iang', 'uang', 'ueng', 'ing', 'ong', 'iong', 'o', 'uo', 'ie', 'üe', 'ian', 'üan']。
+- 人工例外（规则不覆盖）：['a', 'ai', 'an', 'uai', 'uan', 'iao', 'iou', 'u', 'ao', 'ou']。
 - 合流类不一致：无。
 
 ## 表层类

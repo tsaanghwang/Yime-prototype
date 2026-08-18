@@ -5,7 +5,7 @@
 目的：
 
 - 追踪 `syllable/yinyuan/shouyin_codepoint.json` 中首音码元的来源链。
-- 对比运行时 `zaoyin` / `首音` 码元与当前布局侧 `N01-N24` Yinyuan ID 的对应关系。
+- 对比运行时 `zaoyin` / `首音` 码元与当前布局侧 `N01-N27` Yinyuan ID 的对应关系。
 - 说明首音链路与乐音链路的关键差异，避免把两套流程混为一谈。
 
 ## 一、来源链总表
@@ -17,7 +17,7 @@
 | 3    | `syllable/yinyuan/shouyin_codepoint.json`                                                | 保存首音标签到私用区字符的最终运行时映射                              | 例如 `b -> `、`zh -> `、`y -> `   |
 | 4    | `syllable/yinyuan/yinyuan_codepoint.json` 中的 `zaoyin` 段                               | 保存与 `shouyin_codepoint.json` 平行的一份运行时首音映射              | 运行时总映射文件中的首音部分         |
 | 5    | `internal_data/yinyuan_derived/zaoyin_yinyuan.json`                                      | 由真源导出的兼容文件，只保留 `shouyin -> ipa`                         | 旧脚本兼容与人工查看                 |
-| 6    | `internal_data/key_to_symbol.json`                                                       | 当前布局/KLC 侧使用的 `N01-N24` 符号表                                | 布局侧字符是否和运行时首音字符一致   |
+| 6    | `internal_data/key_to_symbol.json`                                                       | 当前布局/KLC 侧使用的 `N01-N27` 符号表                                | 布局侧字符是否和运行时首音字符一致   |
 | 7    | `internal_data/manual_key_layout.json` / `internal_data/manual_key_layout.resolved.json` | 当前候选布局的物理键分配                                              | 每个 `Nxx` 被放到哪个键位和层级      |
 
 ## 二、与乐音链路的关键差别
@@ -105,7 +105,7 @@
 
 结论：无。
 
-运行时 `shouyin_codepoint.json` / `yinyuan_codepoint.json` 的 `zaoyin` 段，与布局侧 `internal_data/key_to_symbol.json` 的 `N01-N24` 当前是一一一致的。
+运行时 `shouyin_codepoint.json` / `yinyuan_codepoint.json` 的 `zaoyin` 段，与布局侧 `internal_data/key_to_symbol.json` 的 `N01-N27` 当前一致；N12/N26 与 N25/N27 的共键发生在布局投影层，不合并其 Yinyuan ID。
 
 ### 6.2 布局级不一致
 
@@ -125,6 +125,6 @@
 
 1. 首音链路没有乐音链路里的“IPA 归并后再替换成自定义组合字符”步骤；它直接以首音标签为运行时分类名来分配私用区字符。
 
-2. 当前运行时首音字符集与布局侧 `N01-N24` 字符表完全一致，没有字符级错位。
+2. 当前运行时首音字符集与布局侧 `N01-N27` 字符表完全一致，没有字符级错位。
 
 3. 当前真正需要注意的不是字符映射，而是布局覆盖范围：`N22/N23/N24` 仍然存在于运行时和模板中，但尚未进入当前候选布局。

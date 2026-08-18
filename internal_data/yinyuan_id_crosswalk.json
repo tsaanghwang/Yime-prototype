@@ -5,9 +5,9 @@
     "canonical_source": "internal_data\\key_to_symbol.json",
     "projection_source": "internal_data\\bmp_pua_trial_projection.json",
     "layout_source": "internal_data\\manual_key_layout.json",
-    "rows": 57,
+    "rows": 60,
     "runtime_projection_mismatches": 0,
-    "bmp_canonical_differences": 57,
+    "bmp_canonical_differences": 60,
     "rows_with_issues": 0
   },
   "rows": [
@@ -535,6 +535,72 @@
       "layer_relation": "runtime_bmp_differs_from_canonical",
       "physical_keys": [
         "=:base:="
+      ],
+      "issue_count": 0,
+      "issues": []
+    },
+    {
+      "yinyuan_id": "N25",
+      "allocation_slot": 25,
+      "category": "initial",
+      "label": "ɥ",
+      "display_labels": [
+        "`"
+      ],
+      "runtime_bmp_char": "",
+      "runtime_bmp_codepoint": "U+E501",
+      "projection_bmp_char": "",
+      "projection_bmp_codepoint": "U+E501",
+      "projection_matches_runtime": true,
+      "canonical_spua_b_char": "􀀘",
+      "canonical_spua_b_codepoint": "U+100018",
+      "layer_relation": "runtime_bmp_differs_from_canonical",
+      "physical_keys": [
+        "`:base:`"
+      ],
+      "issue_count": 0,
+      "issues": []
+    },
+    {
+      "yinyuan_id": "N26",
+      "allocation_slot": 26,
+      "category": "initial",
+      "label": "ŋ",
+      "display_labels": [
+        "'"
+      ],
+      "runtime_bmp_char": "",
+      "runtime_bmp_codepoint": "U+E502",
+      "projection_bmp_char": "",
+      "projection_bmp_codepoint": "U+E502",
+      "projection_matches_runtime": true,
+      "canonical_spua_b_char": "􀀙",
+      "canonical_spua_b_codepoint": "U+100019",
+      "layer_relation": "runtime_bmp_differs_from_canonical",
+      "physical_keys": [
+        "':base:'"
+      ],
+      "issue_count": 0,
+      "issues": []
+    },
+    {
+      "yinyuan_id": "N27",
+      "allocation_slot": 27,
+      "category": "initial",
+      "label": "a_apical",
+      "display_labels": [
+        "`"
+      ],
+      "runtime_bmp_char": "",
+      "runtime_bmp_codepoint": "U+E503",
+      "projection_bmp_char": "",
+      "projection_bmp_codepoint": "U+E503",
+      "projection_matches_runtime": true,
+      "canonical_spua_b_char": "􀀚",
+      "canonical_spua_b_codepoint": "U+10001A",
+      "layer_relation": "runtime_bmp_differs_from_canonical",
+      "physical_keys": [
+        "`:base:`"
       ],
       "issue_count": 0,
       "issues": []

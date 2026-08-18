@@ -1,8 +1,8 @@
 """Load and validate the structured zaoyin-pianyin source.
 
 The source describes phonetic/orthographic analysis.  The enhanced registry
-continues to own stable Yinyuan IDs and runtime characters.  Deferred entries
-may be proposed here without silently entering the keyboard layout or runtime.
+owns stable Yinyuan IDs and runtime characters.  Contextual entries may be
+registered without enabling any productive connected-speech rule.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ CANONICAL_INITIALS = {
     "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h",
     "j", "q", "x", "zh", "ch", "sh", "r", "z", "c", "s",
 }
-REQUIRED_DEFERRED_IDS = {"N25", "N26", "N27"}
+REQUIRED_DEFERRED_IDS: set[str] = set()
 ALLOWED_ACTIVATIONS = {"runtime_compatible", "research_only"}
 EXPECTED_MEMORY_GROUPS = (
     ("b", "p", "f", "m"),
@@ -39,16 +39,7 @@ EXPECTED_A_APICAL_REALIZATIONS = [
     {
         "when": {"left_surface_final": ["ɿ"]},
         "surface_forms": ["ɹa", "za"],
-    },
-    {
-        "when": {
-            "any_of": [
-                {"left_surface_final": ["ʅ"]},
-                {"left_pinyin_final": ["er"]},
-            ]
-        },
-        "surface_forms": ["ɻa", "ʐa"],
-    },
+    }
 ]
 EXPECTED_VIRTUAL_INITIAL_DESCRIPTIONS = {
     "'": "舌位为非高的乐音前的虚首音",
@@ -115,8 +106,8 @@ def audit_zaoyin_pianyin_source(
 
     if source.get("schema_version") != 1:
         issues.append("schema_version 必须为 1")
-    if source.get("runtime_enabled") is not False:
-        issues.append("准备阶段 runtime_enabled 必须为 false")
+    if source.get("runtime_enabled") is not True:
+        issues.append("正式登记阶段 runtime_enabled 必须为 true")
 
     source_refs = source.get("source_refs", {})
     entries = source.get("entries", {})
@@ -227,7 +218,7 @@ def audit_zaoyin_pianyin_source(
     if canonical_labels != CANONICAL_INITIALS:
         issues.append("二十一规范声母集合不完整或含额外成员")
     if deferred_ids != REQUIRED_DEFERRED_IDS:
-        issues.append(f"延后登记必须恰为 N25-N27，实际 {sorted(deferred_ids)}")
+        issues.append(f"当前版本不得保留延后登记，实际 {sorted(deferred_ids)}")
     if set(flattened_memory_labels) != set(entries):
         missing = sorted(set(entries) - set(flattened_memory_labels))
         extra = sorted(set(flattened_memory_labels) - set(entries))
@@ -245,13 +236,17 @@ def audit_zaoyin_pianyin_source(
 
     a_apical = entries.get("a_apical", {})
     if isinstance(a_apical, dict):
-        if a_apical.get("ipa") != ["ɹ", "z", "ɻ", "ʐ"]:
-            issues.append("a_apical 必须分别登记舌尖前 ɹ/z 和舌尖后 ɻ/ʐ 首音")
+        if a_apical.get("ipa") != ["ɹ", "z"]:
+            issues.append("a_apical 只登记舌尖前 ɹ/z；舌尖后 ɻ/ʐ 由 N19(r) 承担")
         a_conditions = a_apical.get("conditions", {})
         if not isinstance(a_conditions, dict):
             issues.append("a_apical.conditions 必须是对象")
         elif a_conditions.get("conditional_realizations") != EXPECTED_A_APICAL_REALIZATIONS:
-            issues.append("a_apical 必须区分 ɿ 后的 ɹa/za 与 ʅ 或 er 后的 ɻa/ʐa")
+            issues.append("a_apical 必须登记 ɿ 后的 ɹa/za")
+
+    retroflex = entries.get("r", {})
+    if isinstance(retroflex, dict) and retroflex.get("ipa") != ["ɻ", "ʐ"]:
+        issues.append("N19(r) 必须继续登记舌尖后 ɻ/ʐ")
 
     declared_runtime_ids = set(map(str, projection.get("active_yinyuan_ids", [])))
     declared_deferred_ids = set(map(str, projection.get("deferred_yinyuan_ids", [])))
@@ -262,7 +257,7 @@ def audit_zaoyin_pianyin_source(
 
     registry_by_id = _registry_by_id(registry)
     if set(registry_by_id) != runtime_ids:
-        issues.append("现行稳定登记表必须恰好覆盖 N01-N24，不得提前接入 N25-N27")
+        issues.append("现行稳定登记表必须恰好覆盖全部运行音元 N01-N27")
     for label, entry in entries.items():
         if not isinstance(entry, dict) or entry.get("activation") != "runtime_compatible":
             continue
@@ -323,7 +318,7 @@ def build_proposed_registry(
     registry_path: Path = DEFAULT_REGISTRY_PATH,
     pua_projection_path: Path = DEFAULT_PUA_PROJECTION_PATH,
 ) -> dict[str, Any]:
-    """Build a 27-entry proposal without overwriting the live registry."""
+    """Build a normalized 27-entry registry view without overwriting the live registry."""
     audit = audit_zaoyin_pianyin_source(source_path, registry_path)
     if not audit.passed:
         raise ValueError("噪音片音真源校验失败: " + "; ".join(audit.issues))
@@ -361,7 +356,7 @@ def build_proposed_registry(
     return {
         "schema_version": 2,
         "name": {"Zaoyin Yinyuan": "噪音类音元稳定登记提案"},
-        "description": "由结构化 zaoyin_pianyin 真源生成；N25-N27 仅为研究登记，不代表已接入布局。",
-        "runtime_enabled": False,
+        "description": "由结构化 zaoyin_pianyin 真源生成；N25-N27 已进入稳定登记，语境规则仍须单独审核。",
+        "runtime_enabled": True,
         "entries": proposed_entries,
     }

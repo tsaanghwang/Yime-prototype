@@ -90,6 +90,8 @@ def _rule_id(pinyin_tone: str, ids: tuple[str, str, str, str]) -> str:
         return "virtual-y-other"
     if initial == "N24":
         return "virtual-w"
+    if initial == "N25":
+        return "virtual-h-rounded"
     return "regular-initial"
 
 

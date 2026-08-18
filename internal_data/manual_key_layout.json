@@ -1,19 +1,31 @@
 {
   "metadata": {
     "name": "Yime manual key layout",
-    "version": "2026-07-18",
+    "version": "2026-08-17",
     "layout_status": "canonical_yinyuan_vk_layout_v1",
     "symbol_source": "internal_data/key_to_symbol.json",
     "ergonomic_strategy": "Yinyuan semantics are encoded upstream; this file is the sole final Yinyuan-ID-to-physical-key projection.",
     "design_warning": "Canonical final projection. Do not create a parallel compact layout or a direct Pinyin-to-key map; regenerate all layout artifacts through the layout change lock.",
     "yinyuan_id_format": {
-      "noise": "N01-N24",
+      "noise": "N01-N27",
       "musical": "M01-M33"
     },
-    "notes": "yinyuan_id stores stable Nxx/Mxx Yinyuan IDs. literal_char is allowed only for a key's native ASCII output. The early relocation fallback for digits and punctuation was retired after Windows Yime candidate input took responsibility for punctuation and other non-Yinyuan content. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
+    "notes": "yinyuan_id stores the primary stable Nxx/Mxx Yinyuan ID for one physical slot. shared_yinyuan_key_groups is the only allowed representation of controlled many-ID-to-one-key projection. literal_char is allowed only for a key's native ASCII output. Yinyuan IDs use only base and shift; retained AltGr slots are intentionally empty.",
     "template_scope": "94 printable ASCII key slots in keyboard order plus optional space and selected AltGr slots",
     "total_slots": 104
   },
+  "shared_yinyuan_key_groups": [
+    {
+      "owner_yinyuan_id": "N12",
+      "member_yinyuan_ids": ["N12", "N26"],
+      "reason": "非高呼音前虚首音与语气词啊的 [ŋ] 条件首音共享撇号键。"
+    },
+    {
+      "owner_yinyuan_id": "N25",
+      "member_yinyuan_ids": ["N25", "N27"],
+      "reason": "ü 前虚首音 [ɥ] 与语气词啊的舌尖前 [z]/[ɹ] 条件首音共享反引号键。"
+    }
+  ],
   "layers": [
     {
       "order": 1,
@@ -21,9 +33,9 @@
       "physical_key": "`",
       "output_layer": "base",
       "display_label": "`",
-      "yinyuan_id": null,
-      "literal_char": "`",
-      "notes": ""
+      "yinyuan_id": "N25",
+      "literal_char": null,
+      "notes": "N25 owner; N27 shares this key through shared_yinyuan_key_groups"
     },
     {
       "order": 2,

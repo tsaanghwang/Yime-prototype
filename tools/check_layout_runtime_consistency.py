@@ -145,6 +145,33 @@ def collect_layout_assignments(resolved_layout: dict[str, object]) -> tuple[dict
             continue
         assignments[yinyuan_id] = item
 
+    groups_obj = resolved_layout.get("shared_yinyuan_key_groups", [])
+    if not isinstance(groups_obj, list):
+        issues.append("resolved layout 的 shared_yinyuan_key_groups 字段类型错误。")
+        return assignments, issues
+    for raw_group in groups_obj:
+        if not isinstance(raw_group, dict):
+            continue
+        owner_obj = raw_group.get("owner_yinyuan_id")
+        members_obj = raw_group.get("member_yinyuan_ids", [])
+        if not isinstance(owner_obj, str) or not isinstance(members_obj, list):
+            issues.append("resolved layout 含无效共享键组。")
+            continue
+        owner = owner_obj
+        owner_item = assignments.get(owner)
+        if owner_item is None:
+            issues.append(f"共享键组 owner 未分配：{owner}")
+            continue
+        for member_obj in members_obj:
+            if not isinstance(member_obj, str) or member_obj == owner:
+                continue
+            if member_obj in assignments:
+                issues.append(f"共享键从属音元重复分配：{member_obj}")
+                continue
+            shared_item = dict(owner_item)
+            shared_item["yinyuan_id"] = member_obj
+            assignments[member_obj] = shared_item
+
     return assignments, issues
 
 
@@ -196,11 +223,10 @@ def compare_artifact(name: str, expected_map: dict[str, str], artifact_path: Pat
     if name == "runtime_report":
         artifact_map = artifact_data.get("key_to_symbol", {})
     else:
-        artifact_map = {
-            item["yinyuan_id"]: item.get("symbol_char")
-            for item in artifact_data.get("layers", [])
-            if item.get("yinyuan_id") is not None
-        }
+        artifact_assignments, artifact_issues = collect_layout_assignments(artifact_data)
+        if artifact_issues:
+            return [f"{artifact_path.name} 共享键登记无效：{'；'.join(artifact_issues)}"]
+        artifact_map = assignments_to_map(artifact_assignments)
 
     if artifact_map != expected_map:
         return [f"{artifact_path.name} 看起来不是最新结果。建议重新生成后再继续检查。"]

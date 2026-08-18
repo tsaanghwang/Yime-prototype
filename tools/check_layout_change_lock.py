@@ -222,8 +222,10 @@ def _check_single_layout_source(repo_root: Path, lock: dict[str, Any], issues: l
     except Exception as exc:
         issues.append(f"canonical layout is invalid: {exc}")
         return
-    if "`" in mapping.values():
-        issues.append("backtick must remain the single reserved base key")
+    if mapping.get("N25") != "`" or mapping.get("N27") != "`":
+        issues.append("backtick must be shared only by N25 [ɥ] and N27 [z]/[ɹ]")
+    if mapping.get("N12") != "'" or mapping.get("N26") != "'":
+        issues.append("apostrophe must be shared only by N12 and N26 [ŋ]")
     candidate_tokens = set("!@#$%^&*(")
     occupied_candidates = sorted(candidate_tokens & set(mapping.values()))
     if occupied_candidates:

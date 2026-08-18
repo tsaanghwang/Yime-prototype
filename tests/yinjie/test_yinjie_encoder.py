@@ -252,7 +252,7 @@ class TestYinjieEncoder(unittest.TestCase):
                 )
                 self.assertEqual(self.encoder.encode_single_yinjie(syllable), expected_code)
 
-    def test_yu_family_internal_placeholder_reuses_y_runtime_slot(self):
+    def test_yu_family_internal_placeholder_uses_independent_h_round_runtime_slot(self):
         cases = {
             "yu3": ("ɥ", "ü3"),
             "yue4": ("ɥ", "üe4"),
@@ -263,7 +263,7 @@ class TestYinjieEncoder(unittest.TestCase):
 
         y_runtime = self.shouyin_encoder.encode_shouyin("y")
         placeholder_runtime = self.shouyin_encoder.encode_shouyin("ɥ")
-        self.assertEqual(placeholder_runtime, y_runtime)
+        self.assertNotEqual(placeholder_runtime, y_runtime)
 
         for syllable, expected_parts in cases.items():
             with self.subTest(syllable=syllable):

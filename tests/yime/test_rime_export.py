@@ -262,9 +262,9 @@ def test_export_rime_files_writes_schema_dict_and_metadata(tmp_path: Path) -> No
     assert "一三\tbjM\t0" in dict_text
     assert "schema_id: yime_variable_test" in schema_text
     assert 'dictionary: yime_variable_test' in schema_text
-    assert "user_dict: yime_variable_test_layout_6d00e609f689" in schema_text
+    assert "user_dict: yime_variable_test_layout_58f69f370aea" in schema_text
     assert metadata["mode"] == "variable"
     assert metadata["code_form"] == "layout-key"
     assert metadata["row_count"] == 3
-    assert metadata["layout_projection_sha256"].startswith("6d00e609f689")
-    assert metadata["user_dict_name"] == "yime_variable_test_layout_6d00e609f689"
+    assert metadata["layout_projection_sha256"].startswith("58f69f370aea")
+    assert metadata["user_dict_name"] == "yime_variable_test_layout_58f69f370aea"

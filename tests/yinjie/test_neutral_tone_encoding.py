@@ -27,8 +27,8 @@ def test_current_neutral_inventory_splits_into_regular_and_reviewed_routes() -> 
         if syllable.endswith("5")
     ]
 
-    assert len(resolutions) == 304
-    assert sum(item.kind == "regular" for item in resolutions) == 301
+    assert len(resolutions) == 306
+    assert sum(item.kind == "regular" for item in resolutions) == 303
     assert {
         item.syllable
         for item in resolutions
