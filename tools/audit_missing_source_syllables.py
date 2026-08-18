@@ -98,6 +98,7 @@ def build_report(db_path: Path, inventory_path: Path, admission_path: Path) -> s
         rows = missing.get(numeric, [])
         admission = admissions.get(numeric)
         lines.append(f"### `{numeric}`")
+        lines.append("")
         if admission:
             lines.append(f"审查依据：{admission.decision_basis}")
         if rows:
