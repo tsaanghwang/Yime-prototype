@@ -67,6 +67,14 @@ def _source_database(path: Path) -> Path:
             ],
         )
         connection.execute(
+            """
+            INSERT INTO canonical_readings VALUES (
+                7, '中', 'zhong', 'zhong5', 2, 0, 100, 1,
+                'test', 'word_context_only', 'confirmed_neutral'
+            )
+            """
+        )
+        connection.execute(
             "ALTER TABLE canonical_readings ADD COLUMN "
             "wanxiang_categories TEXT NOT NULL DEFAULT ''"
         )
@@ -102,6 +110,8 @@ def test_export_preserves_all_readings_of_selected_texts(
     assert tier.selected_texts == 4
     assert tier.reading_entries == 5
     dictionary = tier.dictionary_path.read_text(encoding="utf-8")
+    assert "\n中\t" in dictionary
+    assert dictionary.count("\n中\t") == 1
     assert dictionary.count("\n行\t") == 2
     assert "\n中国\t" in dictionary
     assert all(
