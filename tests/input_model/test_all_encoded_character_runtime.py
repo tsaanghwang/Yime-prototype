@@ -68,8 +68,8 @@ def test_policy_keeps_all_formally_encoded_characters_as_runtime_foundation() ->
     assert boundary == {
         "maximum_tier": 8,
         "expected_distinct_characters": 46095,
-        "expected_source_reading_entries": 60996,
-        "expected_runtime_mapping_entries": 60995,
+        "expected_source_reading_entries": 61011,
+        "expected_runtime_mapping_entries": 61010,
         "core_maximum_tier": 5,
         "core_distinct_characters": 14000,
         "peripheral_minimum_tier": 6,

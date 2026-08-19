@@ -8,13 +8,14 @@
 | 交接物 | 职责 |
 | --- | --- |
 | `internal_data/runtime_lexicon_filter_policy.json` | 全部已编码单字、一级组件、二级预组合及门禁策略 |
-| `yime_core_trial.dict.yaml` | 1,167,057 条已编码运行映射 |
-| `yime_core_trial_manifest.json` | 来源、布局、转换版本、条目数和输出 SHA-256 |
-| `yime_runtime_profile.json` | Windows 默认 schema、离线文件边界和验收摘要 |
+| `two_level_full.dict.yaml` | 原型正式两级选择输出；由 Windows importer 读取，不直接打包 |
+| `yime_full/variable/shorthand.dict.yaml` | Windows 三模式运行词典，每套 1,167,501 条 |
+| `yime_lexicon_manifest.json` / `yime_core_source_manifest.json` | 三模式输出 SHA、原型核心 SHA、选择与排名证据 |
+| `yime_runtime_profile.json` | Windows 默认方案、三模式运行文件及候选层 |
 | 拼音显示与音节分解资产 | 反查、显示和正式编码审计 |
 
-历史 `yime_full.dict.yaml` 及其变长、省键派生产物继续可重建，用于离线筛选、差异诊断和回归；不得
-作为安装回退。
+完整来源数据库继续用于离线筛选、差异诊断和回归；Windows 只接收正式两级选择派生出的三模式
+运行词典。
 
 ## 构建与校验
 
@@ -28,15 +29,14 @@
 
 验证器必须确认：
 
-1. 原型策略与 Windows 默认 schema 均为 `yime_core_trial`；
-2. Windows 核心词典 SHA-256 与 manifest 一致；
-3. 固定回放的95% Wilson 下界不低于99%；
-4. 46,095个已编码单字及60,996条正式读音全部通过门禁，并形成
-   60,995条不重复的“单字+编码”运行映射；
-5. 旧三套大词库均声明为 offline-only。
+1. 原型策略与 Windows 默认 schema 均为 `yime_variable`，且声明完整三模式；
+2. 原型核心 SHA 同时等于 Windows runtime manifest 与 source manifest 的来源 SHA；
+3. 三模式词典实际 SHA-256 与 manifest 一致，条目数和排名摘要与原型 evidence 一致；
+4. 原型唯一布局真源与 Windows 布局映射完全相同，canonical digest 一致；
+5. 拼音码表、音节分解、规范拼音和 PUA 显示四个旁车文件逐一同 SHA。
 
-Windows `build.bat` 复制共享数据后删除旧 dict、schema 和 manifest；发现任何残留即失败。安装后用
-`tools/verify-installed-runtime.ps1` 检查源码/安装哈希、核心 profile 和 `runtime-leak`。
+正式交接由 Windows `tools/import-yime-core-lexicon.ps1` 生成三模式词典、反查真源及审核覆盖层；安装后
+可另用 `tools/verify-installed-runtime.ps1` 检查源码/安装哈希，本交接校验本身不修改用户安装目录。
 
 ## 发布语义
 
