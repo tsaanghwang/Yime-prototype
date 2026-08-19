@@ -14,10 +14,10 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "workbench.editorAssociations": {
-    "*.db": "sqlite-explorer.option",
+    "*.db": "sqlite3-editor.optional",
     "*.db3": "default",
     "*.sqlite": "default",
-    "*.sqlite3": "default",
+    "*.sqlite3": "sqlite3-editor.editor",
     "*.sdb": "default",
     "*.s3db": "default",
     "*.copilotmd": "vscode.markdown.preview.editor",
