@@ -5,8 +5,8 @@
   "character_boundary": {
     "maximum_tier": 8,
     "expected_distinct_characters": 46095,
-    "expected_source_reading_entries": 60996,
-    "expected_runtime_mapping_entries": 60995,
+    "expected_source_reading_entries": 61011,
+    "expected_runtime_mapping_entries": 61010,
     "core_maximum_tier": 5,
     "core_distinct_characters": 14000,
     "peripheral_minimum_tier": 6,
@@ -83,8 +83,19 @@
     "wilson_95_lower_bound": 0.9930300811292823
   },
   "runtime_handoff": {
-    "default_schema": "yime_core_trial",
-    "windows_dictionary": "go-backend/input_methods/yime/data/yime_core_trial.dict.yaml",
+    "default_schema": "yime_variable",
+    "runtime_schemas": ["yime_variable", "yime_full", "yime_shorthand"],
+    "windows_dictionaries": [
+      "yime_full.dict.yaml",
+      "yime_variable.dict.yaml",
+      "yime_shorthand.dict.yaml"
+    ],
+    "sidecar_files": [
+      "yime_pinyin_codes.tsv",
+      "yime_syllable_decomposition.tsv",
+      "pinyin_normalized.json",
+      "yime_pua_pinyin.json"
+    ],
     "windows_profile": "go-backend/input_methods/yime/data/yime_runtime_profile.json",
     "legacy_large_lexicons_role": [
       "source_of_truth",

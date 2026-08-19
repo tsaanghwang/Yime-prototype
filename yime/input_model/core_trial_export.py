@@ -161,6 +161,10 @@ def _selected_readings(
             (str(source_database.resolve()),),
         )
         columns = _source_columns(connection)
+        if "pronunciation_scope" not in columns:
+            raise ValueError(
+                "Source canonical_readings has no pronunciation_scope column"
+            )
         wanxiang_expr = (
             "COALESCE(r.wanxiang_weight, 0)"
             if "wanxiang_weight" in columns
@@ -232,7 +236,11 @@ def _selected_readings(
               ON i.text = r.text
             LEFT JOIN optional_static_rank AS o
               ON o.text = r.text
-            WHERE {selection_predicate}
+            WHERE ({selection_predicate})
+              AND (
+                    i.text_length > 1
+                    OR r.pronunciation_scope = 'standalone'
+                  )
             ORDER BY
                 i.mandatory_static DESC,
                 COALESCE(o.selection_rank, 0),
