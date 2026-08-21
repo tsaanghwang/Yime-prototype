@@ -17,6 +17,7 @@ from ..asset_paths import resolve_runtime_candidates_json_path
 from ..utils.code_modes import YimeCodeMode, code_mode_label, normalize_code_mode
 from ..utils.marked_pinyin import marked_pinyin_to_numeric
 from .core.decoders import CompositeCandidateDecoder
+from .runtime_profile import resolve_runtime_profile
 from .core.input_visualization import (
     build_code_display,
     build_input_sound_notes,
@@ -181,19 +182,19 @@ class BaseInputMethodApp:
         self.user_lexicon_seed_path = app_dir / "user_lexicon_seed.json"
         self.user_lexicon_store = UserLexiconStore(user_db_path)
         self.seed_import_result = self._maybe_import_seed_user_lexicon()
-        runtime_db_override = os.environ.get(
-            "YIME_RUNTIME_DB_PATH",
-            "",
-        ).strip()
-        self.runtime_db_path = (
-            Path(runtime_db_override).expanduser().resolve()
-            if runtime_db_override
-            else app_dir / "pinyin_hanzi.db"
+        self.runtime_profile = resolve_runtime_profile(
+            app_dir,
+            repo_root=self.repo_root,
+            env=os.environ,
+            is_frozen=bool(getattr(sys, "frozen", False)),
         )
+        self.runtime_profile_id = self.runtime_profile.profile_id
+        self.runtime_db_path = self.runtime_profile.database_path
         self.decoder = CompositeCandidateDecoder(
             app_dir,
             user_db_path=user_db_path,
             runtime_db_path=self.runtime_db_path,
+            require_sqlite_runtime=(self.runtime_profile_id == "windows_parity"),
         )
         self.decoder.set_code_mode(self.code_mode)
         self.input_visual_map = build_input_visual_map(app_dir.parent)
@@ -209,6 +210,7 @@ class BaseInputMethodApp:
         self.runtime_reverse_lookup = RuntimeReverseLookup(
             self.runtime_db_path,
             user_db_path=user_db_path,
+            numeric_to_marked_path=app_dir / "pinyin_normalized.json",
         )
         self.clipboard = ClipboardManager()
         self.keyboard_simulator = KeyboardSimulator()

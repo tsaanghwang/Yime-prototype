@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "default_profile": "windows_parity",
+  "profiles": {
+    "windows_parity": {
+      "description": "Default prototype runtime derived from the same two-level core selection used by Windows Yime.",
+      "source_database": ".generated/prototype_windows_parity/pinyin_hanzi.db",
+      "packaged_database": "yime/pinyin_hanzi.db",
+      "manifest": ".generated/prototype_windows_parity/prototype_runtime_manifest.json",
+      "default_code_mode": "variable",
+      "windows_schema": "yime_variable"
+    },
+    "research_full": {
+      "description": "Complete prototype inventory retained for offline research and regression only.",
+      "source_database": "yime/pinyin_hanzi.db",
+      "packaged": false
+    }
+  },
+  "environment": {
+    "profile_override": "YIME_RUNTIME_PROFILE",
+    "database_override": "YIME_RUNTIME_DB_PATH"
+  }
+}

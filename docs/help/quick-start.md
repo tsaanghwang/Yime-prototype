@@ -12,6 +12,10 @@
 
 `python run_input_method.py`
 
+当前源码入口默认使用 `.generated/prototype_windows_parity/pinyin_hanzi.db`，与 Windows Yime 的核心
+三模式交接保持候选、排序和布局一致。完整 `yime/pinyin_hanzi.db` 只用于研究；确需对照时显式设置
+`YIME_RUNTIME_PROFILE=research_full`，不要把完整模式的效率结果当作 Windows 默认结果。
+
 常用参数：
 
 - `--copy-only`：只复制候选，不自动回贴。

@@ -110,17 +110,19 @@ class SQLitePhraseCandidateStore:
                     (normalized_code,),
                 ).fetchall()
 
-                char_usage_tier_by_key = {
-                    (str(row["hanzi"] or "").strip(), str(row["pinyin_tone"] or "").strip()): str(row["usage_tier"] or "").strip()
-                    for row in conn.execute(
-                        """
-                        SELECT hanzi, pinyin_tone, usage_tier
-                        FROM char_lexicon
-                        WHERE yime_code = ?
-                        """,
-                        (normalized_code,),
-                    ).fetchall()
-                }
+                char_usage_tier_by_key = {}
+                if self.runtime_source.object_exists("char_lexicon"):
+                    char_usage_tier_by_key = {
+                        (str(row["hanzi"] or "").strip(), str(row["pinyin_tone"] or "").strip()): str(row["usage_tier"] or "").strip()
+                        for row in conn.execute(
+                            """
+                            SELECT hanzi, pinyin_tone, usage_tier
+                            FROM char_lexicon
+                            WHERE yime_code = ?
+                            """,
+                            (normalized_code,),
+                        ).fetchall()
+                    }
 
             cached: List[Dict[str, object]] = []
             for row in rows:

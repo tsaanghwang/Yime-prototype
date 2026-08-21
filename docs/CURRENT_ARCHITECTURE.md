@@ -60,7 +60,8 @@ Unihan 单字读音 / phrase-pinyin-data 词语读音 / 经审查补丁
 | 音节分解 | `syllable/analysis/syllable_encoding_pipeline.py`、`syllable_splitter.py` | 标准拼音到首音段/干音段 |
 | 音节编码 | `ShouyinEncoder`、`GanyinEncoder`、`YinjieEncoder` | 正式生成四音元编码 |
 | 键盘布局 | `internal_data/manual_key_layout.json` | 唯一 Yinyuan-ID-to-key 投影 |
-| 运行时词库 | `yime/pinyin_hanzi.db` | SQLite 候选主路径；属于可重建消费端数据 |
+| 完整原型研究库 | `yime/pinyin_hanzi.db` | SQLite 完整候选、来源联接与回归资源；不再作为外挂原型默认运行库，也不进入 portable 包 |
+| 原型 Windows 等价运行库 | `.generated/prototype_windows_parity/pinyin_hanzi.db` | 从正式两级 selection 生成的紧凑 SQLite；候选身份、三模式编码、排序证据和布局摘要与 Windows 默认交接一致 |
 
 `key_to_symbol.json`、BMP PUA 投影等文件负责字符承载和平台投影，不得反过来定义拼音分解。数据库、
 `yinjie_code.json`、resolved layout、crosswalk、KLC 和审计 TSV 都是派生或审计产物，不应手工作为
@@ -234,6 +235,12 @@ A/Z = n 高/低            ; / = ng 高/低
 - 固定回放 2,440/2,449 冷启动首选，99.6325%，95% Wilson 下界 99.3030%；
 - 540,000 次加速学习漂移全部验收项通过；
 - 纯净用户态人工压力测试 5/5 可构造，3/3 一次纠正后成为首选并在重启后保持。
+
+外挂原型默认同样使用该发布层，但不直接读取 Windows 的 YAML。正式工具
+`tools/prepare_prototype_windows_parity.py` 从同一 `selection.tsv`、dictionary manifest 和当前布局投影
+生成紧凑 SQLite，并按 Windows 的“候选文本 + 布局码”身份确定性去重。源码运行和新构建的 portable
+均默认选择 `windows_parity` profile；完整数据库只可通过显式
+`YIME_RUNTIME_PROFILE=research_full` 用于离线研究。portable 构建禁止携带完整数据库或其备份。
 
 未预装的完整词条不再自动归入“待注音/待编码”：只要组成它的字符和读音已通过正式门禁，就走动态
 组合和用户学习。只有字符或实际读音本身缺少可信来源或正式音元编码时，才属于编码缺口。

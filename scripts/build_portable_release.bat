@@ -13,6 +13,12 @@ if "%PYTHON%"=="" (
 )
 
 pushd "%PROJECT_ROOT%"
+%PYTHON% tools\prepare_prototype_windows_parity.py
+if errorlevel 1 (
+    popd
+    exit /b %errorlevel%
+)
+
 %PYTHON% -m PyInstaller --noconfirm yime_portable.spec
 if errorlevel 1 (
     popd

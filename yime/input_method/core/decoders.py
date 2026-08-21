@@ -623,6 +623,7 @@ class CompositeCandidateDecoder:
         app_dir: Path,
         user_db_path: Path | None = None,
         runtime_db_path: Path | None = None,
+        require_sqlite_runtime: bool = False,
     ) -> None:
         """
         初始化组合解码器
@@ -644,6 +645,10 @@ class CompositeCandidateDecoder:
             self.runtime_source = "sqlite"
         except (FileNotFoundError, ValueError) as exc:
             self.runtime_load_error = str(exc)
+            if require_sqlite_runtime:
+                raise RuntimeError(
+                    f"要求使用 SQLite 运行库，但加载失败: {exc}"
+                ) from exc
             try:
                 self.runtime_decoder = RuntimeCandidateDecoder(app_dir, user_db_path=user_db_path)
                 self.runtime_source = "json"

@@ -26,6 +26,17 @@ class SQLiteRuntimeSource:
             if row is None:
                 raise ValueError("数据库中缺少 runtime_candidates 视图")
 
+    def object_exists(self, object_name: str) -> bool:
+        normalized = str(object_name or "").strip()
+        if not normalized:
+            return False
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE name = ?",
+                (normalized,),
+            ).fetchone()
+        return row is not None
+
     def detect_runtime_candidate_table(self) -> str:
         self.validate_runtime_candidates_view()
         with self.connect() as conn:

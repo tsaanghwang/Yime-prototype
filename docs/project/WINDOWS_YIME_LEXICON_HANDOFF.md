@@ -22,6 +22,8 @@
 ```powershell
 .\venv312\Scripts\python.exe tools\build_two_level_runtime_trial.py
 
+.\venv312\Scripts\python.exe tools\prepare_prototype_windows_parity.py
+
 .\venv312\Scripts\python.exe tools\verify_default_runtime_handoff.py `
   --windows-repo C:\dev\Yime `
   --output .generated\default_runtime_handoff.json
@@ -34,6 +36,10 @@
 3. 三模式词典实际 SHA-256 与 manifest 一致，条目数和排名摘要与原型 evidence 一致；
 4. 原型唯一布局真源与 Windows 布局映射完全相同，canonical digest 一致；
 5. 拼音码表、音节分解、规范拼音和 PUA 显示四个旁车文件逐一同 SHA。
+
+最后一条命令把同一两级 selection 物化为外挂原型默认使用的紧凑 SQLite。其条目数、不同字串数、
+selection SHA、三模式码完整性和布局摘要必须与 Windows 交接一致；完整 `yime/pinyin_hanzi.db` 仅保留
+作研究真源，不得由 portable 构建器隐式带入。
 
 正式交接由 Windows `tools/import-yime-core-lexicon.ps1` 生成三模式词典、反查真源及审核覆盖层；安装后
 可另用 `tools/verify-installed-runtime.ps1` 检查源码/安装哈希，本交接校验本身不修改用户安装目录。

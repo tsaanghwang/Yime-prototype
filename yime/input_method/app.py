@@ -357,6 +357,11 @@ class InputMethodApp(BaseInputMethodApp):
 
         if self.runtime_decoder_warning:
             print(f"[Decoder] 运行时编码表未启用: {self.runtime_decoder_warning}")
+        else:
+            print(
+                "[Decoder] 运行 profile: "
+                f"{self.runtime_profile_id} ({self.runtime_db_path})"
+            )
 
     def _is_global_listener_mode(self) -> bool:
         return getattr(self, "input_mode", self._DEFAULT_INPUT_MODE) == "global-listener"

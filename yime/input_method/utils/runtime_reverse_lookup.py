@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import sqlite3
 from pathlib import Path
 
@@ -41,9 +42,22 @@ def _is_cjk_unified_ideograph(char: str) -> bool:
 
 
 class RuntimeReverseLookup:
-    def __init__(self, db_path: Path, user_db_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        db_path: Path,
+        user_db_path: Path | None = None,
+        numeric_to_marked_path: Path | None = None,
+    ) -> None:
         self.db_path = db_path
         self.user_lexicon = UserLexiconStore(user_db_path or db_path.with_name("user_lexicon.db"))
+        self.numeric_to_marked: dict[str, str] = {}
+        if numeric_to_marked_path is not None and numeric_to_marked_path.is_file():
+            payload = json.loads(numeric_to_marked_path.read_text(encoding="utf-8"))
+            self.numeric_to_marked = {
+                str(numeric).strip(): str(marked).strip()
+                for numeric, marked in payload.items()
+                if str(numeric).strip() and str(marked).strip()
+            }
 
     def _connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(f"file:{self.db_path}?mode=ro", uri=True)
@@ -67,6 +81,45 @@ class RuntimeReverseLookup:
                 )
 
         with self._connect() as connection:
+            compact_runtime = connection.execute(
+                """
+                SELECT 1 FROM sqlite_master
+                WHERE name = 'runtime_candidates_materialized'
+                """
+            ).fetchone()
+            legacy_char_lexicon = connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE name = 'char_lexicon'"
+            ).fetchone()
+            if compact_runtime is not None and legacy_char_lexicon is None:
+                row = connection.execute(
+                    """
+                    SELECT
+                        text,
+                        pinyin_tone AS numeric_pinyin,
+                        COALESCE(NULLIF(primary_yime_code, ''), yime_code) AS yime_code,
+                        entry_type
+                    FROM runtime_candidates_materialized
+                    WHERE text = ?
+                    ORDER BY sort_weight DESC, pinyin_tone
+                    LIMIT 1
+                    """,
+                    (stripped,),
+                ).fetchone()
+                if row is None:
+                    return None
+                numeric = str(row["numeric_pinyin"] or "")
+                marked = " ".join(
+                    self.numeric_to_marked.get(part, part)
+                    for part in numeric.split()
+                )
+                return RuntimeReverseLookupRecord(
+                    text=str(row["text"] or ""),
+                    marked_pinyin=marked,
+                    numeric_pinyin=numeric,
+                    yime_code=str(row["yime_code"] or ""),
+                    entry_type=str(row["entry_type"] or ""),
+                )
+
             if len(stripped) == 1:
                 row = connection.execute(
                     """

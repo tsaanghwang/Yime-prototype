@@ -7,10 +7,14 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from yime.utils.prototype_runtime_parity import verify_compact_parity_database
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -54,7 +58,12 @@ def _require_equal(label: str, left: Any, right: Any) -> None:
         raise ValueError(f"{label} mismatch: prototype={left!r}, Windows={right!r}")
 
 
-def verify_handoff(prototype_root: Path, windows_repo: Path) -> dict[str, Any]:
+def verify_handoff(
+    prototype_root: Path,
+    windows_repo: Path,
+    *,
+    require_prototype_runtime: bool = False,
+) -> dict[str, Any]:
     policy = _read_json(
         prototype_root / "internal_data" / "runtime_lexicon_filter_policy.json"
     )
@@ -161,7 +170,7 @@ def verify_handoff(prototype_root: Path, windows_repo: Path) -> dict[str, Any]:
         _require_equal(f"sidecar SHA {name}", prototype_hash, windows_hash)
         sidecar_hashes[name] = windows_hash
 
-    return {
+    result = {
         "status": "passed",
         "policy_id": policy["policy_id"],
         "default_schema": profile["default_schema"],
@@ -173,6 +182,43 @@ def verify_handoff(prototype_root: Path, windows_repo: Path) -> dict[str, Any]:
         "output_sha256": output_hashes,
         "sidecar_sha256": sidecar_hashes,
     }
+    if require_prototype_runtime:
+        prototype_runtime_dir = (
+            prototype_root / ".generated" / "prototype_windows_parity"
+        )
+        prototype_runtime_manifest = _read_json(
+            prototype_runtime_dir / "prototype_runtime_manifest.json"
+        )
+        prototype_runtime = verify_compact_parity_database(
+            database=prototype_runtime_dir / "pinyin_hanzi.db",
+            dictionary_manifest_path=(
+                prototype_root
+                / ".generated"
+                / "two_level_runtime_trial"
+                / "dictionary.manifest.json"
+            ),
+            expected_layout_digest=layout_digest,
+            expected_selection_sha256=str(
+                prototype_runtime_manifest["selection_tsv_sha256"]
+            ),
+        )
+        _require_equal(
+            "prototype parity entry count",
+            prototype_runtime["entry_count"],
+            result["entry_count"],
+        )
+        _require_equal(
+            "prototype parity distinct texts",
+            prototype_runtime["distinct_texts"],
+            result["distinct_texts"],
+        )
+        _require_equal(
+            "prototype parity database SHA",
+            prototype_runtime["database_sha256"],
+            prototype_runtime_manifest["database_sha256"],
+        )
+        result["prototype_runtime"] = prototype_runtime
+    return result
 
 
 def main() -> int:
@@ -184,8 +230,17 @@ def main() -> int:
         help="Yime for Windows repository root",
     )
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--skip-prototype-runtime",
+        action="store_true",
+        help="Only verify the Windows handoff, without requiring compact prototype parity data.",
+    )
     args = parser.parse_args()
-    result = verify_handoff(ROOT, args.windows_repo.resolve())
+    result = verify_handoff(
+        ROOT,
+        args.windows_repo.resolve(),
+        require_prototype_runtime=not args.skip_prototype_runtime,
+    )
     payload = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -38,6 +38,14 @@ python -m pip install pyinstaller
 scripts\build_portable_release.bat
 ```
 
+这个脚本会先从正式两级 selection 生成并验证 Windows 等价的紧凑原型运行库，排除
+`yime/pinyin_hanzi.db` 完整研究库及其备份，再把 parity SQLite 和
+`prototype_runtime_manifest.json` 放入 portable 目录。也可以先单独检查运行库：
+
+```powershell
+.\venv312\Scripts\python.exe tools\prepare_prototype_windows_parity.py
+```
+
 等价命令：
 
 ```bash
@@ -69,6 +77,7 @@ python -m PyInstaller --noconfirm yime_portable.spec
 - 无需 Python 的独立运行
 - 无控制台窗口启动
 - 发布目录只读时仍可写用户数据
+- 与 Windows Yime 默认 `yime_variable` 使用相同核心候选集合、三模式编码和布局摘要
 
 这套 portable 发布当前还没有覆盖：
 
