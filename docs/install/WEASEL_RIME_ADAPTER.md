@@ -1,5 +1,8 @@
 # Weasel / Rime adapter for Yime
 
+> **历史集成文档，部署入口已阻断。** 本页只保留恢复研究和来源核对信息；现行产品工作转到
+> `C:\dev\Yime`。
+
 本文记录当前已经跑通的 Windows 系统级输入法路径：Yime 生成 Rime
 schema/dict，由 librime 编译用户数据，再由 Weasel 作为 TSF 前端消费。
 

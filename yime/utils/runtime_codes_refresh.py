@@ -41,7 +41,7 @@ PACKAGE_DIR = MODULE_DIR.parent if MODULE_DIR.name == "utils" else MODULE_DIR
 REPO_ROOT = PACKAGE_DIR.parent
 DB_PATH = PACKAGE_DIR / "pinyin_hanzi.db"
 DEFAULT_BACKUP_DIR = PACKAGE_DIR / "backup"
-DEFAULT_BACKUP_RETAIN_COUNT = 20
+DEFAULT_BACKUP_RETAIN_COUNT = 1
 EXPORT_SCRIPT = PACKAGE_DIR / "export_runtime_candidates_json.py"
 SCHEMA_PATH = PACKAGE_DIR / "create_prototype_schema_additions.sql"
 DEFAULT_TUNING_SCAN_JSON_OUTPUT = PACKAGE_DIR / "reports" / "runtime_tuning_scan.json"
@@ -120,8 +120,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backup-retain",
         type=int,
+        choices=(1,),
         default=DEFAULT_BACKUP_RETAIN_COUNT,
-        help="保留最近多少份数据库备份",
+        help="固定只保留最近 1 份数据库备份",
     )
     parser.add_argument(
         "--scan-runtime-tuning",

@@ -5,11 +5,16 @@ import csv
 import hashlib
 import json
 import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.detached_maintenance_boundary import reject_obsolete_workflow
 
 
 def _sha256(path: Path) -> str:
@@ -144,6 +149,11 @@ def prepare_assets(output_dir: Path, *, repo_root: Path = REPO_ROOT) -> dict[str
 
 
 def main() -> int:
+    return reject_obsolete_workflow("Windows Yime auxiliary-asset handoff")
+
+
+def _historical_cli_for_recovery_review() -> int:
+    """Retained for provenance/recovery review; not a supported CLI."""
     parser = argparse.ArgumentParser(
         description="Copy and validate the complete auxiliary asset set for Windows Yime."
     )

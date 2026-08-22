@@ -270,7 +270,8 @@ python tools/diagnose_candidate_order.py --canonical-code "<规范码>" --limit 
 
 ## 5. seed 用户词库流程
 
-如果你要做安装包，想让目标机器第一次启动时就带一份初始化用户词库，可以按下面的约定：
+以下安装包 seed 流程只作为脱离产品维护前的历史记录。本仓库不再打包；现行产品流程转到
+`C:\dev\Yime`。
 
 1. 在打包机上先准备好一份可分发词库：
 
@@ -287,13 +288,13 @@ python tools/manage_user_lexicon.py export yime/user_lexicon_seed.json --no-freq
 
 仓库中也提供了一个最小示例文件：`yime/user_lexicon_seed.json`，可直接作为打包参考。
 
-如果你想在发安装包前做一次“首次启动自动落 seed”的自验，可直接运行：
+旧的 seed 安装自验入口如下，现已阻断，不得执行：
 
 ```bash
 python tools/verify_seed_install_flow.py
 ```
 
-这条脚本会在临时目录里模拟三种安装侧场景：
+保留的内部实现曾在临时目录里模拟三种安装侧场景：
 
 - 安装目录里还没有 `user_lexicon.db`，首次启动自动导入 seed
 - 安装目录里已经有一个空的 `user_lexicon.db`，首次启动仍然自动导入 seed

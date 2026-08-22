@@ -259,7 +259,7 @@ def main():
         print("\n✗ 有测试失败，需要先解决问题")
         print("\n建议:")
         print("1. 检查pynput是否安装: pip install pynput")
-        print("2. 检查键盘是否安装: C:/dev/Yime-keyboard-layout/releases/msklc-package/install-amd64-manual.cmd")
+        print("2. 产品键盘安装与排错请转到 C:/dev/Yime；本仓库不再提供安装入口")
         print("3. 检查数据文件是否存在")
 
     print("\n" + "=" * 60)

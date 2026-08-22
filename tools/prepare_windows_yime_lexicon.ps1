@@ -4,6 +4,9 @@ param(
     [switch]$SkipWindowsDerivation
 )
 
+Write-Error "Obsolete workflow blocked in this detached maintenance repository: Windows Yime handoff. Run product integration in C:\dev\Yime; see docs\DETACHED_MAINTENANCE_BOUNDARY.md."
+exit 2
+
 $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")).Path
 $python = Join-Path $repoRoot "venv312\Scripts\python.exe"

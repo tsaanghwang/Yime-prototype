@@ -4,15 +4,19 @@ import argparse
 import gc
 import json
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 from typing import cast
 
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.detached_maintenance_boundary import reject_obsolete_workflow
 from yime.input_method.app_base import BaseInputMethodApp
 from yime.input_method.utils.user_lexicon import UserLexiconStore
 
-
-ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SEED_PATH = ROOT / "yime" / "user_lexicon_seed.json"
 
 
@@ -137,7 +141,12 @@ def scenario_second_launch_no_reimport(
     )
 
 
-def main() -> None:
+def main() -> int:
+    return reject_obsolete_workflow("packaged seed-install acceptance")
+
+
+def _historical_cli_for_recovery_review() -> None:
+    """Retained for provenance/recovery review; not a supported CLI."""
     args = parse_args()
     seed_path = Path(args.seed_path).resolve()
     require(seed_path.exists(), f"seed 文件不存在: {seed_path}")
@@ -166,4 +175,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -54,7 +54,8 @@ cd /d <你的 Yime 仓库目录>
 mkdir python312
 ```
 
-例如仓库放在 `C:\dev\Yime` 时，可写成：`cd /d C:\dev\Yime`
+例如本历史工作区放在 `C:\dev\Yime-python-prototype` 时，可写成：
+`cd /d C:\dev\Yime-python-prototype`
 
 然后把压缩包解压到 `python312\`，解压后应能看到：
 

@@ -2,13 +2,12 @@
 
 欢迎来到 YIME（音元输入法编辑器）文档中心！
 
-说明：本文档中心优先组织当前字典驱动编码、候选生产、Python
-桌面交互原型和 Windows 消费交接相关的主线材料；理论、术语和音系分析类文档
-主要作为背景与长期参考，不等于当前仓库均已实现。
+说明：本文档中心优先组织当前仓库仍支持的来源核对、字典驱动编码复现、候选研究、Python 原型和
+恢复材料。先读[脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)：便携产品、安装包、MSKLC
+发布和 Windows Yime 交接文档均已转为历史记录，产品工作只在 `C:\dev\Yime` 进行。
 
 补充说明：仓库内旧的 `docs/*.html` 静态文档站已外置到单独的
-`Yime-docs-html-site` 仓库；当前主仓库以本目录下的 Markdown
-文档作为维护中的文档主线。
+`Yime-docs-html-site` 仓库；当前历史维护仓库以本目录下的 Markdown 文档作为研究与恢复说明主线。
 
 ---
 
@@ -24,6 +23,8 @@
 
 ### 重要设计约束
 
+- **[脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)** -
+  当前仓库允许的研究、来源和恢复工作，以及已经阻断的产品入口
 - **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
   当前分支已经实现的字典驱动编码链、真源、审计表和键盘布局重构；
   判断“现在到底是什么状态”时优先看这里
@@ -55,28 +56,19 @@
 - **[片音与语音技术单位的对应关系](PIANYIN_TECH_BRIDGE.md)** -
   片音与 ASR/TTS 技术单位的衔接
 
-### 快速开始
+### 研究与恢复快速开始
 
 - **[安装指南](install/INSTALLATION_GUIDE.md)** -
-  当前 Windows 桌面输入法原型的主安装入口
+  本仓库研究环境和 Python 桌面原型的本地启动准备；不是产品安装包入口
 - **[普通用户帮助](help/README.md)** -
   面向试用者的帮助总入口，包含快速开始、菜单与词库、
   故障排查几个子页
-- **[便携版发布指南](install/PORTABLE_RELEASE_GUIDE.md)** -
-  用 PyInstaller 打成无需 Python 的 Windows 独立目录
-- **[安装包发布指南](install/SETUP_RELEASE_GUIDE.md)** -
-  用 Inno Setup 打成可分发的 `Setup.exe`
-- **[最小试用交付方案](install/MINIMAL_TRIAL_DELIVERY.md)** -
-  把 `Setup.exe`、试用说明、验收清单和反馈模板收成一个
-  默认交付目录
-- **[朋友试装前最小验收清单](install/friend-trial-checklist.md)** -
-  发给外部试装前，先用 10 分钟做一轮最小风险检查
-- **[发给朋友的说明模板](install/friend-trial-message-template.md)** -
-  发安装包时可直接复制改写的一段短说明
-- **[试用者一页说明与最小键位对照](install/friend-trial-one-page.md)** -
-  给外部试用者看的单页版：怎么唤起、怎么上屏、键位大致怎么看
-- **[MSKLC 发布速记](MSKLC_RELEASE_QUICKSTART.md)** -
-  最短的 Windows 键盘生成、打包、安装、回滚路径
+- **历史发布材料**：
+  [便携版](install/PORTABLE_RELEASE_GUIDE.md)、
+  [Setup](install/SETUP_RELEASE_GUIDE.md)、
+  [最小试用交付](install/MINIMAL_TRIAL_DELIVERY.md)和
+  [MSKLC](MSKLC_RELEASE_QUICKSTART.md)文档只用于追溯；其中命令已阻断，产品工作转到
+  `C:\dev\Yime`
 - **[Python 3.12 快速开始](install/QUICKSTART_PY312.md)** -
   最短启动路径，适合已理解当前主线后快速跑起原型
 - **[无管理员权限安装](install/PORTABLE_PYTHON_GUIDE.md)** -
@@ -96,14 +88,13 @@
   以及当前边界
 - **[快速入门](../README.md)** - 项目概述和快速开始
 
-补充说明：上面这一组链接应理解为当前推荐入口；如果某份文档
-只是保存试验经过、旧机器现象或历史调查，请不要把它直接当成
-当前操作手册。
+补充说明：上面这一组同时列出当前研究入口和明确标记的历史材料。便携包、Setup、朋友试装、MSKLC
+及 Windows 集成文档不得当成当前操作手册。
 
-KLC 文档分工：
+KLC 历史文档分工：
 
-- `MSKLC_RELEASE_QUICKSTART.md` 是当前键盘布局链的主入口。
-- `MSKLC_PRECOMPILE_CHECKLIST.md` 只负责打包前检查。
+- `MSKLC_RELEASE_QUICKSTART.md` 是旧键盘发布链的历史入口，不再执行。
+- `MSKLC_PRECOMPILE_CHECKLIST.md` 保存旧打包前检查证据。
 - `KEYBOARD_LAYOUT_PIPELINE.md` 解释生成链分层与职责。
 - `REBUILD_KEYBOARD.md` 只补充速记页之外的检查、验证和排错说明。
 - `windows-klc-workflow.md` 保留同口径的流程备忘，
@@ -115,8 +106,8 @@ KLC 文档分工：
   当前分支的工程事实入口；理论稿和历史记录不得覆盖其现状结论
 - **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** -
   原型仓库、Python 桌面交互原型与 Windows 系统前端消费者的实现分工
-- **[Windows 前端状态](install/WINDOWS_FRONTENDS_STATUS.md)** -
-  Windows Yime、Weasel/Rime 和 PIME 的消费边界与验收基线
+- **[Windows 前端历史状态](install/WINDOWS_FRONTENDS_STATUS.md)** -
+  Windows Yime、Weasel/Rime 和 PIME 的历史消费边界与验收快照
 - **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** -
   rebuild 链、SQLite 主路径、已删除 legacy 脚本
 - **[连续输入候选组织草案](project/CONTINUOUS_INPUT_CANDIDATE_ORGANIZATION_DRAFT.md)** -
@@ -148,7 +139,7 @@ KLC 文档分工：
 ### 项目管理
 
 - **[路线图](project/ROADMAP.md)** -
-  生产链闭合后的候选质量、Windows 交接和稳定性优先级
+  脱离产品维护后的来源、清理、恢复研究和历史核对优先级
 - **[Wiki 连续语音与离散分析修订预案](project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md)** -
   暂缓实施的理论文档整理留痕；当前不修改 Wiki 正文，也不作为现行定义
 - **[更新日志](../CHANGELOG.md)** - 版本更新历史
@@ -166,12 +157,11 @@ KLC 文档分工：
 
 ## 只保留三种用法
 
-### 1. 我只想按当前主线操作
+### 1. 我只想按当前维护范围操作
 
 1. 看 [安装指南](install/INSTALLATION_GUIDE.md) 或
    [Python 3.12 快速开始](install/QUICKSTART_PY312.md)
-2. 涉及 Windows 键盘布局时，
-   从 [MSKLC 发布速记](MSKLC_RELEASE_QUICKSTART.md) 进入
+2. 涉及布局时只运行本仓库内的研究与锁检查；产品构建或 Windows 集成转到 `C:\dev\Yime`
 3. 遇到问题时，再回看 [FAQ.md](FAQ.md) 与
    [DEVELOPMENT.md](DEVELOPMENT.md)
 
@@ -190,7 +180,8 @@ KLC 文档分工：
 1. 先确认目标文档是否被明确标成“历史记录”“归档”或
    “调查记录”
 2. 不要把这类文档直接当成当前操作手册
-3. 当前流程仍以本页“快速开始”和上面的 KLC 主入口说明为准
+3. 旧发布和交接命令不得执行；当前范围以
+   [脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)为准
 
 ## 2026-07 主线更新（维护摘要）
 

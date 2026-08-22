@@ -2,6 +2,7 @@
   "schema_version": 1,
   "policy_id": "prototype-entrypoint-archive-v1",
   "archive_strategy": "retain_in_place_to_preserve_consumers",
+  "product_repository": "C:\\dev\\Yime",
   "entries": [
     {
       "path": "tools/lexicon_clean.py",
@@ -55,29 +56,106 @@
     {
       "path": "tools/prepare_windows_yime_lexicon.ps1",
       "kind": "entrypoint",
-      "state": "external_handoff_only",
-      "replacement": "tools/build_two_level_runtime_trial.py",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
       "prototype_acceptance": false
     },
     {
       "path": "tools/prepare_windows_yime_auxiliary_assets.py",
       "kind": "entrypoint",
-      "state": "external_handoff_only",
-      "replacement": "tools/build_two_level_runtime_trial.py",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
       "prototype_acceptance": false
     },
     {
       "path": "tools/verify_default_runtime_handoff.py",
       "kind": "entrypoint",
-      "state": "external_handoff_only",
-      "replacement": "tools/build_two_level_runtime_trial.py",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "scripts/build_portable_release.bat",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "scripts/build_setup_release.bat",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "scripts/build_friend_trial_package.bat",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime_portable.spec",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "yime_setup.iss",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/export_and_deploy_weasel_yime.ps1",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/run_msklc_packaging_pipeline.py",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/run_msklc_install_pipeline.py",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/reset_msklc_install_state.py",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
+      "prototype_acceptance": false
+    },
+    {
+      "path": "tools/verify_seed_install_flow.py",
+      "kind": "entrypoint",
+      "state": "blocked_detached_product_workflow",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
       "prototype_acceptance": false
     },
     {
       "path": "docs/windows-klc-workflow.md",
       "kind": "document",
       "state": "historical_workflow_note",
-      "replacement": "docs/MSKLC_RELEASE_QUICKSTART.md",
+      "replacement": "docs/DETACHED_MAINTENANCE_BOUNDARY.md",
       "prototype_acceptance": false
     },
     {

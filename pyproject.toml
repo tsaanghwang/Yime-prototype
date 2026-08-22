@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "yime"
 version = "0.1.1"
-description = "Windows IME prototype and supporting pinyin rebuild pipeline for Yime."
+description = "Detached historical, provenance, and recovery workspace for the Yime prototype."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
@@ -23,10 +23,6 @@ dev = [
 	"pytest>=8.0.0",
 	"pytest-cov>=3.0.0",
 ]
-portable = [
-	"pyinstaller>=6.12.0",
-]
-
 [tool.setuptools]
 package-dir = {"" = "."}
 

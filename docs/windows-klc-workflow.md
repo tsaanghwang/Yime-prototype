@@ -1,8 +1,12 @@
 # Windows KLC Workflow
 
+> **历史文档，流程已阻断。** 其中打包、安装和机器状态修改命令不再受支持；现行产品工作转到
+> `C:\dev\Yime`。本仓库只保留布局来源核对和恢复研究。
+
 日期：2026-04-10
 
-这页不再重复完整操作链。当前主入口应以 [MSKLC 发布速记](MSKLC_RELEASE_QUICKSTART.md) 为准；这页只保留分流关系和少数需要额外记住的清理入口。
+这页不再重复完整操作链。脱离产品维护前曾以 [MSKLC 发布速记](MSKLC_RELEASE_QUICKSTART.md) 为
+主入口；现在两页都只保留历史分流关系和清理证据。
 
 补充说明：外部键盘布局仓库默认按主仓库同级目录理解，即 `..\Yime-keyboard-layout`；如果实际位置不同，可先设置 `YIME_KEYBOARD_LAYOUT_REPO`。
 
@@ -25,7 +29,7 @@
 3. 在 MSKLC GUI 中执行 `Build DLL and Setup Package`
 4. 运行 `python tools/run_msklc_install_pipeline.py --install-mode msi`
 
-如果只是正常走一遍当前发布链，到这里就够了。更细的前置检查、产物分层和回滚说明请分别看上面的配套页。
+上述是历史发布链快照，不得在本仓库继续执行。
 
 ## 什么时候需要额外看这页
 

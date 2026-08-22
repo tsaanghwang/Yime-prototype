@@ -1,5 +1,8 @@
 # MSKLC Precompile Checklist
 
+> **历史打包检查单。** 本仓库仍可运行布局一致性和生成锁用于研究，但不得继续执行 MSKLC GUI
+> 打包、安装或发布；现行产品工作转到 `C:\dev\Yime`。
+
 在把 `yinyuan.klc` 丢进 MSKLC 之前，先跑下面这套检查，能挡掉大多数结构性错误。
 
 补充说明：`yinyuan.klc` 属于可重建布局产物；

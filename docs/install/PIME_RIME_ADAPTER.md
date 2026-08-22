@@ -1,5 +1,8 @@
 # PIME / Rime adapter for Yime
 
+> **历史集成文档。** 本仓库不再部署或发布 Windows 前端；现行 PIME/Rime 产品工作转到
+> `C:\dev\Yime`。
+
 本文记录 Yime 数据接入 PIME 的当前约定。PIME 不是 Yime 的子模块；这里仅记录 Yime 应如何向 PIME 提供数据，以及本地验证过的集成边界。
 
 ## 角色边界

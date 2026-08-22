@@ -2,7 +2,6 @@
 
 [![Use: Non-Commercial](https://img.shields.io/badge/Use-Non--Commercial-success.svg)](LICENSE)
 [![Commercial: Separate License](https://img.shields.io/badge/Commercial-Separate%20Authorization-orange.svg)](COMMERCIAL_LICENSE.md)
-[![GitHub Release](https://img.shields.io/github/release/tsaanghwang/YIME)](https://github.com/tsaanghwang/YIME/releases)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/)
 
 ## 概述
@@ -10,14 +9,14 @@
 > **退役期职责**：本仓库不再是 Yime 的产品数据源。它保留为历史现场、数据清理、来源核对和恢复
 > 研究工作区；这里的提交、数据库和生成物不会被 Yime 自动读取。确需转移的清理结果必须先获得明确
 > 授权，导出到非 Git 的内容锁归档，再由 Yime 独立审查。Yime 的现行编码、词库、布局和发布真源均
-> 位于独立的 `Yime` 仓库。
+> 位于 `C:\dev\Yime`。详细边界和已阻断入口见
+> [脱离产品维护边界](docs/DETACHED_MAINTENANCE_BOUNDARY.md)。
 
 音元输入法编辑器(YIME)，简称音元输入法，是以音元为码元的
-汉语音码输入系统。当前仓库的重点不是完整展开这套理论，而是维护
-字典驱动的音元编码与候选生产链、Python 桌面交互原型，以及交接给
-Windows Yime/Weasel/PIME 等消费者的可复核资产。
+汉语音码输入系统。当前仓库的重点不是继续构建产品，而是保存和核对字典驱动的音元编码与候选链、
+Python 桌面交互原型及其历史证据。它不再准备或交接 Windows Yime/Weasel/PIME 产品资产。
 
-## 当前核心能力：由带调拼音字典生成音元编码
+## 当前维护能力：由带调拼音字典复现音元编码
 
 给项目提供一套格式合格、带明确声调的标准拼音字典后，当前主线可以自动完成：
 
@@ -62,8 +61,8 @@ Windows Yime/Weasel/PIME 等消费者的可复核资产。
 更强的编码转换能力仍有不少属于理论能力、设计方向或长期可能性，不应默认
 理解为当前仓库都已实现。
 
-当前仓库同时维护数据生产主线和 Python 桌面交互原型。系统级 Windows 前端由外部 Windows Yime、
-Weasel/Rime 与 PIME 消费同一批导出资产；前端仓库不得另建拼音到音元或键位的平行映射。
+当前仓库只维护本地研究、审计和恢复链以及 Python 桌面交互原型。系统级 Windows 前端、产品词库、
+构建、安装和发布均由 `C:\dev\Yime` 独立维护；本仓库不会向其自动同步或交接资产。
 
 ## 重要设计约束
 
@@ -81,15 +80,15 @@ Weasel/Rime 与 PIME 消费同一批导出资产；前端仓库不得另建拼�
 
 ## 特性
 
-本仓库里的“特性”分成两层理解：理论层描述音元系统本身的结构
-能力，工程层只指当前已经落到代码和 Windows 输入法原型里的主线。
+本仓库里的“特性”分成两层理解：理论层描述音元系统本身的结构能力，工程层只指可在这个历史工作区
+内复现和验证的研究原型。
 
 当前真正可运行、可验证的主线主要包括：
 
 - 来源校验、1732项音节编码、三模式派生和唯一布局投影
 - SQLite 运行候选、候选质量报告与效率基线统计
 - Python 原型的全拼输入、候选显示、选字回贴和基础交互
-- Windows Yime 词库交接，以及 Weasel/PIME 消费验证
+- 历史 Windows 交接结构、manifest 和消费验证结果的来源核对（不再执行交接）
 
 更完整的理论背景、术语和桥接说明请从
 [docs/README.md](docs/README.md) 进入；当前实现边界与指标则分别看
@@ -100,7 +99,7 @@ Weasel/Rime 与 PIME 消费同一批导出资产；前端仓库不得另建拼�
 
 当前根目录 README 只保留最短导航。
 
-1. 安装环境与依赖：看
+1. 准备本仓库的研究环境与依赖：看
     [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)
     或 [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)。
 2. 启动当前原型：使用
@@ -120,7 +119,7 @@ YIME/
 ├── docs/                 # 文档与约束
 ├── tests/                # 测试
 ├── tools/                # 维护脚本
-├── scripts/              # 一键入口（测试、发布等）
+├── scripts/              # 测试、研究环境和已阻断的历史入口
 ├── config/               # finals 分类等工具配置
 ├── fonts/                # 文档预览用字体
 └── run_input_method.py   # IME 启动入口
@@ -134,6 +133,7 @@ YIME/
     [docs/install/INSTALLATION_GUIDE.md](docs/install/INSTALLATION_GUIDE.md)、
     [docs/install/QUICKSTART_PY312.md](docs/install/QUICKSTART_PY312.md)
 - 当前实现边界：
+    [docs/DETACHED_MAINTENANCE_BOUNDARY.md](docs/DETACHED_MAINTENANCE_BOUNDARY.md)、
     [docs/CURRENT_ARCHITECTURE.md](docs/CURRENT_ARCHITECTURE.md)、
     [docs/project/INPUT_METHOD_SOLUTION.md](docs/project/INPUT_METHOD_SOLUTION.md)
 - 当前优先级：

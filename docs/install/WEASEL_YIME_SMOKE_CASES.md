@@ -1,5 +1,8 @@
 # Weasel Yime smoke cases
 
+> **历史烟测记录。** 部署入口已阻断，不得按本页写入真实 Rime 用户目录或启动产品前端。现行产品
+> 集成与烟测转到 `C:\dev\Yime`。
+
 本文记录 Yime 接入 Weasel/Rime 后的手工烟测。它不是完整验收清单，只覆盖“真的能
 作为 Windows 输入法输入汉字”的最短路径。
 

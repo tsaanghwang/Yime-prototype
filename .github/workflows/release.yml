@@ -1,58 +1,19 @@
-name: Release
+name: Historical release entrypoint (blocked)
 
 on:
-  release:
-    types:
-      - published
   workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build:
-    name: Build distribution
+  blocked:
+    name: Redirect product release work
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-
-      - name: Install build dependencies
+      - name: Reject obsolete release workflow
         run: |
-          python -m pip install --upgrade pip
-          pip install build
-
-      - name: Build package
-        run: python -m build
-
-      - name: Upload distribution artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: python-dist
-          path: dist/
-
-  publish-pypi:
-    name: Publish to PyPI
-    needs: build
-    runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write
-
-    steps:
-      - name: Download distribution artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: python-dist
-          path: dist/
-
-      - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
+          echo "This repository is detached from Yime product maintenance."
+          echo 'Run product build and release work in C:\dev\Yime.'
+          exit 2

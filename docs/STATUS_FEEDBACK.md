@@ -68,9 +68,9 @@
   用来看某组候选为什么这样排序；关键字段会直接显示
   `candidate_text` 和 `persisted_reorder_frequency`
 
-## 4. 安装包相关看验收脚本
+## 4. 安装包相关记录（历史，入口已阻断）
 
-如果问题是“安装包首次启动时 seed 有没有自动落进去”，直接运行：
+以下命令仅记录旧验收入口，不得执行；现行安装包验收转到 `C:\dev\Yime`：
 
 ```bash
 python tools/verify_seed_install_flow.py

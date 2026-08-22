@@ -1,6 +1,6 @@
-# Prototype release acceptance
+# Detached prototype maintenance acceptance
 
-Use the isolated one-click gate after a clean checkout or before delivery:
+Use the isolated one-click gate after a clean checkout or before accepting a maintenance change in this repository:
 
 ```powershell
 .\venv312\Scripts\python.exe tools\run_prototype_release_acceptance.py
@@ -14,7 +14,7 @@ For a quick code-only check against existing canonical artifacts, use `--skip-fu
 
 Every run writes `acceptance_manifest.json` plus per-step logs. A failed step leaves its evidence in place and returns a non-zero exit code.
 
-Safety boundaries are strict: the runner never restarts Windows, never invokes an installer, never writes a real user directory, never exports to Windows Yime, and never calls the external handoff scripts listed in `internal_data/prototype_release_acceptance_policy.json`.
+This is a local research/recovery gate, not a product release gate. Safety boundaries are strict: the runner never restarts Windows, never invokes an installer, never writes a real user directory, never exports to Windows Yime, and never calls the external handoff scripts listed in `internal_data/prototype_release_acceptance_policy.json`. Product build and release work belongs in `C:\dev\Yime`.
 Canonical entrypoint: `tools/run_prototype_release_acceptance.py`.
 
 If a full run is interrupted after the large source, input, recursive, and capacity steps, continue without rebuilding them:

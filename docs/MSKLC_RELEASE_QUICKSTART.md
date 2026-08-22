@@ -1,6 +1,10 @@
 # MSKLC 发布速记
 
-这页只保留当前可用的最短路径：生成 `.klc`、用 MSKLC 打包、用 MSI 安装、必要时回滚。
+> **历史文档，流程已阻断。** 本页只用于恢复研究和旧发布证据核对；不得从本仓库打包、安装或
+> 重置 MSKLC 产品。现行产品工作转到 `C:\dev\Yime`。见
+> [脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)。
+
+这页保留脱离产品维护前的最短路径快照：生成 `.klc`、用 MSKLC 打包、用 MSI 安装、必要时回滚。
 
 补充说明：外部键盘布局仓库默认按主仓库同级目录理解，即 `..\Yime-keyboard-layout`；如果实际位置不同，可先设置 `YIME_KEYBOARD_LAYOUT_REPO`，再运行下面这些包装脚本。
 

@@ -323,8 +323,8 @@ def build_trial(
         runtime_manifest = {
             "status": "skipped",
             "reason": (
-                "Windows dictionary handoff does not require a cloned "
-                "prototype runtime database"
+                "detached research export omitted the cloned prototype "
+                "runtime database"
             ),
         }
 
@@ -431,8 +431,9 @@ def main() -> int:
         "--skip-runtime-database",
         action="store_true",
         help=(
-            "Build and validate the Windows handoff dictionary without "
-            "cloning or mutating a prototype runtime database."
+            "Build the detached research dictionary without cloning or "
+            "mutating a prototype runtime database. This does not create "
+            "a supported Windows Yime handoff."
         ),
     )
     args = parser.parse_args()

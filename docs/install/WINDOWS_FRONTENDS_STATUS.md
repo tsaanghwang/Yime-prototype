@@ -1,4 +1,8 @@
-# Windows frontends status
+# Windows frontends status（历史快照）
+
+> **不再是当前集成状态。** 本页只用于核对脱离维护前的 Windows Yime、Weasel 和 PIME 证据。
+> 本仓库不再生成交接包、部署前端或校验产品仓库；现行工作转到 `C:\dev\Yime`。见
+> [脱离产品维护边界](../DETACHED_MAINTENANCE_BOUNDARY.md)。
 
 本文记录 Yime 面向 Windows 系统级输入法前端的当前状态。它只说明消费者边界和已经验证的集成路径，
 不把某个历史分支名、测试条数或本机绝对路径当作长期接口。
@@ -14,9 +18,9 @@ librime 或 PIME 的源码。Windows Yime 仓库负责正式导入和部署；We
   runtime profile。
 - Windows Yime 正式安装只携带 `yime_core_trial`；旧等长、变长、省键大词库不作为运行回退。
 - Rime 在核心已编码单字和预组合部件上动态组句，并把人工纠正写入独立 userdb。
-- Weasel 与旧三模式导出继续作为离线兼容和回归路径；PIME 是当前正式 Windows TSF 消费外壳。
+- Weasel 与旧三模式导出曾作为离线兼容和回归路径；PIME 是当时的 Windows TSF 消费外壳。
 
-原型交接入口和验收条件见
+历史交接入口和验收条件见
 [新版词库交接到 Windows Yime](../project/WINDOWS_YIME_LEXICON_HANDOFF.md)。
 
 ## 当前实现状态

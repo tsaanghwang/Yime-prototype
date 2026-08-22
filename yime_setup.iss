@@ -1,4 +1,5 @@
 ; cspell:words autopf autodesktop createallsubdirs desktopicon ignoreversion lzma nowait recursesubdirs skipifsilent uninstallexe
+#error "Obsolete workflow blocked in this detached maintenance repository. Build Setup.exe in C:\dev\Yime; see docs\DETACHED_MAINTENANCE_BOUNDARY.md."
 #define MyAppName "Yime"
 #if !defined(MyAppVersion)
   #define MyAppVersion "0.1.1"

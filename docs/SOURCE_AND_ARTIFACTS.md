@@ -1,5 +1,8 @@
 # 真源文件与生成产物清单
 
+> **仓库边界：** 本文中的“真源”只表示本历史工作区内部的研究、审计和恢复重建起点，不表示 Yime
+> 产品真源。现行产品真源、构建和发布均在 `C:\dev\Yime`；不得从本仓库自动同步或覆盖。
+
 ## 文档定位
 
 本文档用于区分当前仓库中的：
@@ -51,16 +54,15 @@
   - 文件名里的 `manual` 是历史命名，当前语义应理解为“布局真源”，不是“manual install”或“手工编译流程”。
   - 定义物理键位与 `Nxx/Mxx` Yinyuan ID 的关系。
   - 这是布局层真源，不应通过改 `yinyuan.klc` 反向修复。
-  - 外部 `Yime-keyboard-layout` 仓库可以消费它的快照副本来生成
-    KLC 和打包产物，但那边的
-    `source_snapshots/manual_key_layout.json` 不是 canonical。
+  - 外部 `Yime-keyboard-layout` 快照只记录脱离维护前的历史消费关系；本仓库现在不再向它或
+    `C:\dev\Yime` 提供 KLC、打包产物或自动同步。
 
 #### 2. Yinyuan ID 到规范字符映射真源
 
 - `internal_data/key_to_symbol.json`
   - 当前表达 `N01-N27` 与 `M01-M33` 到规范字符的映射。
   - 按策略文档，应将其理解为“Yinyuan ID 到 canonical 字符”的稳定层。
-  - 外部 `Yime-keyboard-layout` 仓库中如果存在对应快照，也只能视为同步副本，不得反向覆盖这里。
+  - 外部仓库中如果存在对应快照，只能作为历史副本核对，不得与本仓库建立同步或互相覆盖。
 
 #### 3. 理论与流程约束真源
 
@@ -104,7 +106,7 @@
 - `internal_data/bmp_pua_trial_projection.json`
   - 当前用于把 canonical Yinyuan ID 投影到 BMP PUA。
   - 应继续保留，但应明确其职责是 projection，不是 canonical。
-  - 独立出来的键盘布局辅助仓库可以复制它做 Windows 打包试验，但复制件仍只是快照。
+  - 历史键盘布局辅助仓库中的复制件只作证据；本仓库不再用它做 Windows 打包试验。
 
 - `internal_data/bmp_pua_trial_projection.md`
   - 对应投影的说明文件。
@@ -190,9 +192,10 @@
   - 是 `manual_key_layout.json + key_to_symbol.json` 的解析产物。
 
 - `yinyuan.klc`
-  - 是键盘布局安装链的构建产物。
+  - 是历史键盘布局安装链的构建产物。
   - 不应反向充当键位真源。
-  - 当前正式保留位置应理解为外部 `Yime-keyboard-layout/yinyuan.klc`；主仓库根目录不再要求长期保留副本。
+  - 外部 `Yime-keyboard-layout/yinyuan.klc` 只记录历史迁出状态；现行产品布局归属以
+    `C:\dev\Yime` 为准。
 
 #### 4. 数据库导入与运行时消费产物
 
@@ -235,9 +238,9 @@
 
 `releases/` 顶层子目录当前可先按下面方式理解：
 
-补充说明：当前 Windows 键盘布局打包链已经独立到外部
-`Yime-keyboard-layout` 仓库。主仓库里的 `releases/`
-更应理解为过渡镜像和历史残留，而不是 IME 主线自带发布系统。
+补充说明：Windows 键盘布局打包链曾迁到外部 `Yime-keyboard-layout` 仓库；这一关系现在也只是历史
+记录。主仓库里的 `releases/` 是过渡镜像和历史残留，不是现行发布系统。产品发布统一转到
+`C:\dev\Yime`。
 
 - `releases/msklc-package/`
   - 分类：已迁出主仓库。
@@ -271,11 +274,11 @@
 1. `releases/msklc-docs/` 与 `releases/msklc-test/` 两个空目录占位已删除。
 2. `releases/yinyuan/` 已删除，因为它与 `releases/msklc-package/` 的代表性包文件重复，且当前运行/打包说明链没有引用它。
 3. 旧的 `releases/v2.2/` 与 `releases/v2.3/` 版本说明已删除，因为它们为空或与当前主线失配。
-4. 键盘布局辅助工程已经独立到外部 `Yime-keyboard-layout`
-  仓库，主仓库中的 `releases/v1.0/` 占位目录也已移除，正式入口统一改由外部仓库承载。
+4. 键盘布局辅助工程曾独立到外部 `Yime-keyboard-layout` 仓库，主仓库中的 `releases/v1.0/` 占位目录
+  也已移除；外部入口现在同样只作历史记录，现行产品入口位于 `C:\dev\Yime`。
 5. `releases/msklc-package/`、`releases/msklc-amd64/` 与
   `releases/msklc-wow64/` 已从主仓库移除，正式样本改由外部
-  `Yime-keyboard-layout` 仓库承载。
+  `Yime-keyboard-layout` 仓库承载；这些正式样本的说法只描述当时状态。
 
 #### 6A. 覆盖率报告目录（2026-05）
 
@@ -419,10 +422,8 @@
 
 1. 主线重建优先走 `internal_data/pinyin_source_db/` 与 prototype 导入链，不再把旧中文表维护脚本当成默认入口。
 2. 主包根目录里仍保留的同名入口，默认应理解为兼容 shim；真实实现放在 `yime/utils/`。
-3. `tools/` 下凡是代理外部键盘布局仓库或系统脚本的
-  orchestration 入口，默认应先做路径预检，并统一使用
-  `YIME_KEYBOARD_LAYOUT_REPO` 解析外部 `Yime-keyboard-layout`
-  仓库位置。
+3. `tools/` 下代理外部键盘布局仓库或系统脚本的历史 orchestration 入口已经阻断，不再解析
+  `YIME_KEYBOARD_LAYOUT_REPO` 或同级 `Yime-keyboard-layout` 路径。
 4. BCC 频表合并脚本位于 `tools/merge_char_freq.py`、
   `tools/merge_word_freq.py`；原始 `*.txt` 下载仍 gitignore。
   数据库维护脚本产生的 `.bak`/`pre_*` 等回退文件应统一视为本地副产物，

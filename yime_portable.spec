@@ -1,6 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 # cSpell:words pathlib SPECPATH datas hiddenimports pathex hookspath hooksconfig noarchive
 
+raise SystemExit(
+    "Obsolete workflow blocked in this detached maintenance repository: portable product build. "
+    r"Run product build and release work in C:\dev\Yime. "
+    "See docs/DETACHED_MAINTENANCE_BOUNDARY.md."
+)
+
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules

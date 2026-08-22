@@ -9,6 +9,11 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.detached_maintenance_boundary import reject_obsolete_workflow
+
 DEFAULT_EXTERNAL_REPO = ROOT.parent / "Yime-keyboard-layout"
 EXTERNAL_REPO = Path(
     os.environ.get("YIME_KEYBOARD_LAYOUT_REPO", str(DEFAULT_EXTERNAL_REPO))
@@ -136,6 +141,11 @@ def remove_stage_dir(stage_dir: Path, dry_run: bool) -> None:
 
 
 def main() -> int:
+    return reject_obsolete_workflow("MSKLC product install-state reset")
+
+
+def _historical_cli_for_recovery_review() -> int:
+    """Retained for provenance/recovery review; not a supported CLI."""
     args = parse_args()
     ensure_windows()
     package_dir = args.package_dir.resolve()

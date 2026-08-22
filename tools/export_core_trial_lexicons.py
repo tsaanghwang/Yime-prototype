@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export replay-gated compact component lexicons for Windows Yime."""
+"""Export replay-gated compact component lexicons for detached research."""
 
 from __future__ import annotations
 

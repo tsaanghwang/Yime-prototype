@@ -49,7 +49,7 @@ DEFAULT_PHRASE_FREQ_PATH = (
 DEFAULT_CHAR_FREQ_PATH = DEFAULT_BCC_CHAR_FREQ_PATH
 DEFAULT_RUNTIME_EXPORT = PACKAGE_ROOT / "export_runtime_candidates_json.py"
 DEFAULT_BACKUP_DIR = PACKAGE_ROOT / "backup"
-DEFAULT_BACKUP_RETAIN_COUNT = 20
+DEFAULT_BACKUP_RETAIN_COUNT = 1
 DEFAULT_SOURCE_TAG = BCC_SOURCE
 PROTOTYPE_SCHEMA_PATH = PACKAGE_ROOT / "create_prototype_schema_additions.sql"
 
@@ -126,8 +126,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--backup-retain",
         type=int,
+        choices=(1,),
         default=DEFAULT_BACKUP_RETAIN_COUNT,
-        help="Retain this many recent blcu_word_freq backups; 0 disables pruning",
+        help="Backup retention is fixed at one recent blcu_word_freq backup",
     )
     return parser.parse_args()
 

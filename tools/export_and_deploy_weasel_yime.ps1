@@ -20,6 +20,9 @@ param(
     [switch]$StartWeaselServer
 )
 
+Write-Error "Obsolete workflow blocked in this detached maintenance repository: Windows frontend deployment. Run product integration in C:\dev\Yime; see docs\DETACHED_MAINTENANCE_BOUNDARY.md."
+exit 2
+
 $ErrorActionPreference = "Stop"
 
 function Resolve-RequiredPath {

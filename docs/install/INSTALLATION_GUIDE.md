@@ -1,5 +1,9 @@
 # 安装指南
 
+> 本页只负责准备当前历史工作区的研究环境并启动 Python 原型，不构建或安装 Yime 产品。便携产品、
+> Setup 和 Windows 发布工作转到 `C:\dev\Yime`。见
+> [脱离产品维护边界](../DETACHED_MAINTENANCE_BOUNDARY.md)。
+
 本文件说明当前仓库下 Windows 桌面输入法原型的实际安装方式。
 
 这不是早期的“pynput 临时可用”报告，也不是 Web 前端启动说明。当前可用主线是：
@@ -210,13 +214,13 @@ python -m yime.input_method.app --font-family "Microsoft YaHei"
 
 安装完成后，建议依次检查：
 
-如果你的安装包会自带 `yime/user_lexicon_seed.json`，在发包前再额外跑一次：
+以下是脱离产品维护前的安装包 seed 验收记录。入口现已阻断，不得在本仓库发包或运行：
 
 ```bash
 python tools/verify_seed_install_flow.py
 ```
 
-它会在临时目录里模拟安装目录，验收“首次启动自动落 seed”和“第二次启动不重复导入”。
+该脚本实现只保留供恢复研究核对；现行安装包验收请在 `C:\dev\Yime` 完成。
 
 ### 1. Python 版本
 

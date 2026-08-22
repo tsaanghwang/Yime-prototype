@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
-"""Verify the current three-mode runtime handoff to Yime for Windows."""
+"""Retained verifier for the historical three-mode Windows Yime handoff."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.detached_maintenance_boundary import reject_obsolete_workflow
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -176,6 +181,11 @@ def verify_handoff(prototype_root: Path, windows_repo: Path) -> dict[str, Any]:
 
 
 def main() -> int:
+    return reject_obsolete_workflow("cross-repository Windows Yime handoff verification")
+
+
+def _historical_cli_for_recovery_review() -> int:
+    """Retained for provenance/recovery review; not a supported CLI."""
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--windows-repo",

@@ -1,5 +1,9 @@
 # 安装包发布指南
 
+> **历史文档，流程已阻断。** 本页只保留旧 Inno Setup 发布记录；不要执行其中命令。现行产品
+> 构建与发布请在 `C:\dev\Yime` 进行。见
+> [脱离产品维护边界](../DETACHED_MAINTENANCE_BOUNDARY.md)。
+
 这份指南对应当前比 portable 目录更像“给朋友发安装包”的发布形态：
 
 - 先用 PyInstaller 生成 `dist/Yime/`

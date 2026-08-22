@@ -97,10 +97,11 @@ YIME/
 
 - 根目录兼容入口的真实实现应下沉到 `yime/utils/`。
 - shim 应尽量显式导出 `__all__`。
-- `tools/` 下 orchestration 脚本优先显式 `validate_*` 预检；
-    键盘布局外置仓库路径用 `YIME_KEYBOARD_LAYOUT_REPO`。
+- `tools/` 下研究与恢复 orchestration 脚本优先显式 `validate_*` 预检；旧键盘打包代理已经阻断，
+    不再用 `YIME_KEYBOARD_LAYOUT_REPO` 连接外部仓库。
 
-补充：旧 JS 原型已外置；本仓库主线为 `yime/` 下 Windows IME Python 实现。拼音 rebuild 见 `docs/project/PINYIN_DATA_MIGRATION.md`。
+补充：旧 JS 原型已外置；`yime/` 下 Windows IME Python 实现仅作为本仓库研究原型。产品实现与发布
+转到 `C:\dev\Yime`。拼音 rebuild 见 `docs/project/PINYIN_DATA_MIGRATION.md`。
 
 ---
 

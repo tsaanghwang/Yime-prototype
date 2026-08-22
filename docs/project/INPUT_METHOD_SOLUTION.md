@@ -2,20 +2,21 @@
 
 ## 文档定位
 
-本文说明当前仓库与 Windows 输入前端之间的实现分工。工程事实和真源优先级见
+本文说明当前仓库内仍可用于研究和恢复的输入原型。Windows 消费和交接内容只保留为历史证据；
+产品实现、构建与发布均在 `C:\dev\Yime`。工程事实和真源优先级见
 [当前实现总览](../CURRENT_ARCHITECTURE.md)，文件归属见
 [真源文件与生成产物清单](../SOURCE_AND_ARTIFACTS.md)，下一阶段优先级见
 [项目路线图](ROADMAP.md)。
 
 当前不再用“Python 桌面钩子原型是否等于正式 IME”概括整个项目。需要区分：
 
-1. 本仓库维护的拼音来源、音节语义、三模式编码、布局投影、运行候选和 Python 交互原型；
-2. 外部 Windows Yime 仓库维护的正式词典导入、Rime 适配和 Windows 消费实现；
-3. Weasel、PIME 等承载系统输入体验的前端。
+1. 本仓库保留的拼音来源、音节语义、三模式编码、布局投影、候选和 Python 交互原型；
+2. `C:\dev\Yime` 独立维护的现行产品真源、正式词典、Windows 实现及发布；
+3. 仅供核对的历史 Weasel、PIME 和跨仓交接材料。
 
 ## 当前结论
 
-当前核心不是从零证明输入法可行，而是维护一条可重复的数据生产与消费链：
+当前核心是复现和审计一条历史数据链，不再维持到产品消费者的自动链路：
 
 ```text
 source_lexicon.sqlite3
@@ -25,12 +26,12 @@ source_lexicon.sqlite3
   -> manual_key_layout.json 布局投影
   -> 完整离线真源
   -> runtime_lexicon_filter_policy.json
-  -> yime_core_trial 核心运行词典
-  -> Windows Yime / PIME / Rime
+  -> yime_core_trial 历史核心运行词典快照
+  -X-> Windows Yime / PIME / Rime（本仓库不再交接）
 ```
 
-Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统级 IME。与此同时，系统级前端消费路径
-已经存在：Weasel/Rime 和 PIME 已能消费 Yime 导出的数据。二者并不矛盾。
+Python 桌面应用仍可作为研究交互原型运行，但不是 TSF/IMM32 系统级 IME。历史前端消费结果只用于
+来源核对，不能解释为本仓库仍支持产品集成。
 
 ## 真源和消费者边界
 
@@ -43,18 +44,16 @@ Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统�
 - 从同一音元序列派生等长、变长和省键编码；
 - 从 `internal_data/manual_key_layout.json` 生成唯一键位投影；
 - 构建 `yime/pinyin_hanzi.db` 和候选质量报告；
-- 准备 Windows Yime 所需的核心运行词典、manifest、runtime profile 与拼音审查资产。
+- 保存历史核心词典、manifest、runtime profile 与拼音审查资产，供来源核对和恢复研究。
 
-### Windows 消费仓库负责
+### 产品仓库独立负责
 
-- 接收原型筛选并验证的 `yime_core_trial.dict.yaml`；
-- 只把 `yime_core_trial` 作为安装默认方案，完整大词库及三模式派生产物留在离线链；
-- 生成、部署并核验核心 Rime schema/dict、manifest 和 runtime profile；
-- 处理 Windows 前端构建、安装、候选 UI、崩溃和系统集成；
-- 在用户环境中管理部署与回滚。
+- `C:\dev\Yime` 独立维护现行编码、词库、布局、Rime/PIME/Windows 实现和发布真源；
+- 产品侧自行审查和生成安装输入、manifest、runtime profile、部署与回滚；
+- 不通过环境变量、同级目录、共享数据库或自动脚本读取本仓库。
 
-消费者不得另建拼音到 Yinyuan ID、四音元码或键位的平行真源。发现数据问题时应回到本仓库的来源、
-规则、语义注册表或唯一布局真源修复。
+本仓库不得把自身历史语义或布局结果覆盖到产品仓库。确需转移的清理结果必须先取得明确授权，按内容
+哈希导出到独立非 Git 归档，再由产品仓库单独审查。
 
 ## 本仓库的 Python 输入原型
 
@@ -111,9 +110,9 @@ Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统�
 
 不得为某个拼音在 Python 原型、Rime schema 或 Windows 导入器中单独手写另一套三模式结果。
 
-## Windows Yime 交接
+## Windows Yime 交接（历史，已阻断）
 
-原型侧入口：
+以下命令只为说明旧入口名称，不得执行：
 
 ```powershell
 .\venv312\Scripts\python.exe tools\build_two_level_runtime_trial.py
@@ -123,12 +122,10 @@ Python 桌面应用仍是可运行的交互原型，但不是 TSF/IMM32 系统�
   --output .generated\default_runtime_handoff.json
 ```
 
-完整 `yime_full.dict.yaml` 仍是离线来源和三模式派生真源，但不再是 Windows 安装运行输入。
-Windows 默认交接物是两级筛选后的核心词典、筛选策略、manifest 和 runtime profile；校验器核对
-默认 schema、条目数、SHA-256、99%验收下界及旧大词库的 offline-only 边界。
-
-准备脚本不写入外部仓库，也不部署用户的 PIME/Rime 目录。真实部署必须在消费者仓库中显式执行。
-完整边界见 [新版词库交接到 Windows Yime](WINDOWS_YIME_LEXICON_HANDOFF.md)。
+`tools/verify_default_runtime_handoff.py` 等交接入口现在立即返回非零状态，且不会读取或写入
+`C:\dev\Yime`。旧资产结构与摘要规则见
+[Windows Yime 交接历史记录](WINDOWS_YIME_LEXICON_HANDOFF.md)；现行产品导入和校验只能在产品仓库
+内部实现。
 
 ## 当前质量重点
 
@@ -138,7 +135,7 @@ Windows 默认交接物是两级筛选后的核心词典、筛选策略、manife
 - 在独立 `input_model.sqlite3` 中保存建议、批准、拒绝和暂缓决策；
 - 优先审查高频未解码字串和多读音冲突；
 - 通过上下文证据和动态组合回放验证候选价值；
-- 保持已落地的核心运行词库，用安装泄漏门禁防止旧大词库重新进入默认运行链；
+- 保持历史核心运行词库作为离线对照，不把安装泄漏门禁冒充本仓库当前发布职责；
 - 用纯净用户态回放和高频晋升扫描发现真实缺口，不把个人误选直接提升为系统词。
 
 具体路线见 [候选语料库整理路线图](../CANDIDATE_CORPUS_ROADMAP.md)。
@@ -148,8 +145,8 @@ Windows 默认交接物是两级筛选后的核心词典、筛选策略、manife
 1. 拼音问题从来源、合规策略、规范化或正式切分器修复；
 2. 音元身份从语义注册表和正式编码器修复；
 3. 布局只修改 `internal_data/manual_key_layout.json`；
-4. 运行库、Rime/KLC、交接包和 Windows 派生词典全部重新生成；
-5. 不直接改 SQLite 个别行、`yinjie_code.json`、四个 Yinyuan ID 或消费者键位。
+4. 只在本仓库内重建研究运行库和审计产物，不生成交接包或 Windows 发布物；
+5. 不直接改 SQLite 个别行、`yinjie_code.json`、四个 Yinyuan ID，也不写入 `C:\dev\Yime`。
 
 常用语义与布局检查：
 
@@ -162,9 +159,9 @@ Windows 默认交接物是两级筛选后的核心词典、筛选策略、manife
 
 近期工作不再是“新增 N/M 真源”或“证明系统前端可消费”，而是：
 
-1. 长期积累纯净 Windows 用户态的纠正、重复首选、重启保持和用户库增长数据；
-2. 审核高频晋升扫描结果，形成可解释的公共词条提升流程；
+1. 继续来源核对、数据清理和可撤销的审音研究；
+2. 审核高频候选与恢复实验结果，不把它们自动提升到产品；
 3. 扩充专业、专名、古籍及罕见字硬失败回归；
-4. 持续执行核心词典哈希、99%下界、安装泄漏和全新用户目录部署门禁。
+4. 保持历史结果可复现，并防止旧产品入口重新启用。
 
 **最后更新：2026-07-27**
