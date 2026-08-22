@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.core.neutral_tone_fallback API documentation</title>
+<meta name="description" content="Bounded dynamic composition for attested neutral-tone syllables …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.core.neutral_tone_fallback</code></h1>
+</header>
+<section id="section-intro">
+<p>Bounded dynamic composition for attested neutral-tone syllables.</p>
+<p>This module does not add a neutral-tone reading to any character.
+It only
+allows an attested base-tone character reading to occupy the corresponding
+neutral-tone slot while composing a multi-character runtime candidate.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.core.neutral_tone_fallback.NeutralToneFallbackProvider"><code class="flex name class">
+<span>class <span class="ident">NeutralToneFallbackProvider</span></span>
+<span>(</span><span>*,<br>get_pinyin_to_code: Callable[[], Mapping[str, str]],<br>get_char_candidates: Callable[[str], Sequence[CharCodeCandidate]],<br>candidates_per_syllable: int = 12,<br>beam_width: int = 96,<br>result_limit: int = 64)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NeutralToneFallbackProvider:
+    &#34;&#34;&#34;Compose phrases by projecting base-tone chars into neutral-tone slots.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        *,
+        get_pinyin_to_code: Callable[[], Mapping[str, str]],
+        get_char_candidates: Callable[[str], Sequence[CharCodeCandidate]],
+        candidates_per_syllable: int = DEFAULT_CANDIDATES_PER_SYLLABLE,
+        beam_width: int = DEFAULT_BEAM_WIDTH,
+        result_limit: int = DEFAULT_RESULT_LIMIT,
+    ) -&gt; None:
+        self._get_pinyin_to_code = get_pinyin_to_code
+        self._get_char_candidates = get_char_candidates
+        self.candidates_per_syllable = max(int(candidates_per_syllable), 1)
+        self.beam_width = max(int(beam_width), 1)
+        self.result_limit = max(int(result_limit), 1)
+
+    def __call__(
+        self,
+        request: DynamicCandidateRequest,
+    ) -&gt; Sequence[dict[str, object]]:
+        if (
+            request.stage != &#34;D&#34;
+            or not MIN_SYLLABLE_COUNT
+            &lt;= int(request.syllable_count)
+            &lt;= MAX_SYLLABLE_COUNT
+        ):
+            return []
+
+        pinyin_to_code = {
+            str(pinyin).strip().lower(): str(code).strip()
+            for pinyin, code in self._get_pinyin_to_code().items()
+            if str(pinyin).strip() and str(code).strip()
+        }
+        code_inventory = frozenset(pinyin_to_code.values())
+        syllable_codes = split_complete_syllables(
+            request.lookup_code,
+            code_inventory,
+        )
+        if len(syllable_codes) != request.syllable_count:
+            return []
+
+        pinyins_by_code: dict[str, list[str]] = {}
+        for pinyin, code in pinyin_to_code.items():
+            pinyins_by_code.setdefault(code, []).append(pinyin)
+
+        slots: list[list[_SlotCandidate]] = []
+        has_fallback_slot = False
+        for code in syllable_codes:
+            exact = list(self._get_char_candidates(code))
+            options = self._exact_slot_candidates(
+                exact,
+                pinyins_by_code.get(code, ()),
+            )
+            fallback = self._neutral_fallback_candidates(
+                code,
+                pinyins_by_code,
+                pinyin_to_code,
+            )
+            if fallback:
+                has_fallback_slot = True
+                options.extend(fallback)
+            options = self._deduplicate_and_limit(options)
+            if not options:
+                return []
+            slots.append(options)
+
+        if not has_fallback_slot:
+            return []
+
+        beam = [
+            _BeamState(
+                text=&#34;&#34;,
+                pinyin=(),
+                score=0.0,
+                is_common=True,
+                fallback_count=0,
+            )
+        ]
+        for options in slots:
+            expanded: list[_BeamState] = []
+            for state in beam:
+                for option in options:
+                    expanded.append(
+                        _BeamState(
+                            text=state.text + option.char.text,
+                            pinyin=(*state.pinyin, option.output_pinyin),
+                            score=state.score
+                            + math.log1p(max(option.char.sort_weight, 0.0)),
+                            is_common=state.is_common and option.char.is_common,
+                            fallback_count=state.fallback_count
+                            + int(option.uses_neutral_fallback),
+                        )
+                    )
+            beam = self._prune_beam(expanded)
+
+        results: list[dict[str, object]] = []
+        seen_texts: set[str] = set()
+        for state in sorted(
+            (item for item in beam if item.fallback_count &gt; 0),
+            key=lambda item: (
+                item.fallback_count,
+                -item.score,
+                item.text,
+                item.pinyin,
+            ),
+        ):
+            if state.text in seen_texts:
+                continue
+            seen_texts.add(state.text)
+            results.append(
+                {
+                    &#34;text&#34;: state.text,
+                    &#34;entry_type&#34;: &#34;phrase&#34;,
+                    &#34;entry_id&#34;: f&#34;neutral-tone-fallback:{state.text}&#34;,
+                    &#34;pinyin_tone&#34;: &#34; &#34;.join(state.pinyin),
+                    &#34;yime_code&#34;: request.lookup_code,
+                    &#34;primary_yime_code&#34;: request.lookup_code,
+                    &#34;sort_weight&#34;: (
+                        state.score * NEUTRAL_FALLBACK_WEIGHT_FACTOR
+                    ),
+                    &#34;is_common&#34;: state.is_common,
+                    &#34;text_length&#34;: len(state.text),
+                    &#34;_neutral_tone_fallback_count&#34;: state.fallback_count,
+                    &#34;_composition_score&#34;: state.score,
+                    &#34;_composition_rule&#34;: &#34;attested_neutral_tone_fallback&#34;,
+                }
+            )
+            if len(results) &gt;= self.result_limit:
+                break
+        return results
+
+    @staticmethod
+    def _exact_slot_candidates(
+        candidates: Sequence[CharCodeCandidate],
+        code_pinyins: Sequence[str],
+    ) -&gt; list[_SlotCandidate]:
+        fallback_pinyin = sorted(code_pinyins)[0] if code_pinyins else &#34;&#34;
+        return [
+            _SlotCandidate(
+                char=candidate,
+                output_pinyin=(
+                    str(candidate.pinyin_tone or &#34;&#34;).strip() or fallback_pinyin
+                ),
+                uses_neutral_fallback=False,
+            )
+            for candidate in candidates
+            if len(candidate.text) == 1
+        ]
+
+    def _neutral_fallback_candidates(
+        self,
+        neutral_code: str,
+        pinyins_by_code: Mapping[str, Sequence[str]],
+        pinyin_to_code: Mapping[str, str],
+    ) -&gt; list[_SlotCandidate]:
+        results: list[_SlotCandidate] = []
+        neutral_pinyins = sorted(
+            pinyin
+            for pinyin in pinyins_by_code.get(neutral_code, ())
+            if pinyin.endswith(&#34;5&#34;) and _numeric_base(pinyin)
+        )
+        for neutral_pinyin in neutral_pinyins:
+            base = _numeric_base(neutral_pinyin)
+            for tone in &#34;1234&#34;:
+                base_pinyin = f&#34;{base}{tone}&#34;
+                base_code = pinyin_to_code.get(base_pinyin)
+                if not base_code:
+                    continue
+                for candidate in self._get_char_candidates(base_code):
+                    if (
+                        len(candidate.text) == 1
+                        and _is_base_tone_reading(candidate.pinyin_tone, base)
+                    ):
+                        results.append(
+                            _SlotCandidate(
+                                char=candidate,
+                                output_pinyin=neutral_pinyin,
+                                uses_neutral_fallback=True,
+                            )
+                        )
+        return results
+
+    def _deduplicate_and_limit(
+        self,
+        candidates: Sequence[_SlotCandidate],
+    ) -&gt; list[_SlotCandidate]:
+        best_by_key: dict[tuple[str, bool], _SlotCandidate] = {}
+        for candidate in candidates:
+            key = (candidate.char.text, candidate.uses_neutral_fallback)
+            existing = best_by_key.get(key)
+            if (
+                existing is None
+                or candidate.char.sort_weight &gt; existing.char.sort_weight
+            ):
+                best_by_key[key] = candidate
+        ranking_key = lambda item: (
+            -item.char.sort_weight,
+            item.char.text,
+            item.output_pinyin,
+        )
+        exact = sorted(
+            (
+                item
+                for item in best_by_key.values()
+                if not item.uses_neutral_fallback
+            ),
+            key=ranking_key,
+        )
+        fallback = sorted(
+            (
+                item
+                for item in best_by_key.values()
+                if item.uses_neutral_fallback
+            ),
+            key=ranking_key,
+        )
+        if not exact or not fallback:
+            return (exact or fallback)[: self.candidates_per_syllable]
+
+        fallback_limit = max(self.candidates_per_syllable // 2, 1)
+        exact_limit = max(self.candidates_per_syllable - fallback_limit, 1)
+        return [
+            *exact[:exact_limit],
+            *fallback[:fallback_limit],
+        ][: self.candidates_per_syllable]
+
+    def _prune_beam(self, expanded: Sequence[_BeamState]) -&gt; list[_BeamState]:
+        ranking_key = lambda state: (
+            state.fallback_count,
+            -state.score,
+            state.text,
+            state.pinyin,
+        )
+        without_fallback = sorted(
+            (state for state in expanded if state.fallback_count == 0),
+            key=ranking_key,
+        )
+        with_fallback = sorted(
+            (state for state in expanded if state.fallback_count &gt; 0),
+            key=ranking_key,
+        )
+        if not without_fallback or not with_fallback:
+            return (without_fallback or with_fallback)[: self.beam_width]
+
+        fallback_limit = max(self.beam_width // 2, 1)
+        exact_limit = max(self.beam_width - fallback_limit, 1)
+        return [
+            *without_fallback[:exact_limit],
+            *with_fallback[:fallback_limit],
+        ][: self.beam_width]</code></pre>
+</details>
+<div class="desc"><p>Compose phrases by projecting base-tone chars into neutral-tone slots.</p></div>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.core" href="index.html">yime.input_method.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.core.neutral_tone_fallback.NeutralToneFallbackProvider" href="#yime.input_method.core.neutral_tone_fallback.NeutralToneFallbackProvider">NeutralToneFallbackProvider</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,713 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.ui.candidate_renderer API documentation</title>
+<meta name="description" content="候选词渲染与分页混入(Mixin)模块
+提取候选项的排版、渲染及翻页逻辑。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.ui.candidate_renderer</code></h1>
+</header>
+<section id="section-intro">
+<p>候选词渲染与分页混入(Mixin)模块
+提取候选项的排版、渲染及翻页逻辑。</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin"><code class="flex name class">
+<span>class <span class="ident">CandidateRendererMixin</span></span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CandidateRendererMixin:
+    root: tk.Misc
+    actions: _CandidateRendererActionsProtocol
+    _is_standby: bool
+    _manual_input_enabled: bool
+    page_size_var: tk.IntVar
+    page_info_var: tk.StringVar
+    candidate_layout_var: tk.StringVar
+    all_candidates: list[str]
+    first_page_button: ttk.Button
+    prev_page_button: ttk.Button
+    next_page_button: ttk.Button
+    last_page_button: ttk.Button
+    toolbar_menu_button: ttk.Button
+    drag_grip: ttk.Frame
+    pager_button_frame: ttk.Frame
+    input_entry: ttk.Entry
+    commit_entry: ttk.Entry
+    candidate_text: tk.Text
+    text_font: tkfont.Font
+    ui_font: tkfont.Font
+
+    _DEFAULT_CANDIDATE_LAYOUT = &#34;horizontal&#34;
+    _CANDIDATE_TAG_PREFIX = &#34;candidate_&#34;
+    _PAGER_PREV_TAG = &#34;pager_prev&#34;
+    _PAGER_NEXT_TAG = &#34;pager_next&#34;
+
+    def _normalize_candidate_layout(self, layout: str) -&gt; str:
+        return (
+            &#34;vertical&#34;
+            if layout.strip().lower() == &#34;vertical&#34;
+            else self._DEFAULT_CANDIDATE_LAYOUT
+        )
+
+    def _on_previous_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        return self.actions.on_previous_page_key(event)
+
+    def _on_next_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        return self.actions.on_next_page_key(event)
+
+    def _on_page_size_change(self, event: Optional[tk.Event] = None) -&gt; None:
+        self.actions.on_page_size_change(event)
+
+    def _page_size(self) -&gt; int:
+        try:
+            return min(max(int(self.page_size_var.get()), 4), 9)
+        except (tk.TclError, ValueError):
+            return self.max_candidates
+
+    def _page_count(self) -&gt; int:
+        page_size = self._page_size()
+        if not self.all_candidates:
+            return 1
+        return max(1, (len(self.all_candidates) + page_size - 1) // page_size)
+
+    def _create_pager_button(
+        self,
+        parent: ttk.Frame,
+        *,
+        text: str,
+        command: Callable[[], None],
+    ) -&gt; ttk.Button:
+        button = ttk.Button(
+            parent,
+            text=text,
+            command=command,
+            style=&#34;Yime.TButton&#34;,
+            width=2,
+        )
+        return button
+
+    def _sync_pager_button_layout(self) -&gt; None:
+        buttons = (
+            self.first_page_button,
+            self.prev_page_button,
+            self.next_page_button,
+            self.last_page_button,
+        )
+        trailing_controls = (
+            self.toolbar_menu_button,
+            self.drag_grip,
+        )
+
+        self.pager_button_frame.pack_forget()
+        for widget in (*buttons, *trailing_controls):
+            widget.pack_forget()
+
+        if self._candidate_layout == &#34;vertical&#34;:
+            self.pager_button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
+            for button in buttons:
+                button.pack(fill=tk.X, pady=0)
+            self.toolbar_menu_button.pack(fill=tk.X, pady=(6, 0))
+            self.drag_grip.pack(fill=tk.X, pady=(6, 0))
+            return
+
+        self.pager_button_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
+        for button in buttons:
+            button.pack(side=tk.LEFT, padx=(0, 2))
+        self.toolbar_menu_button.pack(side=tk.LEFT, padx=(6, 2))
+        self.drag_grip.pack(side=tk.LEFT, fill=tk.Y, padx=(6, 2))
+
+    def _sync_candidate_text_layout(self) -&gt; None:
+        if self._candidate_layout == &#34;vertical&#34;:
+            visible_rows = max(1, len(self.current_candidates) + 1)
+            self.candidate_text.pack_configure(fill=tk.BOTH, expand=True)
+            self.candidate_text.configure(
+                height=visible_rows,
+                width=self._vertical_candidate_text_width_chars(),
+                wrap=tk.NONE,
+            )
+            return
+        self.candidate_text.pack_configure(fill=tk.Y, expand=False)
+        self.candidate_text.configure(
+            height=1,
+            width=self._horizontal_candidate_text_width_chars(),
+            wrap=tk.NONE,
+        )
+
+    def _vertical_candidate_text_width_chars(self) -&gt; int:
+        lines: list[str] = []
+        for index, hanzi in enumerate(self.current_candidates, start=1):
+            lines.append(f&#34;{index}. {hanzi}&#34;)
+        if self.current_candidates:
+            lines.append(self.page_info_var.get())
+        return max((len(line) for line in lines), default=1)
+
+    def _horizontal_candidate_text_width_chars(self) -&gt; int:
+        if not self.current_candidates:
+            return 1
+        zero_width = max(self.text_font.measure(&#34;0&#34;), 1)
+        display_width = self._horizontal_candidate_text_width_pixels()
+        # Add a small cushion because Tk Text width is character-based while
+        # the candidate bar mixes UI and text fonts with variable glyph widths.
+        return max(math.ceil(display_width / zero_width) + 1, 1)
+
+    def _horizontal_candidate_text_width_pixels(self) -&gt; int:
+        if not self.current_candidates:
+            return 0
+        display_width = 0
+        suffix = self._horizontal_candidate_suffix()
+        for index, hanzi in enumerate(self.current_candidates, start=1):
+            display_width += self.ui_font.measure(f&#34;{index}. &#34;)
+            display_width += self.text_font.measure(hanzi)
+            display_width += self.text_font.measure(suffix)
+        return display_width
+
+    def _horizontal_candidate_suffix(self) -&gt; str:
+        return &#34;  &#34;
+
+    def _refresh_paging_controls(self) -&gt; None:
+        page_count = self._page_count()
+        current_page = min(self._current_page, page_count - 1)
+        self._current_page = max(current_page, 0)
+        total_candidates = len(self.all_candidates)
+        page_size = self._page_size()
+        start = 0 if total_candidates == 0 else self._current_page * page_size + 1
+        end = min(total_candidates, (self._current_page + 1) * page_size)
+        self.page_info_var.set(
+            f&#34;第 {self._current_page + 1}/{page_count} 页  候选 {start}-{end}/{total_candidates}&#34;
+        )
+        first_prev_state = tk.NORMAL if self._current_page &gt; 0 else tk.DISABLED
+        next_last_state = tk.NORMAL if self._current_page &lt; page_count - 1 else tk.DISABLED
+        self.first_page_button.configure(state=first_prev_state)
+        self.prev_page_button.configure(state=first_prev_state)
+        self.next_page_button.configure(state=next_last_state)
+        self.last_page_button.configure(state=next_last_state)
+
+    def show_first_page(self) -&gt; None:
+        if self._current_page &lt;= 0:
+            return
+        self._current_page = 0
+        self._selected_candidate_index = 0
+        self._render_candidates()
+
+    def show_previous_page(self) -&gt; None:
+        if self._current_page &lt;= 0:
+            return
+        self._current_page -= 1
+        self._selected_candidate_index = 0
+        self._render_candidates()
+
+    def show_next_page(self) -&gt; None:
+        if self._current_page &gt;= self._page_count() - 1:
+            return
+        self._current_page += 1
+        self._selected_candidate_index = 0
+        self._render_candidates()
+
+    def show_last_page(self) -&gt; None:
+        page_count = self._page_count()
+        if self._current_page &gt;= page_count - 1:
+            return
+        self._current_page = page_count - 1
+        self._selected_candidate_index = 0
+        self._render_candidates()
+
+    def set_page_size(self, page_size: int) -&gt; None:
+        &#34;&#34;&#34;设置每页候选数量，并回到第一页重新渲染。&#34;&#34;&#34;
+        normalized = min(max(page_size, 4), 9)
+        self.page_size_var.set(normalized)
+        self.max_candidates = normalized
+        self._current_page = 0
+        self._selected_candidate_index = 0
+        self._render_candidates()
+
+    def set_candidate_layout(self, layout: str) -&gt; None:
+        &#34;&#34;&#34;切换候选显示方向；默认横排，可切换回竖排。&#34;&#34;&#34;
+        normalized = self._normalize_candidate_layout(layout)
+        if hasattr(self, &#34;candidate_layout_var&#34;):
+            self.candidate_layout_var.set(normalized)
+        if self._candidate_layout == normalized:
+            return
+        self._candidate_layout = normalized
+        self._sync_pager_button_layout()
+        self._render_candidates()
+        resize_to_content = getattr(self, &#34;_resize_to_content_if_visible&#34;, None)
+        if callable(resize_to_content):
+            resize_to_content()
+
+    def is_manual_input_active(self) -&gt; bool:
+        &#34;&#34;&#34;候选框获得焦点时，允许输入框自行处理逐码编辑。&#34;&#34;&#34;
+        if self._is_standby:
+            return False
+        if not self._manual_input_enabled:
+            return False
+        try:
+            focused = cast(Optional[tk.Widget], self.root.focus_get())
+        except tk.TclError:
+            return False
+        return focused in {
+            self.input_entry,
+            self.commit_entry,
+            self.candidate_text,
+        }
+
+    def _should_allow_native_edit_key(self, event: Optional[tk.Event]) -&gt; bool:
+        &#34;&#34;&#34;编辑区聚焦时，保留本地输入控件的原生按键行为。&#34;&#34;&#34;
+        return self.actions.should_allow_native_edit_key(event)
+
+    def _configure_candidate_text_tags(self) -&gt; None:
+        foreground = getattr(self, &#34;_foreground_color&#34;, &#34;#111827&#34;)
+        selected_foreground = &#34;#f8fafc&#34;
+        selected_background = &#34;#2563eb&#34;
+        self.candidate_text.tag_configure(
+            &#34;candidate_index&#34;,
+            foreground=foreground,
+            font=self.ui_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;candidate_text&#34;,
+            foreground=foreground,
+            font=self.text_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;candidate_selected_index&#34;,
+            foreground=selected_foreground,
+            background=selected_background,
+            font=self.ui_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;candidate_selected_text&#34;,
+            foreground=selected_foreground,
+            background=selected_background,
+            font=self.text_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;pager&#34;,
+            foreground=foreground,
+            font=self.ui_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;pager_disabled&#34;,
+            foreground=&#34;#9ca3af&#34;,
+            font=self.ui_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;page_info&#34;,
+            foreground=foreground,
+            font=self.ui_font,
+        )
+        self.candidate_text.tag_configure(
+            &#34;empty_state&#34;,
+            foreground=foreground,
+            font=self.text_font,
+        )
+
+    def _bind_candidate_text_tag(
+        self,
+        tag: str,
+        callback: Callable[[tk.Event], None],
+        enabled: bool,
+    ) -&gt; None:
+        self.candidate_text.tag_unbind(tag, &#34;&lt;Button-1&gt;&#34;)
+        self.candidate_text.tag_unbind(tag, &#34;&lt;Enter&gt;&#34;)
+        self.candidate_text.tag_unbind(tag, &#34;&lt;Leave&gt;&#34;)
+        if not enabled:
+            return
+        self.candidate_text.tag_bind(tag, &#34;&lt;Button-1&gt;&#34;, callback)
+        self.candidate_text.tag_bind(
+            tag,
+            &#34;&lt;Enter&gt;&#34;,
+            lambda _event: self.candidate_text.configure(cursor=&#34;hand2&#34;),
+        )
+        self.candidate_text.tag_bind(
+            tag,
+            &#34;&lt;Leave&gt;&#34;,
+            lambda _event: self.candidate_text.configure(cursor=&#34;arrow&#34;),
+        )
+
+    def _render_candidate_text_item(self, index: int, hanzi: str) -&gt; None:
+        click_candidate_by_index = cast(
+            Callable[[int], None],
+            getattr(self, &#34;_click_candidate_by_index&#34;),
+        )
+        candidate_tag = f&#34;{self._CANDIDATE_TAG_PREFIX}{index}&#34;
+        index_tags = [&#34;candidate_index&#34;, candidate_tag]
+        text_tags = [&#34;candidate_text&#34;, candidate_tag]
+        if index == self._selected_candidate_index:
+            index_tags.insert(0, &#34;candidate_selected_index&#34;)
+            text_tags.insert(0, &#34;candidate_selected_text&#34;)
+        self.candidate_text.insert(
+            tk.END,
+            f&#34;{index + 1}. &#34;,
+            tuple(index_tags),
+        )
+        suffix = &#34;\n&#34; if self._candidate_layout == &#34;vertical&#34; else self._horizontal_candidate_suffix()
+        self.candidate_text.insert(
+            tk.END,
+            f&#34;{hanzi}{suffix}&#34;,
+            tuple(text_tags),
+        )
+        self._bind_candidate_text_tag(
+            candidate_tag,
+            lambda _event, value=index: click_candidate_by_index(value),
+            enabled=True,
+        )
+
+    def _render_candidates(self) -&gt; None:
+        &#34;&#34;&#34;渲染候选词&#34;&#34;&#34;
+        page_size = self._page_size()
+        page_count = self._page_count()
+        self._current_page = min(self._current_page, page_count - 1)
+        start = self._current_page * page_size
+        end = start + page_size
+        self.current_candidates = self.all_candidates[start:end]
+        if self.current_candidates:
+            self._selected_candidate_index = min(
+                self._selected_candidate_index,
+                len(self.current_candidates) - 1,
+            )
+        else:
+            self._selected_candidate_index = 0
+
+        self._refresh_paging_controls()
+        self._sync_candidate_text_layout()
+        self.candidate_text.configure(state=tk.NORMAL)
+        self.candidate_text.delete(&#34;1.0&#34;, tk.END)
+        self.candidate_text.configure(cursor=&#34;arrow&#34;)
+
+        # 如果没有候选词
+        if not self.current_candidates:
+            self._bind_candidate_text_tag(
+                self._PAGER_PREV_TAG,
+                lambda _event: None,
+                enabled=False,
+            )
+            self._bind_candidate_text_tag(
+                self._PAGER_NEXT_TAG,
+                lambda _event: None,
+                enabled=False,
+            )
+            self.candidate_text.configure(state=tk.DISABLED)
+            return
+
+        # 显示候选词和内嵌翻页控件
+        for index, hanzi in enumerate(self.current_candidates, start=1):
+            self._render_candidate_text_item(index - 1, hanzi)
+        if self._candidate_layout == &#34;vertical&#34;:
+            self.candidate_text.insert(tk.END, self.page_info_var.get(), (&#34;page_info&#34;,))
+        self.candidate_text.configure(state=tk.DISABLED)</code></pre>
+</details>
+<div class="desc"></div>
+<h3>Class variables</h3>
+<dl>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.actions"><code class="name">var <span class="ident">actions</span> : yime.input_method.ui.candidate_renderer._CandidateRendererActionsProtocol</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.all_candidates"><code class="name">var <span class="ident">all_candidates</span> : list[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_layout_var"><code class="name">var <span class="ident">candidate_layout_var</span> : tkinter.StringVar</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_text"><code class="name">var <span class="ident">candidate_text</span> : tkinter.Text</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.commit_entry"><code class="name">var <span class="ident">commit_entry</span> : tkinter.ttk.Entry</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.drag_grip"><code class="name">var <span class="ident">drag_grip</span> : tkinter.ttk.Frame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.first_page_button"><code class="name">var <span class="ident">first_page_button</span> : tkinter.ttk.Button</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.input_entry"><code class="name">var <span class="ident">input_entry</span> : tkinter.ttk.Entry</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.last_page_button"><code class="name">var <span class="ident">last_page_button</span> : tkinter.ttk.Button</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.next_page_button"><code class="name">var <span class="ident">next_page_button</span> : tkinter.ttk.Button</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_info_var"><code class="name">var <span class="ident">page_info_var</span> : tkinter.StringVar</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_size_var"><code class="name">var <span class="ident">page_size_var</span> : tkinter.IntVar</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.pager_button_frame"><code class="name">var <span class="ident">pager_button_frame</span> : tkinter.ttk.Frame</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.prev_page_button"><code class="name">var <span class="ident">prev_page_button</span> : tkinter.ttk.Button</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.root"><code class="name">var <span class="ident">root</span> : tkinter.Misc</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.text_font"><code class="name">var <span class="ident">text_font</span> : tkinter.font.Font</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.toolbar_menu_button"><code class="name">var <span class="ident">toolbar_menu_button</span> : tkinter.ttk.Button</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.ui_font"><code class="name">var <span class="ident">ui_font</span> : tkinter.font.Font</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.is_manual_input_active"><code class="name flex">
+<span>def <span class="ident">is_manual_input_active</span></span>(<span>self) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_manual_input_active(self) -&gt; bool:
+    &#34;&#34;&#34;候选框获得焦点时，允许输入框自行处理逐码编辑。&#34;&#34;&#34;
+    if self._is_standby:
+        return False
+    if not self._manual_input_enabled:
+        return False
+    try:
+        focused = cast(Optional[tk.Widget], self.root.focus_get())
+    except tk.TclError:
+        return False
+    return focused in {
+        self.input_entry,
+        self.commit_entry,
+        self.candidate_text,
+    }</code></pre>
+</details>
+<div class="desc"><p>候选框获得焦点时，允许输入框自行处理逐码编辑。</p></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_candidate_layout"><code class="name flex">
+<span>def <span class="ident">set_candidate_layout</span></span>(<span>self, layout: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_candidate_layout(self, layout: str) -&gt; None:
+    &#34;&#34;&#34;切换候选显示方向；默认横排，可切换回竖排。&#34;&#34;&#34;
+    normalized = self._normalize_candidate_layout(layout)
+    if hasattr(self, &#34;candidate_layout_var&#34;):
+        self.candidate_layout_var.set(normalized)
+    if self._candidate_layout == normalized:
+        return
+    self._candidate_layout = normalized
+    self._sync_pager_button_layout()
+    self._render_candidates()
+    resize_to_content = getattr(self, &#34;_resize_to_content_if_visible&#34;, None)
+    if callable(resize_to_content):
+        resize_to_content()</code></pre>
+</details>
+<div class="desc"><p>切换候选显示方向；默认横排，可切换回竖排。</p></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_page_size"><code class="name flex">
+<span>def <span class="ident">set_page_size</span></span>(<span>self, page_size: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_page_size(self, page_size: int) -&gt; None:
+    &#34;&#34;&#34;设置每页候选数量，并回到第一页重新渲染。&#34;&#34;&#34;
+    normalized = min(max(page_size, 4), 9)
+    self.page_size_var.set(normalized)
+    self.max_candidates = normalized
+    self._current_page = 0
+    self._selected_candidate_index = 0
+    self._render_candidates()</code></pre>
+</details>
+<div class="desc"><p>设置每页候选数量，并回到第一页重新渲染。</p></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_first_page"><code class="name flex">
+<span>def <span class="ident">show_first_page</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_first_page(self) -&gt; None:
+    if self._current_page &lt;= 0:
+        return
+    self._current_page = 0
+    self._selected_candidate_index = 0
+    self._render_candidates()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_last_page"><code class="name flex">
+<span>def <span class="ident">show_last_page</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_last_page(self) -&gt; None:
+    page_count = self._page_count()
+    if self._current_page &gt;= page_count - 1:
+        return
+    self._current_page = page_count - 1
+    self._selected_candidate_index = 0
+    self._render_candidates()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_next_page"><code class="name flex">
+<span>def <span class="ident">show_next_page</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_next_page(self) -&gt; None:
+    if self._current_page &gt;= self._page_count() - 1:
+        return
+    self._current_page += 1
+    self._selected_candidate_index = 0
+    self._render_candidates()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_previous_page"><code class="name flex">
+<span>def <span class="ident">show_previous_page</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_previous_page(self) -&gt; None:
+    if self._current_page &lt;= 0:
+        return
+    self._current_page -= 1
+    self._selected_candidate_index = 0
+    self._render_candidates()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.ui" href="index.html">yime.input_method.ui</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin">CandidateRendererMixin</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.actions" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.actions">actions</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.all_candidates" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.all_candidates">all_candidates</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_layout_var" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_layout_var">candidate_layout_var</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_text" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.candidate_text">candidate_text</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.commit_entry" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.commit_entry">commit_entry</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.drag_grip" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.drag_grip">drag_grip</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.first_page_button" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.first_page_button">first_page_button</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.input_entry" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.input_entry">input_entry</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.is_manual_input_active" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.is_manual_input_active">is_manual_input_active</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.last_page_button" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.last_page_button">last_page_button</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.next_page_button" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.next_page_button">next_page_button</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_info_var" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_info_var">page_info_var</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_size_var" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.page_size_var">page_size_var</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.pager_button_frame" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.pager_button_frame">pager_button_frame</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.prev_page_button" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.prev_page_button">prev_page_button</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.root" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.root">root</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_candidate_layout" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_candidate_layout">set_candidate_layout</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_page_size" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.set_page_size">set_page_size</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_first_page" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_first_page">show_first_page</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_last_page" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_last_page">show_last_page</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_next_page" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_next_page">show_next_page</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_previous_page" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.show_previous_page">show_previous_page</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.text_font" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.text_font">text_font</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.toolbar_menu_button" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.toolbar_menu_button">toolbar_menu_button</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_renderer.CandidateRendererMixin.ui_font" href="#yime.input_method.ui.candidate_renderer.CandidateRendererMixin.ui_font">ui_font</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.ui.candidate_system API documentation</title>
+<meta name="description" content="候选框底层窗口系统模块
+负责处理 Windows API 调用、透明度、置顶和防抢焦点(NoActivate)设置。">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.ui.candidate_system</code></h1>
+</header>
+<section id="section-intro">
+<p>候选框底层窗口系统模块
+负责处理 Windows API 调用、透明度、置顶和防抢焦点(NoActivate)设置。</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.ui.candidate_system.CandidateWindowSystem"><code class="flex name class">
+<span>class <span class="ident">CandidateWindowSystem</span></span>
+<span>(</span><span>root: tkinter.Tk)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CandidateWindowSystem:
+    _GWL_EXSTYLE = -20
+    _GWL_STYLE = -16
+    _GWL_WNDPROC = -4
+    _WS_EX_TOOLWINDOW = 0x00000080
+    _WS_EX_APPWINDOW = 0x00040000
+    _WS_EX_NOACTIVATE = 0x08000000
+    _WS_MAXIMIZEBOX = 0x00010000
+    _HWND_TOPMOST = -1
+    _SWP_NOMOVE = 0x0002
+    _SWP_NOSIZE = 0x0001
+    _SWP_NOACTIVATE = 0x0010
+    _SWP_FRAMECHANGED = 0x0020
+    _WM_NCRBUTTONDOWN = 0x00A4
+    _WM_SYSCOMMAND = 0x0112
+    _SC_MOVE = 0xF010
+    _HTCAPTION = 2
+    _HTSYSMENU = 3
+    _HTMAXBUTTON = 9
+
+    _VK_RBUTTON = 0x02
+
+    _WM_MOUSEMOVE = 0x0200
+    _WM_RBUTTONUP = 0x0205
+    _WM_NCRBUTTONUP = 0x00A5
+    _SWP_NOZORDER = 0x0004
+    _SWP_SHOWWINDOW = 0x0040
+
+    def __init__(self, root: tk.Tk):
+        self.root = root
+        self._user32 = None
+        self._wndproc_ref = None
+        self._default_wndproc = None
+        self._subclassed_hwnd = None
+        self._custom_drag_active = False
+        self._custom_drag_start_x = 0
+        self._custom_drag_start_y = 0
+        self._custom_drag_win_x = 0
+        self._custom_drag_win_y = 0
+        self._drag_on_complete = None
+
+    def _get_user32(self):
+        if self._user32 is None:
+            self._user32 = ctypes.windll.user32
+        return self._user32
+
+    def get_user32(self):
+        return self._get_user32()
+
+    @classmethod
+    def _should_start_nonclient_right_drag(cls, hit_test: int) -&gt; bool:
+        return hit_test in {cls._HTCAPTION, cls._HTSYSMENU, cls._HTMAXBUTTON}
+
+    def _handle_wndproc_message(
+        self,
+        hwnd: int,
+        message: int,
+        wparam: int,
+        lparam: int,
+    ) -&gt; bool:
+        if message == self._WM_NCRBUTTONDOWN and self._should_start_nonclient_right_drag(wparam):
+            return True
+
+        return False
+    def enable_nonclient_right_drag(self) -&gt; None:
+        self.root.update_idletasks()
+        hwnd = int(self.root.winfo_id())
+        if not hwnd or self._subclassed_hwnd == hwnd:
+            return
+
+        user32 = self._get_user32()
+        _user32, get_window_long_ptr, set_window_long_ptr, _set_window_pos = self._get_window_style_api()
+        call_window_proc = user32.CallWindowProcW
+
+        lresult_type = ctypes.c_longlong if ctypes.sizeof(ctypes.c_void_p) == 8 else ctypes.c_long
+        wndproc_type = ctypes.WINFUNCTYPE(
+            lresult_type,
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.WPARAM,
+            wintypes.LPARAM,
+        )
+        call_window_proc.restype = lresult_type
+        call_window_proc.argtypes = [
+            ctypes.c_void_p,
+            wintypes.HWND,
+            wintypes.UINT,
+            wintypes.WPARAM,
+            wintypes.LPARAM,
+        ]
+
+        default_wndproc = get_window_long_ptr(hwnd, self._GWL_WNDPROC)
+        if not default_wndproc:
+            return
+
+        self._default_wndproc = default_wndproc
+
+        @wndproc_type
+        def window_proc(
+            window_handle: wintypes.HWND,
+            message: wintypes.UINT,
+            wparam: wintypes.WPARAM,
+            lparam: wintypes.LPARAM,
+        ) -&gt; int:
+            if self._handle_wndproc_message(
+                int(window_handle),
+                int(message),
+                int(wparam),
+                int(lparam),
+            ):
+                return 0
+            return call_window_proc(
+                ctypes.c_void_p(self._default_wndproc),
+                window_handle,
+                message,
+                wparam,
+                lparam,
+            )
+
+        self._wndproc_ref = window_proc
+        set_window_long_ptr(
+            hwnd,
+            self._GWL_WNDPROC,
+            ctypes.cast(window_proc, ctypes.c_void_p),
+        )
+        self._subclassed_hwnd = hwnd
+
+    def _get_window_style_api(self):
+        user32 = self._get_user32()
+        if ctypes.sizeof(ctypes.c_void_p) == 8:
+            get_window_long_ptr = user32.GetWindowLongPtrW
+            set_window_long_ptr = user32.SetWindowLongPtrW
+        else:
+            get_window_long_ptr = user32.GetWindowLongW
+            set_window_long_ptr = user32.SetWindowLongW
+
+        get_window_long_ptr.restype = ctypes.c_void_p
+        get_window_long_ptr.argtypes = [ctypes.c_void_p, ctypes.c_int]
+        set_window_long_ptr.restype = ctypes.c_void_p
+        set_window_long_ptr.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p]
+
+        set_window_pos = user32.SetWindowPos
+        set_window_pos.restype = ctypes.c_bool
+        set_window_pos.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_void_p,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_int,
+            ctypes.c_uint,
+        ]
+
+        return user32, get_window_long_ptr, set_window_long_ptr, set_window_pos
+
+    def configure_window_for_global_input(self) -&gt; None:
+        if ctypes.sizeof(ctypes.c_void_p) == 0:
+            return
+
+        self.enable_nonclient_right_drag()
+        self.root.update_idletasks()
+        hwnd = self.root.winfo_id()
+        _user32, get_window_long_ptr, set_window_long_ptr, set_window_pos = self._get_window_style_api()
+
+        style = int(get_window_long_ptr(hwnd, self._GWL_STYLE) or 0)
+        style &amp;= ~self._WS_MAXIMIZEBOX
+        ex_style = int(get_window_long_ptr(hwnd, self._GWL_EXSTYLE) or 0)
+        ex_style |= self._WS_EX_TOOLWINDOW | self._WS_EX_NOACTIVATE
+        ex_style &amp;= ~self._WS_EX_APPWINDOW
+        set_window_long_ptr(hwnd, self._GWL_STYLE, style)
+        set_window_long_ptr(hwnd, self._GWL_EXSTYLE, ex_style)
+        set_window_pos(
+            hwnd,
+            self._HWND_TOPMOST,
+            0, 0, 0, 0,
+            self._SWP_NOMOVE | self._SWP_NOSIZE | self._SWP_NOACTIVATE | self._SWP_FRAMECHANGED
+        )
+
+    def set_noactivate(self, enabled: bool) -&gt; None:
+        self.enable_nonclient_right_drag()
+        self.root.update_idletasks()
+        hwnd = self.root.winfo_id()
+        _user32, get_window_long_ptr, set_window_long_ptr, set_window_pos = self._get_window_style_api()
+
+        ex_style = int(get_window_long_ptr(hwnd, self._GWL_EXSTYLE) or 0)
+        if enabled:
+            ex_style |= self._WS_EX_NOACTIVATE
+        else:
+            ex_style &amp;= ~self._WS_EX_NOACTIVATE
+
+        set_window_long_ptr(hwnd, self._GWL_EXSTYLE, ex_style)
+        set_window_pos(
+            hwnd,
+            self._HWND_TOPMOST,
+            0, 0, 0, 0,
+            self._SWP_NOMOVE | self._SWP_NOSIZE | self._SWP_NOACTIVATE | self._SWP_FRAMECHANGED
+        )</code></pre>
+</details>
+<div class="desc"></div>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.ui.candidate_system.CandidateWindowSystem.configure_window_for_global_input"><code class="name flex">
+<span>def <span class="ident">configure_window_for_global_input</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def configure_window_for_global_input(self) -&gt; None:
+    if ctypes.sizeof(ctypes.c_void_p) == 0:
+        return
+
+    self.enable_nonclient_right_drag()
+    self.root.update_idletasks()
+    hwnd = self.root.winfo_id()
+    _user32, get_window_long_ptr, set_window_long_ptr, set_window_pos = self._get_window_style_api()
+
+    style = int(get_window_long_ptr(hwnd, self._GWL_STYLE) or 0)
+    style &amp;= ~self._WS_MAXIMIZEBOX
+    ex_style = int(get_window_long_ptr(hwnd, self._GWL_EXSTYLE) or 0)
+    ex_style |= self._WS_EX_TOOLWINDOW | self._WS_EX_NOACTIVATE
+    ex_style &amp;= ~self._WS_EX_APPWINDOW
+    set_window_long_ptr(hwnd, self._GWL_STYLE, style)
+    set_window_long_ptr(hwnd, self._GWL_EXSTYLE, ex_style)
+    set_window_pos(
+        hwnd,
+        self._HWND_TOPMOST,
+        0, 0, 0, 0,
+        self._SWP_NOMOVE | self._SWP_NOSIZE | self._SWP_NOACTIVATE | self._SWP_FRAMECHANGED
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_system.CandidateWindowSystem.enable_nonclient_right_drag"><code class="name flex">
+<span>def <span class="ident">enable_nonclient_right_drag</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def enable_nonclient_right_drag(self) -&gt; None:
+    self.root.update_idletasks()
+    hwnd = int(self.root.winfo_id())
+    if not hwnd or self._subclassed_hwnd == hwnd:
+        return
+
+    user32 = self._get_user32()
+    _user32, get_window_long_ptr, set_window_long_ptr, _set_window_pos = self._get_window_style_api()
+    call_window_proc = user32.CallWindowProcW
+
+    lresult_type = ctypes.c_longlong if ctypes.sizeof(ctypes.c_void_p) == 8 else ctypes.c_long
+    wndproc_type = ctypes.WINFUNCTYPE(
+        lresult_type,
+        wintypes.HWND,
+        wintypes.UINT,
+        wintypes.WPARAM,
+        wintypes.LPARAM,
+    )
+    call_window_proc.restype = lresult_type
+    call_window_proc.argtypes = [
+        ctypes.c_void_p,
+        wintypes.HWND,
+        wintypes.UINT,
+        wintypes.WPARAM,
+        wintypes.LPARAM,
+    ]
+
+    default_wndproc = get_window_long_ptr(hwnd, self._GWL_WNDPROC)
+    if not default_wndproc:
+        return
+
+    self._default_wndproc = default_wndproc
+
+    @wndproc_type
+    def window_proc(
+        window_handle: wintypes.HWND,
+        message: wintypes.UINT,
+        wparam: wintypes.WPARAM,
+        lparam: wintypes.LPARAM,
+    ) -&gt; int:
+        if self._handle_wndproc_message(
+            int(window_handle),
+            int(message),
+            int(wparam),
+            int(lparam),
+        ):
+            return 0
+        return call_window_proc(
+            ctypes.c_void_p(self._default_wndproc),
+            window_handle,
+            message,
+            wparam,
+            lparam,
+        )
+
+    self._wndproc_ref = window_proc
+    set_window_long_ptr(
+        hwnd,
+        self._GWL_WNDPROC,
+        ctypes.cast(window_proc, ctypes.c_void_p),
+    )
+    self._subclassed_hwnd = hwnd</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_system.CandidateWindowSystem.get_user32"><code class="name flex">
+<span>def <span class="ident">get_user32</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_user32(self):
+    return self._get_user32()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_system.CandidateWindowSystem.set_noactivate"><code class="name flex">
+<span>def <span class="ident">set_noactivate</span></span>(<span>self, enabled: bool) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_noactivate(self, enabled: bool) -&gt; None:
+    self.enable_nonclient_right_drag()
+    self.root.update_idletasks()
+    hwnd = self.root.winfo_id()
+    _user32, get_window_long_ptr, set_window_long_ptr, set_window_pos = self._get_window_style_api()
+
+    ex_style = int(get_window_long_ptr(hwnd, self._GWL_EXSTYLE) or 0)
+    if enabled:
+        ex_style |= self._WS_EX_NOACTIVATE
+    else:
+        ex_style &amp;= ~self._WS_EX_NOACTIVATE
+
+    set_window_long_ptr(hwnd, self._GWL_EXSTYLE, ex_style)
+    set_window_pos(
+        hwnd,
+        self._HWND_TOPMOST,
+        0, 0, 0, 0,
+        self._SWP_NOMOVE | self._SWP_NOSIZE | self._SWP_NOACTIVATE | self._SWP_FRAMECHANGED
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.ui" href="index.html">yime.input_method.ui</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.ui.candidate_system.CandidateWindowSystem" href="#yime.input_method.ui.candidate_system.CandidateWindowSystem">CandidateWindowSystem</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.ui.candidate_system.CandidateWindowSystem.configure_window_for_global_input" href="#yime.input_method.ui.candidate_system.CandidateWindowSystem.configure_window_for_global_input">configure_window_for_global_input</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_system.CandidateWindowSystem.enable_nonclient_right_drag" href="#yime.input_method.ui.candidate_system.CandidateWindowSystem.enable_nonclient_right_drag">enable_nonclient_right_drag</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_system.CandidateWindowSystem.get_user32" href="#yime.input_method.ui.candidate_system.CandidateWindowSystem.get_user32">get_user32</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_system.CandidateWindowSystem.set_noactivate" href="#yime.input_method.ui.candidate_system.CandidateWindowSystem.set_noactivate">set_noactivate</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

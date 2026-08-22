@@ -1,0 +1,232 @@
+# YIME 文档中心
+
+欢迎来到 YIME（音元输入法编辑器）文档中心！
+
+说明：本文档中心优先组织当前仓库仍支持的来源核对、字典驱动编码复现、候选研究、Python 原型和
+恢复材料。先读[脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)：便携产品、安装包、MSKLC
+发布和 Windows Yime 交接文档均已转为历史记录，产品工作只在 `C:\dev\Yime` 进行。
+
+补充说明：仓库内旧的 `docs/*.html` 静态文档站已外置到单独的
+`Yime-docs-html-site` 仓库；当前历史维护仓库以本目录下的 Markdown 文档作为研究与恢复说明主线。
+
+---
+
+## 📚 文档导航
+
+建议阅读顺序：先看 [../README.md](../README.md) 了解项目边界，再看
+[CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md) 掌握当前已实现的数据链、
+真源和键盘布局，
+**改 `syllable/` 或用 AI 前读
+[TERMINOLOGY_INDEX.md](TERMINOLOGY_INDEX.md)**，再看
+[project/INPUT_METHOD_SOLUTION.md](project/INPUT_METHOD_SOLUTION.md)
+确认当前输入法主线，最后再按需要进入理论、术语和生成链文档。
+
+### 重要设计约束
+
+- **[脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)** -
+  当前仓库允许的研究、来源和恢复工作，以及已经阻断的产品入口
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支已经实现的字典驱动编码链、真源、审计表和键盘布局重构；
+  判断“现在到底是什么状态”时优先看这里
+- **[音节编码规则与依据](SYLLABLE_ENCODING_RULES.md)** -
+  1732项现行编码的来源原则、拼写形式族、历史五声穷举和修改入口
+- **[字典拼音第一轮合规审查](DICTIONARY_PINYIN_COMPLIANCE.md)** -
+  两个外部字典共用的前置审查、特殊读音登记、来源别名规范化和独立报告
+- **[候选语料库整理路线图](CANDIDATE_CORPUS_ROADMAP.md)** -
+  统一候选语料库的当前规模、BCC 未解码与多读音现状、整理优先级和动态精简路线
+- **[片音分析与音元表示：工程阅读概要](PIANYIN_ANALYSIS_OVERVIEW.md)** -
+  片音、音元和 Yinyuan ID 的工程解释优先级；明确四元位置不是等长时间窗，
+  当前代码也没有实现波形切分或插值合成
+- **[噪音类与乐音类：分类说明](ZAOYIN_YUEYIN_CLASSIFICATION.md)** -
+  `zaoyin/yueyin` 的唯一双语名称、区别特征分类依据、共享类别轴和代码约束
+- **[布局改动锁](LAYOUT_CHANGE_LOCK.md)** -
+  锁住拼音到 Yinyuan ID 的语义链，并规定唯一布局真源与生成入口
+- **[术语总入口（请先读）](TERMINOLOGY_INDEX.md)** -
+  音元/片音/干音/乐音命名索引、常见误解、AI 提醒；
+  链到中英文专题文档与 [syllable/NAMING.md](../syllable/NAMING.md)
+- **[码点与中间层策略](CODEPOINT_POLICY.md)** -
+  说明 `N01-N27`、`M01-M33` 的语义层地位，以及 canonical 与
+  projection 的分工
+- **[真源文件与生成产物清单](SOURCE_AND_ARTIFACTS.md)** -
+  区分哪些文件是设计真源，哪些文件只是可重建产物
+- **[音元系统术语说明](YINYUAN_TERMINOLOGY.md)** -
+  「时段」「片音」「音元」及音节结构术语的中英文定义（专题正文）
+- **[Terminology of the Yinyuan System](YINYUAN_TERMINOLOGY_EN.md)** -
+  English counterpart
+- **[片音与语音技术单位的对应关系](PIANYIN_TECH_BRIDGE.md)** -
+  片音与 ASR/TTS 技术单位的衔接
+
+### 研究与恢复快速开始
+
+- **[安装指南](install/INSTALLATION_GUIDE.md)** -
+  本仓库研究环境和 Python 桌面原型的本地启动准备；不是产品安装包入口
+- **[普通用户帮助](help/README.md)** -
+  面向试用者的帮助总入口，包含快速开始、菜单与词库、
+  故障排查几个子页
+- **历史发布材料**：
+  [便携版](install/PORTABLE_RELEASE_GUIDE.md)、
+  [Setup](install/SETUP_RELEASE_GUIDE.md)、
+  [最小试用交付](install/MINIMAL_TRIAL_DELIVERY.md)和
+  [MSKLC](MSKLC_RELEASE_QUICKSTART.md)文档只用于追溯；其中命令已阻断，产品工作转到
+  `C:\dev\Yime`
+- **[Python 3.12 快速开始](install/QUICKSTART_PY312.md)** -
+  最短启动路径，适合已理解当前主线后快速跑起原型
+- **[无管理员权限安装](install/PORTABLE_PYTHON_GUIDE.md)** -
+  使用便携版 Python 3.12 的无管理员权限安装路径
+- **[使用说明](USAGE.md)** - 基本使用方法和示例
+- **[状态反馈速记](STATUS_FEEDBACK.md)** -
+  说明状态栏、弹窗、诊断脚本各自负责显示什么
+- **[跨窗口稳定性手工回归清单](CROSS_WINDOW_REGRESSION_CHECKLIST.md)** -
+  只保留当前最值钱的真实 Windows 跨窗口回贴回归场景
+- **[反查编码与用户词库操作说明](REVERSE_LOOKUP_AND_USER_LEXICON.md)** -
+  说明如何反查字词编码、查询用户频率、备份/迁移用户词库，
+  以及使用 seed 初始化词库
+- **[反查编码与用户词库速查](REVERSE_LOOKUP_AND_USER_LEXICON_QUICK_REF.md)** -
+  一页看完最常用的反查、加词、备份和调序诊断操作
+- **[词语调序规则说明](LOCAL_PHRASE_PRIORITY_RULES.md)** -
+  说明当前局部词语优先规则何时触发、规则文件从哪里来，
+  以及当前边界
+- **[快速入门](../README.md)** - 项目概述和快速开始
+
+补充说明：上面这一组同时列出当前研究入口和明确标记的历史材料。便携包、Setup、朋友试装、MSKLC
+及 Windows 集成文档不得当成当前操作手册。
+
+KLC 历史文档分工：
+
+- `MSKLC_RELEASE_QUICKSTART.md` 是旧键盘发布链的历史入口，不再执行。
+- `MSKLC_PRECOMPILE_CHECKLIST.md` 保存旧打包前检查证据。
+- `KEYBOARD_LAYOUT_PIPELINE.md` 解释生成链分层与职责。
+- `REBUILD_KEYBOARD.md` 只补充速记页之外的检查、验证和排错说明。
+- `windows-klc-workflow.md` 保留同口径的流程备忘，
+  不再作为优先入口。
+
+### 核心文档
+
+- **[当前实现总览](CURRENT_ARCHITECTURE.md)** -
+  当前分支的工程事实入口；理论稿和历史记录不得覆盖其现状结论
+- **[输入法实现方案](project/INPUT_METHOD_SOLUTION.md)** -
+  原型仓库、Python 桌面交互原型与 Windows 系统前端消费者的实现分工
+- **[Windows 前端历史状态](install/WINDOWS_FRONTENDS_STATUS.md)** -
+  Windows Yime、Weasel/Rime 和 PIME 的历史消费边界与验收快照
+- **[拼音数据迁移与运行时查词](project/PINYIN_DATA_MIGRATION.md)** -
+  rebuild 链、SQLite 主路径、已删除 legacy 脚本
+- **[连续输入候选组织草案](project/CONTINUOUS_INPUT_CANDIDATE_ORGANIZATION_DRAFT.md)** -
+  说明连续输入阶段如何划分状态、组织候选，
+  以及叠加现有单字兜底与词语优先
+- **[效率基线报告](EFFICIENCY_BASELINE.md)** -
+  基于现有运行时候选导出生成的第一版效率指标表
+- **[API 参考手册](API.md)** - 完整的 API 文档和示例
+- **[开发者指南](DEVELOPMENT.md)** - 开发环境配置和最佳实践
+- **[常见问题](FAQ.md)** - 常见问题解答
+
+### 技术文档
+
+- **[音元理论](THEORY.md)** - 音元系统理论基础
+- **[理论索引](THEORY_INDEX.md)** - 理论文档总入口与实现约束入口
+- **[真源文件与生成产物清单](SOURCE_AND_ARTIFACTS.md)** -
+  当前主线的结构边界、生成链分层与关键资产归属
+- **[数据文件结构说明](DATAFILES.md)** -
+  数据文件、导入产物与目录层次说明
+- **[系统候选完整性质检](LEXICON_LINT.md)** -
+  `lexicon_lint` 与 R0–R5 动态覆盖报告；来源全集只读，发布层由可重建门禁筛选
+- **[动态候选覆盖与核心提升闭环](DYNAMIC_CANDIDATE_COVERAGE.md)** -
+  原 Phase 4.3 的完成证据、全量统计与持续改进队列
+- **[候选排序证据与长尾结构](CANDIDATE_RANKING_EVIDENCE.md)** -
+  BCC 主排序、RIME-LMDG 补充和非频次结构保底的完整门禁
+- **[syllable 包说明](../syllable/README.md)** -
+  音节分析、编解码目录、CLI 与 Phase 1/2 rebuild 边界
+
+### 项目管理
+
+- **[路线图](project/ROADMAP.md)** -
+  脱离产品维护后的来源、清理、恢复研究和历史核对优先级
+- **[Wiki 连续语音与离散分析修订预案](project/WIKI_SPEECH_TRAJECTORY_REVISION_DRAFT.md)** -
+  暂缓实施的理论文档整理留痕；当前不修改 Wiki 正文，也不作为现行定义
+- **[更新日志](../CHANGELOG.md)** - 版本更新历史
+- **[贡献指南](../CONTRIBUTING.md)** - 如何贡献代码
+- **[授权文档索引](LICENSING_INDEX.md)** -
+  统一查看许可文本、商业许可证说明、合同模板与法务审阅入口
+
+### 历史记录与归档
+
+- **[MSKLC 编译与安装历史记录](../internal_data/msklc_compile_install_report.md)** -
+  2026-04 的本机调查记录，仅供追溯当时的编译/安装现象，
+  不代表当前推荐流程
+
+---
+
+## 只保留三种用法
+
+### 1. 我只想按当前维护范围操作
+
+1. 看 [安装指南](install/INSTALLATION_GUIDE.md) 或
+   [Python 3.12 快速开始](install/QUICKSTART_PY312.md)
+2. 涉及布局时只运行本仓库内的研究与锁检查；产品构建或 Windows 集成转到 `C:\dev\Yime`
+3. 遇到问题时，再回看 [FAQ.md](FAQ.md) 与
+   [DEVELOPMENT.md](DEVELOPMENT.md)
+
+### 2. 我想理解文件和生成链
+
+1. 先看 [CURRENT_ARCHITECTURE.md](CURRENT_ARCHITECTURE.md)
+2. 再看 [SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md) 与
+   [SYLLABLE_ENCODING_RULES.md](SYLLABLE_ENCODING_RULES.md)
+3. 布局相关再看 [KEYBOARD_LAYOUT_PIPELINE.md](KEYBOARD_LAYOUT_PIPELINE.md)
+4. 需要术语背景时，再看
+   [YINYUAN_TERMINOLOGY.md](YINYUAN_TERMINOLOGY.md) 与
+   [THEORY_INDEX.md](THEORY_INDEX.md)
+
+### 3. 我只是在追旧记录
+
+1. 先确认目标文档是否被明确标成“历史记录”“归档”或
+   “调查记录”
+2. 不要把这类文档直接当成当前操作手册
+3. 旧发布和交接命令不得执行；当前范围以
+   [脱离产品维护边界](DETACHED_MAINTENANCE_BOUNDARY.md)为准
+
+## 2026-07 主线更新（维护摘要）
+
+近期仓库清理与文档对齐要点：
+
+- **数据 rebuild**：`source_lexicon.sqlite3`（统一真源）→ prototype 导入 →
+  `refresh_runtime_yime_codes`
+- **运行时查词**：**SQLite** `pinyin_hanzi.db` /
+  `runtime_candidates` 为主；JSON 导出可选
+- **已删除**：`db_manager`、`run_db_setup`、`legacy_pinyin_tables`、
+  `yime/legacy/`、`windows_candidate_box`、
+  `yime/syllable_structure.py`、`yime/utils/syllable_compat/`
+- **兼容保留**：`yime/syllable_decoder.py`
+  （旧 import 路径；结构真源在 `syllable/codec/yinjie.py`）
+- **静态兜底**：`pinyin_hanzi.json` 已 gitignore，缺失不影响主链
+- **本地验证**：`scripts/run_tests.cmd`
+- **字典驱动编码**：1732项现行音节全部具有来源/补丁依据并通过正式编码器；
+  规则目录和逐项依据受布局锁校验
+- **布局重构**：57个 Yinyuan ID 已统一进入 Base/Shift 两层；AltGr 留空，
+  取消数字/标点搬键兜底，`manual_key_layout.json` 成为唯一布局真源
+- **审计可视数据**：分解、逐项依据和历史差集三张 TSV 可由统一命令重建
+  （unittest + pytest input_method）
+
+细节与历史删除清单见
+[PINYIN_DATA_MIGRATION.md](project/PINYIN_DATA_MIGRATION.md)、
+[SOURCE_AND_ARTIFACTS.md](SOURCE_AND_ARTIFACTS.md)
+（§6D 起为归档摘要，逐项清单查 `git log`）。
+
+## 获取帮助
+
+1. 先查 [FAQ.md](FAQ.md)
+2. 再看 [DEVELOPMENT.md](DEVELOPMENT.md) 或仓库根目录的
+   [README.md](../README.md)
+3. 需要外部反馈时，再去 GitHub Issues 或 Discussions
+
+---
+
+**最后更新**: 2026-07-24
+**文档版本**: 1.2.0
+
+## 维护归档索引
+
+恢复历史流程或兼容入口前，先查看 [历史入口归档](archive/HISTORICAL_ENTRYPOINTS.md)。
+
+## 原型维护门禁
+
+- [第二批 BCC 审查](SECOND_BATCH_BCC_REVIEW.md)
+- [原型发布验收](PROTOTYPE_RELEASE_ACCEPTANCE.md)

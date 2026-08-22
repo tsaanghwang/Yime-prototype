@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.core.recursive_precomposition API documentation</title>
+<meta name="description" content="Bounded recursive composition from encoded runtime components …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.core.recursive_precomposition</code></h1>
+</header>
+<section id="section-intro">
+<p>Bounded recursive composition from encoded runtime components.</p>
+<p>The provider treats attested one-to-four-character candidates as reusable
+components.
+A partial result produced at one boundary remains in the chart
+and can therefore participate in later composition steps.
+Longer candidates
+are admitted only when the backing store explicitly marks them as
+precomposition atoms; this is the escape hatch for indivisible lianmian and
+multi-syllable transliteration units.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.core.recursive_precomposition.RecursivePrecompositionProvider"><code class="flex name class">
+<span>class <span class="ident">RecursivePrecompositionProvider</span></span>
+<span>(</span><span>*,<br>get_pinyin_to_code: Callable[[], Mapping[str, str]],<br>get_component_candidates: Callable[[str, int], Sequence[Mapping[str, object]]],<br>component_max_syllables: int = 4,<br>component_slot_limit: int = 12,<br>chart_beam_width: int = 256,<br>result_limit: int = 96,<br>component_penalty: float = 0.75,<br>multichar_bonus: float = 0.6,<br>atom_bonus: float = 2.0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class RecursivePrecompositionProvider:
+    &#34;&#34;&#34;Compose a complete input through reusable, source-backed components.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        *,
+        get_pinyin_to_code: Callable[[], Mapping[str, str]],
+        get_component_candidates: Callable[
+            [str, int], Sequence[Mapping[str, object]]
+        ],
+        component_max_syllables: int = DEFAULT_COMPONENT_MAX_SYLLABLES,
+        component_slot_limit: int = DEFAULT_COMPONENT_SLOT_LIMIT,
+        chart_beam_width: int = DEFAULT_CHART_BEAM_WIDTH,
+        result_limit: int = DEFAULT_RESULT_LIMIT,
+        component_penalty: float = DEFAULT_COMPONENT_PENALTY,
+        multichar_bonus: float = DEFAULT_MULTICHAR_BONUS,
+        atom_bonus: float = DEFAULT_ATOM_BONUS,
+    ) -&gt; None:
+        self._get_pinyin_to_code = get_pinyin_to_code
+        self._get_component_candidates = get_component_candidates
+        self.component_max_syllables = max(
+            int(component_max_syllables), 1
+        )
+        self.component_slot_limit = max(int(component_slot_limit), 1)
+        self.chart_beam_width = max(int(chart_beam_width), 1)
+        self.result_limit = max(int(result_limit), 1)
+        self.component_penalty = float(component_penalty)
+        self.multichar_bonus = float(multichar_bonus)
+        self.atom_bonus = float(atom_bonus)
+
+    def __call__(
+        self,
+        request: DynamicCandidateRequest,
+    ) -&gt; Sequence[dict[str, object]]:
+        if (
+            request.stage != &#34;D&#34;
+            or not MIN_RECURSIVE_SYLLABLES
+            &lt;= int(request.syllable_count)
+            &lt;= MAX_RECURSIVE_SYLLABLES
+        ):
+            return []
+
+        pinyin_to_code = {
+            str(pinyin).strip().lower(): str(code).strip()
+            for pinyin, code in self._get_pinyin_to_code().items()
+            if str(pinyin).strip() and str(code).strip()
+        }
+        code_inventory = frozenset(pinyin_to_code.values())
+        syllable_codes = split_complete_syllables(
+            request.lookup_code,
+            code_inventory,
+        )
+        if len(syllable_codes) != request.syllable_count:
+            return []
+
+        pinyins_by_code: dict[str, tuple[str, ...]] = {}
+        grouped_pinyins: dict[str, list[str]] = {}
+        for pinyin, code in pinyin_to_code.items():
+            grouped_pinyins.setdefault(code, []).append(pinyin)
+        for code, values in grouped_pinyins.items():
+            pinyins_by_code[code] = tuple(sorted(set(values)))
+
+        edges: dict[int, list[tuple[int, _Component]]] = {}
+        syllable_count = len(syllable_codes)
+        for start in range(syllable_count):
+            for end in range(start + 1, syllable_count + 1):
+                width = end - start
+                lookup_code = &#34;&#34;.join(syllable_codes[start:end])
+                raw_candidates = self._get_component_candidates(
+                    lookup_code,
+                    width,
+                )
+                components = self._normalize_components(
+                    raw_candidates,
+                    width=width,
+                    fallback_pinyin=tuple(
+                        pinyins_by_code[code][0]
+                        for code in syllable_codes[start:end]
+                    ),
+                )
+                if not components:
+                    continue
+                edges.setdefault(start, []).extend(
+                    (end, component)
+                    for component in components
+                )
+
+        chart: list[list[_RecursiveState]] = [
+            [] for _ in range(syllable_count + 1)
+        ]
+        chart[0] = [
+            _RecursiveState(
+                text=&#34;&#34;,
+                pinyin=(),
+                components=(),
+                score=0.0,
+                common_count=0,
+                atom_count=0,
+                atom_weight=0.0,
+            )
+        ]
+        for start in range(syllable_count):
+            if not chart[start]:
+                continue
+            for end, component in edges.get(start, ()):
+                expanded = list(chart[end])
+                for state in chart[start]:
+                    component_bonus = (
+                        self.atom_bonus
+                        if component.is_atom
+                        else self.multichar_bonus
+                        * max(len(component.text) - 1, 0)
+                    )
+                    expanded.append(
+                        _RecursiveState(
+                            text=state.text + component.text,
+                            pinyin=(*state.pinyin, *component.pinyin),
+                            components=(
+                                *state.components,
+                                (
+                                    f&#34;{component.text}/&#34;
+                                    f&#34;{&#39; &#39;.join(component.pinyin)}&#34;
+                                ),
+                            ),
+                            score=(
+                                state.score
+                                + component.score
+                                + component_bonus
+                                - (
+                                    self.component_penalty
+                                    if state.components
+                                    else 0.0
+                                )
+                            ),
+                            common_count=(
+                                state.common_count
+                                + (
+                                    len(component.text)
+                                    if component.is_common
+                                    else 0
+                                )
+                            ),
+                            atom_count=(
+                                state.atom_count + int(component.is_atom)
+                            ),
+                            atom_weight=max(
+                                state.atom_weight,
+                                (
+                                    component.raw_weight
+                                    if component.is_atom
+                                    else 0.0
+                                ),
+                            ),
+                        )
+                    )
+                chart[end] = self._prune_states(expanded)
+
+        results: list[dict[str, object]] = []
+        for state in chart[syllable_count][: self.result_limit]:
+            if len(state.text) != syllable_count:
+                continue
+            results.append(
+                {
+                    &#34;text&#34;: state.text,
+                    &#34;entry_type&#34;: &#34;phrase&#34;,
+                    &#34;entry_id&#34;: (
+                        f&#34;recursive-precomposition:{state.text}&#34;
+                    ),
+                    &#34;pinyin_tone&#34;: &#34; &#34;.join(state.pinyin),
+                    &#34;yime_code&#34;: request.lookup_code,
+                    &#34;primary_yime_code&#34;: request.lookup_code,
+                    &#34;sort_weight&#34;: max(
+                        state.score,
+                        state.atom_weight,
+                    ),
+                    &#34;is_common&#34;: (
+                        state.common_count == syllable_count
+                    ),
+                    &#34;text_length&#34;: len(state.text),
+                    &#34;_composition_score&#34;: max(
+                        state.score,
+                        state.atom_weight,
+                    ),
+                    &#34;_composition_components&#34;: list(state.components),
+                    &#34;_composition_rule&#34;: (
+                        &#34;bounded_recursive_precomposition&#34;
+                    ),
+                    &#34;_precomposition_rounds&#34;: max(
+                        len(state.components) - 1,
+                        1,
+                    ),
+                    &#34;_precomposition_atom_count&#34;: state.atom_count,
+                }
+            )
+        return results
+
+    def _normalize_components(
+        self,
+        candidates: Sequence[Mapping[str, object]],
+        *,
+        width: int,
+        fallback_pinyin: tuple[str, ...],
+    ) -&gt; list[_Component]:
+        best_by_text: dict[str, _Component] = {}
+        for candidate in candidates:
+            text = str(candidate.get(&#34;text&#34;, &#34;&#34;) or &#34;&#34;).strip()
+            is_atom = bool(
+                candidate.get(&#34;_precomposition_atom&#34;, False)
+                or str(candidate.get(&#34;entry_type&#34;, &#34;&#34;) or &#34;&#34;).strip()
+                == &#34;precomposition_atom&#34;
+            )
+            if (
+                len(text) != width
+                or (
+                    width &gt; self.component_max_syllables
+                    and not is_atom
+                )
+            ):
+                continue
+            raw_pinyin = tuple(
+                part
+                for part in str(
+                    candidate.get(&#34;pinyin_tone&#34;, &#34;&#34;) or &#34;&#34;
+                ).split()
+                if part
+            )
+            pinyin = (
+                raw_pinyin
+                if len(raw_pinyin) == width
+                else fallback_pinyin
+            )
+            try:
+                weight = float(
+                    candidate.get(&#34;sort_weight&#34;, 0.0) or 0.0
+                )
+            except (TypeError, ValueError):
+                weight = 0.0
+            component = _Component(
+                text=text,
+                pinyin=pinyin,
+                score=math.log1p(max(weight, 0.0)),
+                raw_weight=max(weight, 0.0),
+                is_common=bool(candidate.get(&#34;is_common&#34;, False)),
+                is_atom=is_atom,
+                source=str(
+                    candidate.get(&#34;_candidate_source&#34;, &#34;&#34;) or &#34;&#34;
+                ),
+            )
+            existing = best_by_text.get(text)
+            if (
+                existing is None
+                or self._component_sort_key(component)
+                &lt; self._component_sort_key(existing)
+            ):
+                best_by_text[text] = component
+        return sorted(
+            best_by_text.values(),
+            key=self._component_sort_key,
+        )[: self.component_slot_limit]
+
+    def _prune_states(
+        self,
+        states: Sequence[_RecursiveState],
+    ) -&gt; list[_RecursiveState]:
+        best_by_text: dict[str, _RecursiveState] = {}
+        for state in states:
+            existing = best_by_text.get(state.text)
+            if (
+                existing is None
+                or self._state_sort_key(state)
+                &lt; self._state_sort_key(existing)
+            ):
+                best_by_text[state.text] = state
+        return sorted(
+            best_by_text.values(),
+            key=self._state_sort_key,
+        )[: self.chart_beam_width]
+
+    @staticmethod
+    def _component_sort_key(
+        component: _Component,
+    ) -&gt; tuple[int, int, float, str, tuple[str, ...]]:
+        return (
+            0 if component.is_atom else 1,
+            0 if component.is_common else 1,
+            -component.score,
+            component.text,
+            component.pinyin,
+        )
+
+    @staticmethod
+    def _state_sort_key(
+        state: _RecursiveState,
+    ) -&gt; tuple[
+        int,
+        int,
+        float,
+        int,
+        str,
+        tuple[str, ...],
+    ]:
+        return (
+            -state.common_count,
+            -state.atom_count,
+            -state.score,
+            len(state.components),
+            state.text,
+            state.pinyin,
+        )</code></pre>
+</details>
+<div class="desc"><p>Compose a complete input through reusable, source-backed components.</p></div>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.core" href="index.html">yime.input_method.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.core.recursive_precomposition.RecursivePrecompositionProvider" href="#yime.input_method.core.recursive_precomposition.RecursivePrecompositionProvider">RecursivePrecompositionProvider</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

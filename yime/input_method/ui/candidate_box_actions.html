@@ -1,0 +1,2658 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.ui.candidate_box_actions API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.ui.candidate_box_actions</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions"><code class="flex name class">
+<span>class <span class="ident">CandidateBoxActions</span></span>
+<span>(</span><span>box: CandidateBox)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CandidateBoxActions:
+    &#34;&#34;&#34;Event and command handlers for CandidateBox.&#34;&#34;&#34;
+
+    _HELP_DOC_PATH = Path(__file__).resolve().parents[3] / &#34;docs&#34; / &#34;help&#34; / &#34;README.md&#34;
+
+    _FOREGROUND_COLOR_OPTIONS = (
+        (&#34;默认前景&#34;, &#34;#111827&#34;),
+        (&#34;石墨黑&#34;, &#34;#111827&#34;),
+        (&#34;靛青蓝&#34;, &#34;#1d4ed8&#34;),
+        (&#34;墨绿色&#34;, &#34;#166534&#34;),
+        (&#34;赤陶棕&#34;, &#34;#9a3412&#34;),
+        (&#34;紫檀色&#34;, &#34;#6d28d9&#34;),
+    )
+    _BACKGROUND_COLOR_OPTIONS = (
+        (&#34;默认背景&#34;, &#34;#f0f0f0&#34;),
+        (&#34;云雾灰&#34;, &#34;#f0f0f0&#34;),
+        (&#34;米白&#34;, &#34;#f7f3e8&#34;),
+        (&#34;浅青灰&#34;, &#34;#e8f1ef&#34;),
+        (&#34;淡蓝灰&#34;, &#34;#eaf0f8&#34;),
+        (&#34;浅杏色&#34;, &#34;#f8eee6&#34;),
+    )
+    _REVERSE_LOOKUP_DISPLAY_OPTIONS = (
+        (&#34;默认（推荐：标准拼音 + 音元拼音）&#34;, &#34;default&#34;),
+        (&#34;完整（标准拼音 + 数字标调 + 音元拼音 + 键位序列）&#34;, &#34;all&#34;),
+        (&#34;隐藏反查信息（音元拼音熟练者可选）&#34;, &#34;none&#34;),
+        (&#34;仅标准拼音&#34;, &#34;marked&#34;),
+        (&#34;仅音元拼音&#34;, &#34;yime&#34;),
+        (&#34;仅键位序列&#34;, &#34;keys&#34;),
+    )
+    _CODE_MODE_OPTIONS = (
+        (&#34;等长模式（四元模型）&#34;, &#34;full&#34;),
+        (&#34;变长模式（推荐）&#34;, &#34;variable&#34;),
+        (&#34;省键模式&#34;, &#34;shorthand&#34;),
+    )
+    _CODE_MODE_STATUS = {
+        &#34;full&#34;: &#34;等长模式&#34;,
+        &#34;variable&#34;: &#34;变长模式&#34;,
+        &#34;shorthand&#34;: &#34;省键模式&#34;,
+    }
+    _REVERSE_LOOKUP_DISPLAY_STATUS = {
+        &#34;default&#34;: &#34;默认：显示标准拼音和音元拼音，适合日常查看，例如“rì | 甲甲”。&#34;,
+        &#34;all&#34;: &#34;完整：同时显示标准拼音、数字标调、音元拼音和键位序列，例如“rì | ri4 | 甲甲 | qj”。&#34;,
+        &#34;none&#34;: &#34;隐藏：不显示反查信息，仅保留候选和状态，例如只看候选列表。&#34;,
+        &#34;marked&#34;: &#34;仅标准拼音：只显示带声调的标准拼音，例如“rì”。&#34;,
+        &#34;yime&#34;: &#34;仅音元拼音：只显示音元拼音编码，例如“甲甲”。&#34;,
+        &#34;keys&#34;: &#34;仅键位序列：只显示需要敲的键位序列，例如“qj”。&#34;,
+    }
+
+    _SYMBOL_SHORTCUT_BINDINGS = {
+        &#34;&lt;grave&gt;&#34;: 1,
+        &#34;&lt;minus&gt;&#34;: 2,
+        &#34;&lt;equal&gt;&#34;: 3,
+        &#34;&lt;backslash&gt;&#34;: 4,
+    }
+
+    _SYMBOL_SHORTCUT_TO_INDEX = {
+        &#34;`&#34;: 1,
+        &#34;-&#34;: 2,
+        &#34;=&#34;: 3,
+        &#34;\\&#34;: 4,
+    }
+
+    def __init__(self, box: CandidateBox) -&gt; None:
+        self.box = box
+        self._input_context_menu: Optional[tk.Menu] = None
+        self._toolbar_menu: Optional[tk.Menu] = None
+        self._help_menu: Optional[tk.Menu] = None
+        self._settings_menu: Optional[tk.Menu] = None
+        self._candidate_list_menu: Optional[tk.Menu] = None
+        self._code_mode_menu: Optional[tk.Menu] = None
+        self._reverse_lookup_display_menu: Optional[tk.Menu] = None
+        self._interaction_menu: Optional[tk.Menu] = None
+        self._wake_mode_menu: Optional[tk.Menu] = None
+        self._standby_mode_menu: Optional[tk.Menu] = None
+        self._appearance_menu: Optional[tk.Menu] = None
+        self._font_scale_menu: Optional[tk.Menu] = None
+        self._alpha_menu: Optional[tk.Menu] = None
+        self._foreground_color_menu: Optional[tk.Menu] = None
+        self._background_color_menu: Optional[tk.Menu] = None
+        self._tools_menu: Optional[tk.Menu] = None
+        self._diagnostics_menu: Optional[tk.Menu] = None
+        self._user_lexicon_menu: Optional[tk.Menu] = None
+        self._user_lexicon_edit_reload_menu: Optional[tk.Menu] = None
+        self._user_lexicon_import_export_menu: Optional[tk.Menu] = None
+
+    def _emit_feedback(
+        self,
+        title: str,
+        message: str,
+        *,
+        level: str = &#34;info&#34;,
+        dialog: bool = False,
+    ) -&gt; None:
+        feedback_callback = getattr(self.box, &#34;feedback_callback&#34;, None)
+        if callable(feedback_callback):
+            try:
+                feedback_callback(title, message, level=level, dialog=dialog)
+            except TypeError:
+                feedback_callback(title, message)
+            return
+        if level == &#34;warning&#34;:
+            messagebox.showwarning(title, message, parent=self.box.root)
+            return
+        if level == &#34;error&#34;:
+            messagebox.showerror(title, message, parent=self.box.root)
+            return
+        messagebox.showinfo(title, message, parent=self.box.root)
+
+    def _set_local_status(self, message: str) -&gt; None:
+        self.box.set_status(message)
+
+    def _has_menu_item_handler(self, callback_name: str, *hook_attrs: str) -&gt; bool:
+        for hook_attr in hook_attrs:
+            if hasattr(self.box, hook_attr):
+                return callable(getattr(self.box, hook_attr, None))
+        return callable(getattr(self.box, callback_name, None))
+
+    def _menu_item_state(self, callback_name: str, *hook_attrs: str) -&gt; _MenuItemState:
+        return &#34;normal&#34; if self._has_menu_item_handler(callback_name, *hook_attrs) else &#34;disabled&#34;
+
+    @staticmethod
+    def _cascade_state(*states: _MenuItemState) -&gt; _MenuItemState:
+        return &#34;normal&#34; if any(state == &#34;normal&#34; for state in states) else &#34;disabled&#34;
+
+    def _user_lexicon_edit_reload_menu_state(self) -&gt; _MenuItemState:
+        return self._cascade_state(
+            self._menu_item_state(&#34;edit_user_lexicon_callback&#34;, &#34;_on_edit_user_lexicon&#34;),
+            self._menu_item_state(&#34;reload_user_lexicon_callback&#34;, &#34;_on_reload_user_lexicon&#34;),
+        )
+
+    def _user_lexicon_import_export_menu_state(self) -&gt; _MenuItemState:
+        return self._cascade_state(
+            self._menu_item_state(&#34;import_user_lexicon_callback&#34;, &#34;_on_import_user_lexicon&#34;),
+            self._menu_item_state(&#34;export_user_lexicon_callback&#34;, &#34;_on_export_user_lexicon&#34;),
+        )
+
+    def _user_lexicon_menu_state(self) -&gt; _MenuItemState:
+        return self._cascade_state(
+            self._menu_item_state(&#34;add_input_to_user_lexicon_callback&#34;, &#34;_on_add_input_to_user_lexicon&#34;),
+            self._menu_item_state(&#34;delete_input_from_user_lexicon_callback&#34;, &#34;_on_delete_input_from_user_lexicon&#34;),
+            self._user_lexicon_edit_reload_menu_state(),
+            self._user_lexicon_import_export_menu_state(),
+        )
+
+    def bind_keys(self) -&gt; None:
+        def bind_if_possible(widget: object, sequence: str, handler: object) -&gt; None:
+            binder = getattr(widget, &#34;bind&#34;, None)
+            if callable(binder):
+                binder(sequence, handler)
+
+        def candidate_shortcut_handler(index: int):
+            def handler(event: Optional[tk.Event] = None) -&gt; str:
+                return self.on_candidate_shortcut(event, index)
+            return handler
+
+        for index in range(1, 10):
+            self.box.root.bind(
+                str(index),
+                lambda event, value=index: self.on_digit_shortcut(event, value),
+            )
+
+        self.box.root.bind(&#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+        manual_input_keypress_handler = getattr(self.box, &#34;_on_manual_input_key_press&#34;, None)
+        bind_if_possible(self.box.input_entry, &#34;&lt;KeyPress&gt;&#34;, manual_input_keypress_handler)
+        bind_if_possible(self.box.input_entry, &#34;&lt;KeyRelease&gt;&#34;, self.on_input_change)
+        bind_if_possible(self.box.input_entry, &#34;&lt;&lt;Paste&gt;&gt;&#34;, self.on_paste)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Shift-Insert&gt;&#34;, self.on_paste)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Button-3&gt;&#34;, self.show_input_context_menu)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+        self.box.root.bind(&#34;&lt;space&gt;&#34;, self.on_confirm_key)
+        bind_if_possible(self.box.input_entry, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+
+        self.box.root.bind(&#34;&lt;Escape&gt;&#34;, lambda event: self.box.clear_input())
+        self.box.root.bind(&#34;&lt;Control-q&gt;&#34;, lambda event: self.request_close())
+        self.box.root.bind(&#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+        self.box.root.bind(&#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+        self.box.root.bind(&#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+        self.box.root.bind(&#34;&lt;End&gt;&#34;, self.on_last_page_key)
+        self.box.root.bind(&#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+        self.box.root.bind(&#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+        self.box.root.bind(&#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+        self.box.root.bind(&#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+        self.box.root.bind(&#34;&lt;FocusIn&gt;&#34;, self.on_window_focus_in)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+        bind_if_possible(self.box.input_entry, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.input_entry, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.commit_entry, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+        bind_if_possible(self.box.candidate_text, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+
+        for widget in (self.box.root, self.box.input_entry, self.box.commit_entry):
+            for sequence, index in self._SYMBOL_SHORTCUT_BINDINGS.items():
+                bind_if_possible(
+                    widget,
+                    sequence,
+                    candidate_shortcut_handler(index),
+                )
+
+        # Bind mouse clicks to the UI pager controls
+        if hasattr(self.box, &#34;first_page_button&#34;) and self.box.first_page_button:
+            self.box.first_page_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_first_page_key())
+        if hasattr(self.box, &#34;prev_button&#34;) and self.box.prev_button:
+            self.box.prev_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_previous_page_key())
+        if hasattr(self.box, &#34;next_button&#34;) and self.box.next_button:
+            self.box.next_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_next_page_key())
+        if hasattr(self.box, &#34;last_page_button&#34;) and self.box.last_page_button:
+            self.box.last_page_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_last_page_key())
+        if hasattr(self.box, &#34;toolbar_menu_button&#34;) and self.box.toolbar_menu_button:
+            self.box.toolbar_menu_button.bind(&#34;&lt;Button-1&gt;&#34;, self.show_toolbar_menu)
+
+    def on_window_focus_in(self, event: object) -&gt; None:
+        widget = getattr(event, &#34;widget&#34;, None)
+        if (
+            widget == self.box.root
+            and not self.box.is_standby()
+            and self.box.is_manual_input_enabled()
+        ):
+            self.box.focus_input_cursor()
+
+    def on_input_change(self, event: Optional[tk.Event] = None) -&gt; None:
+        self.box.set_projected_input(self.box.get_input())
+        notify_input_change = getattr(self.box, &#34;notify_input_change&#34;, None)
+        if callable(notify_input_change):
+            notify_input_change(event)
+            return
+        callback = getattr(self.box, &#34;_on_input_change_callback&#34;, None)
+        if callable(callback):
+            callback(event)
+
+    def on_paste(self, event: Optional[tk.Event] = None) -&gt; None:
+        scheduler = getattr(getattr(self.box, &#34;root&#34;, None), &#34;after_idle&#34;, None)
+        if callable(scheduler):
+            scheduler(lambda: self.on_input_change(event))
+            return
+        self.on_input_change(event)
+
+    def show_input_context_menu(self, event: Optional[tk.Event] = None) -&gt; str:
+        if not event:
+            return &#34;break&#34;
+
+        focus_set = getattr(self.box.input_entry, &#34;focus_set&#34;, None)
+        if callable(focus_set):
+            focus_set()
+
+        menu = self._get_input_context_menu()
+        menu.tk_popup(event.x_root, event.y_root)
+        menu.grab_release()
+        return &#34;break&#34;
+
+    def _get_input_context_menu(self) -&gt; tk.Menu:
+        if self._input_context_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label=&#34;粘贴&#34;,
+                command=lambda: self.box.input_entry.event_generate(&#34;&lt;&lt;Paste&gt;&gt;&#34;),
+            )
+            menu.add_command(
+                label=&#34;复制&#34;,
+                command=lambda: self.box.input_entry.event_generate(&#34;&lt;&lt;Copy&gt;&gt;&#34;),
+            )
+            menu.add_command(
+                label=&#34;全选&#34;,
+                command=self.select_all_input_text,
+            )
+            menu.add_command(
+                label=&#34;添加当前词条&#34;,
+                command=self.add_current_input_to_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;add_input_to_user_lexicon_callback&#34;,
+                    &#34;_on_add_input_to_user_lexicon&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;删除当前词条&#34;,
+                command=self.delete_current_input_from_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;delete_input_from_user_lexicon_callback&#34;,
+                    &#34;_on_delete_input_from_user_lexicon&#34;,
+                ),
+            )
+            self._input_context_menu = menu
+        return self._input_context_menu
+
+    def show_toolbar_menu(self, event: Optional[tk.Event] = None) -&gt; str:
+        menu = self._get_toolbar_menu()
+        if event is not None:
+            x_root = event.x_root
+            y_root = event.y_root
+        else:
+            widget = getattr(self.box, &#34;toolbar_menu_button&#34;, None)
+            if widget is None:
+                return &#34;break&#34;
+            x_root = widget.winfo_rootx()
+            y_root = widget.winfo_rooty() + widget.winfo_height()
+
+        menu.tk_popup(x_root, y_root)
+        menu.grab_release()
+        return &#34;break&#34;
+
+    def _get_toolbar_menu(self) -&gt; tk.Menu:
+        if self._toolbar_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_cascade(label=&#34;设置&#34;, menu=self._get_settings_menu())
+            menu.add_cascade(
+                label=&#34;工具&#34;,
+                menu=self._get_tools_menu(),
+                state=self._user_lexicon_menu_state(),
+            )
+            menu.add_cascade(label=&#34;帮助&#34;, menu=self._get_help_menu())
+            menu.add_cascade(label=&#34;诊断&#34;, menu=self._get_diagnostics_menu())
+            menu.add_command(label=&#34;关于&#34;, command=self.show_about)
+            self._toolbar_menu = menu
+        return self._toolbar_menu
+
+    def _get_help_menu(self) -&gt; tk.Menu:
+        if self._help_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(label=&#34;查看帮助&#34;, command=self.show_help)
+            menu.add_command(label=&#34;查看试用反馈说明&#34;, command=self.show_trial_feedback_help)
+            menu.add_command(label=&#34;复制试用反馈模板&#34;, command=self.copy_trial_feedback_template)
+            self._help_menu = menu
+        return self._help_menu
+
+    def _get_diagnostics_menu(self) -&gt; tk.Menu:
+        if self._diagnostics_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(label=&#34;查看诊断&#34;, command=self.show_diagnostics)
+            menu.add_command(label=&#34;重新检查诊断&#34;, command=self.recheck_diagnostics)
+            menu.add_command(label=&#34;复制诊断信息&#34;, command=self.copy_diagnostics)
+            menu.add_command(label=&#34;查看试用反馈说明&#34;, command=self.show_trial_feedback_help)
+            menu.add_command(label=&#34;复制试用反馈模板&#34;, command=self.copy_trial_feedback_template)
+            menu.add_separator()
+            menu.add_command(
+                label=&#34;打开故障排查&#34;,
+                command=self.open_troubleshooting_doc,
+                state=self._menu_item_state(
+                    &#34;open_troubleshooting_doc_callback&#34;,
+                    &#34;_on_open_troubleshooting_doc&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;打开运行时数据目录&#34;,
+                command=self.open_runtime_data_dir,
+                state=self._menu_item_state(
+                    &#34;open_runtime_data_dir_callback&#34;,
+                    &#34;_on_open_runtime_data_dir&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;打开设置文件&#34;,
+                command=self.open_settings_file,
+                state=self._menu_item_state(
+                    &#34;open_settings_file_callback&#34;,
+                    &#34;_on_open_settings_file&#34;,
+                ),
+            )
+            menu.add_separator()
+            menu.add_command(label=&#34;打开帮助&#34;, command=self.show_help)
+            self._diagnostics_menu = menu
+        return self._diagnostics_menu
+
+    def _get_settings_menu(self) -&gt; tk.Menu:
+        if self._settings_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_cascade(label=&#34;输入编码模式&#34;, menu=self._get_code_mode_menu())
+            menu.add_cascade(label=&#34;候选列表&#34;, menu=self._get_candidate_list_menu())
+            menu.add_cascade(label=&#34;反查信息&#34;, menu=self._get_reverse_lookup_display_menu())
+            menu.add_cascade(label=&#34;交互&#34;, menu=self._get_interaction_menu())
+            menu.add_cascade(label=&#34;外观&#34;, menu=self._get_appearance_menu())
+            self._settings_menu = menu
+        return self._settings_menu
+
+    def _get_code_mode_menu(self) -&gt; tk.Menu:
+        if self._code_mode_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            code_mode_var = getattr(self.box, &#34;code_mode_var&#34;, None)
+            if code_mode_var is None:
+                if hasattr(self.box.root, &#34;_root&#34;):
+                    code_mode_var = tk.StringVar(self.box.root, value=&#34;variable&#34;)
+                else:
+                    code_mode_var = _FallbackStringVar(&#34;variable&#34;)
+                setattr(self.box, &#34;code_mode_var&#34;, code_mode_var)
+            for label, mode in self._CODE_MODE_OPTIONS:
+                menu.add_radiobutton(
+                    label=label,
+                    value=mode,
+                    variable=code_mode_var,
+                    command=lambda value=mode: self.set_code_mode(value),
+                )
+            self._code_mode_menu = menu
+        return self._code_mode_menu
+
+    def _get_reverse_lookup_display_menu(self) -&gt; tk.Menu:
+        if self._reverse_lookup_display_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label=&#34;设置反查时显示哪些内容&#34;,
+                command=lambda: None,
+                state=tk.DISABLED,
+            )
+            menu.add_separator()
+            for label, mode in self._REVERSE_LOOKUP_DISPLAY_OPTIONS:
+                menu.add_radiobutton(
+                    label=label,
+                    value=mode,
+                    variable=self.box.reverse_lookup_display_mode_var,
+                    command=lambda value=mode: self.set_reverse_lookup_display_mode(value),
+                )
+            self._reverse_lookup_display_menu = menu
+        return self._reverse_lookup_display_menu
+
+    def _get_candidate_list_menu(self) -&gt; tk.Menu:
+        if self._candidate_list_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            for page_size in range(5, 10):
+                menu.add_radiobutton(
+                    label=f&#34;每页 {page_size} 个&#34;,
+                    value=page_size,
+                    variable=self.box.page_size_var,
+                    command=lambda value=page_size: self.set_candidate_page_size(value),
+                )
+            menu.add_separator()
+            menu.add_radiobutton(
+                label=&#34;横排显示&#34;,
+                value=&#34;horizontal&#34;,
+                variable=self.box.candidate_layout_var,
+                command=lambda: self.set_candidate_layout(&#34;horizontal&#34;),
+            )
+            menu.add_radiobutton(
+                label=&#34;竖排显示&#34;,
+                value=&#34;vertical&#34;,
+                variable=self.box.candidate_layout_var,
+                command=lambda: self.set_candidate_layout(&#34;vertical&#34;),
+            )
+            self._candidate_list_menu = menu
+        return self._candidate_list_menu
+
+    def _get_interaction_menu(self) -&gt; tk.Menu:
+        if self._interaction_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(label=self._current_hotkey_menu_label(), command=self.show_hotkey_info)
+            menu.add_command(
+                label=&#34;修改热键&#34;,
+                command=self.edit_hotkey,
+                state=tk.DISABLED,
+            )
+            menu.add_separator()
+            menu.add_cascade(label=&#34;唤起方式&#34;, menu=self._get_wake_mode_menu())
+            menu.add_cascade(label=&#34;休眠方式&#34;, menu=self._get_standby_mode_menu())
+            menu.add_separator()
+            menu.add_checkbutton(
+                label=&#34;启用悬浮提示（tip）&#34;,
+                variable=self.box.hover_tip_var,
+                command=self.toggle_hover_tip_enabled,
+            )
+            self._interaction_menu = menu
+        return self._interaction_menu
+
+    def _current_hotkey_label(self) -&gt; str:
+        callback = getattr(self.box, &#34;hotkey_label_callback&#34;, None)
+        label = callback() if callable(callback) else None
+        if isinstance(label, str) and label.strip():
+            return label.strip()
+
+        summary_callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+        summary = summary_callback() if callable(summary_callback) else None
+        if isinstance(summary, str):
+            first_line = summary.strip().splitlines()[0] if summary.strip() else &#34;&#34;
+            for separator in (&#34;：&#34;, &#34;:&#34;):
+                if separator in first_line:
+                    value = first_line.split(separator, 1)[1].strip()
+                    if value:
+                        return value
+        return &#34;未配置&#34;
+
+    def _current_hotkey_menu_label(self) -&gt; str:
+        return f&#34;当前唤起热键：{self._current_hotkey_label()}&#34;
+
+    def _invalidate_toolbar_menus(self) -&gt; None:
+        self._interaction_menu = None
+        self._settings_menu = None
+        self._code_mode_menu = None
+        self._reverse_lookup_display_menu = None
+        self._toolbar_menu = None
+
+    def _get_wake_mode_menu(self) -&gt; tk.Menu:
+        if self._wake_mode_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_radiobutton(
+                label=&#34;仅热键&#34;,
+                value=&#34;hotkey&#34;,
+                variable=self.box.wake_trigger_mode_var,
+                command=lambda: self.set_wake_trigger_mode(&#34;hotkey&#34;),
+            )
+            menu.add_radiobutton(
+                label=&#34;仅鼠标&#34;,
+                value=&#34;mouse&#34;,
+                variable=self.box.wake_trigger_mode_var,
+                command=lambda: self.set_wake_trigger_mode(&#34;mouse&#34;),
+            )
+            menu.add_radiobutton(
+                label=&#34;热键 + 鼠标&#34;,
+                value=&#34;both&#34;,
+                variable=self.box.wake_trigger_mode_var,
+                command=lambda: self.set_wake_trigger_mode(&#34;both&#34;),
+            )
+            self._wake_mode_menu = menu
+        return self._wake_mode_menu
+
+    def _get_standby_mode_menu(self) -&gt; tk.Menu:
+        if self._standby_mode_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_radiobutton(
+                label=&#34;仅热键&#34;,
+                value=&#34;hotkey&#34;,
+                variable=self.box.standby_trigger_mode_var,
+                command=lambda: self.set_standby_trigger_mode(&#34;hotkey&#34;),
+            )
+            menu.add_radiobutton(
+                label=&#34;仅鼠标&#34;,
+                value=&#34;mouse&#34;,
+                variable=self.box.standby_trigger_mode_var,
+                command=lambda: self.set_standby_trigger_mode(&#34;mouse&#34;),
+            )
+            menu.add_radiobutton(
+                label=&#34;热键 + 鼠标&#34;,
+                value=&#34;both&#34;,
+                variable=self.box.standby_trigger_mode_var,
+                command=lambda: self.set_standby_trigger_mode(&#34;both&#34;),
+            )
+            self._standby_mode_menu = menu
+        return self._standby_mode_menu
+
+    def _get_appearance_menu(self) -&gt; tk.Menu:
+        if self._appearance_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_cascade(label=&#34;前景颜色&#34;, menu=self._get_foreground_color_menu())
+            menu.add_cascade(label=&#34;背景颜色&#34;, menu=self._get_background_color_menu())
+            menu.add_cascade(label=&#34;字体大小&#34;, menu=self._get_font_scale_menu())
+            menu.add_cascade(label=&#34;主界面透明度&#34;, menu=self._get_alpha_menu())
+            menu.add_checkbutton(
+                label=&#34;活动窗始终置顶&#34;,
+                variable=self.box.active_topmost_var,
+                command=self.toggle_active_topmost,
+            )
+            self._appearance_menu = menu
+        return self._appearance_menu
+
+    def _get_foreground_color_menu(self) -&gt; tk.Menu:
+        if self._foreground_color_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            for label, color in self._FOREGROUND_COLOR_OPTIONS:
+                menu.add_radiobutton(
+                    label=label,
+                    value=color,
+                    variable=self.box.foreground_color_var,
+                    command=lambda value=color: self.set_foreground_color(value),
+                )
+            self._foreground_color_menu = menu
+        return self._foreground_color_menu
+
+    def _get_background_color_menu(self) -&gt; tk.Menu:
+        if self._background_color_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            for label, color in self._BACKGROUND_COLOR_OPTIONS:
+                menu.add_radiobutton(
+                    label=label,
+                    value=color,
+                    variable=self.box.background_color_var,
+                    command=lambda value=color: self.set_background_color(value),
+                )
+            self._background_color_menu = menu
+        return self._background_color_menu
+
+    def _get_font_scale_menu(self) -&gt; tk.Menu:
+        if self._font_scale_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            for scale_percent, label in (
+                (90, &#34;紧凑 90%&#34;),
+                (100, &#34;标准 100%&#34;),
+                (110, &#34;稍大 110%&#34;),
+                (120, &#34;更大 120%&#34;),
+            ):
+                menu.add_radiobutton(
+                    label=label,
+                    value=scale_percent,
+                    variable=self.box.ui_scale_var,
+                    command=lambda value=scale_percent: self.set_ui_scale(value),
+                )
+            self._font_scale_menu = menu
+        return self._font_scale_menu
+
+    def _get_alpha_menu(self) -&gt; tk.Menu:
+        if self._alpha_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            for alpha_percent in (85, 92, 97):
+                menu.add_radiobutton(
+                    label=f&#34;{alpha_percent}%&#34;,
+                    value=alpha_percent,
+                    variable=self.box.active_alpha_var,
+                    command=lambda value=alpha_percent: self.set_active_alpha(value),
+                )
+            self._alpha_menu = menu
+        return self._alpha_menu
+
+    def _get_tools_menu(self) -&gt; tk.Menu:
+        if self._tools_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_cascade(
+                label=&#34;用户词库&#34;,
+                menu=self._get_user_lexicon_menu(),
+                state=self._user_lexicon_menu_state(),
+            )
+            self._tools_menu = menu
+        return self._tools_menu
+
+    def _get_user_lexicon_menu(self) -&gt; tk.Menu:
+        if self._user_lexicon_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label=&#34;添加当前词条&#34;,
+                command=self.add_current_input_to_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;add_input_to_user_lexicon_callback&#34;,
+                    &#34;_on_add_input_to_user_lexicon&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;删除当前词条&#34;,
+                command=self.delete_current_input_from_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;delete_input_from_user_lexicon_callback&#34;,
+                    &#34;_on_delete_input_from_user_lexicon&#34;,
+                ),
+            )
+            menu.add_separator()
+            menu.add_cascade(
+                label=&#34;编辑与重载&#34;,
+                menu=self._get_user_lexicon_edit_reload_menu(),
+                state=self._user_lexicon_edit_reload_menu_state(),
+            )
+            menu.add_cascade(
+                label=&#34;导入与导出&#34;,
+                menu=self._get_user_lexicon_import_export_menu(),
+                state=self._user_lexicon_import_export_menu_state(),
+            )
+            self._user_lexicon_menu = menu
+        return self._user_lexicon_menu
+
+    def _get_user_lexicon_edit_reload_menu(self) -&gt; tk.Menu:
+        if self._user_lexicon_edit_reload_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label=&#34;编辑用户词库&#34;,
+                command=self.edit_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;edit_user_lexicon_callback&#34;,
+                    &#34;_on_edit_user_lexicon&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;应用用户词库&#34;,
+                command=self.reload_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;reload_user_lexicon_callback&#34;,
+                    &#34;_on_reload_user_lexicon&#34;,
+                ),
+            )
+            self._user_lexicon_edit_reload_menu = menu
+        return self._user_lexicon_edit_reload_menu
+
+    def _get_user_lexicon_import_export_menu(self) -&gt; tk.Menu:
+        if self._user_lexicon_import_export_menu is None:
+            menu = tk.Menu(self.box.root, tearoff=False)
+            menu.add_command(
+                label=&#34;导入用户词库&#34;,
+                command=self.import_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;import_user_lexicon_callback&#34;,
+                    &#34;_on_import_user_lexicon&#34;,
+                ),
+            )
+            menu.add_command(
+                label=&#34;导出用户词库&#34;,
+                command=self.export_user_lexicon,
+                state=self._menu_item_state(
+                    &#34;export_user_lexicon_callback&#34;,
+                    &#34;_on_export_user_lexicon&#34;,
+                ),
+            )
+            self._user_lexicon_import_export_menu = menu
+        return self._user_lexicon_import_export_menu
+
+    def set_candidate_page_size(self, page_size: int) -&gt; None:
+        callback = getattr(self.box, &#34;candidate_page_size_change_callback&#34;, None)
+        if callable(callback) and callback(page_size):
+            normalized = self.box.page_size_var.get()
+        else:
+            self.box.set_page_size(page_size)
+            normalized = self.box.page_size_var.get()
+        self._set_local_status(f&#34;现在每页显示 {normalized} 个候选。&#34;)
+
+    def set_candidate_layout(self, layout: str) -&gt; None:
+        callback = getattr(self.box, &#34;candidate_layout_change_callback&#34;, None)
+        if callable(callback) and callback(layout):
+            normalized = self.box.candidate_layout_var.get()
+        else:
+            self.box.set_candidate_layout(layout)
+            normalized = self.box.candidate_layout_var.get()
+        label = &#34;竖排&#34; if normalized == &#34;vertical&#34; else &#34;横排&#34;
+        self._set_local_status(f&#34;候选现在按{label}显示。&#34;)
+
+    def set_reverse_lookup_display_mode(self, mode: str) -&gt; None:
+        callback = getattr(self.box, &#34;reverse_lookup_display_mode_change_callback&#34;, None)
+        if callable(callback) and callback(mode):
+            normalized = str(self.box.reverse_lookup_display_mode_var.get())
+        else:
+            normalized = str(mode or &#34;default&#34;)
+            self.box.reverse_lookup_display_mode_var.set(normalized)
+        status_text = self._REVERSE_LOOKUP_DISPLAY_STATUS.get(
+            normalized,
+            f&#34;当前模式：{normalized}&#34;,
+        )
+        self._set_local_status(f&#34;反查显示已设为{status_text}&#34;)
+
+    def set_code_mode(self, mode: str) -&gt; None:
+        callback = getattr(self.box, &#34;code_mode_change_callback&#34;, None)
+        if callable(callback) and callback(mode):
+            code_mode_var = getattr(self.box, &#34;code_mode_var&#34;, None)
+            normalized = str(code_mode_var.get()) if code_mode_var is not None else str(mode or &#34;variable&#34;)
+        else:
+            normalized = str(mode or &#34;variable&#34;)
+            code_mode_var = getattr(self.box, &#34;code_mode_var&#34;, None)
+            if code_mode_var is not None:
+                code_mode_var.set(normalized)
+        status_text = self._CODE_MODE_STATUS.get(normalized, normalized)
+        self._set_local_status(f&#34;输入编码模式已切换为{status_text}。&#34;)
+
+    def set_wake_trigger_mode(self, mode: str) -&gt; None:
+        callback = getattr(self.box, &#34;wake_trigger_mode_change_callback&#34;, None)
+        if callable(callback) and callback(mode):
+            normalized = self.box.wake_trigger_mode_var.get()
+        else:
+            normalized = mode
+            self.box.wake_trigger_mode_var.set(mode)
+        label = self._trigger_mode_label(normalized)
+        self._set_local_status(f&#34;之后可通过{label}唤起候选窗。&#34;)
+
+    def set_standby_trigger_mode(self, mode: str) -&gt; None:
+        callback = getattr(self.box, &#34;standby_trigger_mode_change_callback&#34;, None)
+        if callable(callback) and callback(mode):
+            normalized = self.box.standby_trigger_mode_var.get()
+        else:
+            normalized = mode
+            self.box.standby_trigger_mode_var.set(mode)
+        label = self._trigger_mode_label(normalized)
+        self._set_local_status(f&#34;之后可通过{label}让候选窗回到待命。&#34;)
+
+    def toggle_hover_tip_enabled(self) -&gt; None:
+        enabled = bool(self.box.hover_tip_var.get())
+        callback = getattr(self.box, &#34;hover_tip_enabled_change_callback&#34;, None)
+        if callable(callback) and callback(enabled):
+            enabled = bool(self.box.hover_tip_var.get())
+        else:
+            setter = getattr(self.box, &#34;set_hover_tip_enabled&#34;, None)
+            if callable(setter):
+                setter(enabled)
+        self._set_local_status(&#34;悬浮提示已启用。&#34; if enabled else &#34;悬浮提示已隐藏。&#34;)
+
+    def _trigger_mode_label(self, mode: str) -&gt; str:
+        if mode == &#34;hotkey&#34;:
+            return &#34;仅热键&#34;
+        if mode == &#34;mouse&#34;:
+            return &#34;仅鼠标&#34;
+        return &#34;热键 + 鼠标&#34;
+
+    def set_ui_scale(self, scale_percent: int) -&gt; None:
+        callback = getattr(self.box, &#34;ui_scale_change_callback&#34;, None)
+        if callable(callback) and callback(scale_percent):
+            normalized = int(self.box.ui_scale_var.get())
+        else:
+            self.box.set_ui_scale(scale_percent)
+            normalized = int(self.box.ui_scale_var.get())
+        self._set_local_status(f&#34;界面字号已设为 {normalized}%。&#34;)
+
+    def set_active_alpha(self, alpha_percent: int) -&gt; None:
+        callback = getattr(self.box, &#34;active_alpha_change_callback&#34;, None)
+        if callable(callback) and callback(alpha_percent):
+            normalized = int(self.box.active_alpha_var.get())
+        else:
+            self.box.set_active_alpha_percent(alpha_percent)
+            normalized = int(self.box.active_alpha_var.get())
+        self._set_local_status(f&#34;候选窗透明度已设为 {normalized}%。&#34;)
+
+    def set_foreground_color(self, color: str) -&gt; None:
+        callback = getattr(self.box, &#34;foreground_color_change_callback&#34;, None)
+        if callable(callback) and callback(color):
+            normalized = str(self.box.foreground_color_var.get())
+        else:
+            self.box.set_foreground_color(color)
+            normalized = str(self.box.foreground_color_var.get())
+        self._set_local_status(f&#34;文字颜色已设为{self._foreground_color_label(normalized)}。&#34;)
+
+    def set_background_color(self, color: str) -&gt; None:
+        callback = getattr(self.box, &#34;background_color_change_callback&#34;, None)
+        if callable(callback) and callback(color):
+            normalized = str(self.box.background_color_var.get())
+        else:
+            self.box.set_background_color(color)
+            normalized = str(self.box.background_color_var.get())
+        self._set_local_status(f&#34;界面底色已设为{self._background_color_label(normalized)}。&#34;)
+
+    def toggle_active_topmost(self) -&gt; None:
+        enabled = bool(self.box.active_topmost_var.get())
+        callback = getattr(self.box, &#34;active_topmost_change_callback&#34;, None)
+        if callable(callback) and callback(enabled):
+            enabled = bool(self.box.active_topmost_var.get())
+        else:
+            self.box.set_active_topmost_enabled(enabled)
+        self._set_local_status(
+            &#34;候选窗将保持在最前。&#34; if enabled else &#34;候选窗已取消置顶，可让其他窗口盖住它。&#34;
+        )
+
+    def _foreground_color_label(self, color: str) -&gt; str:
+        for label, value in self._FOREGROUND_COLOR_OPTIONS:
+            if value == color:
+                return label
+        return color
+
+    def _background_color_label(self, color: str) -&gt; str:
+        for label, value in self._BACKGROUND_COLOR_OPTIONS:
+            if value == color:
+                return label
+        return color
+
+    def reload_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;reload_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接应用用户词库；请先确认已启用用户词库维护功能。&#34;)
+
+    def edit_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;edit_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接编辑用户词库；请先改用导入、导出或手动维护文件。&#34;)
+
+    def open_settings_file(self) -&gt; None:
+        callback = getattr(self.box, &#34;open_settings_file_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;设置文件&#34;, &#34;当前不能直接打开设置文件；请先从帮助或诊断里确认配置位置。&#34;)
+
+    def open_user_data_dir(self) -&gt; None:
+        callback = getattr(self.box, &#34;open_user_data_dir_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;用户数据目录&#34;, &#34;当前不能直接打开用户数据目录；请先从帮助或诊断里确认数据目录位置。&#34;)
+
+    def open_runtime_data_dir(self) -&gt; None:
+        callback = getattr(self.box, &#34;open_runtime_data_dir_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;运行时数据&#34;, &#34;当前不能直接打开运行时数据目录；请先在诊断里查看运行时数据指引。&#34;)
+
+    def open_troubleshooting_doc(self) -&gt; None:
+        callback = getattr(self.box, &#34;open_troubleshooting_doc_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;故障排查&#34;, &#34;当前不能直接打开故障排查文档；请先从帮助菜单查看相关说明。&#34;)
+
+    def import_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;import_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接导入用户词库；请先确认已启用用户词库维护功能。&#34;)
+
+    def export_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;export_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接导出用户词库；请先确认已启用用户词库维护功能。&#34;)
+
+    def show_hotkey_info(self) -&gt; None:
+        callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+        callback_summary = callback() if callable(callback) else None
+        summary = callback_summary if isinstance(callback_summary, str) else &#34;&#34;
+        if not summary:
+            summary = &#34;当前未提供快捷键信息。&#34;
+        self._emit_feedback(&#34;快捷键&#34;, summary)
+
+    def edit_hotkey(self) -&gt; None:
+        current_hotkey = self._current_hotkey_label()
+        updated_hotkey = simpledialog.askstring(
+            &#34;修改热键&#34;,
+            &#34;请输入新的唤起热键，例如 Ctrl+Alt+Insert。&#34;,
+            initialvalue=current_hotkey,
+            parent=self.box.root,
+        )
+        if updated_hotkey is None:
+            return
+
+        callback = getattr(self.box, &#34;hotkey_change_callback&#34;, None)
+        if not callable(callback):
+            self._emit_feedback(&#34;快捷键&#34;, &#34;当前不能直接修改热键；请先记下当前热键，并到设置文件中调整。&#34;)
+            return
+        if not callback(updated_hotkey):
+            return
+
+        self._invalidate_toolbar_menus()
+        self._set_local_status(f&#34;之后可按{self._current_hotkey_label()}唤起候选窗。&#34;)
+
+    @classmethod
+    def _load_help_document_text(cls) -&gt; str:
+        try:
+            raw_text = cls._HELP_DOC_PATH.read_text(encoding=&#34;utf-8&#34;)
+        except OSError:
+            return (
+                &#34;当前推荐入口：python -m yime.input_method.app 或 python run_input_method.py。\n\n&#34;
+                &#34;基本操作：首选可按 Space / Enter 或鼠标左键；第 2~5 候选可按 ` - = \\；更多候选可用方向键定位后按 Space / Enter，或直接鼠标左键。Home/PgUp/PgDn/End 翻页，Ctrl+Q 关闭窗口。\n\n&#34;
+                &#34;用户词库：可通过编辑、应用、导入、导出几个入口维护。\n\n&#34;
+                &#34;更多说明请查看 docs/help/README.md。&#34;
+            )
+
+        lines: list[str] = []
+        in_code_block = False
+        for raw_line in raw_text.splitlines():
+            stripped = raw_line.strip()
+            if stripped.startswith(&#34;```&#34;):
+                in_code_block = not in_code_block
+                continue
+            if in_code_block:
+                lines.append(stripped)
+                continue
+
+            line = re.sub(r&#34;\[([^\]]+)\]\([^)]+\)&#34;, r&#34;\1&#34;, stripped)
+            if line.startswith(&#34;#&#34;):
+                line = line.lstrip(&#34;#&#34;).strip()
+            lines.append(line)
+
+        normalized_lines: list[str] = []
+        previous_blank = False
+        for line in lines:
+            is_blank = line == &#34;&#34;
+            if is_blank and previous_blank:
+                continue
+            normalized_lines.append(line)
+            previous_blank = is_blank
+
+        return &#34;\n&#34;.join(normalized_lines).strip()
+
+    def show_help(self) -&gt; None:
+        callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+        summary = callback() if callable(callback) else None
+        message = self._load_help_document_text()
+        if summary:
+            message = f&#34;{message}\n\n{summary}&#34;
+        self._emit_feedback(
+            &#34;帮助&#34;,
+            message,
+            dialog=True,
+        )
+
+    def _build_diagnostics_message(self) -&gt; str:
+        readiness_callback = getattr(self.box, &#34;runtime_readiness_summary_callback&#34;, None)
+        readiness_summary = readiness_callback() if callable(readiness_callback) else None
+        hotkey_callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+        hotkey_summary = hotkey_callback() if callable(hotkey_callback) else None
+        guidance_callback = getattr(self.box, &#34;runtime_data_guidance_callback&#34;, None)
+        runtime_data_guidance = guidance_callback() if callable(guidance_callback) else None
+
+        sections: list[str] = []
+        if isinstance(readiness_summary, str) and readiness_summary:
+            sections.append(readiness_summary)
+        if isinstance(runtime_data_guidance, str) and runtime_data_guidance:
+            sections.append(runtime_data_guidance)
+        if isinstance(hotkey_summary, str) and hotkey_summary:
+            sections.append(hotkey_summary)
+        message = &#34;\n\n&#34;.join(section for section in sections if section).strip()
+        return message or &#34;当前未提供运行诊断信息。&#34;
+
+    def _build_diagnostics_share_message(self) -&gt; str:
+        diagnostic_message = self._build_diagnostics_message()
+        return (
+            &#34;【Yime 诊断信息】\n&#34;
+            &#34;请将以下内容完整粘贴给 GitHub Copilot，并补充你的复现步骤：\n\n&#34;
+            f&#34;{diagnostic_message}&#34;
+        )
+
+    def _build_trial_feedback_template(self) -&gt; str:
+        diagnostic_message = self._build_diagnostics_message()
+        return (
+            &#34;【Yime 试用反馈模板】\n&#34;
+            &#34;请先告诉我下面哪一种最接近：\n&#34;
+            &#34;- 装不上\n&#34;
+            &#34;- 能装但打不开\n&#34;
+            &#34;- 能打开但唤不起候选框\n&#34;
+            &#34;- 候选框能出来但不能上屏\n&#34;
+            &#34;- 第一次能用，重开后失效\n&#34;
+            &#34;- 基本能用，但某个键位或手感很怪\n\n&#34;
+            &#34;再补充 3 件事：\n&#34;
+            &#34;1. 你是在什么程序里试的\n&#34;
+            &#34;2. 你做了什么操作\n&#34;
+            &#34;3. 实际看到了什么现象\n\n&#34;
+            &#34;如果方便，也请把下面这份诊断信息一起发来：\n\n&#34;
+            f&#34;{diagnostic_message}&#34;
+        )
+
+    def _build_trial_feedback_help_message(self) -&gt; str:
+        return (
+            &#34;试用者最短反馈说明\n\n&#34;
+            &#34;如果你只想给我最短反馈，直接告诉我下面哪一种最接近：\n&#34;
+            &#34;- 装不上\n&#34;
+            &#34;- 能装但打不开\n&#34;
+            &#34;- 能打开但唤不起候选框\n&#34;
+            &#34;- 候选框能出来但不能上屏\n&#34;
+            &#34;- 第一次能用，重开后失效\n&#34;
+            &#34;- 基本能用，但某个键位或手感很怪\n\n&#34;
+            &#34;如果愿意再多写一句，补这 3 件事就够了：\n&#34;
+            &#34;1. 你是在什么程序里试的\n&#34;
+            &#34;2. 你做了什么操作\n&#34;
+            &#34;3. 实际看到了什么现象&#34;
+        )
+
+    def show_diagnostics(self) -&gt; None:
+        self._emit_feedback(
+            &#34;诊断&#34;,
+            self._build_diagnostics_message(),
+            dialog=True,
+        )
+
+    def recheck_diagnostics(self) -&gt; None:
+        self.show_diagnostics()
+        self._set_local_status(&#34;已重新检查诊断；可直接查看上面的结果。&#34;)
+
+    def copy_diagnostics(self) -&gt; None:
+        message = self._build_diagnostics_share_message()
+        clipboard_clear = getattr(self.box.root, &#34;clipboard_clear&#34;, None)
+        clipboard_append = getattr(self.box.root, &#34;clipboard_append&#34;, None)
+        if not callable(clipboard_clear) or not callable(clipboard_append):
+            self._emit_feedback(&#34;诊断&#34;, &#34;当前环境暂时不能复制诊断信息；请先打开诊断窗口，再手动复制内容。&#34;)
+            return
+        clipboard_clear()
+        clipboard_append(message)
+        update = getattr(self.box.root, &#34;update_idletasks&#34;, None)
+        if callable(update):
+            update()
+        self._emit_feedback(&#34;诊断&#34;, &#34;诊断信息已复制。现在可直接粘贴给 GitHub Copilot。&#34;)
+
+    def copy_trial_feedback_template(self) -&gt; None:
+        message = self._build_trial_feedback_template()
+        clipboard_clear = getattr(self.box.root, &#34;clipboard_clear&#34;, None)
+        clipboard_append = getattr(self.box.root, &#34;clipboard_append&#34;, None)
+        if not callable(clipboard_clear) or not callable(clipboard_append):
+            self._emit_feedback(&#34;试用反馈&#34;, &#34;当前环境暂时不能复制试用反馈模板；请先打开“试用反馈说明”，再手动整理给试用者。&#34;)
+            return
+        clipboard_clear()
+        clipboard_append(message)
+        update = getattr(self.box.root, &#34;update_idletasks&#34;, None)
+        if callable(update):
+            update()
+        self._emit_feedback(&#34;试用反馈&#34;, &#34;试用反馈模板已复制。现在可直接发给试用者填写。&#34;)
+
+    def show_trial_feedback_help(self) -&gt; None:
+        self._emit_feedback(
+            &#34;试用反馈说明&#34;,
+            self._build_trial_feedback_help_message(),
+            dialog=True,
+        )
+
+    def show_about(self) -&gt; None:
+        self._emit_feedback(
+            &#34;关于&#34;,
+            &#34;音元拼音输入法当前使用轻量候选窗界面。这个菜单入口用于集中承载设置、帮助和后续扩展功能。&#34;,
+            dialog=True,
+        )
+
+    def select_all_input_text(self) -&gt; None:
+        selection_range = getattr(self.box.input_entry, &#34;selection_range&#34;, None)
+        if callable(selection_range):
+            selection_range(0, tk.END)
+        icursor = getattr(self.box.input_entry, &#34;icursor&#34;, None)
+        if callable(icursor):
+            icursor(tk.END)
+        focus_set = getattr(self.box.input_entry, &#34;focus_set&#34;, None)
+        if callable(focus_set):
+            focus_set()
+
+    def add_current_input_to_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;add_input_to_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        legacy_callback = getattr(self.box, &#34;_on_add_input_to_user_lexicon&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback()
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接添加当前词条；请先确认已启用用户词库功能。&#34;)
+
+    def delete_current_input_from_user_lexicon(self) -&gt; None:
+        callback = getattr(self.box, &#34;delete_input_from_user_lexicon_callback&#34;, None)
+        if callable(callback) and callback():
+            return
+        legacy_callback = getattr(self.box, &#34;_on_delete_input_from_user_lexicon&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback()
+            return
+        self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接删除当前词条；请先确认已启用用户词库功能。&#34;)
+
+    def activate_for_manual_input(self, event: Optional[tk.Event] = None) -&gt; None:
+        self.box.set_manual_input_enabled(True)
+        self.box.show(focus_input=True)
+
+    def restore_from_standby(self, event: Optional[tk.Event] = None) -&gt; str:
+        def restore() -&gt; None:
+            restore_callback = getattr(self.box, &#34;restore_from_standby_callback&#34;, None)
+            if callable(restore_callback) and restore_callback():
+                return
+            legacy_callback = getattr(self.box, &#34;_on_restore_from_standby&#34;, None)
+            if callable(legacy_callback):
+                legacy_callback()
+                return
+            self.box.set_manual_input_enabled(True)
+            self.box.show(focus_input=True)
+
+        scheduler = getattr(getattr(self.box, &#34;root&#34;, None), &#34;after&#34;, None)
+        if callable(scheduler):
+            scheduler(0, restore)
+        else:
+            restore()
+
+        return &#34;break&#34;
+
+    def request_standby(self, event: Optional[tk.Event] = None) -&gt; str:
+        toggle_callback = getattr(self.box, &#34;toggle_standby_callback&#34;, None)
+        if callable(toggle_callback) and toggle_callback():
+            return &#34;break&#34;
+        legacy_callback = getattr(self.box, &#34;_on_toggle_standby&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback()
+            return &#34;break&#34;
+        self.box.show_standby()
+        return &#34;break&#34;
+
+    def on_confirm_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        if event and ManualInputResolver.is_numpad_event(event):
+            return &#34;&#34;
+        if self.box.current_candidates:
+            self.select_candidate_by_index(self.box.get_selected_candidate_index())
+            self.commit_output_text()
+        else:
+            self.commit_output_text()
+        return &#34;break&#34;
+
+    def on_digit_shortcut(self, event: Optional[tk.Event], value: int) -&gt; str:
+        if event and ManualInputResolver.is_numpad_event(event):
+            return &#34;&#34;
+        if self.select_candidate_by_index(value - 1):
+            self.commit_output_text()
+        return &#34;break&#34;
+
+    def on_candidate_shortcut(self, event: Optional[tk.Event], index: int) -&gt; str:
+        if event and ManualInputResolver.is_numpad_event(event):
+            return &#34;&#34;
+
+        if self.select_candidate_by_index(index):
+            self.commit_output_text()
+        return &#34;break&#34;
+
+    def on_candidate_click(self, index: int) -&gt; None:
+        # Mouse selection is the correction path for sentences that must be
+        # assembled from several runtime candidates.  Keep the selected
+        # component in the pending commit buffer so subsequent clicks can add
+        # more components; an explicit Space/Enter commits the whole trace.
+        self.select_candidate_by_index(index)
+
+    def on_move_selection_previous(self, event: Optional[tk.Event] = None) -&gt; str:
+        if not self.box.current_candidates:
+            return &#34;&#34;
+        self.box.move_selection(-1)
+        return &#34;break&#34;
+
+    def on_move_selection_next(self, event: Optional[tk.Event] = None) -&gt; str:
+        if not self.box.current_candidates:
+            return &#34;&#34;
+        self.box.move_selection(1)
+        return &#34;break&#34;
+
+    def on_symbol_shortcut_key(self, event: Optional[tk.Event] = None) -&gt; Optional[str]:
+        if not event:
+            return None
+        shortcut = getattr(event, &#34;char&#34;, &#34;&#34;)
+        index = self._SYMBOL_SHORTCUT_TO_INDEX.get(shortcut)
+        if index is None:
+            return None
+        return self.on_candidate_shortcut(event, index)
+
+    def on_previous_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        self.box.show_previous_page()
+        return &#34;break&#34;
+
+    def on_next_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        self.box.show_next_page()
+        return &#34;break&#34;
+
+    def on_first_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        self.box.show_first_page()
+        return &#34;break&#34;
+
+    def on_last_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+        self.box.show_last_page()
+        return &#34;break&#34;
+
+    def on_page_size_change(self, event: Optional[tk.Event] = None) -&gt; None:
+        try:
+            page_size = int(self.box.page_size_var.get())
+        except (tk.TclError, ValueError):
+            return
+        self.box.set_page_size(page_size)
+
+    def should_allow_native_edit_key(self, event: Optional[tk.Event]) -&gt; bool:
+        if not event:
+            return False
+        widget = getattr(event, &#34;widget&#34;, None)
+        return widget in {
+            self.box.input_entry,
+            self.box.commit_entry,
+            self.box.candidate_text,
+        }
+
+    def on_commit_backspace(self, event: Optional[tk.Event] = None) -&gt; str:
+        selection = self.box.commit_entry.selection_present()
+        if self.box.commit_var.get() or selection:
+            return &#34;&#34;
+        self.box.remove_last_commit_char()
+        return &#34;break&#34;
+
+    def commit_output_text(self) -&gt; None:
+        text = self.box.get_commit_text().strip()
+        if not text:
+            self._set_local_status(&#34;当前没有可上屏的内容；请先选词，或直接输入要上屏的内容。&#34;)
+            return
+        commit_callback = getattr(self.box, &#34;commit_text_callback&#34;, None)
+        if callable(commit_callback) and commit_callback(text):
+            self._set_local_status(f&#34;已上屏: {text}。可继续输入下一词。&#34;)
+            return
+        legacy_callback = getattr(self.box, &#34;_on_commit_text_callback&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback(text)
+            self._set_local_status(f&#34;已上屏: {text}。可继续输入下一词。&#34;)
+
+    def select_candidate_by_index(self, index: int) -&gt; bool:
+        hanzi = self.box.get_candidate(index)
+        if hanzi is None:
+            return False
+        keep_focus = self.box.is_manual_input_enabled()
+        self.box.append_commit_text(hanzi)
+        self.box.on_select(hanzi)
+        self.box.clear_input(focus_input=keep_focus)
+        self._set_local_status(
+            f&#34;已加入待上屏内容: {self.box.get_commit_text()}。可继续选词，或按空格/回车上屏。&#34;
+        )
+        return True
+
+    def copy_candidate(self, index: int) -&gt; None:
+        copy_callback = getattr(self.box, &#34;copy_candidate_callback&#34;, None)
+        if callable(copy_callback):
+            copy_callback(index)
+            return
+        legacy_callback = getattr(self.box, &#34;_on_copy_candidate_callback&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback(index)
+
+    def request_close(self) -&gt; None:
+        close_callback = getattr(self.box, &#34;close_callback&#34;, None)
+        if callable(close_callback) and close_callback():
+            return
+        legacy_callback = getattr(self.box, &#34;_on_close&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback()
+            return
+        self.box.close()</code></pre>
+</details>
+<div class="desc"><p>Event and command handlers for CandidateBox.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.activate_for_manual_input"><code class="name flex">
+<span>def <span class="ident">activate_for_manual_input</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def activate_for_manual_input(self, event: Optional[tk.Event] = None) -&gt; None:
+    self.box.set_manual_input_enabled(True)
+    self.box.show(focus_input=True)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.add_current_input_to_user_lexicon"><code class="name flex">
+<span>def <span class="ident">add_current_input_to_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_current_input_to_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;add_input_to_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    legacy_callback = getattr(self.box, &#34;_on_add_input_to_user_lexicon&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback()
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接添加当前词条；请先确认已启用用户词库功能。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.bind_keys"><code class="name flex">
+<span>def <span class="ident">bind_keys</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bind_keys(self) -&gt; None:
+    def bind_if_possible(widget: object, sequence: str, handler: object) -&gt; None:
+        binder = getattr(widget, &#34;bind&#34;, None)
+        if callable(binder):
+            binder(sequence, handler)
+
+    def candidate_shortcut_handler(index: int):
+        def handler(event: Optional[tk.Event] = None) -&gt; str:
+            return self.on_candidate_shortcut(event, index)
+        return handler
+
+    for index in range(1, 10):
+        self.box.root.bind(
+            str(index),
+            lambda event, value=index: self.on_digit_shortcut(event, value),
+        )
+
+    self.box.root.bind(&#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+    manual_input_keypress_handler = getattr(self.box, &#34;_on_manual_input_key_press&#34;, None)
+    bind_if_possible(self.box.input_entry, &#34;&lt;KeyPress&gt;&#34;, manual_input_keypress_handler)
+    bind_if_possible(self.box.input_entry, &#34;&lt;KeyRelease&gt;&#34;, self.on_input_change)
+    bind_if_possible(self.box.input_entry, &#34;&lt;&lt;Paste&gt;&gt;&#34;, self.on_paste)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Shift-Insert&gt;&#34;, self.on_paste)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Button-3&gt;&#34;, self.show_input_context_menu)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Return&gt;&#34;, self.on_confirm_key)
+    self.box.root.bind(&#34;&lt;space&gt;&#34;, self.on_confirm_key)
+    bind_if_possible(self.box.input_entry, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;space&gt;&#34;, self.on_confirm_key)
+
+    self.box.root.bind(&#34;&lt;Escape&gt;&#34;, lambda event: self.box.clear_input())
+    self.box.root.bind(&#34;&lt;Control-q&gt;&#34;, lambda event: self.request_close())
+    self.box.root.bind(&#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+    self.box.root.bind(&#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+    self.box.root.bind(&#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+    self.box.root.bind(&#34;&lt;End&gt;&#34;, self.on_last_page_key)
+    self.box.root.bind(&#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+    self.box.root.bind(&#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+    self.box.root.bind(&#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+    self.box.root.bind(&#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+    self.box.root.bind(&#34;&lt;FocusIn&gt;&#34;, self.on_window_focus_in)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+    bind_if_possible(self.box.input_entry, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.input_entry, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.commit_entry, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Home&gt;&#34;, self.on_first_page_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Prior&gt;&#34;, self.on_previous_page_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Next&gt;&#34;, self.on_next_page_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;End&gt;&#34;, self.on_last_page_key)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Left&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Right&gt;&#34;, self.on_move_selection_next)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Up&gt;&#34;, self.on_move_selection_previous)
+    bind_if_possible(self.box.candidate_text, &#34;&lt;Down&gt;&#34;, self.on_move_selection_next)
+
+    for widget in (self.box.root, self.box.input_entry, self.box.commit_entry):
+        for sequence, index in self._SYMBOL_SHORTCUT_BINDINGS.items():
+            bind_if_possible(
+                widget,
+                sequence,
+                candidate_shortcut_handler(index),
+            )
+
+    # Bind mouse clicks to the UI pager controls
+    if hasattr(self.box, &#34;first_page_button&#34;) and self.box.first_page_button:
+        self.box.first_page_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_first_page_key())
+    if hasattr(self.box, &#34;prev_button&#34;) and self.box.prev_button:
+        self.box.prev_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_previous_page_key())
+    if hasattr(self.box, &#34;next_button&#34;) and self.box.next_button:
+        self.box.next_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_next_page_key())
+    if hasattr(self.box, &#34;last_page_button&#34;) and self.box.last_page_button:
+        self.box.last_page_button.bind(&#34;&lt;Button-1&gt;&#34;, lambda e: self.on_last_page_key())
+    if hasattr(self.box, &#34;toolbar_menu_button&#34;) and self.box.toolbar_menu_button:
+        self.box.toolbar_menu_button.bind(&#34;&lt;Button-1&gt;&#34;, self.show_toolbar_menu)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.commit_output_text"><code class="name flex">
+<span>def <span class="ident">commit_output_text</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def commit_output_text(self) -&gt; None:
+    text = self.box.get_commit_text().strip()
+    if not text:
+        self._set_local_status(&#34;当前没有可上屏的内容；请先选词，或直接输入要上屏的内容。&#34;)
+        return
+    commit_callback = getattr(self.box, &#34;commit_text_callback&#34;, None)
+    if callable(commit_callback) and commit_callback(text):
+        self._set_local_status(f&#34;已上屏: {text}。可继续输入下一词。&#34;)
+        return
+    legacy_callback = getattr(self.box, &#34;_on_commit_text_callback&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback(text)
+        self._set_local_status(f&#34;已上屏: {text}。可继续输入下一词。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_candidate"><code class="name flex">
+<span>def <span class="ident">copy_candidate</span></span>(<span>self, index: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_candidate(self, index: int) -&gt; None:
+    copy_callback = getattr(self.box, &#34;copy_candidate_callback&#34;, None)
+    if callable(copy_callback):
+        copy_callback(index)
+        return
+    legacy_callback = getattr(self.box, &#34;_on_copy_candidate_callback&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback(index)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_diagnostics"><code class="name flex">
+<span>def <span class="ident">copy_diagnostics</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_diagnostics(self) -&gt; None:
+    message = self._build_diagnostics_share_message()
+    clipboard_clear = getattr(self.box.root, &#34;clipboard_clear&#34;, None)
+    clipboard_append = getattr(self.box.root, &#34;clipboard_append&#34;, None)
+    if not callable(clipboard_clear) or not callable(clipboard_append):
+        self._emit_feedback(&#34;诊断&#34;, &#34;当前环境暂时不能复制诊断信息；请先打开诊断窗口，再手动复制内容。&#34;)
+        return
+    clipboard_clear()
+    clipboard_append(message)
+    update = getattr(self.box.root, &#34;update_idletasks&#34;, None)
+    if callable(update):
+        update()
+    self._emit_feedback(&#34;诊断&#34;, &#34;诊断信息已复制。现在可直接粘贴给 GitHub Copilot。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_trial_feedback_template"><code class="name flex">
+<span>def <span class="ident">copy_trial_feedback_template</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def copy_trial_feedback_template(self) -&gt; None:
+    message = self._build_trial_feedback_template()
+    clipboard_clear = getattr(self.box.root, &#34;clipboard_clear&#34;, None)
+    clipboard_append = getattr(self.box.root, &#34;clipboard_append&#34;, None)
+    if not callable(clipboard_clear) or not callable(clipboard_append):
+        self._emit_feedback(&#34;试用反馈&#34;, &#34;当前环境暂时不能复制试用反馈模板；请先打开“试用反馈说明”，再手动整理给试用者。&#34;)
+        return
+    clipboard_clear()
+    clipboard_append(message)
+    update = getattr(self.box.root, &#34;update_idletasks&#34;, None)
+    if callable(update):
+        update()
+    self._emit_feedback(&#34;试用反馈&#34;, &#34;试用反馈模板已复制。现在可直接发给试用者填写。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.delete_current_input_from_user_lexicon"><code class="name flex">
+<span>def <span class="ident">delete_current_input_from_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete_current_input_from_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;delete_input_from_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    legacy_callback = getattr(self.box, &#34;_on_delete_input_from_user_lexicon&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback()
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接删除当前词条；请先确认已启用用户词库功能。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_hotkey"><code class="name flex">
+<span>def <span class="ident">edit_hotkey</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def edit_hotkey(self) -&gt; None:
+    current_hotkey = self._current_hotkey_label()
+    updated_hotkey = simpledialog.askstring(
+        &#34;修改热键&#34;,
+        &#34;请输入新的唤起热键，例如 Ctrl+Alt+Insert。&#34;,
+        initialvalue=current_hotkey,
+        parent=self.box.root,
+    )
+    if updated_hotkey is None:
+        return
+
+    callback = getattr(self.box, &#34;hotkey_change_callback&#34;, None)
+    if not callable(callback):
+        self._emit_feedback(&#34;快捷键&#34;, &#34;当前不能直接修改热键；请先记下当前热键，并到设置文件中调整。&#34;)
+        return
+    if not callback(updated_hotkey):
+        return
+
+    self._invalidate_toolbar_menus()
+    self._set_local_status(f&#34;之后可按{self._current_hotkey_label()}唤起候选窗。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_user_lexicon"><code class="name flex">
+<span>def <span class="ident">edit_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def edit_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;edit_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接编辑用户词库；请先改用导入、导出或手动维护文件。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.export_user_lexicon"><code class="name flex">
+<span>def <span class="ident">export_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def export_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;export_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接导出用户词库；请先确认已启用用户词库维护功能。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.import_user_lexicon"><code class="name flex">
+<span>def <span class="ident">import_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def import_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;import_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接导入用户词库；请先确认已启用用户词库维护功能。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_click"><code class="name flex">
+<span>def <span class="ident">on_candidate_click</span></span>(<span>self, index: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_candidate_click(self, index: int) -&gt; None:
+    # Mouse selection is the correction path for sentences that must be
+    # assembled from several runtime candidates.  Keep the selected
+    # component in the pending commit buffer so subsequent clicks can add
+    # more components; an explicit Space/Enter commits the whole trace.
+    self.select_candidate_by_index(index)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_shortcut"><code class="name flex">
+<span>def <span class="ident">on_candidate_shortcut</span></span>(<span>self, event: Optional[tk.Event], index: int) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_candidate_shortcut(self, event: Optional[tk.Event], index: int) -&gt; str:
+    if event and ManualInputResolver.is_numpad_event(event):
+        return &#34;&#34;
+
+    if self.select_candidate_by_index(index):
+        self.commit_output_text()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_commit_backspace"><code class="name flex">
+<span>def <span class="ident">on_commit_backspace</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_commit_backspace(self, event: Optional[tk.Event] = None) -&gt; str:
+    selection = self.box.commit_entry.selection_present()
+    if self.box.commit_var.get() or selection:
+        return &#34;&#34;
+    self.box.remove_last_commit_char()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_confirm_key"><code class="name flex">
+<span>def <span class="ident">on_confirm_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_confirm_key(self, event: Optional[tk.Event] = None) -&gt; str:
+    if event and ManualInputResolver.is_numpad_event(event):
+        return &#34;&#34;
+    if self.box.current_candidates:
+        self.select_candidate_by_index(self.box.get_selected_candidate_index())
+        self.commit_output_text()
+    else:
+        self.commit_output_text()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_digit_shortcut"><code class="name flex">
+<span>def <span class="ident">on_digit_shortcut</span></span>(<span>self, event: Optional[tk.Event], value: int) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_digit_shortcut(self, event: Optional[tk.Event], value: int) -&gt; str:
+    if event and ManualInputResolver.is_numpad_event(event):
+        return &#34;&#34;
+    if self.select_candidate_by_index(value - 1):
+        self.commit_output_text()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_first_page_key"><code class="name flex">
+<span>def <span class="ident">on_first_page_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_first_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+    self.box.show_first_page()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_input_change"><code class="name flex">
+<span>def <span class="ident">on_input_change</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_input_change(self, event: Optional[tk.Event] = None) -&gt; None:
+    self.box.set_projected_input(self.box.get_input())
+    notify_input_change = getattr(self.box, &#34;notify_input_change&#34;, None)
+    if callable(notify_input_change):
+        notify_input_change(event)
+        return
+    callback = getattr(self.box, &#34;_on_input_change_callback&#34;, None)
+    if callable(callback):
+        callback(event)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_last_page_key"><code class="name flex">
+<span>def <span class="ident">on_last_page_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_last_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+    self.box.show_last_page()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_next"><code class="name flex">
+<span>def <span class="ident">on_move_selection_next</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_move_selection_next(self, event: Optional[tk.Event] = None) -&gt; str:
+    if not self.box.current_candidates:
+        return &#34;&#34;
+    self.box.move_selection(1)
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_previous"><code class="name flex">
+<span>def <span class="ident">on_move_selection_previous</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_move_selection_previous(self, event: Optional[tk.Event] = None) -&gt; str:
+    if not self.box.current_candidates:
+        return &#34;&#34;
+    self.box.move_selection(-1)
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_next_page_key"><code class="name flex">
+<span>def <span class="ident">on_next_page_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_next_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+    self.box.show_next_page()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_page_size_change"><code class="name flex">
+<span>def <span class="ident">on_page_size_change</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_page_size_change(self, event: Optional[tk.Event] = None) -&gt; None:
+    try:
+        page_size = int(self.box.page_size_var.get())
+    except (tk.TclError, ValueError):
+        return
+    self.box.set_page_size(page_size)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_paste"><code class="name flex">
+<span>def <span class="ident">on_paste</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_paste(self, event: Optional[tk.Event] = None) -&gt; None:
+    scheduler = getattr(getattr(self.box, &#34;root&#34;, None), &#34;after_idle&#34;, None)
+    if callable(scheduler):
+        scheduler(lambda: self.on_input_change(event))
+        return
+    self.on_input_change(event)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_previous_page_key"><code class="name flex">
+<span>def <span class="ident">on_previous_page_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_previous_page_key(self, event: Optional[tk.Event] = None) -&gt; str:
+    self.box.show_previous_page()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_symbol_shortcut_key"><code class="name flex">
+<span>def <span class="ident">on_symbol_shortcut_key</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str | None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_symbol_shortcut_key(self, event: Optional[tk.Event] = None) -&gt; Optional[str]:
+    if not event:
+        return None
+    shortcut = getattr(event, &#34;char&#34;, &#34;&#34;)
+    index = self._SYMBOL_SHORTCUT_TO_INDEX.get(shortcut)
+    if index is None:
+        return None
+    return self.on_candidate_shortcut(event, index)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_window_focus_in"><code class="name flex">
+<span>def <span class="ident">on_window_focus_in</span></span>(<span>self, event: object) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def on_window_focus_in(self, event: object) -&gt; None:
+    widget = getattr(event, &#34;widget&#34;, None)
+    if (
+        widget == self.box.root
+        and not self.box.is_standby()
+        and self.box.is_manual_input_enabled()
+    ):
+        self.box.focus_input_cursor()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_runtime_data_dir"><code class="name flex">
+<span>def <span class="ident">open_runtime_data_dir</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_runtime_data_dir(self) -&gt; None:
+    callback = getattr(self.box, &#34;open_runtime_data_dir_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;运行时数据&#34;, &#34;当前不能直接打开运行时数据目录；请先在诊断里查看运行时数据指引。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_settings_file"><code class="name flex">
+<span>def <span class="ident">open_settings_file</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_settings_file(self) -&gt; None:
+    callback = getattr(self.box, &#34;open_settings_file_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;设置文件&#34;, &#34;当前不能直接打开设置文件；请先从帮助或诊断里确认配置位置。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_troubleshooting_doc"><code class="name flex">
+<span>def <span class="ident">open_troubleshooting_doc</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_troubleshooting_doc(self) -&gt; None:
+    callback = getattr(self.box, &#34;open_troubleshooting_doc_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;故障排查&#34;, &#34;当前不能直接打开故障排查文档；请先从帮助菜单查看相关说明。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_user_data_dir"><code class="name flex">
+<span>def <span class="ident">open_user_data_dir</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def open_user_data_dir(self) -&gt; None:
+    callback = getattr(self.box, &#34;open_user_data_dir_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;用户数据目录&#34;, &#34;当前不能直接打开用户数据目录；请先从帮助或诊断里确认数据目录位置。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.recheck_diagnostics"><code class="name flex">
+<span>def <span class="ident">recheck_diagnostics</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def recheck_diagnostics(self) -&gt; None:
+    self.show_diagnostics()
+    self._set_local_status(&#34;已重新检查诊断；可直接查看上面的结果。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.reload_user_lexicon"><code class="name flex">
+<span>def <span class="ident">reload_user_lexicon</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reload_user_lexicon(self) -&gt; None:
+    callback = getattr(self.box, &#34;reload_user_lexicon_callback&#34;, None)
+    if callable(callback) and callback():
+        return
+    self._emit_feedback(&#34;用户词库&#34;, &#34;当前不能直接应用用户词库；请先确认已启用用户词库维护功能。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_close"><code class="name flex">
+<span>def <span class="ident">request_close</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def request_close(self) -&gt; None:
+    close_callback = getattr(self.box, &#34;close_callback&#34;, None)
+    if callable(close_callback) and close_callback():
+        return
+    legacy_callback = getattr(self.box, &#34;_on_close&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback()
+        return
+    self.box.close()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_standby"><code class="name flex">
+<span>def <span class="ident">request_standby</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def request_standby(self, event: Optional[tk.Event] = None) -&gt; str:
+    toggle_callback = getattr(self.box, &#34;toggle_standby_callback&#34;, None)
+    if callable(toggle_callback) and toggle_callback():
+        return &#34;break&#34;
+    legacy_callback = getattr(self.box, &#34;_on_toggle_standby&#34;, None)
+    if callable(legacy_callback):
+        legacy_callback()
+        return &#34;break&#34;
+    self.box.show_standby()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.restore_from_standby"><code class="name flex">
+<span>def <span class="ident">restore_from_standby</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def restore_from_standby(self, event: Optional[tk.Event] = None) -&gt; str:
+    def restore() -&gt; None:
+        restore_callback = getattr(self.box, &#34;restore_from_standby_callback&#34;, None)
+        if callable(restore_callback) and restore_callback():
+            return
+        legacy_callback = getattr(self.box, &#34;_on_restore_from_standby&#34;, None)
+        if callable(legacy_callback):
+            legacy_callback()
+            return
+        self.box.set_manual_input_enabled(True)
+        self.box.show(focus_input=True)
+
+    scheduler = getattr(getattr(self.box, &#34;root&#34;, None), &#34;after&#34;, None)
+    if callable(scheduler):
+        scheduler(0, restore)
+    else:
+        restore()
+
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_all_input_text"><code class="name flex">
+<span>def <span class="ident">select_all_input_text</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_all_input_text(self) -&gt; None:
+    selection_range = getattr(self.box.input_entry, &#34;selection_range&#34;, None)
+    if callable(selection_range):
+        selection_range(0, tk.END)
+    icursor = getattr(self.box.input_entry, &#34;icursor&#34;, None)
+    if callable(icursor):
+        icursor(tk.END)
+    focus_set = getattr(self.box.input_entry, &#34;focus_set&#34;, None)
+    if callable(focus_set):
+        focus_set()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_candidate_by_index"><code class="name flex">
+<span>def <span class="ident">select_candidate_by_index</span></span>(<span>self, index: int) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def select_candidate_by_index(self, index: int) -&gt; bool:
+    hanzi = self.box.get_candidate(index)
+    if hanzi is None:
+        return False
+    keep_focus = self.box.is_manual_input_enabled()
+    self.box.append_commit_text(hanzi)
+    self.box.on_select(hanzi)
+    self.box.clear_input(focus_input=keep_focus)
+    self._set_local_status(
+        f&#34;已加入待上屏内容: {self.box.get_commit_text()}。可继续选词，或按空格/回车上屏。&#34;
+    )
+    return True</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_active_alpha"><code class="name flex">
+<span>def <span class="ident">set_active_alpha</span></span>(<span>self, alpha_percent: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_active_alpha(self, alpha_percent: int) -&gt; None:
+    callback = getattr(self.box, &#34;active_alpha_change_callback&#34;, None)
+    if callable(callback) and callback(alpha_percent):
+        normalized = int(self.box.active_alpha_var.get())
+    else:
+        self.box.set_active_alpha_percent(alpha_percent)
+        normalized = int(self.box.active_alpha_var.get())
+    self._set_local_status(f&#34;候选窗透明度已设为 {normalized}%。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_background_color"><code class="name flex">
+<span>def <span class="ident">set_background_color</span></span>(<span>self, color: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_background_color(self, color: str) -&gt; None:
+    callback = getattr(self.box, &#34;background_color_change_callback&#34;, None)
+    if callable(callback) and callback(color):
+        normalized = str(self.box.background_color_var.get())
+    else:
+        self.box.set_background_color(color)
+        normalized = str(self.box.background_color_var.get())
+    self._set_local_status(f&#34;界面底色已设为{self._background_color_label(normalized)}。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_layout"><code class="name flex">
+<span>def <span class="ident">set_candidate_layout</span></span>(<span>self, layout: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_candidate_layout(self, layout: str) -&gt; None:
+    callback = getattr(self.box, &#34;candidate_layout_change_callback&#34;, None)
+    if callable(callback) and callback(layout):
+        normalized = self.box.candidate_layout_var.get()
+    else:
+        self.box.set_candidate_layout(layout)
+        normalized = self.box.candidate_layout_var.get()
+    label = &#34;竖排&#34; if normalized == &#34;vertical&#34; else &#34;横排&#34;
+    self._set_local_status(f&#34;候选现在按{label}显示。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_page_size"><code class="name flex">
+<span>def <span class="ident">set_candidate_page_size</span></span>(<span>self, page_size: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_candidate_page_size(self, page_size: int) -&gt; None:
+    callback = getattr(self.box, &#34;candidate_page_size_change_callback&#34;, None)
+    if callable(callback) and callback(page_size):
+        normalized = self.box.page_size_var.get()
+    else:
+        self.box.set_page_size(page_size)
+        normalized = self.box.page_size_var.get()
+    self._set_local_status(f&#34;现在每页显示 {normalized} 个候选。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_code_mode"><code class="name flex">
+<span>def <span class="ident">set_code_mode</span></span>(<span>self, mode: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_code_mode(self, mode: str) -&gt; None:
+    callback = getattr(self.box, &#34;code_mode_change_callback&#34;, None)
+    if callable(callback) and callback(mode):
+        code_mode_var = getattr(self.box, &#34;code_mode_var&#34;, None)
+        normalized = str(code_mode_var.get()) if code_mode_var is not None else str(mode or &#34;variable&#34;)
+    else:
+        normalized = str(mode or &#34;variable&#34;)
+        code_mode_var = getattr(self.box, &#34;code_mode_var&#34;, None)
+        if code_mode_var is not None:
+            code_mode_var.set(normalized)
+    status_text = self._CODE_MODE_STATUS.get(normalized, normalized)
+    self._set_local_status(f&#34;输入编码模式已切换为{status_text}。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_foreground_color"><code class="name flex">
+<span>def <span class="ident">set_foreground_color</span></span>(<span>self, color: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_foreground_color(self, color: str) -&gt; None:
+    callback = getattr(self.box, &#34;foreground_color_change_callback&#34;, None)
+    if callable(callback) and callback(color):
+        normalized = str(self.box.foreground_color_var.get())
+    else:
+        self.box.set_foreground_color(color)
+        normalized = str(self.box.foreground_color_var.get())
+    self._set_local_status(f&#34;文字颜色已设为{self._foreground_color_label(normalized)}。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_reverse_lookup_display_mode"><code class="name flex">
+<span>def <span class="ident">set_reverse_lookup_display_mode</span></span>(<span>self, mode: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_reverse_lookup_display_mode(self, mode: str) -&gt; None:
+    callback = getattr(self.box, &#34;reverse_lookup_display_mode_change_callback&#34;, None)
+    if callable(callback) and callback(mode):
+        normalized = str(self.box.reverse_lookup_display_mode_var.get())
+    else:
+        normalized = str(mode or &#34;default&#34;)
+        self.box.reverse_lookup_display_mode_var.set(normalized)
+    status_text = self._REVERSE_LOOKUP_DISPLAY_STATUS.get(
+        normalized,
+        f&#34;当前模式：{normalized}&#34;,
+    )
+    self._set_local_status(f&#34;反查显示已设为{status_text}&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_standby_trigger_mode"><code class="name flex">
+<span>def <span class="ident">set_standby_trigger_mode</span></span>(<span>self, mode: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_standby_trigger_mode(self, mode: str) -&gt; None:
+    callback = getattr(self.box, &#34;standby_trigger_mode_change_callback&#34;, None)
+    if callable(callback) and callback(mode):
+        normalized = self.box.standby_trigger_mode_var.get()
+    else:
+        normalized = mode
+        self.box.standby_trigger_mode_var.set(mode)
+    label = self._trigger_mode_label(normalized)
+    self._set_local_status(f&#34;之后可通过{label}让候选窗回到待命。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_ui_scale"><code class="name flex">
+<span>def <span class="ident">set_ui_scale</span></span>(<span>self, scale_percent: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_ui_scale(self, scale_percent: int) -&gt; None:
+    callback = getattr(self.box, &#34;ui_scale_change_callback&#34;, None)
+    if callable(callback) and callback(scale_percent):
+        normalized = int(self.box.ui_scale_var.get())
+    else:
+        self.box.set_ui_scale(scale_percent)
+        normalized = int(self.box.ui_scale_var.get())
+    self._set_local_status(f&#34;界面字号已设为 {normalized}%。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_wake_trigger_mode"><code class="name flex">
+<span>def <span class="ident">set_wake_trigger_mode</span></span>(<span>self, mode: str) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_wake_trigger_mode(self, mode: str) -&gt; None:
+    callback = getattr(self.box, &#34;wake_trigger_mode_change_callback&#34;, None)
+    if callable(callback) and callback(mode):
+        normalized = self.box.wake_trigger_mode_var.get()
+    else:
+        normalized = mode
+        self.box.wake_trigger_mode_var.set(mode)
+    label = self._trigger_mode_label(normalized)
+    self._set_local_status(f&#34;之后可通过{label}唤起候选窗。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.should_allow_native_edit_key"><code class="name flex">
+<span>def <span class="ident">should_allow_native_edit_key</span></span>(<span>self, event: Optional[tk.Event]) ‑> bool</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def should_allow_native_edit_key(self, event: Optional[tk.Event]) -&gt; bool:
+    if not event:
+        return False
+    widget = getattr(event, &#34;widget&#34;, None)
+    return widget in {
+        self.box.input_entry,
+        self.box.commit_entry,
+        self.box.candidate_text,
+    }</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_about"><code class="name flex">
+<span>def <span class="ident">show_about</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_about(self) -&gt; None:
+    self._emit_feedback(
+        &#34;关于&#34;,
+        &#34;音元拼音输入法当前使用轻量候选窗界面。这个菜单入口用于集中承载设置、帮助和后续扩展功能。&#34;,
+        dialog=True,
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_diagnostics"><code class="name flex">
+<span>def <span class="ident">show_diagnostics</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_diagnostics(self) -&gt; None:
+    self._emit_feedback(
+        &#34;诊断&#34;,
+        self._build_diagnostics_message(),
+        dialog=True,
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_help"><code class="name flex">
+<span>def <span class="ident">show_help</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_help(self) -&gt; None:
+    callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+    summary = callback() if callable(callback) else None
+    message = self._load_help_document_text()
+    if summary:
+        message = f&#34;{message}\n\n{summary}&#34;
+    self._emit_feedback(
+        &#34;帮助&#34;,
+        message,
+        dialog=True,
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_hotkey_info"><code class="name flex">
+<span>def <span class="ident">show_hotkey_info</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_hotkey_info(self) -&gt; None:
+    callback = getattr(self.box, &#34;hotkey_summary_callback&#34;, None)
+    callback_summary = callback() if callable(callback) else None
+    summary = callback_summary if isinstance(callback_summary, str) else &#34;&#34;
+    if not summary:
+        summary = &#34;当前未提供快捷键信息。&#34;
+    self._emit_feedback(&#34;快捷键&#34;, summary)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_input_context_menu"><code class="name flex">
+<span>def <span class="ident">show_input_context_menu</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_input_context_menu(self, event: Optional[tk.Event] = None) -&gt; str:
+    if not event:
+        return &#34;break&#34;
+
+    focus_set = getattr(self.box.input_entry, &#34;focus_set&#34;, None)
+    if callable(focus_set):
+        focus_set()
+
+    menu = self._get_input_context_menu()
+    menu.tk_popup(event.x_root, event.y_root)
+    menu.grab_release()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_toolbar_menu"><code class="name flex">
+<span>def <span class="ident">show_toolbar_menu</span></span>(<span>self, event: Optional[tk.Event] = None) ‑> str</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_toolbar_menu(self, event: Optional[tk.Event] = None) -&gt; str:
+    menu = self._get_toolbar_menu()
+    if event is not None:
+        x_root = event.x_root
+        y_root = event.y_root
+    else:
+        widget = getattr(self.box, &#34;toolbar_menu_button&#34;, None)
+        if widget is None:
+            return &#34;break&#34;
+        x_root = widget.winfo_rootx()
+        y_root = widget.winfo_rooty() + widget.winfo_height()
+
+    menu.tk_popup(x_root, y_root)
+    menu.grab_release()
+    return &#34;break&#34;</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_trial_feedback_help"><code class="name flex">
+<span>def <span class="ident">show_trial_feedback_help</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def show_trial_feedback_help(self) -&gt; None:
+    self._emit_feedback(
+        &#34;试用反馈说明&#34;,
+        self._build_trial_feedback_help_message(),
+        dialog=True,
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_active_topmost"><code class="name flex">
+<span>def <span class="ident">toggle_active_topmost</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def toggle_active_topmost(self) -&gt; None:
+    enabled = bool(self.box.active_topmost_var.get())
+    callback = getattr(self.box, &#34;active_topmost_change_callback&#34;, None)
+    if callable(callback) and callback(enabled):
+        enabled = bool(self.box.active_topmost_var.get())
+    else:
+        self.box.set_active_topmost_enabled(enabled)
+    self._set_local_status(
+        &#34;候选窗将保持在最前。&#34; if enabled else &#34;候选窗已取消置顶，可让其他窗口盖住它。&#34;
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_hover_tip_enabled"><code class="name flex">
+<span>def <span class="ident">toggle_hover_tip_enabled</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def toggle_hover_tip_enabled(self) -&gt; None:
+    enabled = bool(self.box.hover_tip_var.get())
+    callback = getattr(self.box, &#34;hover_tip_enabled_change_callback&#34;, None)
+    if callable(callback) and callback(enabled):
+        enabled = bool(self.box.hover_tip_var.get())
+    else:
+        setter = getattr(self.box, &#34;set_hover_tip_enabled&#34;, None)
+        if callable(setter):
+            setter(enabled)
+    self._set_local_status(&#34;悬浮提示已启用。&#34; if enabled else &#34;悬浮提示已隐藏。&#34;)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.ui" href="index.html">yime.input_method.ui</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions">CandidateBoxActions</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.activate_for_manual_input" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.activate_for_manual_input">activate_for_manual_input</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.add_current_input_to_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.add_current_input_to_user_lexicon">add_current_input_to_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.bind_keys" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.bind_keys">bind_keys</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.commit_output_text" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.commit_output_text">commit_output_text</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_candidate" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_candidate">copy_candidate</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_diagnostics" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_diagnostics">copy_diagnostics</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_trial_feedback_template" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.copy_trial_feedback_template">copy_trial_feedback_template</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.delete_current_input_from_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.delete_current_input_from_user_lexicon">delete_current_input_from_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_hotkey" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_hotkey">edit_hotkey</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.edit_user_lexicon">edit_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.export_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.export_user_lexicon">export_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.import_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.import_user_lexicon">import_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_click" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_click">on_candidate_click</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_shortcut" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_candidate_shortcut">on_candidate_shortcut</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_commit_backspace" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_commit_backspace">on_commit_backspace</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_confirm_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_confirm_key">on_confirm_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_digit_shortcut" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_digit_shortcut">on_digit_shortcut</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_first_page_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_first_page_key">on_first_page_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_input_change" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_input_change">on_input_change</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_last_page_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_last_page_key">on_last_page_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_next" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_next">on_move_selection_next</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_previous" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_move_selection_previous">on_move_selection_previous</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_next_page_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_next_page_key">on_next_page_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_page_size_change" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_page_size_change">on_page_size_change</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_paste" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_paste">on_paste</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_previous_page_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_previous_page_key">on_previous_page_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_symbol_shortcut_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_symbol_shortcut_key">on_symbol_shortcut_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_window_focus_in" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.on_window_focus_in">on_window_focus_in</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_runtime_data_dir" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_runtime_data_dir">open_runtime_data_dir</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_settings_file" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_settings_file">open_settings_file</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_troubleshooting_doc" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_troubleshooting_doc">open_troubleshooting_doc</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_user_data_dir" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.open_user_data_dir">open_user_data_dir</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.recheck_diagnostics" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.recheck_diagnostics">recheck_diagnostics</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.reload_user_lexicon" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.reload_user_lexicon">reload_user_lexicon</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_close" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_close">request_close</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_standby" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.request_standby">request_standby</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.restore_from_standby" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.restore_from_standby">restore_from_standby</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_all_input_text" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_all_input_text">select_all_input_text</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_candidate_by_index" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.select_candidate_by_index">select_candidate_by_index</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_active_alpha" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_active_alpha">set_active_alpha</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_background_color" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_background_color">set_background_color</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_layout" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_layout">set_candidate_layout</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_page_size" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_candidate_page_size">set_candidate_page_size</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_code_mode" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_code_mode">set_code_mode</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_foreground_color" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_foreground_color">set_foreground_color</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_reverse_lookup_display_mode" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_reverse_lookup_display_mode">set_reverse_lookup_display_mode</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_standby_trigger_mode" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_standby_trigger_mode">set_standby_trigger_mode</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_ui_scale" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_ui_scale">set_ui_scale</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_wake_trigger_mode" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.set_wake_trigger_mode">set_wake_trigger_mode</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.should_allow_native_edit_key" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.should_allow_native_edit_key">should_allow_native_edit_key</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_about" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_about">show_about</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_diagnostics" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_diagnostics">show_diagnostics</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_help" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_help">show_help</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_hotkey_info" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_hotkey_info">show_hotkey_info</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_input_context_menu" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_input_context_menu">show_input_context_menu</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_toolbar_menu" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_toolbar_menu">show_toolbar_menu</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_trial_feedback_help" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.show_trial_feedback_help">show_trial_feedback_help</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_active_topmost" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_active_topmost">toggle_active_topmost</a></code></li>
+<li><code><a title="yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_hover_tip_enabled" href="#yime.input_method.ui.candidate_box_actions.CandidateBoxActions.toggle_hover_tip_enabled">toggle_hover_tip_enabled</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>yime.input_method.core.layered_candidate_pipeline API documentation</title>
+<meta name="description" content="">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>yime.input_method.core.layered_candidate_pipeline</code></h1>
+</header>
+<section id="section-intro">
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer"><code class="flex name class">
+<span>class <span class="ident">CandidateLayer</span></span>
+<span>(</span><span>*args, **kwds)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CandidateLayer(str, Enum):
+    FOUNDATION_DECODE = &#34;foundation_decode&#34;
+    STATIC_LEXICON = &#34;static_lexicon&#34;
+    DYNAMIC_COMPOSITION = &#34;dynamic_composition&#34;
+    USER_LEARNING = &#34;user_learning&#34;
+    SEMANTIC_RANKING = &#34;semantic_ranking&#34;</code></pre>
+</details>
+<div class="desc"><p>str(object='') -&gt; str
+str(bytes_or_buffer[, encoding[, errors]]) -&gt; str</p>
+<p>Create a new string object from the given object. If encoding or
+errors is specified, then the object must expose a data buffer
+that will be decoded using the given encoding and error handler.
+Otherwise, returns the result of object.<strong>str</strong>() (if defined)
+or repr(object).
+encoding defaults to sys.getdefaultencoding().
+errors defaults to 'strict'.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.DYNAMIC_COMPOSITION"><code class="name">var <span class="ident">DYNAMIC_COMPOSITION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.FOUNDATION_DECODE"><code class="name">var <span class="ident">FOUNDATION_DECODE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.SEMANTIC_RANKING"><code class="name">var <span class="ident">SEMANTIC_RANKING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.STATIC_LEXICON"><code class="name">var <span class="ident">STATIC_LEXICON</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.USER_LEARNING"><code class="name">var <span class="ident">USER_LEARNING</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider"><code class="flex name class">
+<span>class <span class="ident">DynamicCandidateProvider</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DynamicCandidateProvider(Protocol):
+    def __call__(
+        self,
+        request: DynamicCandidateRequest,
+    ) -&gt; Sequence[dict[str, object]]: ...</code></pre>
+</details>
+<div class="desc"><p>Base class for protocol classes.</p>
+<p>Protocol classes are defined as::</p>
+<pre><code>class Proto(Protocol):
+    def meth(self) -&gt; int:
+        ...
+</code></pre>
+<p>Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing).</p>
+<p>For example::</p>
+<pre><code>class C:
+    def meth(self) -&gt; int:
+        return 0
+
+def func(x: Proto) -&gt; int:
+    return x.meth()
+
+func(C())  # Passes static type check
+</code></pre>
+<p>See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::</p>
+<pre><code>class GenProto[T](Protocol):
+    def meth(self) -&gt; T:
+        ...
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest"><code class="flex name class">
+<span>class <span class="ident">DynamicCandidateRequest</span></span>
+<span>(</span><span>canonical_input: str, lookup_code: str, stage: str, syllable_count: int)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class DynamicCandidateRequest:
+    canonical_input: str
+    lookup_code: str
+    stage: str
+    syllable_count: int</code></pre>
+</details>
+<div class="desc"><p>DynamicCandidateRequest(canonical_input: 'str', lookup_code: 'str', stage: 'str', syllable_count: 'int')</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.canonical_input"><code class="name">var <span class="ident">canonical_input</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.lookup_code"><code class="name">var <span class="ident">lookup_code</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.stage"><code class="name">var <span class="ident">stage</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.syllable_count"><code class="name">var <span class="ident">syllable_count</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline"><code class="flex name class">
+<span>class <span class="ident">LayeredCandidatePipeline</span></span>
+<span>(</span><span>*,<br>semantic_ranker: <a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker">SemanticCandidateRanker</a> | None = None,<br>dynamic_providers: Iterable[<a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider">DynamicCandidateProvider</a>] = (),<br>dynamic_candidate_limit: int = 64,<br>dynamic_per_leading_char_limit: int = 8)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LayeredCandidatePipeline:
+    &#34;&#34;&#34;Orchestrate deterministic decode, composition, learning and reranking.&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        *,
+        semantic_ranker: SemanticCandidateRanker | None = None,
+        dynamic_providers: Iterable[DynamicCandidateProvider] = (),
+        dynamic_candidate_limit: int = 64,
+        dynamic_per_leading_char_limit: int = 8,
+    ) -&gt; None:
+        self.semantic_ranker = semantic_ranker
+        self.dynamic_providers = list(dynamic_providers)
+        self.dynamic_candidate_limit = max(int(dynamic_candidate_limit), 1)
+        self.dynamic_per_leading_char_limit = max(
+            int(dynamic_per_leading_char_limit),
+            1,
+        )
+        self.context = SemanticRankingContext()
+
+    def set_context(
+        self,
+        *,
+        left_text: str = &#34;&#34;,
+        right_text: str = &#34;&#34;,
+        application: str = &#34;&#34;,
+    ) -&gt; None:
+        self.context = SemanticRankingContext(
+            left_text=left_text,
+            right_text=right_text,
+            application=application,
+        )
+
+    def register_dynamic_provider(
+        self,
+        provider: DynamicCandidateProvider,
+    ) -&gt; None:
+        self.dynamic_providers.append(provider)
+
+    def collect_dynamic_candidates(
+        self,
+        request: DynamicCandidateRequest,
+    ) -&gt; list[dict[str, object]]:
+        collected: list[dict[str, object]] = []
+        for provider in self.dynamic_providers:
+            for candidate in provider(request):
+                annotated = dict(candidate)
+                annotated[&#34;_candidate_source&#34;] = &#34;dynamic-composition&#34;
+                collected.append(annotated)
+        return self._prune_dynamic_candidates(request, collected)
+
+    def _prune_dynamic_candidates(
+        self,
+        request: DynamicCandidateRequest,
+        candidates: Sequence[dict[str, object]],
+    ) -&gt; list[dict[str, object]]:
+        best_by_text: dict[str, dict[str, object]] = {}
+        for candidate in candidates:
+            text = str(candidate.get(&#34;text&#34;, &#34;&#34;) or &#34;&#34;).strip()
+            pinyin = str(candidate.get(&#34;pinyin_tone&#34;, &#34;&#34;) or &#34;&#34;).strip()
+            if (
+                len(text) != request.syllable_count
+                or not 2 &lt;= len(text) &lt;= 12
+                or (
+                    pinyin
+                    and len([part for part in pinyin.split(&#34; &#34;) if part])
+                    != request.syllable_count
+                )
+            ):
+                continue
+            existing = best_by_text.get(text)
+            if existing is None or self._dynamic_sort_key(
+                candidate
+            ) &lt; self._dynamic_sort_key(existing):
+                best_by_text[text] = candidate
+
+        ranked = sorted(best_by_text.values(), key=self._dynamic_sort_key)
+        result: list[dict[str, object]] = []
+        count_by_leading_char: dict[str, int] = {}
+        for candidate in ranked:
+            text = str(candidate.get(&#34;text&#34;, &#34;&#34;) or &#34;&#34;)
+            leading_char = text[:1]
+            if (
+                count_by_leading_char.get(leading_char, 0)
+                &gt;= self.dynamic_per_leading_char_limit
+            ):
+                continue
+            count_by_leading_char[leading_char] = (
+                count_by_leading_char.get(leading_char, 0) + 1
+            )
+            result.append(candidate)
+            if len(result) &gt;= self.dynamic_candidate_limit:
+                break
+        return result
+
+    @staticmethod
+    def _dynamic_sort_key(
+        candidate: Mapping[str, object],
+    ) -&gt; tuple[int, int, float, float, str, str]:
+        try:
+            composition_score = float(
+                candidate.get(&#34;_composition_score&#34;, 0.0) or 0.0
+            )
+        except (TypeError, ValueError):
+            composition_score = 0.0
+        try:
+            sort_weight = float(candidate.get(&#34;sort_weight&#34;, 0.0) or 0.0)
+        except (TypeError, ValueError):
+            sort_weight = 0.0
+        try:
+            atom_count = int(
+                candidate.get(
+                    &#34;_precomposition_atom_count&#34;,
+                    0,
+                )
+                or 0
+            )
+        except (TypeError, ValueError):
+            atom_count = 0
+        return (
+            0 if bool(candidate.get(&#34;is_common&#34;, False)) else 1,
+            -atom_count,
+            -composition_score,
+            -sort_weight,
+            str(candidate.get(&#34;text&#34;, &#34;&#34;) or &#34;&#34;),
+            str(candidate.get(&#34;pinyin_tone&#34;, &#34;&#34;) or &#34;&#34;),
+        )
+
+    def rank(
+        self,
+        candidates: list[RuntimeCandidateRecord],
+        user_freq_by_candidate: Mapping[tuple[str, str], int],
+    ) -&gt; list[RuntimeCandidateRecord]:
+        base_ranked = rank_runtime_candidates(
+            candidates,
+            user_freq_by_candidate,
+        )
+        if self.semantic_ranker is None or not base_ranked:
+            return base_ranked
+
+        lookup_code = base_ranked[0].lookup_code
+        scores = self.semantic_ranker.score(
+            lookup_code=lookup_code,
+            candidates=base_ranked,
+            context=self.context,
+        )
+        if not scores:
+            return base_ranked
+
+        annotated = [
+            replace(
+                candidate,
+                semantic_score=scores.get(
+                    candidate.text,
+                    SemanticCandidateScore(candidate.text, 0.0, &#34;&#34;),
+                ).score,
+                semantic_reason=scores.get(
+                    candidate.text,
+                    SemanticCandidateScore(candidate.text, 0.0, &#34;&#34;),
+                ).reason,
+            )
+            for candidate in base_ranked
+        ]
+        base_index = {
+            candidate.text: index
+            for index, candidate in enumerate(base_ranked)
+        }
+        annotated.sort(
+            key=lambda candidate: (
+                -candidate.semantic_score,
+                base_index[candidate.text],
+            )
+        )
+        return annotated</code></pre>
+</details>
+<div class="desc"><p>Orchestrate deterministic decode, composition, learning and reranking.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.collect_dynamic_candidates"><code class="name flex">
+<span>def <span class="ident">collect_dynamic_candidates</span></span>(<span>self,<br>request: <a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest">DynamicCandidateRequest</a>) ‑> list[dict[str, object]]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def collect_dynamic_candidates(
+    self,
+    request: DynamicCandidateRequest,
+) -&gt; list[dict[str, object]]:
+    collected: list[dict[str, object]] = []
+    for provider in self.dynamic_providers:
+        for candidate in provider(request):
+            annotated = dict(candidate)
+            annotated[&#34;_candidate_source&#34;] = &#34;dynamic-composition&#34;
+            collected.append(annotated)
+    return self._prune_dynamic_candidates(request, collected)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.rank"><code class="name flex">
+<span>def <span class="ident">rank</span></span>(<span>self,<br>candidates: list[RuntimeCandidateRecord],<br>user_freq_by_candidate: Mapping[tuple[str, str], int]) ‑> list[<a title="yime.input_method.core.runtime_ranking.RuntimeCandidateRecord" href="runtime_ranking.html#yime.input_method.core.runtime_ranking.RuntimeCandidateRecord">RuntimeCandidateRecord</a>]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rank(
+    self,
+    candidates: list[RuntimeCandidateRecord],
+    user_freq_by_candidate: Mapping[tuple[str, str], int],
+) -&gt; list[RuntimeCandidateRecord]:
+    base_ranked = rank_runtime_candidates(
+        candidates,
+        user_freq_by_candidate,
+    )
+    if self.semantic_ranker is None or not base_ranked:
+        return base_ranked
+
+    lookup_code = base_ranked[0].lookup_code
+    scores = self.semantic_ranker.score(
+        lookup_code=lookup_code,
+        candidates=base_ranked,
+        context=self.context,
+    )
+    if not scores:
+        return base_ranked
+
+    annotated = [
+        replace(
+            candidate,
+            semantic_score=scores.get(
+                candidate.text,
+                SemanticCandidateScore(candidate.text, 0.0, &#34;&#34;),
+            ).score,
+            semantic_reason=scores.get(
+                candidate.text,
+                SemanticCandidateScore(candidate.text, 0.0, &#34;&#34;),
+            ).reason,
+        )
+        for candidate in base_ranked
+    ]
+    base_index = {
+        candidate.text: index
+        for index, candidate in enumerate(base_ranked)
+    }
+    annotated.sort(
+        key=lambda candidate: (
+            -candidate.semantic_score,
+            base_index[candidate.text],
+        )
+    )
+    return annotated</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.register_dynamic_provider"><code class="name flex">
+<span>def <span class="ident">register_dynamic_provider</span></span>(<span>self,<br>provider: <a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider">DynamicCandidateProvider</a>) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def register_dynamic_provider(
+    self,
+    provider: DynamicCandidateProvider,
+) -&gt; None:
+    self.dynamic_providers.append(provider)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.set_context"><code class="name flex">
+<span>def <span class="ident">set_context</span></span>(<span>self, *, left_text: str = '', right_text: str = '', application: str = '') ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_context(
+    self,
+    *,
+    left_text: str = &#34;&#34;,
+    right_text: str = &#34;&#34;,
+    application: str = &#34;&#34;,
+) -&gt; None:
+    self.context = SemanticRankingContext(
+        left_text=left_text,
+        right_text=right_text,
+        application=application,
+    )</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator"><code class="flex name class">
+<span>class <span class="ident">LocalSemanticRankingSimulator</span></span>
+<span>(</span><span>transition_frequency: Mapping[tuple[str, str, str], int] | None = None,<br>*,<br>transition_log_weight: float = 100.0)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LocalSemanticRankingSimulator:
+    &#34;&#34;&#34;Local stand-in for a future remote semantic-ranking service.
+
+    The simulator deliberately learns only observed candidate transitions.  It
+    does not infer word boundaries, invent readings, or claim semantic truth.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        transition_frequency: Mapping[tuple[str, str, str], int] | None = None,
+        *,
+        transition_log_weight: float = 100.0,
+    ) -&gt; None:
+        self.transition_log_weight = float(transition_log_weight)
+        self._transition_frequency = dict(transition_frequency or {})
+
+    def replace_transition_frequency(
+        self,
+        transition_frequency: Mapping[tuple[str, str, str], int],
+    ) -&gt; None:
+        self._transition_frequency = dict(transition_frequency)
+
+    def remember(
+        self,
+        previous_text: str,
+        lookup_code: str,
+        candidate_text: str,
+        frequency: int,
+    ) -&gt; None:
+        key = (
+            previous_text.strip(),
+            lookup_code.strip(),
+            candidate_text.strip(),
+        )
+        if all(key) and frequency &gt; 0:
+            self._transition_frequency[key] = int(frequency)
+
+    def score(
+        self,
+        *,
+        lookup_code: str,
+        candidates: Sequence[RuntimeCandidateRecord],
+        context: SemanticRankingContext,
+    ) -&gt; Mapping[str, SemanticCandidateScore]:
+        previous_text = context.previous_candidate
+        normalized_lookup = lookup_code.strip()
+        if not previous_text or not normalized_lookup:
+            return {}
+
+        scores: dict[str, SemanticCandidateScore] = {}
+        for candidate in candidates:
+            frequency = self._transition_frequency.get(
+                (previous_text, normalized_lookup, candidate.text),
+                0,
+            )
+            if frequency &lt;= 0:
+                continue
+            scores[candidate.text] = SemanticCandidateScore(
+                text=candidate.text,
+                score=math.log1p(frequency) * self.transition_log_weight,
+                reason=f&#34;local-transition:{previous_text}&#34;,
+            )
+        return scores</code></pre>
+</details>
+<div class="desc"><p>Local stand-in for a future remote semantic-ranking service.</p>
+<p>The simulator deliberately learns only observed candidate transitions.
+It
+does not infer word boundaries, invent readings, or claim semantic truth.</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.remember"><code class="name flex">
+<span>def <span class="ident">remember</span></span>(<span>self, previous_text: str, lookup_code: str, candidate_text: str, frequency: int) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remember(
+    self,
+    previous_text: str,
+    lookup_code: str,
+    candidate_text: str,
+    frequency: int,
+) -&gt; None:
+    key = (
+        previous_text.strip(),
+        lookup_code.strip(),
+        candidate_text.strip(),
+    )
+    if all(key) and frequency &gt; 0:
+        self._transition_frequency[key] = int(frequency)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.replace_transition_frequency"><code class="name flex">
+<span>def <span class="ident">replace_transition_frequency</span></span>(<span>self, transition_frequency: Mapping[tuple[str, str, str], int]) ‑> None</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def replace_transition_frequency(
+    self,
+    transition_frequency: Mapping[tuple[str, str, str], int],
+) -&gt; None:
+    self._transition_frequency = dict(transition_frequency)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.score"><code class="name flex">
+<span>def <span class="ident">score</span></span>(<span>self,<br>*,<br>lookup_code: str,<br>candidates: Sequence[RuntimeCandidateRecord],<br>context: <a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext">SemanticRankingContext</a>) ‑> Mapping[str, <a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore">SemanticCandidateScore</a>]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score(
+    self,
+    *,
+    lookup_code: str,
+    candidates: Sequence[RuntimeCandidateRecord],
+    context: SemanticRankingContext,
+) -&gt; Mapping[str, SemanticCandidateScore]:
+    previous_text = context.previous_candidate
+    normalized_lookup = lookup_code.strip()
+    if not previous_text or not normalized_lookup:
+        return {}
+
+    scores: dict[str, SemanticCandidateScore] = {}
+    for candidate in candidates:
+        frequency = self._transition_frequency.get(
+            (previous_text, normalized_lookup, candidate.text),
+            0,
+        )
+        if frequency &lt;= 0:
+            continue
+        scores[candidate.text] = SemanticCandidateScore(
+            text=candidate.text,
+            score=math.log1p(frequency) * self.transition_log_weight,
+            reason=f&#34;local-transition:{previous_text}&#34;,
+        )
+    return scores</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker"><code class="flex name class">
+<span>class <span class="ident">SemanticCandidateRanker</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SemanticCandidateRanker(Protocol):
+    def score(
+        self,
+        *,
+        lookup_code: str,
+        candidates: Sequence[RuntimeCandidateRecord],
+        context: SemanticRankingContext,
+    ) -&gt; Mapping[str, SemanticCandidateScore]: ...</code></pre>
+</details>
+<div class="desc"><p>Base class for protocol classes.</p>
+<p>Protocol classes are defined as::</p>
+<pre><code>class Proto(Protocol):
+    def meth(self) -&gt; int:
+        ...
+</code></pre>
+<p>Such classes are primarily used with static type checkers that recognize
+structural subtyping (static duck-typing).</p>
+<p>For example::</p>
+<pre><code>class C:
+    def meth(self) -&gt; int:
+        return 0
+
+def func(x: Proto) -&gt; int:
+    return x.meth()
+
+func(C())  # Passes static type check
+</code></pre>
+<p>See PEP 544 for details. Protocol classes decorated with
+@typing.runtime_checkable act as simple-minded runtime protocols that check
+only the presence of given attributes, ignoring their type signatures.
+Protocol classes can be generic, they are defined as::</p>
+<pre><code>class GenProto[T](Protocol):
+    def meth(self) -&gt; T:
+        ...
+</code></pre></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>typing.Protocol</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker.score"><code class="name flex">
+<span>def <span class="ident">score</span></span>(<span>self,<br>*,<br>lookup_code: str,<br>candidates: Sequence[RuntimeCandidateRecord],<br>context: <a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext">SemanticRankingContext</a>) ‑> Mapping[str, <a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore">SemanticCandidateScore</a>]</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score(
+    self,
+    *,
+    lookup_code: str,
+    candidates: Sequence[RuntimeCandidateRecord],
+    context: SemanticRankingContext,
+) -&gt; Mapping[str, SemanticCandidateScore]: ...</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore"><code class="flex name class">
+<span>class <span class="ident">SemanticCandidateScore</span></span>
+<span>(</span><span>text: str, score: float, reason: str)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class SemanticCandidateScore:
+    text: str
+    score: float
+    reason: str</code></pre>
+</details>
+<div class="desc"><p>SemanticCandidateScore(text: 'str', score: 'float', reason: 'str')</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.reason"><code class="name">var <span class="ident">reason</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.score"><code class="name">var <span class="ident">score</span> : float</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.text"><code class="name">var <span class="ident">text</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext"><code class="flex name class">
+<span>class <span class="ident">SemanticRankingContext</span></span>
+<span>(</span><span>left_text: str = '', right_text: str = '', application: str = '')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@dataclass(frozen=True)
+class SemanticRankingContext:
+    left_text: str = &#34;&#34;
+    right_text: str = &#34;&#34;
+    application: str = &#34;&#34;
+
+    @property
+    def previous_candidate(self) -&gt; str:
+        return self.left_text.strip()</code></pre>
+</details>
+<div class="desc"><p>SemanticRankingContext(left_text: 'str' = '', right_text: 'str' = '', application: 'str' = '')</p></div>
+<h3>Instance variables</h3>
+<dl>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.application"><code class="name">var <span class="ident">application</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.left_text"><code class="name">var <span class="ident">left_text</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.previous_candidate"><code class="name">prop <span class="ident">previous_candidate</span> : str</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def previous_candidate(self) -&gt; str:
+    return self.left_text.strip()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.right_text"><code class="name">var <span class="ident">right_text</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="yime.input_method.core" href="index.html">yime.input_method.core</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer">CandidateLayer</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.DYNAMIC_COMPOSITION" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer.DYNAMIC_COMPOSITION">DYNAMIC_COMPOSITION</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.FOUNDATION_DECODE" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer.FOUNDATION_DECODE">FOUNDATION_DECODE</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.SEMANTIC_RANKING" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer.SEMANTIC_RANKING">SEMANTIC_RANKING</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.STATIC_LEXICON" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer.STATIC_LEXICON">STATIC_LEXICON</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.CandidateLayer.USER_LEARNING" href="#yime.input_method.core.layered_candidate_pipeline.CandidateLayer.USER_LEARNING">USER_LEARNING</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateProvider">DynamicCandidateProvider</a></code></h4>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest">DynamicCandidateRequest</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.canonical_input" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.canonical_input">canonical_input</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.lookup_code" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.lookup_code">lookup_code</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.stage" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.stage">stage</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.syllable_count" href="#yime.input_method.core.layered_candidate_pipeline.DynamicCandidateRequest.syllable_count">syllable_count</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline" href="#yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline">LayeredCandidatePipeline</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.collect_dynamic_candidates" href="#yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.collect_dynamic_candidates">collect_dynamic_candidates</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.rank" href="#yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.rank">rank</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.register_dynamic_provider" href="#yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.register_dynamic_provider">register_dynamic_provider</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.set_context" href="#yime.input_method.core.layered_candidate_pipeline.LayeredCandidatePipeline.set_context">set_context</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator" href="#yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator">LocalSemanticRankingSimulator</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.remember" href="#yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.remember">remember</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.replace_transition_frequency" href="#yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.replace_transition_frequency">replace_transition_frequency</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.score" href="#yime.input_method.core.layered_candidate_pipeline.LocalSemanticRankingSimulator.score">score</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker">SemanticCandidateRanker</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker.score" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateRanker.score">score</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore">SemanticCandidateScore</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.reason" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.reason">reason</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.score" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.score">score</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.text" href="#yime.input_method.core.layered_candidate_pipeline.SemanticCandidateScore.text">text</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext">SemanticRankingContext</a></code></h4>
+<ul class="">
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.application" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.application">application</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.left_text" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.left_text">left_text</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.previous_candidate" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.previous_candidate">previous_candidate</a></code></li>
+<li><code><a title="yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.right_text" href="#yime.input_method.core.layered_candidate_pipeline.SemanticRankingContext.right_text">right_text</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
