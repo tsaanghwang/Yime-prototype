@@ -18,7 +18,7 @@
 | 英文读者 | 本文「Quick reference」→ [YINYUAN_TERMINOLOGY_EN.md](YINYUAN_TERMINOLOGY_EN.md) |
 | 改编码链 / `syllable/` | 本文 → [syllable/README.md](../syllable/README.md) → [CODEPOINT_POLICY.md](CODEPOINT_POLICY.md) |
 | 片音与 ASR/TTS 衔接 | [PIANYIN_TECH_BRIDGE.md](PIANYIN_TECH_BRIDGE.md) / [PIANYIN_TECH_BRIDGE_EN.md](PIANYIN_TECH_BRIDGE_EN.md) |
-| 完整理论/wiki | [THEORY_INDEX.md](THEORY_INDEX.md) → `Yime.wiki/` 子模块 |
+| 完整理论/wiki | [THEORY_INDEX.md](THEORY_INDEX.md) → [`Yime-wiki/main`](https://github.com/tsaanghwang/Yime-wiki/tree/main) |
 
 ---
 
@@ -232,7 +232,8 @@ Do **not** rename project concepts to generic English (`MusicalSegment`, `RimeTo
 5. **[syllable/NAMING.md](../syllable/NAMING.md)** — **代码与文件名** 的唯一类名/模块约定（给 AI 与维护者）
 6. **[syllable/README.md](../syllable/README.md)** — 编解码包目录与 CLI
 
-理论正文与析音法细节以 **`Yime.wiki` 子模块** 为权威；见 [THEORY_INDEX.md](THEORY_INDEX.md)。
+理论正文与析音法细节以 [`Yime-wiki/main`](https://github.com/tsaanghwang/Yime-wiki/tree/main)
+为唯一维护源；见 [THEORY_INDEX.md](THEORY_INDEX.md)。
 
 ---
 
