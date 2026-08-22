@@ -631,6 +631,16 @@ git show <commit> --stat
     同目录下的 `README.md`、构建脚本与
     `mandarin_readings_corrections.txt` **纳入 git**。
 
+#### 8A. PSC 审音证据包（2026-08）
+
+- `external_data/psc_outline/`
+  - 分类：本仓库内的 PSC 历史来源核对、审音审计和恢复研究证据包。
+  - `psc_outline_ocr.sqlite3` 是 PSC 审计工具的默认只读输入；数据库中的来源文档和 OCR 页图路径使用
+    相对路径，不再依赖同级工作区。
+  - PDF/DOC、`pages/` 和 SQLite 快照体量较大，保持本地并由 `.gitignore` 排除；恢复脚本、测试、
+    launcher、说明和迁移前 Merkle 快照可以版本化。
+  - 该目录不构成 Yime 产品词库、构建或发布输入，也不得恢复向 `C:\dev\Yime` 的自动交接。
+
 - `internal_data/hanzi_pinyin/pinyin.txt`
   - 分类：**rebuild 上游真源**（版本化 curated 单字 TSV）。
   - 原因：`build_source_pinyin_db.py` 默认输入；由

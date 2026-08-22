@@ -76,6 +76,14 @@ external_data/char_freq/*.txt
 external_data/unihan_readings/unihan_readings.db
 external_data/unihan_readings/Unihan_Readings.txt
 external_data/Unihan_Readings.txt
+# Local PSC evidence bundle: keep recovery code and documentation trackable,
+# while large source documents, OCR pages, and SQLite snapshots remain local.
+external_data/psc_outline/*.pdf
+external_data/psc_outline/*.doc
+external_data/psc_outline/*.docx
+external_data/psc_outline/*.xlsx
+external_data/psc_outline/pages/
+external_data/psc_outline/*.sqlite3*
 yime/reports/efficiency_baseline.json
 yime/reports/phrase_code_backfill.json
 yime/reports/phoneme_dict.json

@@ -20,7 +20,7 @@ def default_psc_database() -> Path:
     configured = os.environ.get("PSC_OUTLINE_DB")
     if configured:
         return Path(configured)
-    return Path(r"C:\dev\PSC-Outline\psc_outline_ocr.sqlite3")
+    return ROOT / "external_data" / "psc_outline" / "psc_outline_ocr.sqlite3"
 
 
 def main() -> int:
@@ -40,7 +40,7 @@ def main() -> int:
         "--psc-db",
         type=Path,
         default=default_psc_database(),
-        help="外部 PSC 对照数据库；可用 PSC_OUTLINE_DB 覆盖默认路径。",
+        help="仓库内 PSC 对照数据库；可用 PSC_OUTLINE_DB 覆盖默认路径。",
     )
     parser.add_argument(
         "--output-dir",

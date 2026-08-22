@@ -123,7 +123,7 @@ flowchart TD
 .\venv312\Scripts\python.exe tools\audit_psc_pronunciation_source.py
 ```
 
-默认 PSC 数据库为 `C:\dev\PSC-Outline\psc_outline_ocr.sqlite3`。生成目录还包含差异索引、输入指纹、
+默认 PSC 数据库为 `external_data\psc_outline\psc_outline_ocr.sqlite3`。生成目录还包含差异索引、输入指纹、
 完整性计数和旧读音审计报告。它们在第一阶段只用于把较可能存在转录异常的记录排到前面，不构成读音
 裁决。
 
