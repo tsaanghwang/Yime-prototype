@@ -24,7 +24,7 @@ psc_orthoepy_2016_draft 来源。对已有词形，它们保持非主读；对�
 
 默认只读：
 
-- C:\dev\PSC-Outline\psc_outline_ocr.sqlite3；
+- `external_data\psc_outline\psc_outline_ocr.sqlite3`；
 - .generated\lexicon_source_bundle\source_lexicon.sqlite3。
 
 审计产物写入 .generated\orthoepy_coverage。输入数据库的哈希也会写入审计库，

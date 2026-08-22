@@ -21,7 +21,9 @@ from yime.lexicon_bundle.orthoepy_coverage import (  # noqa: E402
 
 
 DEFAULT_OUTPUT = ROOT / ".generated" / "orthoepy_coverage"
-DEFAULT_PSC_DB = Path(r"C:\dev\PSC-Outline\psc_outline_ocr.sqlite3")
+DEFAULT_PSC_DB = (
+    ROOT / "external_data" / "psc_outline" / "psc_outline_ocr.sqlite3"
+)
 DEFAULT_SOURCE_DB = (
     ROOT / ".generated" / "lexicon_source_bundle" / "source_lexicon.sqlite3"
 )
